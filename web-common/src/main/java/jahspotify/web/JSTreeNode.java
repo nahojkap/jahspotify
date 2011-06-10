@@ -8,20 +8,9 @@ import java.util.*;
 public class JSTreeNode
 {
     private String data;
-    private String type;
     private Map<String, String> attr;
     private String state;
     private List<JSTreeNode> children = new ArrayList<JSTreeNode>();
-
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(final String type)
-    {
-        this.type = type;
-    }
 
     public Map<String,String> getAttr()
     {

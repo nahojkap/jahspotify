@@ -44,26 +44,6 @@ public class PlaylistController
         }
     }
 
-    @RequestMapping(value = "/playlist-tree/", method = RequestMethod.GET)
-    public void testPlaylist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        try
-        {
-            String result = "[{ \"data\" : \"A node\", \"children\" : [ { \"data\" : \"Only child\", \"state\" : \"closed\" } ], \"state\" : \"open\" },\"Ajax node\"]";
-            httpServletResponse.setContentType("application/json");
-            final PrintWriter writer = httpServletResponse.getWriter();
-            writer.write(result);
-            writer.flush();
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-
-    }
-
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
     public void retrieveLibrary(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
@@ -116,7 +96,6 @@ public class PlaylistController
                 map.put("id",track.getId());
                 map.put("rel", "track");
                 trackJSTreeNode.setAttr(map);
-                trackJSTreeNode.setType("track");
                 jsTreeNode.addChild(trackJSTreeNode);
             }
         }
