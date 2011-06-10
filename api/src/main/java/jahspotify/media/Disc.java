@@ -7,7 +7,6 @@ import java.util.List;
  * Holds information about a disc of an album.
  *
  * @author Felix Bruns <felixbruns@web.de>
- * @category Media
  */
 public class Disc
 {

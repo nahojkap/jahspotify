@@ -8,9 +8,9 @@ import java.util.List;
 public class CurrentQueue
 {
     private String _currentlyPlaying;
-    private List<String> _queuedTracks;
+    private List<QueuedTrack> _queuedTracks;
 
-    public CurrentQueue(final String currentlyPlaying, final List<String> queuedTracks)
+    public CurrentQueue(final String currentlyPlaying, final List<QueuedTrack> queuedTracks)
     {
         _currentlyPlaying = currentlyPlaying;
         _queuedTracks = queuedTracks;
@@ -26,12 +26,12 @@ public class CurrentQueue
         _currentlyPlaying = currentlyPlaying;
     }
 
-    public List<String> getQueuedTracks()
+    public List<QueuedTrack> getQueuedTracks()
     {
         return _queuedTracks;
     }
 
-    public void setQueuedTracks(final List<String> queuedTracks)
+    public void setQueuedTracks(final List<QueuedTrack> queuedTracks)
     {
         _queuedTracks = queuedTracks;
     }

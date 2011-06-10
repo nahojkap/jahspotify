@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
-public class TrackController
+public class TrackController extends BaseController
 {
     private Log _log = LogFactory.getLog(PlaylistController.class);
 
@@ -23,24 +23,13 @@ public class TrackController
     JahSpotifyService _jahSpotifyService;
 
     @RequestMapping(value = "/track/*", method = RequestMethod.GET)
-    public void testTrack(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    public void retrieveTrack(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
         _log.debug("Extracted URI: " + uri);
         Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
         _log.debug("Got track: " + track);
-        Gson gson = new Gson();
-        try
-        {
-            final PrintWriter writer = httpServletResponse.getWriter();
-            writer.write(gson.toJson(track));
-            writer.flush();
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        writeResponseGeneric(httpServletResponse, track);
     }
 
 }

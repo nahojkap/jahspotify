@@ -106,6 +106,7 @@ public class JahSpotifyImpl implements JahSpotify
                 _synching = true;
                 _rootNode.clear();
                 _nodeStack.clear();
+                _library = null;
                 _currentPlaylistFolderNode = _rootNode;
 
                 for (PlaylistListener listener : _playlistListeners)

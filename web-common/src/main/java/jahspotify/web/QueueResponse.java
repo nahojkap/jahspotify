@@ -8,7 +8,7 @@ import java.util.List;
 public class QueueResponse extends BasicResponse
 {
     private String currentlyPlaying;
-    private List<String> queuedTracks;
+    private List<QueuedTrack> queuedTracks;
 
     public String getCurrentlyPlaying()
     {
@@ -20,12 +20,12 @@ public class QueueResponse extends BasicResponse
         this.currentlyPlaying = currentlyPlaying;
     }
 
-    public List<String> getQueuedTracks()
+    public List<QueuedTrack> getQueuedTracks()
     {
         return queuedTracks;
     }
 
-    public void setQueuedTracks(final List<String> queuedTracks)
+    public void setQueuedTracks(final List<QueuedTrack> queuedTracks)
     {
         this.queuedTracks = queuedTracks;
     }

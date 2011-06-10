@@ -109,6 +109,7 @@ static void* audio_start(void *aux)
             alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
             if (processed <= 0)
             {
+                usleep(200);
                 continue;
             }
 
@@ -148,7 +149,7 @@ static void* audio_start(void *aux)
 		fprintf(stderr, "Error queuing buffer:(\n");
 		return;
 	    }
-	    
+
 
             alGetSourcei(source, AL_SOURCE_STATE, &processed);
             if (processed != AL_PLAYING)

@@ -37,6 +37,8 @@ static int g_notify_do;
 /// Non-zero when a track has ended and the jukebox has not yet started a new one
 static int g_playback_done;
 
+static bool g_audio_initialized = JNI_FALSE;
+
 jobject createJArtistInstance(JNIEnv *env, sp_artist *artist);
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album);
 jobject createJTrackInstance(JNIEnv *env, sp_track *track);
@@ -787,8 +789,6 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
     const byte *coverBytes = sp_album_cover(album);
 
-    setObjectStringField(env,albumInstance,"id",albumLinkStr);
-
     sp_link *albumCoverLink = sp_link_create_from_album_cover(album);
     if (albumCoverLink)
     {
@@ -798,6 +798,36 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
       sp_link_release(albumCoverLink);
       free(albumCoverLinkStr);
     }
+    
+    sp_artist *artist = sp_album_artist(album);
+	if (artist)
+	{
+	   while (!sp_artist_is_loaded(artist))
+           {
+	     // Wait for it!
+	     fprintf(stderr,"jahspotify::createJAlbumInstance: waiting for artist instance ... \n");
+	     sleep(1);
+	   }
+      
+	  sp_artist_add_ref(artist);
+	  if (sp_artist_is_loaded(artist))
+	  {
+	    jobject artistInstance = createJArtistInstance(env,artist);
+	    // Lookup the method now - saves us looking it up for each iteration of the loop
+	    jmethodID jMethod = (*env)->GetMethodID(env,jClass,"setArtist","(Ljahspotify/media/Artist;)V");
+	    
+	    if (jMethod == NULL)
+	    {
+	      fprintf(stderr,"jahspotify::createJAlbumInstance: could not load method setArtist(artist) on class Album\n");
+	      return NULL;
+	      
+	    }
+	    // set it on the track
+	    (*env)->CallVoidMethod(env,albumInstance,jMethod,artistInstance);
+	  }
+	  sp_artist_release(artist);
+	}
+    
         
   }
   return albumInstance;
@@ -1168,6 +1198,12 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_play (JNIEnv *env, job
 
   fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: uri: %s\n", nativeURI);
   
+  if (!g_audio_initialized)
+  {
+    audio_init(&g_audiofifo);
+    g_audio_initialized = JNI_TRUE;
+  }
+  
   // For each track, read out the info and populate all of the info in the Track instance
   sp_link *link = sp_link_create_from_string(nativeURI);
   if (link)
@@ -1326,8 +1362,6 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
         fprintf ( stderr, "Username or password not specified\n" );
         return 1;
     }
-
-    audio_init(&g_audiofifo);
 
     /* Create session */
     spconfig.application_key_size = g_appkey_size;

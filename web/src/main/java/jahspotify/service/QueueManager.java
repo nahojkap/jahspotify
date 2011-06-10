@@ -26,7 +26,7 @@ public class QueueManager
     private long _currentTrackStart;
 
     private QueueState _queueState = QueueState.STOPPED;
-    private Queue<String> _uriQueue = new LinkedList<String>();
+    private Queue<QueuedTrack> _uriQueue = new ConcurrentLinkedQueue<QueuedTrack>();
 
     private BlockingQueue<String> _blockingQueue = new ArrayBlockingQueue<String>(1, true);
     private String _currentURI = null;
@@ -84,7 +84,12 @@ public class QueueManager
             @Override
             public String nextTrackToPreload()
             {
-                return _uriQueue.peek();
+                final QueuedTrack peek = _uriQueue.peek();
+                if (peek != null)
+                {
+                    return peek.getTrackID();
+                }
+                return null;
             }
         });
 
@@ -101,12 +106,13 @@ public class QueueManager
                         String token = _blockingQueue.poll(100, TimeUnit.SECONDS);
                         if ("NEXT".equals(token))
                         {
-                            String uri = _uriQueue.poll();
-                            if (uri != null)
+                            final QueuedTrack queuedTrack = _uriQueue.poll();
+
+                            if (queuedTrack != null)
                             {
-                                _log.debug("Initiating play of: " + uri);
-                                _currentURI = uri;
-                                _jahSpotify.play(uri);
+                                _log.debug("Initiating play of: " + queuedTrack.getTrackID());
+                                _currentURI = queuedTrack.getTrackID();
+                                _jahSpotify.play(queuedTrack.getTrackID());
                             }
                             else
                             {
@@ -175,7 +181,11 @@ public class QueueManager
     private void addTracksToQueue(final List<String> trackURIs)
     {
         // Add all elements to the array
-        _uriQueue.addAll(trackURIs);
+        for (String trackURI : trackURIs)
+        {
+            QueuedTrack queuedTrack = new QueuedTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI);
+            _uriQueue.add(queuedTrack);
+        }
 
         // Update the maximum queue size seen if the queue size is now the biggest ever seen
         if (_uriQueue.size() > _maxQueueSize)
@@ -196,6 +206,7 @@ public class QueueManager
         {
             case PLAYING:
                 _jahSpotify.pause();
+                _queueState = QueueState.PAUSED;
                 break;
             default:
                 // FIXME: Should really do something
@@ -208,6 +219,7 @@ public class QueueManager
         {
             case PAUSED:
                 _jahSpotify.resume();
+                _queueState = QueueState.PLAYING;
                 break;
             case STOPPED:
                 // FIXME: Should this evaluate the queue?
@@ -216,6 +228,40 @@ public class QueueManager
             default:
                 // FIXME: Should really do something
         }
+    }
+
+    public int deleteQueuedTrack(String uri)
+    {
+        // uris are in the form of:
+        // spotify:track:...
+        // jahspotify:queue:<quename>:<uuid>
+
+        int count = 0;
+
+        if (uri.matches("spotify:track:.*"))
+        {
+            for (QueuedTrack queuedTrack : _uriQueue)
+            {
+                if (queuedTrack.getTrackID().equals(uri))
+                {
+                    _uriQueue.remove(queuedTrack);
+                    count++;
+                }
+            }
+        }
+        if (uri.matches("jahspotify:queue:default:.*"))
+        {
+            for (QueuedTrack queuedTrack : _uriQueue)
+            {
+                if (queuedTrack.getId().equals(uri))
+                {
+                    _uriQueue.remove(queuedTrack);
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
     private void nextTrack()
@@ -265,6 +311,6 @@ public class QueueManager
 
     public CurrentQueue getCurrentQueue()
     {
-        return new CurrentQueue(_currentURI,new ArrayList<String>(_uriQueue));
+        return new CurrentQueue(_currentURI, new ArrayList<QueuedTrack>(_uriQueue));
     }
 }

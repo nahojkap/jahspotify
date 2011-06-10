@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
-public class PlaylistController
+public class PlaylistController extends BaseController
 {
     private Log _log = LogFactory.getLog(PlaylistController.class);
 
@@ -30,48 +30,28 @@ public class PlaylistController
         _log.debug("Extracted URI: " + uri);
         Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri);
         _log.debug("Got playlist: " + playlist);
-        Gson gson = new Gson();
-        try
-        {
-            final PrintWriter writer = httpServletResponse.getWriter();
-            writer.write(gson.toJson(playlist));
-            writer.flush();
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        writeResponseGeneric(httpServletResponse, playlist);
     }
 
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
     public void retrieveLibrary(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        try
+        final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
+
+        JSTreeNode rootNode = new JSTreeNode();
+        rootNode.setState("open");
+        rootNode.setData("ROOT");
+        final HashMap<String, String> attr = new HashMap<String, String>();
+        attr.put("id", "ROOT");
+        rootNode.setAttr(attr);
+
+        final List<Container> children = library.getChildren();
+        for (Container child : children)
         {
-            final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
-
-            JSTreeNode rootNode = new JSTreeNode();
-            rootNode.setData("ROOT");
-
-            final List<Container> children = library.getChildren();
-            for (Container child : children)
-            {
-                rootNode.addChild(processContainer(child));
-            }
-
-
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            final PrintWriter writer = httpServletResponse.getWriter();
-            writer.write(gson.toJson(rootNode));
-            writer.flush();
-            writer.close();
+            rootNode.addChild(processContainer(child));
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
+        writeResponseGeneric(httpServletResponse, rootNode);
 
 
     }
@@ -83,17 +63,16 @@ public class PlaylistController
         {
             Playlist playlist = (Playlist) container;
             jsTreeNode.setData(playlist.getName());
-            // "attr" : { "id" : "node_identificator"
-            Map<String,String> map = new HashMap<String, String>();
-            map.put("id",playlist.getId());
-            map.put("rel","playlist");
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("id", playlist.getId());
+            map.put("rel", "playlist");
             jsTreeNode.setAttr(map);
             for (Track track : playlist.getTracks())
             {
                 final JSTreeNode trackJSTreeNode = new JSTreeNode();
                 trackJSTreeNode.setData(track.getTitle());
                 map = new HashMap<String, String>();
-                map.put("id",track.getId());
+                map.put("id", track.getId());
                 map.put("rel", "track");
                 trackJSTreeNode.setAttr(map);
                 jsTreeNode.addChild(trackJSTreeNode);
@@ -103,10 +82,10 @@ public class PlaylistController
         {
             final Folder folder = (Folder) container;
             jsTreeNode.setData(folder.getName());
-            Map<String,String> map = new HashMap<String, String>();
+            Map<String, String> map = new HashMap<String, String>();
             map = new HashMap<String, String>();
-            map.put("id",folder.getName());
-            map.put("rel","folder");
+            map.put("id", folder.getName());
+            map.put("rel", "folder");
             jsTreeNode.setAttr(map);
             final List<Container> children = folder.getChildren();
             for (Container child : children)

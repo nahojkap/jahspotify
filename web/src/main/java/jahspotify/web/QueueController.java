@@ -1,7 +1,7 @@
 package jahspotify.web;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
-public class QueueController
+public class QueueController extends BaseController
 {
     @Autowired
     QueueManager _queueManager;
@@ -60,24 +60,6 @@ public class QueueController
         }
     }
 
-    private <T> T readRequest(final HttpServletRequest httpServletRequest, final Class<T> classOfT) throws IOException
-    {
-        BufferedReader br = new BufferedReader(httpServletRequest.getReader());
-        StringBuffer sb = new StringBuffer();
-
-        String tmp = br.readLine();
-        while (tmp != null)
-        {
-            sb.append(tmp);
-            sb.append("\n");
-            tmp = br.readLine();
-        }
-
-        Gson gson = new Gson();
-        return gson.fromJson(sb.toString(), classOfT);
-    }
-
-
     @RequestMapping(value = "/add-to-queue/*", method = RequestMethod.GET)
     public void addEntryViaGet(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
@@ -101,26 +83,17 @@ public class QueueController
 
     }
 
-    private void writeResponse(final HttpServletResponse httpServletResponse, final BasicResponse basicResponse)
-    {
-        Gson gson = new Gson();
-        try
-        {
-            final PrintWriter writer = httpServletResponse.getWriter();
-            writer.write(gson.toJson(basicResponse));
-
-            writer.flush();
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    // @RequestMapping(value = "/queue", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/queue/*", method = RequestMethod.DELETE)
     public void deleteEntry(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
+        // Either:
+        // - track (or in fact, all occurences of that track in the queue)
+        // - id
+        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
+        _log.debug("URI: " + uri);
+        _queueManager.deleteQueuedTrack(uri);
+        BasicResponse basicResponse = new BasicResponse();
+        basicResponse.setResponseStatus(ResponseStatus.OK);
     }
 
     @RequestMapping(value = "/queue/", method = RequestMethod.GET)
@@ -137,8 +110,25 @@ public class QueueController
         final QueueResponse currentQueueResponse = new QueueResponse();
 
         currentQueueResponse.setCurrentlyPlaying(currentQueue.getCurrentlyPlaying());
-        currentQueueResponse.setQueuedTracks(currentQueue.getQueuedTracks());
+
+        currentQueueResponse.setQueuedTracks(convertToWeb(currentQueue.getQueuedTracks()));
         writeResponse(httpServletResponse, currentQueueResponse);
+    }
+
+    private List<QueuedTrack> convertToWeb(final List<jahspotify.service.QueuedTrack> queuedTracks)
+    {
+        if (queuedTracks.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+
+        List<QueuedTrack> queuedWebTracks = new ArrayList<QueuedTrack>();
+        for (jahspotify.service.QueuedTrack queuedTrack : queuedTracks)
+        {
+            queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackID()));
+        }
+
+        return queuedWebTracks;
     }
 
     @RequestMapping(value = "/system/status", method = RequestMethod.GET)
