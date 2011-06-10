@@ -15,12 +15,37 @@
     function funky()
     {
         jQuery("#playlist").jstree({
+                    "dnd" : {
+                        "drop_finish" : function (data)
+                        {
+                            $.getJSON('add-to-queue/' + data.o.attr("id"), function(addToQueueData)
+                            {
+                                reloadCurrentQueue();
+                            });
+                        },
+                        "drag_check" : function (data)
+                        {
+                            if (data.r.attr("id") == "phtml_1")
+                            {
+                                return false;
+                            }
+                            return {
+                                after : false,
+                                before : false,
+                                inside : true
+                            };
+                        },
+                        "drag_finish" : function (data)
+                        {
+                            alert("DRAG OK");
+                        }
+                    },
                     "json_data" : {
                         "ajax" : {
                             "url" : "library/",
                             "data" : function (n)
                             {
-                                return { id : n.attr? n.attr("id") : 0 };
+                                return { id : n.attr ? n.attr("id") : 0 };
                             },
                             error: function(e)
                             {
@@ -29,14 +54,13 @@
                         }
                     },
                     rules : {
-                            deletable : "none",
-                            renameable : "none",
-                            creatable : [ "none" ],
-                            draggable : [ "folder", "playlist" , "track" ],
-                            dragrules : [ "folder * folder", "folder inside root", "tree-drop inside root2" ],
-                            drag_button : "left",
-                            droppable : [ "tree-drop" ]
-                          },
+                        deletable : "none",
+                        renameable : "none",
+                        creatable : [ "none" ],
+                        draggable : [ "folder", "playlist" , "track" ],
+                        drag_button : "left",
+                        droppable : [ "tree-drop" ]
+                    },
                     "types" : {
                         "valid_children" : [ "root", "folder", "playlist", "track" ],
                         "types" : {
@@ -51,13 +75,13 @@
                             },
                             "track" : {
                                 "valid_children" : [ "none" ],
-                                 "icon" : {
-                                     "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
-                                 }
+                                "icon" : {
+                                    "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
+                                }
                             }
                         }
                     },
-                    "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types"]
+                    "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types","dnd"]
                 });
     }
     function loadStatus()
@@ -168,6 +192,11 @@
     <div id="currently_playing_div"></div>
 
     <div id="queue">
+    </div>
+
+    <div class="jstree-drop"
+         style="clear:both; border:5px solid green; background:lime; color:green; height:40px; line-height:40px; text-align:center; font-size:20px;">
+        Queue Track
     </div>
 
     <div id="playlist"></div>
