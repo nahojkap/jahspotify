@@ -62,3 +62,5 @@ Pause playback: http://localhost:8080/jahspotify/controller/pause
 Resume play: http://localhost:8080/jahspotify/controller/play
 
 There are other URLs - please examine the web module for them.
+
+NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
