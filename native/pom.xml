@@ -1,0 +1,104 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>jahspotify</groupId>
+        <artifactId>jahspotify-root</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>libjahspotify</artifactId>
+
+    <name>jahspotify-libjahspotify</name>
+
+    <packaging>so</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>jahspotify</groupId>
+            <artifactId>jahspotify-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <properties>
+        <spotify.username/>
+        <spotify.password/>
+    </properties>
+
+
+    <build>
+
+        <finalName>${artifactId}</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+
+                    <!--  trigger javah -->
+                    <javahOS>linux</javahOS>
+                    <javahClassNames>
+                        <javahClassName>jahspotify.impl.JahSpotifyImpl</javahClassName>
+                    </javahClassNames>
+
+                    <compilerProvider>generic</compilerProvider>
+                    <compilerStartOptions>
+                        <compilerStartOption>-fPIC -O -I${basedir}/src/main/native/inc -D_GNU_SOURCE -g3 -fno-inline -O0</compilerStartOption>
+                    </compilerStartOptions>
+                    <sources>
+                        <source>
+                            <directory>${basedir}/src/main/native/src</directory>
+                            <includes>
+                                <include>**/*.c</include>
+                            </includes>
+                        </source>
+                    </sources>
+
+                    <linkerStartOptions>
+                        <linkerStartOption>-shared</linkerStartOption>
+                        <linkerStartOption> -lc</linkerStartOption>
+                        <linkerStartOption>-lopenal</linkerStartOption>
+                        <linkerStartOption>-ldl</linkerStartOption>
+                        <linkerStartOption>-lspotify</linkerStartOption>
+                    </linkerStartOptions>
+
+                </configuration>
+
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <forkMode>once</forkMode>
+                    <systemPropertyVariables>
+                        <spotify.username>${spotify.username}</spotify.username>
+                        <spotify.password>${spotify.password}</spotify.password>
+                    </systemPropertyVariables>
+                    <environmentVariables>
+                        <LD_LIBRARY_PATH>${env.LD_LIBRARY_PATH}:${project.build.directory}</LD_LIBRARY_PATH>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+
+</project>

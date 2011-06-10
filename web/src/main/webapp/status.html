@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link href="styles/main.css"/>
+    <script language="JavaScript" src="lib/jquery-1.6.1.js" type="text/javascript"></script>
+    <script language="JavaScript" src="lib/jquery.cookie.js" type="text/javascript"></script>
+    <script language="JavaScript" src="lib/jquery.hotkeys.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery.jstree.js"></script>
+</head>
+<script>
+
+    function funky()
+    {
+        jQuery("#playlist").jstree({
+                    "json_data" : {
+                        "ajax" : {
+                            "url" : "library/",
+                            "data" : function (n)
+                            {
+                                return { id : n.attr? n.attr("id") : 0 };
+                            },
+                            error: function(e)
+                            {
+                                alert(e);
+                            }
+                        }
+                    },
+                    rules : {
+                            deletable : "none",
+                            renameable : "none",
+                            creatable : [ "none" ],
+                            draggable : [ "folder", "playlist" , "track" ],
+                            dragrules : [ "folder * folder", "folder inside root", "tree-drop inside root2" ],
+                            drag_button : "left",
+                            droppable : [ "tree-drop" ]
+                          },
+                    "types" : {
+                        "valid_children" : [ "root", "folder", "playlist", "track" ],
+                        "types" : {
+                            "root" : {
+                                "valid_children" : [ "folder", "playlist" ]
+                            },
+                            "folder" : {
+                                "valid_children" : [ "folder", "playlist" ]
+                            },
+                            "playlist" : {
+                                "valid_children" : [ "track" ]
+                            },
+                            "track" : {
+                                "valid_children" : [ "none" ],
+                                 "icon" : {
+                                     "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
+                                 }
+                            }
+                        }
+                    },
+                    "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types"]
+                });
+    }
+    function loadStatus()
+    {
+        $.getJSON('system/status', function(data)
+        {
+            $('#uptime').empty();
+            $('<p/>', {
+                        html: data.upSince
+                    }).appendTo('#uptime');
+            $('#total_memory').empty();
+            $('<p/>', {
+                        html: data.totalMemory
+                    }).appendTo('#total_memory');
+            $('#current_memory').empty();
+            $('<p/>', {
+                        html: data.freeMemory
+                    }).appendTo('#current_memory');
+            $('#max_memory').empty();
+            $('<p/>', {
+                        html: data.maxMemory
+                    }).appendTo('#max_memory');
+        });
+    }
+
+    function reloadCurrentQueue()
+    {
+        $.getJSON('queue/', function(data)
+        {
+            $('#currently_playing_div').empty();
+
+
+            $.getJSON('track/' + data.currentlyPlaying, function(data)
+            {
+                $('<p/>', {
+                            html: '<a href="track/' + data.id + '">' + data.title + '</a>'
+                        }).appendTo("#currently_playing_div");
+            });
+
+            $('#queue').empty();
+            if ($.isEmptyObject(data.queuedTracks))
+            {
+                $('<p/>', {
+                            html: "Nothing in queue"
+                        }).appendTo('#queue');
+            }
+            else
+            {
+                $('<ul/>', {
+                            id: "queued_tracks",
+                            html: ""
+                        }).appendTo('#queue');
+
+                $.each(data.queuedTracks, function(i, val)
+                {
+                    $.getJSON('track/' + val, function(data)
+                    {
+                        $('<li/>', {
+                                    html: '<li><a href="track/' + val + '">' + data.title + '</a></li>'
+                                }).appendTo("#queued_tracks");
+                    });
+                });
+
+
+            }
+
+        });
+    }
+</script>
+<body class="body">
+
+<p>JahSpotify</p>
+
+<div class="container">
+
+    <div>
+        <p>
+            <a href="" onclick="reloadCurrentQueue(); return false">load queue</a>
+            <a href="" onclick="loadStatus(); return false">load status</a>
+            <a href="" onclick="funky(); return false">load tree</a>
+        </p>
+
+        <p><a href="controller/skip">skip</a> <a href="controller/pause">pause</a></p>
+    </div>
+
+    <div id="status" class="content">
+        <table>
+            <tr>
+                <td>Up Since</td>
+                <td id="uptime"></td>
+            </tr>
+            <tr>
+                <td>Current Free Memory</td>
+                <td id="current_memory"></td>
+            </tr>
+            <tr>
+                <td>Total Available Memory</td>
+                <td id="total_memory"></td>
+            </tr>
+            <tr>
+                <td>Max Memory</td>
+                <td id="max_memory"></td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div id="currently_playing_div"></div>
+
+    <div id="queue">
+    </div>
+
+    <div id="playlist"></div>
+
+
+</div>
+
+</body>
+</html>

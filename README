@@ -1,0 +1,61 @@
+===============================================================================
+Jah'Spotify Project
+===============================================================================
+
+---- Introduction -----
+
+Jah'Spotify is a simple Java wrapper built on top of the libspotify APIs.
+
+Currently supports:
+
+- retrieving library (all user playlists)
+- retrieve a playlist
+- retrieve an album
+- retrieve a track
+- retrieve an image
+- add tracks to a queue
+- play tracks
+- pause/skip/play functions
+
+All the above functions are accessible over a RESTful API.  This is very much work in progress and will most likely
+change over time.
+
+NOTE: As with libspotify
+
+---- To build -----
+
+Currently, Jah'Spotify only supports the Linux version of libspotify and will therefore require a Linux installation
+to compile.  You also need to download and install libspotify.
+
+To build the sources, check 'em out from git
+
+git clone git://github.com/johanlindquist/jahspotify.git
+cd jahspotify
+mvn clean install
+
+---- Modules -----
+
+- api: provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
+- native: contains all native & JNI code interacting with libspotify
+- web: provides the RESTful API
+
+---- REST API -----
+
+To run up the Jah'Spotify RESTful API
+
+mvn jetty:run -Dspotify.username=<your username> -Dspotify.password=<your password>
+
+http://localhost:8080/jahspotify/status.html
+
+Playlist retrieval: http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
+Track retrieval: http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
+Adding a track to the play queue: http://localhost:8080/jahspotify/queue/add-to-queue/spotify:track:2WTn8V1SuH7peQSYJwrsiI
+Retrieving play queue: http://localhost:8080/jahspotify/queue
+
+While playing:
+
+Skip to next track in queue: http://localhost:8080/jahspotify/controller/skip
+Pause playback: http://localhost:8080/jahspotify/controller/pause
+Resume play: http://localhost:8080/jahspotify/controller/play
+
+There are other URLs - please examine the web module for them.
