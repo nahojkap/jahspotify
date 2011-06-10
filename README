@@ -17,17 +17,18 @@ Currently supports:
 - play tracks
 - pause/skip/play functions
 
-All the above functions are accessible over a RESTful API.  This is very much work in progress and will most likely
-change over time.
-
-NOTE: As with libspotify
+All the above functions are accessible over a JSON based RESTful API.  This is very much work in progress and will
+most likely change over time.
 
 ---- To build -----
 
 Currently, Jah'Spotify only supports the Linux version of libspotify and will therefore require a Linux installation
-to compile.  You also need to download and install libspotify.
+to compile.  You also need to download and install libspotify & request an API key from Spotify.  This can be done
+on the http://developer.spotify.com website.  Generate the key and download the C code version of it.  Place this
+in a file called AppKey.h in the native/src/main/native/inc directory.  You may want to place some #ifndef APPKEY
+statements in this to prevent linking problems.
 
-To build the sources, check 'em out from git
+Next, to build the sources, check 'em out from git
 
 git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
@@ -37,7 +38,9 @@ mvn clean install
 
 - api: provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
 - native: contains all native & JNI code interacting with libspotify
-- web: provides the RESTful API
+- web: provides the RESTful API (json based)
+- web-client: provides java client for interacting with the RESTful API
+- web-common: provides the java beans which are serialized over the RESTful API
 
 ---- REST API -----
 
