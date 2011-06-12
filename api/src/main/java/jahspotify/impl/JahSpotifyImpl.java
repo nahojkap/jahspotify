@@ -230,11 +230,18 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public native int readImage(String uri, OutputStream outputStream);
+    public Artist readArtist(final String uri)
+    {
+        return retrieveArtist(uri);
+    }
+
+    private native int readImage(String uri, OutputStream outputStream);
 
     private native User retrieveUser();
 
     private native Album retrieveAlbum(String uri);
+
+    private native Artist retrieveArtist(String uri);
 
     private native Track retrieveTrack(String uri);
 

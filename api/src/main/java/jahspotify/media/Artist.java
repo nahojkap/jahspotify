@@ -8,7 +8,6 @@ import java.util.List;
  * Holds information about an artist.
  *
  * @author Felix Bruns <felixbruns@web.de>
- * @category Media
  */
 public class Artist extends Media
 {

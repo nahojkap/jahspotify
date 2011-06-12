@@ -15,35 +15,35 @@ public interface JahSpotify
      * @param username
      * @param password
      */
-    void start(String username, String password);
+    public void start(String username, String password);
 
-    int readImage(String uri, OutputStream outputStream);
+    public Artist readArtist(String uri);
 
-    Album readAlbum(String uri);
+    public Album readAlbum(String uri);
 
-    Track readTrack(String uri);
+    public Track readTrack(String uri);
 
-    byte[] readImage(String uri);
+    public byte[] readImage(String uri);
 
-    Playlist readPlaylist(String uri);
+    public Playlist readPlaylist(String uri);
 
-    List<Track> readTracks(String... uris);
+    public List<Track> readTracks(String... uris);
 
-    int pause();
+    public int pause();
 
-    int resume();
+    public int resume();
 
-    int play(String uri);
+    public int play(String uri);
 
-    User getUser();
+    public User getUser();
 
-    void addPlaybackListener(PlaybackListener playbackListener);
+    public void addPlaybackListener(PlaybackListener playbackListener);
 
-    void addPlaylistListener(PlaylistListener playlistListener);
+    public void addPlaylistListener(PlaylistListener playlistListener);
 
-    void addConnectionListener(ConnectionListener connectionListener);
+    public void addConnectionListener(ConnectionListener connectionListener);
 
-    boolean isStarted();
+    public boolean isStarted();
 
-    void stop();
+    public void stop();
 }

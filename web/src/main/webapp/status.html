@@ -28,7 +28,6 @@
                 "drop_finish" : function (data)
                 {
                     // FIXME Should support multiple selections
-                    alert("Drop Finished");
                     $.getJSON('add-to-queue/' + data.o.attr("id"), function(addToQueueData)
                     {
                         reloadCurrentQueue();
@@ -60,7 +59,7 @@
                     },
                     error: function(e)
                     {
-                        alert(e);
+                        alert("Error: " + e);
                     }
                 }
             },
@@ -129,9 +128,29 @@
 
               $.getJSON('track/' + data.currentlyPlaying, function(data)
               {
-                  $('<p/>', {
-                      html: '<a href="track/' + data.id + '">' + data.title + '</a>'
+                  $('<p/>',{
+                              html: '<img src="image/' + data.album.cover + '"/>'
                   }).appendTo("#currently_playing_div");
+
+                  artists = "";
+                  first = true;
+                  $.each(data.artists, function(i, val)
+                  {
+                      if (first)
+                      {
+                          artists = ', <a href="artist/' + val.id + '">' + val.name + '</a>';
+                          first = false;
+                      }
+                      else
+                      {
+                        artists = artists + ', <a href="artist/' + val.id + '">' + val.name + '</a>';
+                      }
+                  });
+
+                  $('<p/>', {
+                      html: 'Title: ' + data.title + '<br/>Artist(s): ' + artists
+                  }).appendTo("#currently_playing_div");
+
               });
             }
 
@@ -183,7 +202,19 @@
                 href="controller/play">play</a></p>
     </div>
 
-    <div id="status" class="content">
+    <div id="currently_playing_div"></div>
+
+    <div id="queue">
+    </div>
+
+    <div class="jstree-drop"
+         style="clear:both; border:5px solid green; background:lime; color:green; height:40px; line-height:40px; text-align:center; font-size:20px;">
+        Queue Track
+    </div>
+
+    <div id="playlist"></div>
+
+ <div id="status" class="content">
         <table>
             <tr>
                 <td>Up Since</td>
@@ -202,22 +233,7 @@
                 <td id="max_memory"></td>
             </tr>
         </table>
-
     </div>
-
-    <div id="currently_playing_div"></div>
-
-    <div id="queue">
-    </div>
-
-    <div class="jstree-drop"
-         style="clear:both; border:5px solid green; background:lime; color:green; height:40px; line-height:40px; text-align:center; font-size:20px;">
-        Queue Track
-    </div>
-
-    <div id="playlist"></div>
-
-
 </div>
 
 </body>

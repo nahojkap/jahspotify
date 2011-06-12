@@ -715,33 +715,41 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
         // set it on the track
         (*env)->CallVoidMethod(env,trackInstance,jMethod,albumInstance);
 	
-	sp_artist *artist = sp_album_artist(album);
-	if (artist)
+	int numArtists = sp_track_num_artists(track);
+	fprintf(stderr,"jahspotify::createJTrackInstance: num artists: %d\n",numArtists);
+	int i = 0;
+	for (i = 0; i < numArtists; i++)
 	{
-	   while (!sp_artist_is_loaded(artist))
-           {
-	     // Wait for it!
-	     fprintf(stderr,"jahspotify::createJTrackInstance: waiting for artist instance ... \n");
-	     sleep(1);
-	   }
-      
-	  sp_artist_add_ref(artist);
-	  if (sp_artist_is_loaded(artist))
+	  sp_artist *artist = sp_track_artist(track,i);
+	  if (artist)
 	  {
-	    jobject artistInstance = createJArtistInstance(env,artist);
-	    // Lookup the method now - saves us looking it up for each iteration of the loop
-	    jmethodID jMethod = (*env)->GetMethodID(env,jClass,"setArtist","(Ljahspotify/media/Artist;)V");
-	    
-	    if (jMethod == NULL)
+	    fprintf(stderr,"jahspotify::createJTrackInstance: got artist instance\n");
+	    while (!sp_artist_is_loaded(artist))
 	    {
-	      fprintf(stderr,"jahspotify::createJTrackInstance: could not load method setArtist(artist) on class Track\n");
-	      return NULL;
-	      
+	      // Wait for it!
+	      fprintf(stderr,"jahspotify::createJTrackInstance: waiting for artist instance ... \n");
+	      sleep(1);
 	    }
-	    // set it on the track
-	    (*env)->CallVoidMethod(env,trackInstance,jMethod,artistInstance);
+	
+	    fprintf(stderr,"jahspotify::createJTrackInstance: got artist %s\n",sp_artist_name(artist));
+	    sp_artist_add_ref(artist);
+	    if (sp_artist_is_loaded(artist))
+	    {
+	      jobject artistInstance = createJArtistInstance(env,artist);
+	      // Lookup the method now - saves us looking it up for each iteration of the loop
+	      jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addArtist","(Ljahspotify/media/Artist;)V");
+	      
+	      if (jMethod == NULL)
+	      {
+		fprintf(stderr,"jahspotify::createJTrackInstance: could not load method setArtist(artist) on class Track\n");
+		return NULL;
+		
+	      }
+	      // set it on the track
+	      (*env)->CallVoidMethod(env,trackInstance,jMethod,artistInstance);
+	    }
+	    sp_artist_release(artist);
 	  }
-	  sp_artist_release(artist);
 	}
       }
       sp_album_release(album);
@@ -750,6 +758,31 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
   return trackInstance;
   
+}
+
+char* toHexString(byte* bytes)
+{
+  char   ls_hex[3] = "";
+  int    i = 0;
+  int    j = 0;
+  char hash[40];
+  byte *theBytes = bytes;
+  
+  memset(ls_hex, '\0', 3);
+
+  j = 0;
+  for (i=0; i < 20; i++)
+  {
+    sprintf(ls_hex, "%.2X", *theBytes);
+    theBytes++;
+    hash[j++] = ls_hex[0];
+    hash[j++] = ls_hex[1];
+  }
+
+  char *finalHash = malloc(sizeof(char)*40);
+  strcpy(finalHash,hash);
+    
+  return finalHash;
 }
 
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
@@ -788,7 +821,12 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
     setObjectIntField(env,albumInstance,"year",sp_album_year(album));
 
     const byte *coverBytes = sp_album_cover(album);
+    char *coverStr = toHexString((byte*)coverBytes);
 
+    setObjectStringField(env,albumInstance,"cover",coverStr);
+    free(coverStr);
+    
+    
     sp_link *albumCoverLink = sp_link_create_from_album_cover(album);
     if (albumCoverLink)
     {
@@ -852,6 +890,36 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
     free(artistLinkStr);
     
     setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
+    
+/*
+    sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,NULL,NULL);
+    sp_artistbrowse_add_ref(artistBrowse);
+    
+    fprintf(stderr,"Created artist browse\n");
+
+    if (artistBrowse)
+    {
+      while (!sp_artistbrowse_is_loaded(artistBrowse))
+      {
+        fprintf(stderr,"Waiting for the artist browse to load ...\n");
+        sleep(10);
+      }
+    
+      fprintf(stderr,"artist browse loaded ...\n");
+      int numPortraits = sp_artistbrowse_num_portraits(artistBrowse);
+    
+      if (numPortraits > 0)
+      {
+        // Load portrait url
+        const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,0);
+	if (portraitURI)
+	{
+	     fprintf(stderr,"About to hex\n");
+	      char *portraitURIStr = toHexString((byte*)portraitURI);
+	     fprintf(stderr,"hexed\n");
+	}
+      }
+    }*/
   }
   return artistInstance;
   
@@ -936,6 +1004,42 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
   
 }
 
+JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist ( JNIEnv *env, jobject obj, jstring uri)
+{
+  jobject artistInstance;
+  uint8_t *nativeUri = NULL;
+  
+  nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
+  
+  sp_link *link = sp_link_create_from_string(nativeUri);
+  if (!link)
+  {
+    // hmm
+    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist: Could not create link!\n" );
+    return JNI_FALSE;
+  }
+
+  sp_artist *artist= sp_link_as_artist(link);
+  
+  while (!sp_artist_is_loaded(artist))
+  {
+    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist: Waiting for album to be loaded ...\n" );
+    sleep(1);
+  }
+
+  artistInstance = createJArtistInstance(env, artist);
+  
+  if (artist)
+    sp_artist_release(artist);
+  if (link)
+    sp_link_release(link);
+  if (nativeUri)
+    free(nativeUri);
+  
+  fprintf ( stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist: returning artist: 0x%x\n",(unsigned int)artistInstance);
+
+  return artistInstance;
+}
 
 
 JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JNIEnv *env, jobject obj, jstring uri)
@@ -1148,41 +1252,44 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
   sp_link *imageLink = sp_link_create_from_string(nativeURI);
   size_t size;
   jclass jClass;
-  
 
   if (imageLink)
   {
     sp_image *image = sp_image_create_from_link(g_sess,imageLink);
-    while (!sp_image_is_loaded(image))
+    if (image)
     {
-      fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: Waiting for image to load ...\n");
-      sleep(1);
-    }
-    byte *data = (byte*)sp_image_data(image,&size);
-    fprintf(stderr,"Image size: %d\n", size);
+      while (!sp_image_is_loaded(image))
+      {
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: Waiting for image to load ...\n");
+        sleep(1);
+      }
+    
+      byte *data = (byte*)sp_image_data(image,&size);
+      fprintf(stderr,"Image size: %d\n", size);
 
-    jClass = (*env)->FindClass(env,"Ljava/io/OutputStream;");
-    if (jClass == NULL)
-    {
-      fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load class java.io.OutputStream\n");
-      return NULL;
-    }
-    // Lookup the method now - saves us looking it up for each iteration of the loop
-    jmethodID jMethod = (*env)->GetMethodID(env,jClass,"write","(I)V");
+      jClass = (*env)->FindClass(env,"Ljava/io/OutputStream;");
+      if (jClass == NULL)
+      {
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load class java.io.OutputStream\n");
+        return NULL;
+      }
+      // Lookup the method now - saves us looking it up for each iteration of the loop
+      jmethodID jMethod = (*env)->GetMethodID(env,jClass,"write","(I)V");
     
-    if (jMethod == NULL)
-    {
-      fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load method write(int) on class java.io.OutputStream\n");
-      return NULL;
-    }
+      if (jMethod == NULL)
+      {
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load method write(int) on class java.io.OutputStream\n");
+        return NULL;
+      }
     
-    int i = 0;
-    for (i = 0; i < size; i++)
-    {
-      (*env)->CallVoidMethod(env,outputStream,jMethod,*data);
-      data++;
+      int i = 0;
+      for (i = 0; i < size; i++)
+      {
+        (*env)->CallVoidMethod(env,outputStream,jMethod,*data);
+        data++;
+      }
+      sp_image_release(image);
     }
-    
     sp_link_release(imageLink);
   }
   
@@ -1451,3 +1558,4 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
     return 0;
 
 }
+

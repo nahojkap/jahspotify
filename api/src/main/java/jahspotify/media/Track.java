@@ -19,9 +19,9 @@ public class Track extends Media
     private String title;
 
     /**
-     * {@link Artist} of this track.
+     * {@link Artist}s of this track.
      */
-    private Artist artist;
+    private List<Artist> artists = new ArrayList<Artist>();
 
     /**
      * {@link Album} this track belongs to.
@@ -69,7 +69,7 @@ public class Track extends Media
     public Track()
     {
         this.title = null;
-        this.artist = null;
+        this.artists = new ArrayList<Artist>();
         this.album = null;
         this.year = -1;
         this.trackNumber = -1;
@@ -95,16 +95,16 @@ public class Track extends Media
      *
      * @param id     A 32-character hex string or a Spotify URI.
      * @param title  Title of the track.
-     * @param artist Artist of the track.
+     * @param artists Artists of the track.
      * @param album  Album of the track.
      */
-    public Track(String id, String title, Artist artist, Album album)
+    public Track(String id, String title, List<Artist> artists, Album album)
     {
         super(id);
 
         /* Set object properties. */
         this.title = title;
-        this.artist = artist;
+        this.artists = artists;
         this.album = album;
         this.year = -1;
         this.trackNumber = -1;
@@ -146,23 +146,33 @@ public class Track extends Media
     }
 
     /**
-     * Get the tracks artist.
+     * Get the tracks artists.
      *
-     * @return An {@link Artist} object.
+     * @return An {@link Artist}s object.
      */
-    public Artist getArtist()
+    public List<Artist> getArtists()
     {
-        return this.artist;
+        return this.artists;
     }
 
     /**
-     * Set the tracks artist.
+     * Set the tracks artists.
      *
-     * @param artist The desired {@link Artist} of this track.
+     * @param artists The desired {@link Artist}s of this track.
      */
-    public void setArtist(Artist artist)
+    public void setArtists(List<Artist> artists)
     {
-        this.artist = artist;
+        this.artists = artists;
+    }
+
+    public void addArtist(Artist artist)
+    {
+        if (artists == null)
+        {
+            artists = new ArrayList<Artist>();
+        }
+        artists.add(artist);
+
     }
 
     /**
@@ -426,6 +436,6 @@ public class Track extends Media
 
     public String toString()
     {
-        return String.format("[Track: %s, %s, %s]", this.artist, this.album, this.title);
+        return String.format("[Track: %s, %s, %s]", this.artists, this.album, this.title);
     }
 }

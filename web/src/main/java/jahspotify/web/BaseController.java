@@ -4,7 +4,9 @@ import java.io.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
+import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Johan Lindquist
@@ -12,6 +14,9 @@ import org.apache.commons.logging.*;
 public class BaseController
 {
     private Log _log = LogFactory.getLog(BaseController.class);
+
+    @Autowired
+    protected JahSpotifyService _jahSpotifyService;
 
     protected void writeResponse(final HttpServletResponse httpServletResponse, final BasicResponse basicResponse)
     {

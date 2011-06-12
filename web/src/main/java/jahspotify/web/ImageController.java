@@ -14,12 +14,9 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
-public class ImageController
+public class ImageController extends BaseController
 {
     private Log _log = LogFactory.getLog(ImageController.class);
-
-    @Autowired
-    private JahSpotifyService _jahSpotifyService;
 
     @RequestMapping(value = "/image/*", method = RequestMethod.GET)
     public void retrieveImage(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
@@ -28,6 +25,8 @@ public class ImageController
         {
             String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
             _log.debug("Extracted URI: " + uri);
+
+            // FIXME: This image should be cached
 
             byte[] bytes = _jahSpotifyService.getJahSpotify().readImage(uri);
 
