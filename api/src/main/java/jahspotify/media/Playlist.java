@@ -21,14 +21,14 @@ public class Playlist extends Container
     private String description;
     private String picture;
 
-    private List<Track> tracks;
+    private List<Link> tracks;
 
     public Playlist()
     {
         this.id = null;
         this.name = null;
         this.author = null;
-        this.tracks = new ArrayList<Track>();
+        this.tracks = new ArrayList<Link>();
         this.collaborative = false;
         this.description = null;
         this.picture = null;
@@ -65,7 +65,7 @@ public class Playlist extends Container
         /* Set other playlist properties. */
         this.name = name;
         this.author = author;
-        this.tracks = new ArrayList<Track>();
+        this.tracks = new ArrayList<Link>();
         this.collaborative = collaborative;
         this.description = null;
         this.picture = null;
@@ -96,11 +96,11 @@ public class Playlist extends Container
         return this.author;
     }
 
-    public void addTrack(Track track)
+    public void addTrack(Link track)
     {
         if (tracks == null)
         {
-            tracks = new ArrayList<Track>();
+            tracks = new ArrayList<Link>();
         }
         this.tracks.add(track);
     }
@@ -110,12 +110,12 @@ public class Playlist extends Container
         this.author = author;
     }
 
-    public List<Track> getTracks()
+    public List<Link> getTracks()
     {
         return this.tracks;
     }
 
-    public void setTracks(List<Track> tracks)
+    public void setTracks(List<Link> tracks)
     {
         this.tracks = tracks;
     }
@@ -173,7 +173,7 @@ public class Playlist extends Container
         playlist.name = name;
         playlist.author = author;
 
-        for (Track track : result.getTracks())
+        for (Link track : result.getTracks())
         {
             playlist.tracks.add(track);
         }

@@ -300,6 +300,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean registerPlaybackListener(PlaybackListener playbackListener);
 
+    private native boolean shutdown();
 
     @Override
     public User getUser()
@@ -449,7 +450,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void stop()
     {
-        // FIXME: should shutdown threads and close the connection now
+        shutdown();
     }
 
     private static class Node

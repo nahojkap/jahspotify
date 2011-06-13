@@ -39,12 +39,12 @@ public class Artist extends Media
     /**
      * A {@link List} of albums.
      */
-    private List<Album> albums;
+    private List<Link> albums;
 
     /**
      * A {@link List} of similar artists.
      */
-    private List<Artist> similarArtists;
+    private List<Link> similarArtists;
 
     /**
      * Creates an empty {@link Artist} object.
@@ -56,8 +56,8 @@ public class Artist extends Media
         this.genres = new ArrayList<String>();
         this.yearsActive = new ArrayList<String>();
         this.bios = new ArrayList<Biography>();
-        this.albums = new ArrayList<Album>();
-        this.similarArtists = new ArrayList<Artist>();
+        this.albums = new ArrayList<Link>();
+        this.similarArtists = new ArrayList<Link>();
     }
 
     /**
@@ -86,8 +86,8 @@ public class Artist extends Media
         this.genres = new ArrayList<String>();
         this.yearsActive = new ArrayList<String>();
         this.bios = new ArrayList<Biography>();
-        this.similarArtists = new ArrayList<Artist>();
-        this.albums = new ArrayList<Album>();
+        this.similarArtists = new ArrayList<Link>();
+        this.albums = new ArrayList<Link>();
     }
 
     /**
@@ -206,7 +206,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of {@link Album} objects.
      */
-    public List<Album> getAlbums()
+    public List<Link> getAlbums()
     {
         return this.albums;
     }
@@ -216,7 +216,7 @@ public class Artist extends Media
      *
      * @param albums A {@link List} of {@link Album} objects.
      */
-    public void setAlbums(List<Album> albums)
+    public void setAlbums(List<Link> albums)
     {
         this.albums = albums;
     }
@@ -226,7 +226,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of {@link Artist} objects.
      */
-    public List<Artist> getSimilarArtists()
+    public List<Link> getSimilarArtists()
     {
         return this.similarArtists;
     }
@@ -236,7 +236,7 @@ public class Artist extends Media
      *
      * @param similarArtists A {@link List} of {@link Artist} objects.
      */
-    public void setSimilarArtists(List<Artist> similarArtists)
+    public void setSimilarArtists(List<Link> similarArtists)
     {
         this.similarArtists = similarArtists;
     }

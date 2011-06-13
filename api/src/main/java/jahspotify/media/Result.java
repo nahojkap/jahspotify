@@ -10,9 +10,9 @@ public class Result
     private int totalArtists;
     private int totalAlbums;
     private int totalTracks;
-    private List<Artist> artists;
-    private List<Album> albums;
-    private List<Track> tracks;
+    private List<Link> artists;
+    private List<Link> albums;
+    private List<Link> tracks;
 
     public Result()
     {
@@ -21,9 +21,9 @@ public class Result
         this.totalArtists = 0;
         this.totalAlbums = 0;
         this.totalTracks = 0;
-        this.artists = new ArrayList<Artist>();
-        this.albums = new ArrayList<Album>();
-        this.tracks = new ArrayList<Track>();
+        this.artists = new ArrayList<Link>();
+        this.albums = new ArrayList<Link>();
+        this.tracks = new ArrayList<Link>();
     }
 
     /**
@@ -87,47 +87,47 @@ public class Result
         this.totalTracks = totalTracks;
     }
 
-    public List<Artist> getArtists()
+    public List<Link> getArtists()
     {
         return this.artists;
     }
 
-    public void setArtists(List<Artist> artists)
+    public void setArtists(List<Link> artists)
     {
         this.artists = artists;
     }
 
-    public void addArtist(Artist artist)
+    public void addArtist(Link artist)
     {
         this.artists.add(artist);
     }
 
-    public List<Album> getAlbums()
+    public List<Link> getAlbums()
     {
         return this.albums;
     }
 
-    public void setAlbums(List<Album> albums)
+    public void setAlbums(List<Link> albums)
     {
         this.albums = albums;
     }
 
-    public void addAlbum(Album album)
+    public void addAlbum(Link album)
     {
         this.albums.add(album);
     }
 
-    public List<Track> getTracks()
+    public List<Link> getTracks()
     {
         return this.tracks;
     }
 
-    public void setTracks(List<Track> tracks)
+    public void setTracks(List<Link> tracks)
     {
         this.tracks = tracks;
     }
 
-    public void addTrack(Track track)
+    public void addTrack(Link track)
     {
         this.tracks.add(track);
     }

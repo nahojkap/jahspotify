@@ -9,7 +9,6 @@ import jahspotify.util.Hex;
  * Holds information about an album.
  *
  * @author Felix Bruns <felixbruns@web.de>
- * @category Media
  */
 public class Album extends Media
 {
@@ -21,7 +20,7 @@ public class Album extends Media
     /**
      * Artist of this album.
      */
-    private Artist artist;
+    private Link artist;
 
     /**
      * The identifier for this albums cover image (32-character string).
@@ -53,7 +52,7 @@ public class Album extends Media
     /**
      * Similar albums of this album.
      */
-    private List<Album> similarAlbums;
+    private List<Link> similarAlbums;
 
     /**
      * Creates an empty {@link Album} object.
@@ -67,7 +66,7 @@ public class Album extends Media
         this.review = null;
         this.year = -1;
         this.discs = new ArrayList<Disc>();
-        this.similarAlbums = new ArrayList<Album>();
+        this.similarAlbums = new ArrayList<Link>();
     }
 
     /**
@@ -87,7 +86,7 @@ public class Album extends Media
      * @param name   Name of the album.
      * @param artist Artist of the album.
      */
-    public Album(String id, String name, Artist artist)
+    public Album(String id, String name, Link artist)
     {
         super(id);
 
@@ -99,7 +98,7 @@ public class Album extends Media
         this.review = null;
         this.year = -1;
         this.discs = new ArrayList<Disc>();
-        this.similarAlbums = new ArrayList<Album>();
+        this.similarAlbums = new ArrayList<Link>();
     }
 
     /**
@@ -138,7 +137,7 @@ public class Album extends Media
      *
      * @return An {@link Artist} object.
      */
-    public Artist getArtist()
+    public Link getArtist()
     {
         return this.artist;
     }
@@ -148,7 +147,7 @@ public class Album extends Media
      *
      * @param artist The desired {@link Artist} of this album.
      */
-    public void setArtist(Artist artist)
+    public void setArtist(Link artist)
     {
         this.artist = artist;
     }
@@ -298,7 +297,7 @@ public class Album extends Media
      *
      * @return A {@link List} of {@link Album} objects.
      */
-    public List<Album> getSimilarAlbums()
+    public List<Link> getSimilarAlbums()
     {
         return this.similarAlbums;
     }
@@ -308,7 +307,7 @@ public class Album extends Media
      *
      * @param similarAlbums A {@link List} of {@link Album} objects.
      */
-    public void setSimilarAlbums(List<Album> similarAlbums)
+    public void setSimilarAlbums(List<Link> similarAlbums)
     {
         this.similarAlbums = similarAlbums;
     }

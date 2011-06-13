@@ -56,7 +56,7 @@ public class Track extends Media
     /**
      * Similar tracks of this track.
      */
-    private List<Track> similarTracks;
+    private List<Link> similarTracks;
 
     /**
      * If this track is explicit.
@@ -76,7 +76,7 @@ public class Track extends Media
         this.length = -1;
         this.files = new ArrayList<File>();
         this.cover = null;
-        this.similarTracks = new ArrayList<Track>();
+        this.similarTracks = new ArrayList<Link>();
     }
 
     /**
@@ -111,7 +111,7 @@ public class Track extends Media
         this.length = -1;
         this.files = new ArrayList<File>();
         this.cover = null;
-        this.similarTracks = new ArrayList<Track>();
+        this.similarTracks = new ArrayList<Link>();
     }
 
     /**
@@ -357,7 +357,7 @@ public class Track extends Media
      *
      * @return A {@link List} of {@link Track} objects.
      */
-    public List<Track> getSimilarTracks()
+    public List<Link> getSimilarTracks()
     {
         return this.similarTracks;
     }
@@ -367,7 +367,7 @@ public class Track extends Media
      *
      * @param similarTracks A {@link List} of {@link Track} objects.
      */
-    public void setSimilarTracks(List<Track> similarTracks)
+    public void setSimilarTracks(List<Link> similarTracks)
     {
         this.similarTracks = similarTracks;
     }
