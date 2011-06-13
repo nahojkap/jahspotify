@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Jah'Spotify</title>
+    <link rel="stylesheet" type="text/css" href="styles/main.css"/>
+</head>
+<body>
+
+<div class="logo_container">
+    <p class="logo">Jah'Spotify</p>
+</div>
+
+<div class="container">
+
+
+    <div id="current_track_container">
+
+        <div id="current_track_cover_art_container">
+            <img src="images/logo.jpeg"
+                 alt="[Cover Art]"/>
+
+        </div>
+
+        <div id="current_track_info_container">
+            <table>
+                <p></p>
+                <tr>
+                    <td>Track:</td>
+                    <td id="current_track_name">Losing My Time</td>
+                </tr>
+                <tr>
+                    <td>Album:</td>
+                    <td id="current_track_album">Some other time</td>
+                </tr>
+                <tr>
+                    <td>Artists:</td>
+                    <td id="current_track_artists">Some band</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    <div id="play_controller_container">
+        <p><a href="controller/skip">skip</a> <a href="controller/pause">pause</a> <a href="controller/play">play</a></p>
+    </div>
+
+    <div id="queue_container">
+    </div>
+
+    <div class="jstree-drop" id="queue_track_container">
+        <p style="align: center;">Drop To Queue Track</p>
+    </div>
+
+    <div id="playlist"></div>
+
+    <div id="status" class="content">
+        <table>
+            <tr>
+                <td>Up Since</td>
+                <td id="uptime"></td>
+            </tr>
+            <tr>
+                <td>Current Free Memory</td>
+                <td id="current_memory"></td>
+            </tr>
+            <tr>
+                <td>Total Available Memory</td>
+                <td id="total_memory"></td>
+            </tr>
+            <tr>
+                <td>Max Memory</td>
+                <td id="max_memory"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

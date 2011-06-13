@@ -1255,9 +1255,11 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
 
   if (imageLink)
   {
+    sp_link_add_ref(imageLink);
     sp_image *image = sp_image_create_from_link(g_sess,imageLink);
     if (image)
     {
+      sp_image_add_ref(image);
       while (!sp_image_is_loaded(image))
       {
         fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: Waiting for image to load ...\n");
