@@ -1,10 +1,8 @@
 package jahspotify.web;
 
-import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
 
-import com.google.gson.*;
 import jahspotify.media.*;
 import jahspotify.service.*;
 import org.apache.commons.logging.*;
@@ -45,10 +43,10 @@ public class PlaylistController extends BaseController
         attr.put("id", "ROOT");
         rootNode.setAttr(attr);
 
-        final List<Container> children = library.getChildren();
-        for (Container child : children)
+        final List<Library.Entry> children = library.getEntries();
+        for (Library.Entry child : children)
         {
-            rootNode.addChild(processContainer(child));
+            rootNode.addChild(processEntry(child));
         }
 
         writeResponseGeneric(httpServletResponse, rootNode);
@@ -56,44 +54,28 @@ public class PlaylistController extends BaseController
 
     }
 
-    private JSTreeNode processContainer(Container container)
+    private JSTreeNode processEntry(Library.Entry entry)
     {
         JSTreeNode jsTreeNode = new JSTreeNode();
-        if (container instanceof Playlist)
+        // Retrieve the playlist
+
+        jsTreeNode.setData(entry.getId());
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("id", entry.getId());
+        map.put("rel",entry.getType());
+        jsTreeNode.setAttr(map);
+
+        for (Library.Entry subEntry : entry.getSubEntries())
         {
-            Playlist playlist = (Playlist) container;
-            jsTreeNode.setData(playlist.getName());
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("id", playlist.getId());
-            map.put("rel", "playlist");
-            jsTreeNode.setAttr(map);
-            for (Track track : playlist.getTracks())
+            final JSTreeNode subJSTreeNode = processEntry(entry);
+            if (subJSTreeNode != null)
             {
-                final JSTreeNode trackJSTreeNode = new JSTreeNode();
-                trackJSTreeNode.setData(track.getTitle());
-                map = new HashMap<String, String>();
-                map.put("id", track.getId());
-                map.put("rel", "track");
-                trackJSTreeNode.setAttr(map);
-                jsTreeNode.addChild(trackJSTreeNode);
+                jsTreeNode.addChild(jsTreeNode);
             }
         }
-        else if (container instanceof Folder)
-        {
-            final Folder folder = (Folder) container;
-            jsTreeNode.setData(folder.getName());
-            Map<String, String> map = new HashMap<String, String>();
-            map = new HashMap<String, String>();
-            map.put("id", folder.getName());
-            map.put("rel", "folder");
-            jsTreeNode.setAttr(map);
-            final List<Container> children = folder.getChildren();
-            for (Container child : children)
-            {
-                jsTreeNode.addChild(processContainer(child));
-            }
-        }
+
         return jsTreeNode;
+
     }
 
 }

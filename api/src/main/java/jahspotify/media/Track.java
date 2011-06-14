@@ -21,12 +21,12 @@ public class Track extends Media
     /**
      * {@link Artist}s of this track.
      */
-    private List<Artist> artists = new ArrayList<Artist>();
+    private List<Link> artists = new ArrayList<Link>();
 
     /**
-     * {@link Album} this track belongs to.
+     * A {@link Link} to the album which this track belongs to.
      */
-    private Album album;
+    private Link album;
 
     /**
      * Release year of this track.
@@ -69,7 +69,7 @@ public class Track extends Media
     public Track()
     {
         this.title = null;
-        this.artists = new ArrayList<Artist>();
+        this.artists = new ArrayList<Link>();
         this.album = null;
         this.year = -1;
         this.trackNumber = -1;
@@ -98,7 +98,7 @@ public class Track extends Media
      * @param artists Artists of the track.
      * @param album  Album of the track.
      */
-    public Track(String id, String title, List<Artist> artists, Album album)
+    public Track(String id, String title, List<Link> artists, Link album)
     {
         super(id);
 
@@ -150,7 +150,7 @@ public class Track extends Media
      *
      * @return An {@link Artist}s object.
      */
-    public List<Artist> getArtists()
+    public List<Link> getArtists()
     {
         return this.artists;
     }
@@ -160,16 +160,16 @@ public class Track extends Media
      *
      * @param artists The desired {@link Artist}s of this track.
      */
-    public void setArtists(List<Artist> artists)
+    public void setArtists(List<Link> artists)
     {
         this.artists = artists;
     }
 
-    public void addArtist(Artist artist)
+    public void addArtist(Link artist)
     {
         if (artists == null)
         {
-            artists = new ArrayList<Artist>();
+            artists = new ArrayList<Link>();
         }
         artists.add(artist);
 
@@ -180,7 +180,7 @@ public class Track extends Media
      *
      * @return An {@link Album} object.
      */
-    public Album getAlbum()
+    public Link getAlbum()
     {
         return this.album;
     }
@@ -190,7 +190,7 @@ public class Track extends Media
      *
      * @param album The desired {@link Album} of this track.
      */
-    public void setAlbum(Album album)
+    public void setAlbum(Link album)
     {
         this.album = album;
     }

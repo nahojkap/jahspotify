@@ -32,10 +32,7 @@ public class JahSpotifyTest extends TestCase
     public void testNativeHelloWorld()
             throws Exception
     {
-        if (true)
-        {
-            return;
-        }
+
 
         final JahSpotifyImpl app = JahSpotifyImpl.getInstance();
 

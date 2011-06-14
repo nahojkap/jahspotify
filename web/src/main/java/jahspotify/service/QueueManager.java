@@ -146,7 +146,7 @@ public class QueueManager
                 _log.debug("Received playlist, processing for tracks");
                 // Have playlist
                 Playlist playlist = _jahSpotify.readPlaylist(s);
-                for (Track track : playlist.getTracks())
+                for (Link track : playlist.getTracks())
                 {
                     allURIs.add(track.getId());
                 }

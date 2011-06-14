@@ -4482,7 +4482,7 @@
 * This plugin gets jstree to use a class model to retrieve data, creating great dynamism
 */
 (function ($) {
-	var nodeInterface = ["getChildren","getChildrenCount","getAttr","getName","getProps"],
+	var nodeInterface = ["getEntries","getChildrenCount","getAttr","getName","getProps"],
 		validateInterface = function(obj, inter) {
 			var valid = true;
 			obj = obj || {};

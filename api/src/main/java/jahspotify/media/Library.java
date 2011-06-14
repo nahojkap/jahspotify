@@ -8,42 +8,116 @@ public class Library
 {
     public static final Library EMPTY = new Library();
 
-    private String author;
-    private List<Container> children;
+    private String owner;
+    private List<Entry> entries;
 
     public Library()
     {
-        this.author = null;
-        this.children = new ArrayList<Container>();
+        this.owner = null;
+        this.entries = new ArrayList<Entry>();
     }
 
-    public String getAuthor()
+    public String getOwner()
     {
-        return this.author;
+        return this.owner;
     }
 
-    public void setAuthor(String author)
+    public void setOwner(String owner)
     {
-        this.author = author;
+        this.owner = owner;
     }
 
-    public List<Container> getChildren()
+    public List<Entry> getEntries()
     {
-        return this.children;
+        return this.entries;
     }
 
-    public void addChild(Container child)
+    public void addEntry(Entry content)
     {
-        this.children.add(child);
+        this.entries.add(content);
     }
 
-    public void setChildren(List<Container> children)
+    public void setEntries(List<Entry> entries)
     {
-        this.children = children;
+        this.entries = entries;
     }
 
     public String toString()
     {
-        return String.format("[RootFolder: %s, %d]", this.author);
+        return String.format("[RootFolder: %s, %d]", this.owner);
     }
+
+    public static class Entry
+    {
+        private String id;
+        private String name;
+        private String type;
+        private List<Entry> subEntries;
+
+        public static final String FOLDER_ENTRY_TYPE="folder";
+        public static final String PLAYLIST_ENTRY_TYPE="playlist";
+        public static final String TRACK_ENTRY_TYPE="track";
+
+        public Entry(final String id, final String name, final String type)
+        {
+            this.id = id;
+            this.type = type;
+            this.name = name;
+        }
+
+        public String getType()
+        {
+            return type;
+        }
+
+        public void setType(final String type)
+        {
+            this.type = type;
+        }
+
+        public String getId()
+        {
+            return id;
+        }
+
+        public void setId(final String id)
+        {
+            this.id = id;
+        }
+
+        public List<Entry> getSubEntries()
+        {
+            return subEntries;
+        }
+
+        public void setSubEntries(final List<Entry> subEntries)
+        {
+            this.subEntries = subEntries;
+        }
+
+        public static Entry createPlaylistEntry(final String id, final String name)
+        {
+            return new Entry(id,name,PLAYLIST_ENTRY_TYPE);
+        }
+
+        public static Entry createTrackEntry(final String id, final String name)
+        {
+            return new Entry(id,name,TRACK_ENTRY_TYPE);
+        }
+
+        public static Entry createFolderEntry(final String id, final String name)
+        {
+            return new Entry(id,name,FOLDER_ENTRY_TYPE);
+        }
+
+        public void addSubEntry(final Entry entry)
+        {
+            if (subEntries == null)
+            {
+                subEntries = new ArrayList<Entry>();
+            }
+            subEntries.add(entry);
+        }
+    }
+
 }

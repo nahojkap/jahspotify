@@ -364,24 +364,24 @@ public class JahSpotifyImpl implements JahSpotify
             _library = new Library();
             if (getUser() != null)
             {
-                _library.setAuthor(getUser().getDisplayName());
+                _library.setOwner(getUser().getDisplayName());
             }
 
             for (Node node : _rootNode.getChildren())
             {
-                Container container = null;
+                Library.Entry entry = null;
                 if (node instanceof PlaylistNode)
                 {
-                    container = createPlaylistFromNode((PlaylistNode) node);
+                    entry = createPlaylistFromNode((PlaylistNode) node);
                 }
                 else if (node instanceof PlaylistFolderNode)
                 {
-                    container = createFolderFromNode((PlaylistFolderNode)node);
+                    entry = createFolderFromNode((PlaylistFolderNode)node);
                 }
 
-                if (container != null)
+                if (entry != null)
                 {
-                    _library.addChild(container);
+                    _library.addEntry(entry);
                 }
 
 
@@ -394,30 +394,30 @@ public class JahSpotifyImpl implements JahSpotify
         return _library;
     }
 
-    private Container createFolderFromNode(final PlaylistFolderNode playlistFolderNode)
+    private Library.Entry createFolderFromNode(final PlaylistFolderNode playlistFolderNode)
     {
-        Folder folder = new Folder();
-        folder.setName(playlistFolderNode.getName());
+        Library.Entry folder = Library.Entry.createFolderEntry(playlistFolderNode.getID(),playlistFolderNode.getName());
 
         for (Node node : playlistFolderNode.getChildren())
         {
             if (node instanceof PlaylistNode)
             {
-                Playlist playlist = createPlaylistFromNode((PlaylistNode) node);
-                folder.addChild(playlist);
+                Library.Entry playlist = createPlaylistFromNode((PlaylistNode) node);
+                folder.addSubEntry(playlist);
             }
             else if (node instanceof PlaylistFolderNode)
             {
-                final Container folderFromNode = createFolderFromNode((PlaylistFolderNode) node);
-                folder.addChild(folderFromNode);
+                final Library.Entry folderFromNode = createFolderFromNode((PlaylistFolderNode) node);
+                folder.addSubEntry(folderFromNode);
             }
         }
 
         return folder;
     }
 
-    private Playlist createPlaylistFromNode(final PlaylistNode playlistNode)
+    private Library.Entry createPlaylistFromNode(final PlaylistNode playlistNode)
     {
+        final Library.Entry playlistEntry = Library.Entry.createPlaylistEntry(playlistNode.getID(),playlistNode.getName());
         Playlist playlist = playlistNode.getPlaylist();
         if (playlist == null)
         {
@@ -425,20 +425,21 @@ public class JahSpotifyImpl implements JahSpotify
 
             playlistNode.setPlaylist(playlist);
 
-            for (Track track : playlist.getTracks())
+            for (Link trackLink : playlist.getTracks())
             {
+                Track track = retrieveTrack(trackLink.getId());
+
                 TrackNode trackNode = new TrackNode(track.getId(),track.getTitle());
                 trackNode.setTrack(track);
                 playlistNode.addTrackNode(trackNode);
             }
-
         }
-
-        for (TrackNode trackNode : playlistNode.getTracks())
+        else
         {
-
+            // If it is already loaded that is ...
         }
-        return playlist;
+
+        return playlistEntry;
     }
 
     @Override
