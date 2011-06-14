@@ -54,11 +54,6 @@ public class Track extends Media
     private String cover;
 
     /**
-     * Similar tracks of this track.
-     */
-    private List<Link> similarTracks;
-
-    /**
      * If this track is explicit.
      */
     private boolean explicit;
@@ -76,7 +71,6 @@ public class Track extends Media
         this.length = -1;
         this.files = new ArrayList<File>();
         this.cover = null;
-        this.similarTracks = new ArrayList<Link>();
     }
 
     /**
@@ -111,7 +105,6 @@ public class Track extends Media
         this.length = -1;
         this.files = new ArrayList<File>();
         this.cover = null;
-        this.similarTracks = new ArrayList<Link>();
     }
 
     /**
@@ -350,26 +343,6 @@ public class Track extends Media
     public void setCover(String cover)
     {
         this.cover = cover;
-    }
-
-    /**
-     * Get similar tracks for this track.
-     *
-     * @return A {@link List} of {@link Track} objects.
-     */
-    public List<Link> getSimilarTracks()
-    {
-        return this.similarTracks;
-    }
-
-    /**
-     * Set similar tracks for this track.
-     *
-     * @param similarTracks A {@link List} of {@link Track} objects.
-     */
-    public void setSimilarTracks(List<Link> similarTracks)
-    {
-        this.similarTracks = similarTracks;
     }
 
     /**
