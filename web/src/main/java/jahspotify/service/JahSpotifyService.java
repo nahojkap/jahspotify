@@ -2,6 +2,7 @@ package jahspotify.service;
 
 import javax.annotation.*;
 
+import jahspotify.JahSpotify;
 import jahspotify.impl.JahSpotifyImpl;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class JahSpotifyService
         }
     }
 
-    public JahSpotifyImpl getJahSpotify()
+    public JahSpotify getJahSpotify()
     {
         return _jahSpotifyImpl;
     }

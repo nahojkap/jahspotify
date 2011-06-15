@@ -25,11 +25,17 @@ public class TrackController extends BaseController
     @RequestMapping(value = "/track/*", method = RequestMethod.GET)
     public void retrieveTrack(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-        _log.debug("Extracted URI: " + uri);
-        Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
-        _log.debug("Got track: " + track);
-        writeResponseGeneric(httpServletResponse, track);
+        try
+        {
+            final Link uri = retrieveLink(httpServletRequest);
+            final Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
+            _log.debug("Got track: " + track);
+            writeResponseGeneric(httpServletResponse, track);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }

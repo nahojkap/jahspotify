@@ -18,7 +18,7 @@ public class Artist extends Media
     /**
      * The identifier for this artists portrait image (40-character string).
      */
-    private String portrait;
+    private Link portrait;
 
     /**
      * A {@link List} of genres.
@@ -84,7 +84,7 @@ public class Artist extends Media
      *
      * @return A 40-character hex string.
      */
-    public String getPortrait()
+    public Link getPortrait()
     {
         return this.portrait;
     }
@@ -94,7 +94,7 @@ public class Artist extends Media
      *
      * @param portrait A 40-character hex string.
      */
-    public void setPortrait(String portrait)
+    public void setPortrait(Link portrait)
     {
         this.portrait = portrait;
     }

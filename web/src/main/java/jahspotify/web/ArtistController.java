@@ -20,11 +20,17 @@ public class ArtistController extends BaseController
     @RequestMapping(value = "/artist/*", method = RequestMethod.GET)
     public void retrieveArtist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-        _log.debug("Extracted URI: " + uri);
-        Artist artist = _jahSpotifyService.getJahSpotify().readArtist(uri);
-        _log.debug("Got artist: " + artist);
-        super.writeResponseGeneric(httpServletResponse,artist);
+        try
+        {
+            Link uri = retrieveLink(httpServletRequest);
+            Artist artist = _jahSpotifyService.getJahSpotify().readArtist(uri);
+            _log.debug("Got artist: " + artist);
+            super.writeResponseGeneric(httpServletResponse,artist);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }

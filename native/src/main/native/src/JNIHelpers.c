@@ -123,9 +123,10 @@ jstring getObjectStringField(JNIEnv * env, jobject obj, const char *name)
     return (*env)->GetObjectField(env, obj, field);
 }
 
-jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fieldName, jobject value)
+jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fieldClassName, jobject value)
 {
     jclass clazz;
+//     , fieldClazz;
     jfieldID field;
     jstring str;
 
@@ -133,7 +134,31 @@ jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fiel
     if (clazz == NULL)
         return 1;
 
-    field = (*env)->GetFieldID(env, clazz, name, fieldName);
+/*    fieldClazz = (*env)->GetObjectClass(env,value);
+    if (fieldClazz == NULL)
+    {
+      return 1;
+    }*/
+    
+/*    jmethodID msgMethodID;
+    msgMethodID = (*env)->GetMethodID(env, fieldClazz, "getName","()Ljava/lang/String;");
+    if(msgMethodID == NULL) 
+    {
+      printf("getName is returning NULL......\n");
+      return 1;
+    }
+
+    jstring clsName = (jstring)(*env)->CallObjectMethod(env, obj, msgMethodID, NULL);
+    
+    const char* localstr = (*env)->GetStringUTFChars(env, clsName, NULL);
+    printf("\n\nException class name: %s\n", localstr);    
+
+    (*env)->ReleaseStringUTFChars(env, clsName, localstr);
+    
+    */
+    
+    field = (*env)->GetFieldID(env, clazz, name, fieldClassName);
+    
     (*env)->DeleteLocalRef(env, clazz);
 
     if (field == NULL)

@@ -24,7 +24,7 @@ public class Album extends Media
     /**
      * The identifier for this albums cover image (32-character string).
      */
-    private String cover;
+    private Link cover;
 
     /**
      * The type of this album (compilation, album, single).
@@ -113,7 +113,7 @@ public class Album extends Media
      *
      * @return A 32-character image identifier.
      */
-    public String getCover()
+    public Link getCover()
     {
         return this.cover;
     }
@@ -123,14 +123,8 @@ public class Album extends Media
      *
      * @param cover A 40-character image identifier.
      */
-    public void setCover(String cover)
+    public void setCover(Link cover)
     {
-        /* Check if portrait id string is valid. */
-        if (cover == null || cover.length() != 40 || !Hex.isHex(cover))
-        {
-            throw new IllegalArgumentException("Expecting a 40-character hex string.");
-        }
-
         this.cover = cover;
     }
 

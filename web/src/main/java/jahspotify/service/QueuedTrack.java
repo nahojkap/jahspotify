@@ -1,17 +1,19 @@
 package jahspotify.service;
 
+import jahspotify.media.Link;
+
 /**
  * @author Johan Lindquist
  */
 public class QueuedTrack
 {
     String _id;
-    String _trackID;
+    Link _trackID;
 
-    public QueuedTrack(final String id, final String trackID)
+    public QueuedTrack(final String id, final Link trackUri)
     {
         _id = id;
-        _trackID = trackID;
+        _trackID = trackUri;
     }
 
     public String getId()
@@ -24,14 +26,14 @@ public class QueuedTrack
         _id = id;
     }
 
-    public String getTrackID()
+    public Link getTrackUri()
     {
         return _trackID;
     }
 
-    public void setTrackID(final String trackID)
+    public void setTrackUri(final Link trackUri)
     {
-        _trackID = trackID;
+        _trackID = trackUri;
     }
 
     @Override

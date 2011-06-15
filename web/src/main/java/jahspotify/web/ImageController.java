@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
+import jahspotify.media.Link;
 import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,7 @@ public class ImageController extends BaseController
     {
         try
         {
-            String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-            _log.debug("Extracted URI: " + uri);
+            final Link uri = retrieveLink(httpServletRequest);
 
             // FIXME: This image should be cached
 
@@ -38,7 +38,7 @@ public class ImageController extends BaseController
             outputStream.flush();
             outputStream.close();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }

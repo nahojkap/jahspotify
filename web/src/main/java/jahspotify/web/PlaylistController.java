@@ -24,11 +24,17 @@ public class PlaylistController extends BaseController
     @RequestMapping(value = "/playlist/*", method = RequestMethod.GET)
     public void retrievePlaylist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-        _log.debug("Extracted URI: " + uri);
-        Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri);
-        _log.debug("Got playlist: " + playlist);
-        writeResponseGeneric(httpServletResponse, playlist);
+        try
+        {
+            final Link uri = retrieveLink(httpServletRequest);
+            Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri);
+            _log.debug("Got playlist: " + playlist);
+            writeResponseGeneric(httpServletResponse, playlist);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
@@ -59,7 +65,7 @@ public class PlaylistController extends BaseController
         JSTreeNode jsTreeNode = new JSTreeNode();
         // Retrieve the playlist
 
-        jsTreeNode.setData(entry.getId());
+        jsTreeNode.setData(entry.getName());
         Map<String, String> map = new HashMap<String, String>();
         map.put("id", entry.getId());
         map.put("rel",entry.getType());
@@ -67,10 +73,10 @@ public class PlaylistController extends BaseController
 
         for (Library.Entry subEntry : entry.getSubEntries())
         {
-            final JSTreeNode subJSTreeNode = processEntry(entry);
+            final JSTreeNode subJSTreeNode = processEntry(subEntry);
             if (subJSTreeNode != null)
             {
-                jsTreeNode.addChild(jsTreeNode);
+                jsTreeNode.addChild(subJSTreeNode);
             }
         }
 

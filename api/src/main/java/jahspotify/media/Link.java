@@ -23,7 +23,7 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, SEARCH;
+        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -39,9 +39,14 @@ public class Link
     /**
      * An exception that is thrown if parsing a Spotify URI fails.
      */
-    public class InvalidSpotifyURIException extends Exception
+    public class InvalidSpotifyURIException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
+
+        public InvalidSpotifyURIException(final String s)
+        {
+            super(s);
+        }
     }
 
     /**
@@ -50,6 +55,13 @@ public class Link
      * <pre>spotify:(artist|album|track):([0-9A-Za-z]{22})</pre>
      */
     private static final Pattern mediaPattern = Pattern.compile("spotify:(artist|album|track):([0-9A-Za-z]{22})");
+
+    /**
+     * A regular expression to match artist, album and track URIs:
+     * <p/>
+     * <pre>spotify:image:([0-9A-Za-z]{40})</pre>
+     */
+    private static final Pattern imagePattern = Pattern.compile("spotify:image:([0-9A-Za-z]{40})");
 
     /**
      * A regular expression to match playlist URIs:
@@ -114,6 +126,7 @@ public class Link
     {
         /* Regex for matching Spotify URIs. */
         Matcher mediaMatcher = mediaPattern.matcher(uri);
+        Matcher imageMatcher = imagePattern.matcher(uri);
         Matcher playlistMatcher = playlistPattern.matcher(uri);
         Matcher searchMatcher = searchPattern.matcher(uri);
 
@@ -136,10 +149,17 @@ public class Link
             }
             else
             {
-                throw new InvalidSpotifyURIException();
+                throw new InvalidSpotifyURIException("Invalid type: " + type);
             }
 
-            this.id = Link.toHex(mediaMatcher.group(2));
+            this.id = uri;
+            this.user = null;
+            this.query = null;
+        }
+        else if (imageMatcher.matches())
+        {
+            this.type = Type.IMAGE;
+            this.id = uri;
             this.user = null;
             this.query = null;
         }
@@ -148,7 +168,7 @@ public class Link
         {
             this.type = Type.PLAYLIST;
             this.user = playlistMatcher.group(1);
-            this.id = Link.toHex(playlistMatcher.group(2));
+            this.id = uri;
             this.query = null;
         }
         /* Check if URI matches search pattern. */
@@ -164,13 +184,13 @@ public class Link
             }
             catch (UnsupportedEncodingException e)
             {
-                throw new InvalidSpotifyURIException();
+                throw new InvalidSpotifyURIException("Invalid encoding of query");
             }
         }
         /* If nothing was matched. */
         else
         {
-            throw new InvalidSpotifyURIException();
+            throw new InvalidSpotifyURIException("Invalid URI: " + uri);
         }
     }
 
@@ -290,7 +310,7 @@ public class Link
      */
     public String asString()
     {
-        if (this.isPlaylistLink())
+        /*if (this.isPlaylistLink())
         {
             return String.format(
                     "spotify:user:%s:playlist:%s",
@@ -317,7 +337,8 @@ public class Link
                     "spotify:%s:%s", this.type,
                     Link.toBase62(this.id)
             );
-        }
+        }*/
+        return id;
     }
 
     /**

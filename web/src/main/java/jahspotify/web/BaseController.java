@@ -4,6 +4,7 @@ import java.io.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
+import jahspotify.media.Link;
 import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,13 @@ public class BaseController
         {
             e.printStackTrace();
         }
+    }
+
+    protected Link retrieveLink(final HttpServletRequest httpServletRequest)
+    {
+        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
+        _log.debug("Extracted URI: " + uri);
+        return Link.create(uri);
     }
 
     protected <T> T readRequest(final HttpServletRequest httpServletRequest, final Class<T> classOfT) throws IOException

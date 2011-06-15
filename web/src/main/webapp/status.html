@@ -128,9 +128,12 @@
 
               $.getJSON('track/' + data.currentlyPlaying, function(data)
               {
-                  $('<p/>',{
-                              html: '<img src="image/' + data.album.cover + '"/>'
-                  }).appendTo("#currently_playing_div");
+                  $.getJSON('album/' + data.album.id,function(data)
+                  {
+                      $('<p/>',{
+                                  html: '<img src="image/' + data.cover.id + '"/>'
+                      }).appendTo("#currently_playing_div");
+                  });
 
                   artists = "";
                   first = true;

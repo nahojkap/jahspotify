@@ -40,6 +40,7 @@ static int g_playback_done;
 static bool g_audio_initialized = JNI_FALSE;
 
 jobject createJArtistInstance(JNIEnv *env, sp_artist *artist);
+jobject createJLinkInstance(JNIEnv *env, sp_link *link);
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album);
 jobject createJTrackInstance(JNIEnv *env, sp_track *track);
 jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
@@ -653,6 +654,7 @@ jobject createJLinkInstance(JNIEnv *env, sp_link *link)
 {
     jobject linkInstance = NULL;
     jmethodID jMethod = NULL;
+
     jclass jClass = (*env)->FindClass(env, "jahspotify/media/Link");
 
     if (jClass == NULL)
@@ -663,7 +665,7 @@ jobject createJLinkInstance(JNIEnv *env, sp_link *link)
 
     char *linkStr = malloc ( sizeof ( char ) * ( 100 ) );
     
-    sp_link_as_string(link,linkStr,100);
+    int len = sp_link_as_string(link,linkStr,100);
 
     jstring jString = (*env)->NewStringUTF(env, linkStr);
     
@@ -847,45 +849,48 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
     if (albumLink)
     {
         sp_link_add_ref(albumLink);
-        char *albumLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-        sp_link_as_string(albumLink,albumLinkStr,100);
-
-        setObjectStringField(env,albumInstance,"id",albumLinkStr);
+        
+	jobject albumJLink = createJLinkInstance(env, albumLink);
+        setObjectObjectField(env,albumInstance,"id","Ljahspotify/media/Link;",albumJLink);
 
         sp_link_release(albumLink);
-        free(albumLinkStr);
 
         setObjectStringField(env,albumInstance,"name",sp_album_name(album));
         setObjectIntField(env,albumInstance,"year",sp_album_year(album));
 
-        const byte *coverBytes = sp_album_cover(album);
-        char *coverStr = toHexString((byte*)coverBytes);
-
-        setObjectStringField(env,albumInstance,"cover",coverStr);
-        free(coverStr);
-
+//         const byte *coverBytes = sp_album_cover(album);
+//         char *coverStr = toHexString((byte*)coverBytes);
+// 
+// 	_
+// 	
+//         setObjectStringField(env,albumInstance,"cover",coverStr);
+//         free(coverStr);
+// 
 
         sp_link *albumCoverLink = sp_link_create_from_album_cover(album);
         if (albumCoverLink)
         {
-            char *albumCoverLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-            sp_link_as_string(albumCoverLink,albumCoverLinkStr,100);
-            setObjectStringField(env,albumInstance,"cover",albumCoverLinkStr);
-            sp_link_release(albumCoverLink);
-            free(albumCoverLinkStr);
+	  sp_link_add_ref(albumCoverLink);
+	  
+	  jobject albumCoverJLink = createJLinkInstance(env, albumCoverLink);
+          setObjectObjectField(env,albumInstance,"cover","Ljahspotify/media/Link;",albumCoverJLink);
+
+          sp_link_release(albumCoverLink);
+          
         }
 
         sp_artist *artist = sp_album_artist(album);
         if (artist)
         {
-            while (!sp_artist_is_loaded(artist))
+	  sp_artist_add_ref(artist);
+
+/*            while (!sp_artist_is_loaded(artist))
             {
                 // Wait for it!
                 fprintf(stderr,"jahspotify::createJAlbumInstance: waiting for artist instance ... \n");
                 sleep(1);
             }
 
-            sp_artist_add_ref(artist);
             if (sp_artist_is_loaded(artist))
             {
                 jobject artistInstance = createJArtistInstance(env,artist);
@@ -900,7 +905,7 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
                 }
                 // set it on the track
                 (*env)->CallVoidMethod(env,albumInstance,jMethod,artistInstance);
-            }
+            }*/
             sp_artist_release(artist);
         }
 
@@ -933,32 +938,61 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
         setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
 
 	sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,artistBrowseComplete,NULL);
-	sp_artistbrowse_add_ref(artistBrowse);
 
 	if (artistBrowse)
 	{
+	  sp_artistbrowse_add_ref(artistBrowse);
+
 	  fprintf(stderr,"Created artist browse\n");
 
 	  while (!sp_artistbrowse_is_loaded(artistBrowse))
 	  {
-	    fprintf(stderr,"Waiting for the artist browse to load ...\n");
-	    sleep(1);
+	    // fprintf(stderr,"Waiting for the artist browse to load ...\n");
+	    usleep(100);
+	  }
+	  
+	  int numSimilarArtists = sp_artistbrowse_num_similar_artists(artistBrowse);
+
+	  if (numSimilarArtists > 0)
+	  {
+	    // Load the artist links
 	  }
 
-	  fprintf(stderr,"artist browse loaded ...\n");
 	  int numPortraits = sp_artistbrowse_num_portraits(artistBrowse);
 
 	  if (numPortraits > 0)
 	  {
 	    // Load portrait url
 	    const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,0);
+	    
 	    if (portraitURI)
 	    {
-		  fprintf(stderr,"About to hex\n");
 		  char *portraitURIStr = toHexString((byte*)portraitURI);
-		  fprintf(stderr,"hexed\n");
+		  const char spotifyURI[] = "spotify:image:";
+		  int len = strlen(spotifyURI) + strlen(portraitURIStr);
+		  char *dest = malloc(len+1);
+		  dest[0] = 0;
+		  strcat(dest,spotifyURI);
+		  strcat(dest,portraitURIStr);
+		  
+		  sp_link *portraitLink = sp_link_create_from_string(dest);
+
+		  free(dest);
+		  free(portraitURIStr);
+		  
+		  if (portraitLink)
+		  {
+		    sp_link_add_ref(portraitLink);
+		    
+		    jobject portraitJLlink = createJLinkInstance(env,portraitLink);
+		    setObjectObjectField(env,artistInstance,"portrait","Ljahspotify/media/Link;",portraitJLlink);
+		    
+		    sp_link_release(portraitLink);
+		  }
+		  // free(portraitURI);
 	    }
 	  }
+	  sp_artistbrowse_release(artistBrowse);
 	}
     }
     return artistInstance;
@@ -989,10 +1023,8 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
     sp_link *playlistLink = sp_link_create_from_playlist(playlist);
     if (playlistLink)
     {
-        char *playlistLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-        sp_link_as_string(playlistLink,playlistLinkStr,100);
-        setObjectStringField(env,playlistInstance,"id",playlistLinkStr);
-        free (playlistLinkStr);
+        jobject playlistJLink = createJLinkInstance(env,playlistLink);
+        setObjectObjectField(env,playlistInstance,"id","Ljahspotify/media/Link;",playlistJLink);
         sp_link_release(playlistLink);
     }
 
@@ -1006,7 +1038,7 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
     }
 
     // Lookup the method now - saves us looking it up for each iteration of the loop
-    jMethod = (*env)->GetMethodID(env,jClass,"addTrack","(Ljahspotify/media/Track;)V");
+    jMethod = (*env)->GetMethodID(env,jClass,"addTrack","(Ljahspotify/media/Link;)V");
 
     if (jMethod == NULL)
     {
@@ -1022,19 +1054,15 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
         if (track)
         {
             sp_track_add_ref(track);
-
-            while (!sp_track_is_loaded(track))
-            {
-                // Wait for it!
-                fprintf(stderr,"jahspotify::createJPlaylist: waiting for track instance to load\n");
-                sleep(1);
-            }
-
-            jobject trackInstance = createJTrackInstance(env,track);
-
-            // Add it to the playlist
-            (*env)->CallVoidMethod(env,playlistInstance,jMethod,trackInstance);
-
+	    sp_link *trackLink = sp_link_create_from_track(track, 0);
+	    if (trackLink)
+	    {
+	      sp_link_add_ref(trackLink);
+	      jobject trackJLink = createJLinkInstance(env,trackLink);
+	      // Add it to the playlist
+	      (*env)->CallVoidMethod(env,playlistInstance,jMethod,trackJLink);
+	      sp_link_release(trackLink);
+	    }
             sp_track_release(track);
 
         }
@@ -1192,79 +1220,6 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
 
 }
 
-
-JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist ( JNIEnv *env, jobject obj, jstring uri, jobject playlistInstance)
-{
-    uint8_t *nativeUri = NULL;
-    nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
-
-    sp_link *link = sp_link_create_from_string(nativeUri);
-    if (!link)
-    {
-        // hmm
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist: Could not create link!\n" );
-        return JNI_FALSE;
-    }
-
-    sp_playlist *playlist = sp_playlist_create(g_sess,link);
-
-    while (!sp_playlist_is_loaded(playlist))
-    {
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist: Waiting for playlist to be loaded ...\n" );
-        sleep(1);
-    }
-
-    setObjectStringField(env,playlistInstance,"name",sp_playlist_name(playlist));
-    setObjectStringField(env,playlistInstance,"id",nativeUri);
-
-    sp_user *owner = sp_playlist_owner(playlist);
-    if (owner)
-    {
-        setObjectStringField(env,playlistInstance,"author",sp_user_display_name(owner));
-        sp_user_release(owner);
-    }
-    int numTracks = sp_playlist_num_tracks(playlist);
-    int trackCounter = 0;
-    for (trackCounter = 0 ; trackCounter < numTracks; trackCounter++)
-    {
-        sp_track *track = sp_playlist_track(playlist,trackCounter);
-        if (sp_track_is_loaded(track))
-        {
-            sp_link *trackLink = sp_link_create_from_track(track,0);
-            if (trackLink)
-            {
-                char *trackLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-                sp_link_as_string(trackLink,trackLinkStr,100);
-                fprintf ( stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist track name: %s track id: %s\n",sp_track_name(track),trackLinkStr);
-                sp_album *album = sp_track_album(track);
-                if (sp_album_is_loaded(album))
-                {
-                    sp_artist *artist = sp_album_artist(album);
-                    if (sp_artist_is_loaded(artist))
-                    {
-                        fprintf ( stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist artist: %s\n",sp_artist_name(artist));
-                    }
-                }
-                sp_link_release(trackLink);
-                free(trackLinkStr);
-            }
-        }
-        sp_track_release(track);
-    }
-
-    if (playlist)
-        sp_playlist_release(playlist);
-    if (link)
-        sp_link_release(link);
-    if (nativeUri)
-        free(nativeUri);
-
-    fprintf ( stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_populatePlaylist: returning playlist: 0x%x\n",(unsigned int)playlist);
-
-    return JNI_TRUE;
-
-}
-
 JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTracks (JNIEnv *env, jobject obj, jobjectArray uris)
 {
     // For each track, read out the info and populate all of the info in the Track instance
@@ -1313,7 +1268,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             if (jClass == NULL)
             {
                 fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load class java.io.OutputStream\n");
-                return NULL;
+                return 1;
             }
             // Lookup the method now - saves us looking it up for each iteration of the loop
             jmethodID jMethod = (*env)->GetMethodID(env,jClass,"write","(I)V");
@@ -1321,7 +1276,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             if (jMethod == NULL)
             {
                 fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load method write(int) on class java.io.OutputStream\n");
-                return NULL;
+                return 1;
             }
 
             int i = 0;
@@ -1337,7 +1292,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
 
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_play (JNIEnv *env, jobject obj, jstring uri)
+JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env, jobject obj, jstring uri)
 {
     uint8_t *nativeURI = NULL;
 

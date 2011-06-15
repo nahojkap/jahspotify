@@ -5,6 +5,7 @@ import java.util.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
+import jahspotify.media.Link;
 import jahspotify.service.*;
 import jahspotify.service.QueueStatus;
 import org.apache.commons.logging.*;
@@ -38,7 +39,7 @@ public class QueueController extends BaseController
         {
             final QueueRequest queueRequest = readRequest(httpServletRequest, QueueRequest.class);
 
-            final List<String> uriQueue = queueRequest.getURIQueue();
+            final List<Link> uriQueue = convertToLinkList(queueRequest.getURIQueue());
             _queueManager.addToQueue(uriQueue);
             if (queueRequest.isAutoPlay() && _queueManager.getQueueState() != jahspotify.service.QueueState.PLAYING)
             {
@@ -60,13 +61,22 @@ public class QueueController extends BaseController
         }
     }
 
+    private List<Link> convertToLinkList(final List<String> uriQueue)
+    {
+        List<Link> linkList = new ArrayList<Link>();
+        for (String uri : uriQueue)
+        {
+            linkList.add(Link.create(uri));
+        }
+        return linkList;
+    }
+
     @RequestMapping(value = "/add-to-queue/*", method = RequestMethod.GET)
     public void addEntryViaGet(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         try
         {
-            String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-            _log.debug("URI: " + uri);
+            Link uri = retrieveLink(httpServletRequest);
             _queueManager.addToQueue(uri);
 
             BasicResponse basicResponse = new BasicResponse();
@@ -88,12 +98,19 @@ public class QueueController extends BaseController
     {
         // Either:
         // - track (or in fact, all occurences of that track in the queue)
-        // - id
-        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-        _log.debug("URI: " + uri);
-        _queueManager.deleteQueuedTrack(uri);
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
+        // - id in the form of a jahspotify uri
+
+        try
+        {
+            Link uri = retrieveLink(httpServletRequest);
+            _queueManager.deleteQueuedTrack(uri);
+            BasicResponse basicResponse = new BasicResponse();
+            basicResponse.setResponseStatus(ResponseStatus.OK);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @RequestMapping(value = "/queue/", method = RequestMethod.GET)
@@ -109,7 +126,11 @@ public class QueueController extends BaseController
         final CurrentQueue currentQueue = _queueManager.getCurrentQueue();
         final QueueResponse currentQueueResponse = new QueueResponse();
 
-        currentQueueResponse.setCurrentlyPlaying(currentQueue.getCurrentlyPlaying());
+        final Link currentlyPlaying = currentQueue.getCurrentlyPlaying();
+        if (currentlyPlaying != null)
+        {
+            currentQueueResponse.setCurrentlyPlaying(currentlyPlaying.asString());
+        }
 
         currentQueueResponse.setQueuedTracks(convertToWeb(currentQueue.getQueuedTracks()));
         writeResponse(httpServletResponse, currentQueueResponse);
@@ -125,7 +146,7 @@ public class QueueController extends BaseController
         List<QueuedTrack> queuedWebTracks = new ArrayList<QueuedTrack>();
         for (jahspotify.service.QueuedTrack queuedTrack : queuedTracks)
         {
-            queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackID()));
+            queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().asString()));
         }
 
         return queuedWebTracks;

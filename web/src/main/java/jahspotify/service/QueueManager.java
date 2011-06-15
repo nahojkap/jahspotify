@@ -29,7 +29,7 @@ public class QueueManager
     private Queue<QueuedTrack> _uriQueue = new ConcurrentLinkedQueue<QueuedTrack>();
 
     private BlockingQueue<String> _blockingQueue = new ArrayBlockingQueue<String>(1, true);
-    private String _currentURI = null;
+    private Link _currentURI = null;
     private JahSpotifyImpl _jahSpotify;
 
     // Defines whether or not play should start immediately when a track is added to an empty queue
@@ -87,7 +87,7 @@ public class QueueManager
                 final QueuedTrack peek = _uriQueue.peek();
                 if (peek != null)
                 {
-                    return peek.getTrackID();
+                    return peek.getTrackUri().asString();
                 }
                 return null;
             }
@@ -110,9 +110,9 @@ public class QueueManager
 
                             if (queuedTrack != null)
                             {
-                                _log.debug("Initiating play of: " + queuedTrack.getTrackID());
-                                _currentURI = queuedTrack.getTrackID();
-                                _jahSpotify.play(queuedTrack.getTrackID());
+                                _log.debug("Initiating play of: " + queuedTrack.getTrackUri());
+                                _currentURI = queuedTrack.getTrackUri();
+                                _jahSpotify.play(queuedTrack.getTrackUri());
                             }
                             else
                             {
@@ -130,58 +130,58 @@ public class QueueManager
         t.start();
     }
 
-    public void addToQueue(List<String> uris)
+    public void addToQueue(List<Link> uris)
     {
         // This should check if uris are:
         // - track (spotify:track:2zvot9pY2FNl1E94kc4K8M)
         // - album (spotify:album:46g6b33tbttcPtzbwzBoG6)
         // - playlist (spotify:user:<username>:playlist:5kAbHzlaZP8vMb6HVIWmdF)
 
-        final List<String> allURIs = new ArrayList<String>();
+        final List<Link> allURIs = new ArrayList<Link>();
 
-        for (String s : uris)
+        for (Link uri : uris)
         {
-            if (s.matches("spotify:user:.*:playlist:.*"))
+            if (uri.isPlaylistLink())
             {
                 _log.debug("Received playlist, processing for tracks");
                 // Have playlist
-                Playlist playlist = _jahSpotify.readPlaylist(s);
+                Playlist playlist = _jahSpotify.readPlaylist(uri);
                 for (Link track : playlist.getTracks())
                 {
-                    allURIs.add(track.getId());
+                    allURIs.add(track);
                 }
                 _log.debug("Playlist processed ...");
             }
-            if (s.matches("spotify:album:.*"))
+            else if (uri.isAlbumLink())
             {
                 _log.debug("Received album, processing for tracks");
                 // Have album
-                Album album = _jahSpotify.readAlbum(s);
+                Album album = _jahSpotify.readAlbum(uri);
                 for (Track track : album.getTracks())
                 {
-                    allURIs.add(track.getId().asString());
+                    allURIs.add(track.getId());
                 }
                 _log.debug("Album processed ...");
             }
-            if (s.matches("spotify:track:.*"))
+            else if (uri.isTrackLink())
             {
                 // Have track
-                allURIs.add(s);
+                allURIs.add(uri);
             }
         }
 
         addTracksToQueue(allURIs);
     }
 
-    public void addToQueue(String... uris)
+    public void addToQueue(Link... uris)
     {
         addToQueue(Arrays.asList(uris));
     }
 
-    private void addTracksToQueue(final List<String> trackURIs)
+    private void addTracksToQueue(final List<Link> trackURIs)
     {
         // Add all elements to the array
-        for (String trackURI : trackURIs)
+        for (Link trackURI : trackURIs)
         {
             QueuedTrack queuedTrack = new QueuedTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI);
             _uriQueue.add(queuedTrack);
@@ -230,7 +230,7 @@ public class QueueManager
         }
     }
 
-    public int deleteQueuedTrack(String uri)
+    public int deleteQueuedTrack(Link uri)
     {
         // uris are in the form of:
         // spotify:track:...
@@ -238,18 +238,18 @@ public class QueueManager
 
         int count = 0;
 
-        if (uri.matches("spotify:track:.*"))
+        if (uri.isTrackLink())
         {
             for (QueuedTrack queuedTrack : _uriQueue)
             {
-                if (queuedTrack.getTrackID().equals(uri))
+                if (queuedTrack.getTrackUri().equals(uri))
                 {
                     _uriQueue.remove(queuedTrack);
                     count++;
                 }
             }
         }
-        if (uri.matches("jahspotify:queue:default:.*"))
+/*        if (uri.isQueueURI("jahspotify:queue:default:.*"))
         {
             for (QueuedTrack queuedTrack : _uriQueue)
             {
@@ -259,7 +259,7 @@ public class QueueManager
                     count++;
                 }
             }
-        }
+        }*/
 
         return count;
     }

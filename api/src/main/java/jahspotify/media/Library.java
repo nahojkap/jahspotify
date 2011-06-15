@@ -51,7 +51,7 @@ public class Library
         private String id;
         private String name;
         private String type;
-        private List<Entry> subEntries;
+        private List<Entry> subEntries = new ArrayList<Entry>();
 
         public static final String FOLDER_ENTRY_TYPE="folder";
         public static final String PLAYLIST_ENTRY_TYPE="playlist";
@@ -82,6 +82,16 @@ public class Library
         public void setId(final String id)
         {
             this.id = id;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public void setName(final String name)
+        {
+            this.name = name;
         }
 
         public List<Entry> getSubEntries()

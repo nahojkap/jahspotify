@@ -229,9 +229,9 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public Artist readArtist(final String uri)
+    public Artist readArtist(final Link uri)
     {
-        return retrieveArtist(uri);
+        return retrieveArtist(uri.asString());
     }
 
     private native int readImage(String uri, OutputStream outputStream);
@@ -246,42 +246,43 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native Playlist retrievePlaylist(String uri);
 
-    private native boolean populatePlaylist(String uri, Playlist playlist);
-
     private native String[] getTracksForPlaylist(String uri);
 
-    @Override
-    public Album readAlbum(final String uri)
+    public Album readAlbum(final Link uri)
     {
-        return retrieveAlbum(uri);
+        return retrieveAlbum(uri.asString());
     }
 
     @Override
-    public Track readTrack(String uri)
+    public Track readTrack(Link uri)
     {
-        return retrieveTrack(uri);
+        return retrieveTrack(uri.asString());
     }
 
     @Override
-    public byte[] readImage(String uri)
+    public byte[] readImage(Link uri)
     {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        _jahSpotifyImpl.readImage(uri, outputStream);
+        _jahSpotifyImpl.readImage(uri.asString(), outputStream);
         return outputStream.toByteArray();
     }
 
     @Override
-    public Playlist readPlaylist(String uri)
+    public Playlist readPlaylist(Link uri)
     {
-        return retrievePlaylist(uri);
+        return retrievePlaylist(uri.asString());
     }
 
     @Override
-    public List<Track> readTracks(String... uris)
+    public List<Track> readTracks(Link... uris)
     {
         return Collections.emptyList();
     }
 
+    public List<Track> readTracks(List<Link> uris)
+    {
+        return Collections.emptyList();
+    }
     private native Track[] nativeReadTracks(String[] uris);
 
     @Override
@@ -291,7 +292,12 @@ public class JahSpotifyImpl implements JahSpotify
     public native int resume();
 
     @Override
-    public native int play(String uri);
+    public int play(Link uri)
+    {
+        return playTrack(uri.asString());
+    }
+
+    private native int playTrack(String uri);
 
     private native boolean registerConnectionListener(final ConnectionListener connectionListener);
 
@@ -427,10 +433,10 @@ public class JahSpotifyImpl implements JahSpotify
             for (Link trackLink : playlist.getTracks())
             {
                 Track track = retrieveTrack(trackLink.getId());
-
                 TrackNode trackNode = new TrackNode(track.getId().toString(),track.getTitle());
                 trackNode.setTrack(track);
                 playlistNode.addTrackNode(trackNode);
+                playlistEntry.addSubEntry(Library.Entry.createTrackEntry(track.getId().toString(),track.getTitle()));
             }
         }
         else

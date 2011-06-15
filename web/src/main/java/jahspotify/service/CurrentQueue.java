@@ -2,26 +2,28 @@ package jahspotify.service;
 
 import java.util.List;
 
+import jahspotify.media.Link;
+
 /**
  * @author Johan Lindquist
  */
 public class CurrentQueue
 {
-    private String _currentlyPlaying;
+    private Link _currentlyPlaying;
     private List<QueuedTrack> _queuedTracks;
 
-    public CurrentQueue(final String currentlyPlaying, final List<QueuedTrack> queuedTracks)
+    public CurrentQueue(final Link currentlyPlaying, final List<QueuedTrack> queuedTracks)
     {
         _currentlyPlaying = currentlyPlaying;
         _queuedTracks = queuedTracks;
     }
 
-    public String getCurrentlyPlaying()
+    public Link getCurrentlyPlaying()
     {
         return _currentlyPlaying;
     }
 
-    public void setCurrentlyPlaying(final String currentlyPlaying)
+    public void setCurrentlyPlaying(final Link currentlyPlaying)
     {
         _currentlyPlaying = currentlyPlaying;
     }

@@ -16,23 +16,27 @@ public interface JahSpotify
      */
     public void start(String username, String password);
 
-    public Artist readArtist(String uri);
+    public Artist readArtist(Link link);
 
-    public Album readAlbum(String uri);
+    public Track readTrack(Link link);
 
-    public Track readTrack(String uri);
+    public Album readAlbum(Link link);
 
-    public byte[] readImage(String uri);
+    public byte[] readImage(Link link);
 
-    public Playlist readPlaylist(String uri);
+    public Playlist readPlaylist(Link link);
 
-    public List<Track> readTracks(String... uris);
+    public List<Track> readTracks(List<Link> links);
+
+    public List<Track> readTracks(Link... uris);
+
+    public Library retrieveLibrary();
 
     public int pause();
 
     public int resume();
 
-    public int play(String uri);
+    public int play(Link uri);
 
     public User getUser();
 

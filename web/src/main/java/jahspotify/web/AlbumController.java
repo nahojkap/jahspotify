@@ -20,12 +20,19 @@ public class AlbumController extends BaseController
     private Log _log = LogFactory.getLog(AlbumController.class);
 
    @RequestMapping(value = "/album/*", method = RequestMethod.GET)
-    public void testPlaylist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    public void retrieveAlbum(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
-        _log.debug("Extracted URI: " + uri);
-        Album album = _jahSpotifyService.getJahSpotify().readAlbum(uri);
-        _log.debug("Got album: " + album);
-        super.writeResponseGeneric(httpServletResponse,album);
+        try
+        {
+            final Link link = retrieveLink(httpServletRequest);
+            Album album = _jahSpotifyService.getJahSpotify().readAlbum(link);
+            _log.debug("Got album: " + album);
+            super.writeResponseGeneric(httpServletResponse,album);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
+
 }
