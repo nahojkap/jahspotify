@@ -1,8 +1,6 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -71,51 +69,6 @@ public class Track extends Media
         this.length = -1;
         this.files = new ArrayList<File>();
         this.cover = null;
-    }
-
-    /**
-     * Creates a {@link Track} object with the specified {@code id}.
-     *
-     * @param id A 32-character hex string or a Spotify URI.
-     */
-    public Track(String id)
-    {
-        this(id, null, null, null);
-    }
-
-    /**
-     * Creates a {@link Track} object with the specified {@code id},
-     * {@code title},{@code artist} and {@code album}.
-     *
-     * @param id     A 32-character hex string or a Spotify URI.
-     * @param title  Title of the track.
-     * @param artists Artists of the track.
-     * @param album  Album of the track.
-     */
-    public Track(String id, String title, List<Link> artists, Link album)
-    {
-        super(id);
-
-        /* Set object properties. */
-        this.title = title;
-        this.artists = artists;
-        this.album = album;
-        this.year = -1;
-        this.trackNumber = -1;
-        this.length = -1;
-        this.files = new ArrayList<File>();
-        this.cover = null;
-    }
-
-    /**
-     * Create a link from this track.
-     *
-     * @return A {@link Link} object which can then
-     *         be used to retreive the Spotify URI.
-     */
-    public Link getLink()
-    {
-        return Link.create(this);
     }
 
     /**

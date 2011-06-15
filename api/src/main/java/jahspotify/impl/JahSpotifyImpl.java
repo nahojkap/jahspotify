@@ -2,7 +2,6 @@ package jahspotify.impl;
 
 import java.io.*;
 import java.util.*;
-import java.util.List;
 
 import jahspotify.*;
 import jahspotify.media.*;
@@ -429,7 +428,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 Track track = retrieveTrack(trackLink.getId());
 
-                TrackNode trackNode = new TrackNode(track.getId(),track.getTitle());
+                TrackNode trackNode = new TrackNode(track.getId().toString(),track.getTitle());
                 trackNode.setTrack(track);
                 playlistNode.addTrackNode(trackNode);
             }

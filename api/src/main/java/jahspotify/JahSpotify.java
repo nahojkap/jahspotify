@@ -1,6 +1,5 @@
 package jahspotify;
 
-import java.io.OutputStream;
 import java.util.List;
 
 import jahspotify.media.*;

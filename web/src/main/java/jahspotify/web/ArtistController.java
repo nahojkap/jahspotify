@@ -18,7 +18,7 @@ public class ArtistController extends BaseController
     private Log _log = LogFactory.getLog(ArtistController.class);
 
     @RequestMapping(value = "/artist/*", method = RequestMethod.GET)
-    public void testPlaylist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    public void retrieveArtist(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getRequestURI().lastIndexOf("/") + 1);
         _log.debug("Extracted URI: " + uri);

@@ -1,12 +1,8 @@
 package jahspotify.media;
 
 import java.io.UnsupportedEncodingException;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.*;
+import java.util.regex.*;
 
 import jahspotify.util.BaseConvert;
 
@@ -383,61 +379,6 @@ public class Link
     public static Link create(String uri) throws InvalidSpotifyURIException
     {
         return new Link(uri);
-    }
-
-    /**
-     * Create a {@link Link} from an {@link Artist}.
-     *
-     * @param artist An {@link Artist} object.
-     * @return A {@link Link} object.
-     */
-    public static Link create(Artist artist)
-    {
-        return new Link(Type.ARTIST, artist.getId(), null, null);
-    }
-
-    /**
-     * Create a {@link Link} from an {@link Album}.
-     *
-     * @param album An {@link Album} object.
-     * @return A {@link Link} object.
-     */
-    public static Link create(Album album)
-    {
-        return new Link(Type.ALBUM, album.getId(), null, null);
-    }
-
-    /**
-     * Create a {@link Link} from a {@link Track}.
-     *
-     * @param track A {@link Track} object.
-     * @return A {@link Link} object.
-     */
-    public static Link create(Track track)
-    {
-        return new Link(Type.TRACK, track.getId(), null, null);
-    }
-
-    /**
-     * Create a {@link Link} from a {@link Playlist}.
-     *
-     * @param playlist A {@link Playlist} object.
-     * @return A {@link Link} object.
-     */
-    public static Link create(Playlist playlist)
-    {
-        return new Link(Type.PLAYLIST, playlist.getId(), playlist.getAuthor(), null);
-    }
-
-    /**
-     * Create a {@link Link} from a search {@link Result}.
-     *
-     * @param result A search {@link Result} object.
-     * @return A {@link Link} object.
-     */
-    public static Link create(Result result)
-    {
-        return new Link(Type.SEARCH, null, null, result.getQuery());
     }
 
     /**

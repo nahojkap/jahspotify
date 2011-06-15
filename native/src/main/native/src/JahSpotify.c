@@ -653,7 +653,7 @@ jobject createJLinkInstance(JNIEnv *env, sp_link *link)
 {
     jobject linkInstance = NULL;
     jmethodID jMethod = NULL;
-    jclass jClass = (*env)->FindClass(env, "jahspotify/media/Track");
+    jclass jClass = (*env)->FindClass(env, "jahspotify/media/Link");
 
     if (jClass == NULL)
     {
@@ -662,11 +662,14 @@ jobject createJLinkInstance(JNIEnv *env, sp_link *link)
     }
 
     char *linkStr = malloc ( sizeof ( char ) * ( 100 ) );
+    
     sp_link_as_string(link,linkStr,100);
 
+    jstring jString = (*env)->NewStringUTF(env, linkStr);
+    
     jMethod = (*env)->GetStaticMethodID(env, jClass, "create", "(Ljava/lang/String;)Ljahspotify/media/Link;");
 
-    linkInstance = (*env)->CallStaticObjectMethod(env,jClass,jMethod,linkStr);
+    linkInstance = (*env)->CallStaticObjectMethod(env,jClass,jMethod,jString);
 
     if (!linkInstance)
     {
@@ -682,6 +685,15 @@ exit:
     return linkInstance;
 
 }
+
+
+char* createLinkStr(sp_link *link)
+{
+    char *linkStr = malloc ( sizeof ( char ) * ( 100 ) );
+    int len = sp_link_as_string(link,linkStr,100);
+    return linkStr;
+}
+
 
 jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 {
@@ -707,9 +719,8 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
     if (trackLink)
     {
       sp_link_add_ref(trackLink);
-      char *trackLinkStr = createJLinkInstance (env,trackLink);
-      setObjectStringField(env,trackInstance,"id",trackLinkStr);
-      free(trackLinkStr);
+      jobject trackJLink = createJLinkInstance(env,trackLink);
+      setObjectObjectField(env,trackInstance,"id","Ljahspotify/media/Link;",trackJLink);
 
       setObjectStringField(env,trackInstance,"title",sp_track_name(track));
       setObjectIntField(env,trackInstance,"length",sp_track_duration(track));
@@ -725,37 +736,58 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 	{
 	  sp_link_add_ref(albumLink);
 	  
-	  char *albumLinkStr = createJLinkInstance(env,albumLink);
+	  jobject albumJLink = createJLinkInstance(env,albumLink);
 	  
-	  // TODO: Set on track
+	  jmethodID jMethod = (*env)->GetMethodID(env,jClass,"setAlbum","(Ljahspotify/media/Link;)V");
+
+	  if (jMethod == NULL)
+	  {
+	    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method setAlbum(link) on class Track\n");
+	    return NULL;
+	  }
+	  
+	  // set it on the track
+	  (*env)->CallVoidMethod(env,trackInstance,jMethod,albumJLink);
 	  
 	  sp_link_release(albumLink);
 	  
 	}
 	
 	int numArtists = sp_track_num_artists(track);
-	int i = 0;
-	for (i = 0; i < numArtists; i++)
+	if (numArtists > 0)
 	{
-	  sp_artist *artist = sp_track_artist(track,i);
-	  if (artist)
+	  jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addArtist","(Ljahspotify/media/Link;)V");
+
+	  if (jMethod == NULL)
 	  {
-	    sp_artist_add_ref(artist);
-	    
-	    sp_link *artistLink = sp_link_create_from_artist(artist);
-	    if (artistLink)
+	    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addArtist(link) on class Track\n");
+	    return NULL;
+	  }
+
+	  int i = 0;
+	  for (i = 0; i < numArtists; i++)
+	  {
+	    sp_artist *artist = sp_track_artist(track,i);
+	    if (artist)
 	    {
-	      sp_link_add_ref(artistLink);
-	    
-	      char *artistLinkStr = createJLinkInstance(env,artistLink);
-
-	      // TODO: Add to track as artist link
-
-	      sp_link_release(artistLink);
+	      sp_artist_add_ref(artist);
 	      
-	      free(artistLinkStr);
+	      sp_link *artistLink = sp_link_create_from_artist(artist);
+	      if (artistLink)
+	      {
+		sp_link_add_ref(artistLink);
+	      
+		jobject artistJLink = createJLinkInstance(env,artistLink);
+
+		// set it on the track
+		(*env)->CallVoidMethod(env,trackInstance,jMethod,artistJLink);
+
+		sp_link_release(artistLink);
+		
+		// `free(artistLinkStr);
+	      }
+	      sp_artist_release(artist);
 	    }
-	    sp_artist_release(artist);
 	  }
 	}
 	
@@ -878,6 +910,10 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
 }
 
+void artistBrowseComplete(sp_artistbrowse *result, void *userdata)
+{
+}
+
 jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 {
     jclass jClass;
@@ -887,45 +923,43 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
     if (artistLink)
     {
         sp_link_add_ref(artistLink);
-        char *artistLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-        sp_link_as_string(artistLink,artistLinkStr,100);
-
-        setObjectStringField(env,artistInstance,"id",artistLinkStr);
+	
+	jobject artistJLink = createJLinkInstance(env, artistLink);
+	
+        setObjectObjectField(env,artistInstance,"id","Ljahspotify/media/Link;",artistJLink);
 
         sp_link_release(artistLink);
-        free(artistLinkStr);
 
         setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
 
-        /*
-            sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,NULL,NULL);
-            sp_artistbrowse_add_ref(artistBrowse);
+	sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,artistBrowseComplete,NULL);
+	sp_artistbrowse_add_ref(artistBrowse);
 
-            fprintf(stderr,"Created artist browse\n");
+	if (artistBrowse)
+	{
+	  fprintf(stderr,"Created artist browse\n");
 
-            if (artistBrowse)
-            {
-              while (!sp_artistbrowse_is_loaded(artistBrowse))
-              {
-                fprintf(stderr,"Waiting for the artist browse to load ...\n");
-                sleep(10);
-              }
+	  while (!sp_artistbrowse_is_loaded(artistBrowse))
+	  {
+	    fprintf(stderr,"Waiting for the artist browse to load ...\n");
+	    sleep(1);
+	  }
 
-              fprintf(stderr,"artist browse loaded ...\n");
-              int numPortraits = sp_artistbrowse_num_portraits(artistBrowse);
+	  fprintf(stderr,"artist browse loaded ...\n");
+	  int numPortraits = sp_artistbrowse_num_portraits(artistBrowse);
 
-              if (numPortraits > 0)
-              {
-                // Load portrait url
-                const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,0);
-        	if (portraitURI)
-        	{
-        	     fprintf(stderr,"About to hex\n");
-        	      char *portraitURIStr = toHexString((byte*)portraitURI);
-        	     fprintf(stderr,"hexed\n");
-        	}
-              }
-            }*/
+	  if (numPortraits > 0)
+	  {
+	    // Load portrait url
+	    const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,0);
+	    if (portraitURI)
+	    {
+		  fprintf(stderr,"About to hex\n");
+		  char *portraitURIStr = toHexString((byte*)portraitURI);
+		  fprintf(stderr,"hexed\n");
+	    }
+	  }
+	}
     }
     return artistInstance;
 

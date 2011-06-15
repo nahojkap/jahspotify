@@ -1,24 +1,18 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import jahspotify.util.Hex;
+import java.util.*;
 
 /**
  * Holds basic information about media.
  *
  * @author Felix Bruns <felixbruns@web.de>
- * @category Media
  */
 public class Media
 {
     /**
      * Identifier for this media object (32-character hex string).
      */
-    protected String id;
+    protected Link id;
 
     /**
      * Redirects (other identifiers) for this media (32-character hex strings).
@@ -53,62 +47,17 @@ public class Media
     }
 
     /**
-     * Creates a {@link Media} object with the specified {@code id}.
-     *
-     * @param id A 32-character hex string or a Spotify URI.
-     * @throws IllegalArgumentException If the given id is invalid.
-     */
-    protected Media(String id)
-    {
-        this();
-
-        /* Check if id is a 32-character hex string. */
-        if (id.length() == 32 && Hex.isHex(id))
-        {
-            this.id = id;
-        }
-        /* Otherwise try to parse it as a Spotify URI. */
-        else
-        {
-            try
-            {
-                this.id = Link.create(id).getId();
-            }
-            catch (Link.InvalidSpotifyURIException e)
-            {
-                throw new IllegalArgumentException(
-                        "Given id is neither a 32-character " +
-                                "hex string nor a valid Spotify URI.", e
-                );
-            }
-        }
-
-    }
-
-    /**
      * Get the media identifier.
      *
      * @return A 32-character identifier.
      */
-    public String getId()
+    public Link getId()
     {
         return this.id;
     }
 
-    /**
-     * Set the media identifier.
-     *
-     * @param id A 32-character identifier.
-     * @throws IllegalArgumentException If the given id is invalid.
-     */
-    public void setId(String id)
+    public void setId(Link id)
     {
-        /* Check if id string is valid. */
-        if (id == null || id.length() != 32 || !Hex.isHex(id))
-        {
-            throw new IllegalArgumentException("Expecting a 32-character hex string.");
-        }
-
         this.id = id;
     }
 

@@ -9,6 +9,7 @@ jint setObjectFloatField(JNIEnv * env, jobject obj, const char *name, jfloat val
 jint setObjectIntField(JNIEnv * env, jobject obj, const char *name, jint value);
 jint setObjectLongField(JNIEnv * env, jobject obj, const char *name, jlong value);
 jint setObjectStringField(JNIEnv * env, jobject obj,const char *name, const char *value);
+jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fieldName,jobject value);
 
 jint getObjectLongField(JNIEnv * env, jobject obj, const char *name, jlong *value);
 jstring getObjectStringField(JNIEnv * env, jobject obj, const char *name);

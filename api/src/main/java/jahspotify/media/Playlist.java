@@ -1,9 +1,6 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jahspotify.util.Hex;
+import java.util.*;
 
 /**
  * Holds information about a playlist.
@@ -13,13 +10,13 @@ import jahspotify.util.Hex;
  */
 public class Playlist extends Container
 {
-    private String id;
+    private Link id;
     private String name;
     private String author;
     private boolean collaborative;
 
     private String description;
-    private String picture;
+    private Link picture;
 
     private List<Link> tracks;
 
@@ -34,49 +31,12 @@ public class Playlist extends Container
         this.picture = null;
     }
 
-    public Playlist(String id)
-    {
-        this(id, null, null, false);
-    }
-
-    public Playlist(String id, String name, String author, boolean collaborative)
-    {
-        /* Check if id is a 32-character hex string. */
-        if (id.length() == 32 && Hex.isHex(id))
-        {
-            this.id = id;
-        }
-        /* Otherwise try to parse it as a Spotify URI. */
-        else
-        {
-            try
-            {
-                this.id = Link.create(id).getId();
-            }
-            catch (Link.InvalidSpotifyURIException e)
-            {
-                throw new IllegalArgumentException(
-                        "Given id is neither a 32-character" +
-                                "hex string nor a valid Spotify URI.", e
-                );
-            }
-        }
-
-        /* Set other playlist properties. */
-        this.name = name;
-        this.author = author;
-        this.tracks = new ArrayList<Link>();
-        this.collaborative = collaborative;
-        this.description = null;
-        this.picture = null;
-    }
-
-    public String getId()
+    public Link getId()
     {
         return this.id;
     }
 
-    public void setId(String id)
+    public void setId(Link id)
     {
         this.id = id;
     }
@@ -145,40 +105,14 @@ public class Playlist extends Container
         this.description = description;
     }
 
-    public String getPicture()
+    public Link getPicture()
     {
         return this.picture;
     }
 
-    public void setPicture(String picture)
+    public void setPicture(Link picture)
     {
         this.picture = picture;
-    }
-
-    /**
-     * Create a link from this playlist.
-     *
-     * @return A {@link Link} object which can then
-     *         be used to retreive the Spotify URI.
-     */
-    public Link getLink()
-    {
-        return Link.create(this);
-    }
-
-    public static Playlist fromResult(String name, String author, Result result)
-    {
-        Playlist playlist = new Playlist();
-
-        playlist.name = name;
-        playlist.author = author;
-
-        for (Link track : result.getTracks())
-        {
-            playlist.tracks.add(track);
-        }
-
-        return playlist;
     }
 
     public boolean equals(Object o)

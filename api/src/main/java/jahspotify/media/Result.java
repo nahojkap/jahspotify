@@ -1,7 +1,6 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Result
 {
@@ -24,17 +23,6 @@ public class Result
         this.artists = new ArrayList<Link>();
         this.albums = new ArrayList<Link>();
         this.tracks = new ArrayList<Link>();
-    }
-
-    /**
-     * Create a link from this search result.
-     *
-     * @return A {@link Link} object which can then
-     *         be used to retreive the Spotify URI.
-     */
-    public Link getLink()
-    {
-        return Link.create(this);
     }
 
     public String getQuery()

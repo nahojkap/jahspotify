@@ -1,7 +1,6 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -58,47 +57,6 @@ public class Artist extends Media
         this.bios = new ArrayList<Biography>();
         this.albums = new ArrayList<Link>();
         this.similarArtists = new ArrayList<Link>();
-    }
-
-    /**
-     * Creates an {@link Artist} object with the specified {@code id}.
-     *
-     * @param id A 32-character hex string or a Spotify URI.
-     */
-    public Artist(String id)
-    {
-        this(id, null);
-    }
-
-    /**
-     * Creates an {@link Artist} object with the specified {@code id} and {@code name}.
-     *
-     * @param id   A 32-character hex string or a Spotify URI.
-     * @param name Name of the artist or {@code null}.
-     */
-    public Artist(String id, String name)
-    {
-        super(id);
-
-        /* Set object properties. */
-        this.name = name;
-        this.portrait = null;
-        this.genres = new ArrayList<String>();
-        this.yearsActive = new ArrayList<String>();
-        this.bios = new ArrayList<Biography>();
-        this.similarArtists = new ArrayList<Link>();
-        this.albums = new ArrayList<Link>();
-    }
-
-    /**
-     * Create a link from this artist.
-     *
-     * @return A {@link Link} object which can then
-     *         be used to retreive the Spotify URI.
-     */
-    public Link getLink()
-    {
-        return Link.create(this);
     }
 
     /**

@@ -159,7 +159,7 @@ public class QueueManager
                 Album album = _jahSpotify.readAlbum(s);
                 for (Track track : album.getTracks())
                 {
-                    allURIs.add(track.getId());
+                    allURIs.add(track.getId().asString());
                 }
                 _log.debug("Album processed ...");
             }

@@ -1,7 +1,6 @@
 package jahspotify.media;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import jahspotify.util.Hex;
 
@@ -67,49 +66,6 @@ public class Album extends Media
         this.year = -1;
         this.discs = new ArrayList<Disc>();
         this.similarAlbums = new ArrayList<Link>();
-    }
-
-    /**
-     * Creates an {@link Album} object with the specified {@code id}.
-     *
-     * @param id A 32-character hex string or a Spotify URI.
-     */
-    public Album(String id)
-    {
-        this(id, null, null);
-    }
-
-    /**
-     * Creates an {@link Album} object with the specified {@code id}, {@code name} and {@code artist}.
-     *
-     * @param id     A 32-character hex string or a Spotify URI.
-     * @param name   Name of the album.
-     * @param artist Artist of the album.
-     */
-    public Album(String id, String name, Link artist)
-    {
-        super(id);
-
-        /* Set object properties. */
-        this.name = name;
-        this.artist = artist;
-        this.cover = null;
-        this.type = null;
-        this.review = null;
-        this.year = -1;
-        this.discs = new ArrayList<Disc>();
-        this.similarAlbums = new ArrayList<Link>();
-    }
-
-    /**
-     * Create a link from this album.
-     *
-     * @return A {@link Link} object which can then
-     *         be used to retreive the Spotify URI.
-     */
-    public Link getLink()
-    {
-        return Link.create(this);
     }
 
     /**

@@ -123,6 +123,29 @@ jstring getObjectStringField(JNIEnv * env, jobject obj, const char *name)
     return (*env)->GetObjectField(env, obj, field);
 }
 
+jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fieldName, jobject value)
+{
+    jclass clazz;
+    jfieldID field;
+    jstring str;
+
+    clazz = (*env)->GetObjectClass(env, obj);
+    if (clazz == NULL)
+        return 1;
+
+    field = (*env)->GetFieldID(env, clazz, name, fieldName);
+    (*env)->DeleteLocalRef(env, clazz);
+
+    if (field == NULL)
+        return 1;
+
+    (*env)->SetObjectField(env, obj, field, value);
+
+    return 0;
+}
+
+
+
 jint setObjectStringField(JNIEnv * env, jobject obj, const char *name, const char *value)
 {
     jclass clazz;
