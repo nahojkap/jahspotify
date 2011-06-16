@@ -199,6 +199,15 @@ public class Artist extends Media
         this.similarArtists = similarArtists;
     }
 
+    public void addSimilarArtist(Link similarArtist)
+    {
+        if (similarArtists == null)
+        {
+            similarArtists = new ArrayList<Link>();
+        }
+        similarArtists.add(similarArtist);
+    }
+
     /**
      * Determines if an object is equal to this {@link Artist} object.
      * If both objects are {@link Artist} objects, it will compare their identifiers.
