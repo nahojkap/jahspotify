@@ -13,22 +13,9 @@
 
     <name>jahspotify-client</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <target>1.6</target>
-                    <source>1.6</source>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <dependencies>
 
- <dependencies>
-
-         <dependency>
+        <dependency>
             <groupId>jahspotify</groupId>
             <artifactId>jahspotify-web-common</artifactId>
         </dependency>
@@ -36,19 +23,16 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>1.7.1</version>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-             <version>4.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.1</version>
         </dependency>
 
     </dependencies>

@@ -260,11 +260,11 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public byte[] readImage(Link uri)
+    public Image readImage(Link uri)
     {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         _jahSpotifyImpl.readImage(uri.asString(), outputStream);
-        return outputStream.toByteArray();
+        return new Image(uri,outputStream.toByteArray());
     }
 
     @Override

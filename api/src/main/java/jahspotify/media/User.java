@@ -4,16 +4,15 @@ import java.net.*;
 
 public class User
 {
-    private String _fullName;
-    private String _userName;
-    private String _displayName;
-    private String _country;
-    private String _imageURL;
-    // FIXME: image format!
+    private String fullName;
+    private String userName;
+    private String displayName;
+    private String country;
+    private String imageURL;
 
     public String getCountry()
     {
-        return _country;
+        return country;
     }
 
     public User()
@@ -22,21 +21,21 @@ public class User
 
     public String getDisplayName()
     {
-        return _displayName;
+        return displayName;
     }
 
     public String getFullName()
     {
-        return _fullName;
+        return fullName;
     }
 
     public URL getImageURL()
     {
-        if (_imageURL != null)
+        if (imageURL != null)
         {
             try
             {
-                return new URL(_imageURL);
+                return new URL(imageURL);
             }
             catch (MalformedURLException e)
             {
@@ -48,18 +47,18 @@ public class User
 
     public String getUserName()
     {
-        return _userName;
+        return userName;
     }
 
     @Override
     public String toString()
     {
         return "User{" +
-                "_country='" + _country + '\'' +
-                ", _fullName='" + _fullName + '\'' +
-                ", _userName='" + _userName + '\'' +
-                ", _displayName='" + _displayName + '\'' +
-                ", _imageURL=" + _imageURL +
+                "country='" + country + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", imageURL=" + imageURL +
                 '}';
     }
 }

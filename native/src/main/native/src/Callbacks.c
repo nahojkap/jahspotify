@@ -475,7 +475,7 @@ exit:
 
 void startPlaybackSignalled()
 {
-  // threaded_startPlaybackSignalled(NULL);
+  placeInThread(threaded_startPlaybackSignalled,0);
 }
 
 

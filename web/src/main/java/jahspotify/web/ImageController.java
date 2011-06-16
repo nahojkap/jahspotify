@@ -4,7 +4,7 @@ import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
-import jahspotify.media.Link;
+import jahspotify.media.*;
 import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,8 @@ public class ImageController extends BaseController
 
             // FIXME: This image should be cached
 
-            byte[] bytes = _jahSpotifyService.getJahSpotify().readImage(uri);
+            final Image image = _jahSpotifyService.getJahSpotify().readImage(uri);
+            byte[] bytes = image.getBytes();
 
             httpServletResponse.setContentType("image/jpeg");
             httpServletResponse.setContentLength(bytes.length);

@@ -22,7 +22,7 @@ public interface JahSpotify
 
     public Album readAlbum(Link link);
 
-    public byte[] readImage(Link link);
+    public Image readImage(Link link);
 
     public Playlist readPlaylist(Link link);
 
