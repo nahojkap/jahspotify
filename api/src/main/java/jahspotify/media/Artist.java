@@ -33,7 +33,7 @@ public class Artist extends Media
     /**
      * A {@link List} of biographies.
      */
-    private List<Biography> bios;
+    private String bios;
 
     /**
      * A {@link List} of albums.
@@ -54,7 +54,7 @@ public class Artist extends Media
         this.portrait = null;
         this.genres = new ArrayList<String>();
         this.yearsActive = new ArrayList<String>();
-        this.bios = new ArrayList<Biography>();
+        this.bios = null;
         this.albums = new ArrayList<Link>();
         this.similarArtists = new ArrayList<Link>();
     }
@@ -144,7 +144,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of {@link Biography} objects.
      */
-    public List<Biography> getBios()
+    public String getBios()
     {
         return this.bios;
     }
@@ -154,7 +154,7 @@ public class Artist extends Media
      *
      * @param bios A {@link List} of {@link Biography} objects.
      */
-    public void setBios(List<Biography> bios)
+    public void setBios(String bios)
     {
         this.bios = bios;
     }

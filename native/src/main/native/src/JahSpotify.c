@@ -34,7 +34,7 @@ static pthread_mutex_t g_notify_mutex;
 static pthread_cond_t g_notify_cond;
 /// Synchronization variable telling the main thread to process events
 static int g_notify_do;
-/// Non-zero when a track has ended and the jukebox has not yet started a new one
+/// Non-zero when a track has ended and a new one has not yet started a new one
 static int g_playback_done;
 
 static bool g_audio_initialized = JNI_FALSE;
@@ -58,25 +58,6 @@ jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
 static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
                            int num_tracks, int position, void *userdata )
 {
-    /*
-      int i;
-        fprintf ( stderr,"jahspotify: %d tracks were added\n", num_tracks );
-
-        if (sp_playlist_is_loaded(pl))
-        {
-            for (i = 0; i < num_tracks;i++)
-            {
-                sp_track *track = ( sp_track* ) tracks;
-                if (sp_track_is_loaded( track ))
-                {
-                    fprintf ( stderr,"jahspotify: track: %s\n", sp_track_name ( track ));
-                }
-                tracks++;
-            }
-        }
-
-        try_jukebox_start();
-        */
 }
 
 /**
@@ -90,10 +71,6 @@ static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
 static void tracks_removed ( sp_playlist *pl, const int *tracks,
                              int num_tracks, void *userdata )
 {
-    /*
-        fprintf ( stderr,"jahspotify: %d tracks were removed\n", num_tracks );
-        try_jukebox_start();
-      */
 }
 
 /**
@@ -108,10 +85,6 @@ static void tracks_removed ( sp_playlist *pl, const int *tracks,
 static void tracks_moved ( sp_playlist *pl, const int *tracks,
                            int num_tracks, int new_position, void *userdata )
 {
-    /*
-        fprintf ( stderr,"jahspotify: %d tracks were moved around\n", num_tracks );
-        try_jukebox_start();
-        */
 }
 
 /**
@@ -122,7 +95,6 @@ static void tracks_moved ( sp_playlist *pl, const int *tracks,
  */
 static void playlist_renamed ( sp_playlist *pl, void *userdata )
 {
-    // fprintf ( stderr,"jahspotify: playlist renamed: %s\n",sp_playlist_name ( pl ));
 }
 
 static void playlist_state_changed ( sp_playlist *pl, void *userdata )
@@ -464,7 +436,7 @@ static void play_token_lost ( sp_session *sess )
 
 static void userinfo_updated (sp_session *sess)
 {
-    printf("jukebox: user information updated\n");
+    printf("jahspotify::userinfo_updated: user information updated\n");
 }
 
 static void log_message(sp_session *session, const char *data)
@@ -786,7 +758,6 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
                             sp_link_release(artistLink);
 
-                            // `free(artistLinkStr);
                         }
                         sp_artist_release(artist);
                     }
@@ -901,6 +872,18 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 	  {
 	      sp_artist_add_ref(artist);
 
+	      sp_link *artistLink = sp_link_create_from_artist(artist);
+	      
+	      if (artistLink)
+	      {
+		sp_link_add_ref(artistLink);
+		
+	        jobject artistJLink = createJLinkInstance(env,artistLink);
+		
+		setObjectObjectField(env,albumInstance,"artist","Ljahspotify/media/Link;",artistJLink);
+
+		sp_link_release(artistLink);
+	      }
 
 	      sp_artist_release(artist);
 	  }
@@ -911,19 +894,51 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
       int numTracks = sp_albumbrowse_num_tracks(albumBrowse);
       if (numTracks > 0)
       {
-	// Add each track to the album
- 	// This should also collect the number of disks in the album
- 	// and the tracks belonging to each album - somehow ...
+	// Add each track to the album - also pass in the disk as need be
+	jmethodID addTrackJMethodID = (*env)->GetMethodID(env,albumJClass,"addTrack","(ILjahspotify/media/Link;)V");
+ 	int i = 0;
+	for (i = 0; i < numTracks; i++)
+	{
+	  sp_track *track = sp_albumbrowse_track(albumBrowse,i);
+	  
+	  if (track)
+	  {
+	    sp_track_add_ref(track);
+	  
+	    sp_link *trackLink = sp_link_create_from_track(track,0);
+	    if (trackLink)
+	    {
+	      sp_link_add_ref(trackLink);
+	      jobject trackJLink = createJLinkInstance(env,trackLink);
+	      (*env)->CallVoidMethod(env, albumInstance, addTrackJMethodID,sp_track_disc(track),trackJLink);
+	      sp_link_release(trackLink);
+	    }
+	  }
+	}
       }
       
       int numCopyrights = sp_albumbrowse_num_copyrights(albumBrowse);
       if (numCopyrights > 0)
       {
 	// Add copyrights to album
+	jmethodID addCopyrightMethodID = (*env)->GetMethodID(env,albumJClass,"addCopyright","(Ljava/lang/String;)V");
+	int i = 0;
+	for (i = 0; i < numCopyrights; i++)
+	{
+	  const char *copyright = sp_albumbrowse_copyright(albumBrowse,i);
+	  if (copyright)
+	  {
+	    jstring str = (*env)->NewStringUTF(env, copyright);
+	    (*env)->CallVoidMethod(env, albumInstance, addCopyrightMethodID,str);
+	  }
+	}
       }
-      
+
       const char *review = sp_albumbrowse_review(albumBrowse);
-      
+      if (review)
+      {
+        setObjectStringField(env,albumInstance,"review",review);
+      }
       sp_albumbrowse_release(albumBrowse);
     }
     return albumInstance;
@@ -1041,14 +1056,17 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                         sp_link_release(portraitLink);
                     }
-                    // free(portraitURI);
                 }
             }
 
             // sp_artistbrowse_num_albums()
             // sp_artistbrowse_album()
 
-            // sp_artistbrowse_biography()
+            const char *bios = sp_artistbrowse_biography(artistBrowse);
+	    if (bios)
+	    {
+	      setObjectStringField(env,artistInstance,"bios",bios);
+	    }
 
             // sp_artistbrowse_num_tracks()
             // sp_artistbrowse_track()
@@ -1189,6 +1207,12 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JN
 
     return albumInstance;
 }
+
+JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_shutdown ( JNIEnv *env, jobject obj)
+{
+  sp_session_logout(g_sess);
+}
+
 
 JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JNIEnv *env, jobject obj, jstring uri)
 {

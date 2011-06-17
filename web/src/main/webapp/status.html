@@ -141,13 +141,21 @@
                   {
                       if (first)
                       {
-                          artists = ', <a href="artist/' + val.id + '">' + val.name + '</a>';
+                          artists = ', <a id="' + val.id + '" href="artist/' + val.id + '">' + val.name + '</a>';
                           first = false;
                       }
                       else
                       {
-                        artists = artists + ', <a href="artist/' + val.id + '">' + val.name + '</a>';
+                        artists = artists + ', <a id="' + val.id + '" href="artist/' + val.id + '">' + val.name + '</a>';
                       }
+
+/*
+                      $.getJSON('artist/' + val.id,function(data)
+                      {
+                          $('#' + val.id).text(data.name);
+                      });
+*/
+
                   });
 
                   $('<p/>', {

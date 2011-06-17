@@ -6,6 +6,7 @@ import java.util.*;
  * Holds information about a disc of an album.
  *
  * @author Felix Bruns <felixbruns@web.de>
+ * @author Johan Lindquist
  */
 public class Disc
 {
@@ -15,14 +16,9 @@ public class Disc
     private int number;
 
     /**
-     * The name of this disc.
-     */
-    private String name;
-
-    /**
      * A list of tracks on this disc.
      */
-    private List<Track> tracks;
+    private List<Link> tracks;
 
     /**
      * Create an empty {@link Disc} object.
@@ -30,8 +26,7 @@ public class Disc
     public Disc()
     {
         this.number = -1;
-        this.name = null;
-        this.tracks = new ArrayList<Track>();
+        this.tracks = new ArrayList<Link>();
     }
 
     /**
@@ -43,8 +38,7 @@ public class Disc
     public Disc(int number, String name)
     {
         this.number = number;
-        this.name = name;
-        this.tracks = new ArrayList<Track>();
+        this.tracks = new ArrayList<Link>();
     }
 
     /**
@@ -68,31 +62,11 @@ public class Disc
     }
 
     /**
-     * Get the discs name.
-     *
-     * @return A string.
-     */
-    public String getName()
-    {
-        return this.name;
-    }
-
-    /**
-     * Set the discs name.
-     *
-     * @param name The discs name.
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    /**
      * Get a list of tracks on this disc.
      *
      * @return A {@link List} of {@link Track} objects.
      */
-    public List<Track> getTracks()
+    public List<Link> getTracks()
     {
         return this.tracks;
     }
@@ -102,8 +76,17 @@ public class Disc
      *
      * @param tracks A {@link List} of {@link Track} objects.
      */
-    public void setTracks(List<Track> tracks)
+    public void setTracks(List<Link> tracks)
     {
         this.tracks = tracks;
+    }
+
+    public void addTrack(final Link track)
+    {
+        if (tracks == null)
+        {
+            tracks = new ArrayList<Link>();
+        }
+        tracks.add(track);
     }
 }

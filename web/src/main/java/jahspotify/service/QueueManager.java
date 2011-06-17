@@ -157,9 +157,9 @@ public class QueueManager
                 _log.debug("Received album, processing for tracks");
                 // Have album
                 Album album = _jahSpotify.readAlbum(uri);
-                for (Track track : album.getTracks())
+                for (Link track : album.getTracks())
                 {
-                    allURIs.add(track.getId());
+                    allURIs.add(track);
                 }
                 _log.debug("Album processed ...");
             }

@@ -8,6 +8,7 @@ import jahspotify.util.Hex;
  * Holds information about an album.
  *
  * @author Felix Bruns <felixbruns@web.de>
+ * @author Johan Lindquist
  */
 public class Album extends Media
 {
@@ -48,10 +49,7 @@ public class Album extends Media
      */
     private List<Disc> discs;
 
-    /**
-     * Similar albums of this album.
-     */
-    private List<Link> similarAlbums;
+    private List<String> copyrights;
 
     /**
      * Creates an empty {@link Album} object.
@@ -65,7 +63,6 @@ public class Album extends Media
         this.review = null;
         this.year = -1;
         this.discs = new ArrayList<Disc>();
-        this.similarAlbums = new ArrayList<Link>();
     }
 
     /**
@@ -214,14 +211,26 @@ public class Album extends Media
         this.discs = discs;
     }
 
-    /**
-     * Set discs for this album.
-     *
-     * @param discs A {@link List} of {@link Disc} objects.
-     */
-    public void setTracks(List<Disc> discs)
+    public void addTrack(int disc, Link track)
     {
-        this.discs = discs;
+        if (discs == null)
+        {
+            discs = new ArrayList<Disc>();
+        }
+        for (Disc aDisc : discs)
+        {
+            if (aDisc.getNumber() == disc)
+            {
+                aDisc.addTrack(track);
+                return;
+            }
+        }
+
+        // Ok, didnt find a disk in there matchin the disc passed in
+        Disc newDisc = new Disc(disc,null);
+        newDisc.addTrack(track);
+        discs.add(newDisc);
+
     }
 
     /**
@@ -230,9 +239,9 @@ public class Album extends Media
      *
      * @return A {@link List} of {@link Track} objects.
      */
-    public List<Track> getTracks()
+    public List<Link> getTracks()
     {
-        List<Track> tracks = new ArrayList<Track>();
+        List<Link> tracks = new ArrayList<Link>();
 
         for (Disc disc : this.discs)
         {
@@ -240,26 +249,6 @@ public class Album extends Media
         }
 
         return tracks;
-    }
-
-    /**
-     * Get similar albums for this album.
-     *
-     * @return A {@link List} of {@link Album} objects.
-     */
-    public List<Link> getSimilarAlbums()
-    {
-        return this.similarAlbums;
-    }
-
-    /**
-     * Set similar albums for this album.
-     *
-     * @param similarAlbums A {@link List} of {@link Album} objects.
-     */
-    public void setSimilarAlbums(List<Link> similarAlbums)
-    {
-        this.similarAlbums = similarAlbums;
     }
 
     /**
@@ -290,6 +279,25 @@ public class Album extends Media
         }
 
         return false;
+    }
+
+    public void addCopyright(String copyright)
+    {
+        if (copyrights == null)
+        {
+            copyrights = new ArrayList<String>();
+        }
+        copyrights.add(copyright);
+    }
+
+    public List<String> getCopyrights()
+    {
+        return copyrights;
+    }
+
+    public void setCopyrights(final List<String> copyrights)
+    {
+        this.copyrights = copyrights;
     }
 
     /**
