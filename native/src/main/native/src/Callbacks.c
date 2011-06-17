@@ -56,7 +56,7 @@ void* threaded_startPlaybackSignalled(void* threadargs)
         goto fail;
     }
     
-    method = (*env)->GetMethodID(env, g_playbackListenerClass, "nextTrackToPreload", "()Ljava.lang.String;");
+    method = (*env)->GetMethodID(env, g_playbackListenerClass, "nextTrackToPreload", "()Ljava/lang/String;");
 
     if (method == NULL)
     {
@@ -67,26 +67,29 @@ void* threaded_startPlaybackSignalled(void* threadargs)
 
     nextUriStr = (*env)->CallObjectMethod(env, g_playbackListener, method);
 
-    nextUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, nextUriStr, NULL );
-
-    sp_link *link = sp_link_create_from_string(nextUri);
-    if (link)
+    if (nextUriStr)
     {
-      sp_track *track = sp_link_as_track(link);
-      sp_link_release(link);
-      sp_error error = sp_session_player_prefetch(g_sess,track);
-      sp_track_release(track);
-      if (error != SP_ERROR_OK)
+      nextUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, nextUriStr, NULL );
+
+      sp_link *link = sp_link_create_from_string(nextUri);
+      if (link)
       {
-        fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error prefetch: %s\n",sp_error_message(error));
+	sp_track *track = sp_link_as_track(link);
+	sp_link_release(link);
+	sp_error error = sp_session_player_prefetch(g_sess,track);
+	sp_track_release(track);
+	if (error != SP_ERROR_OK)
+	{
+	  fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error prefetch: %s\n",sp_error_message(error));
+	  goto fail;
+	}
       }
     }
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: error during callback\n");
-
+    fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error during callback\n");
 
 exit:
 

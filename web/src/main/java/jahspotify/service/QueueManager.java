@@ -53,6 +53,8 @@ public class QueueManager
             @Override
             public void trackEnded(final String uri, boolean forcedEnd)
             {
+                Link trackEnded = Link.create(uri);
+
                 _queueState = QueueState.STOPPED;
 
                 _numTracksPlayed++;
@@ -62,7 +64,7 @@ public class QueueManager
                     _numTracksSkipped++;
                 }
 
-                _log.debug("End of track: " + uri + (forcedEnd ? " (forced)" : ""));
+                _log.debug("End of track: " + trackEnded + (forcedEnd ? " (forced)" : ""));
                 if (!forcedEnd)
                 {
                     if (_currentURI == null)
@@ -71,9 +73,9 @@ public class QueueManager
                         _log.debug("Current URI is already null!");
                         return;
                     }
-                    if (!uri.equals(_currentURI))
+                    if (!trackEnded.equals(_currentURI))
                     {
-                        _log.debug("Current URI don't match what is ending: " + uri + " != " + _currentURI);
+                        _log.debug("Current URI don't match what is ending: " + trackEnded + " != " + _currentURI);
                         return;
                     }
                     _currentURI = null;

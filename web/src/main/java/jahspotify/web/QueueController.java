@@ -86,6 +86,7 @@ public class QueueController extends BaseController
         }
         catch (Exception e)
         {
+            _log.error("Error processing request: " + e.getMessage(), e);
             BasicResponse basicResponse = new BasicResponse();
             basicResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
             writeResponse(httpServletResponse, basicResponse);

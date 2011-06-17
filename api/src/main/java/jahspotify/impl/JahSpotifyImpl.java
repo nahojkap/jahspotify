@@ -5,6 +5,7 @@ import java.util.*;
 
 import jahspotify.*;
 import jahspotify.media.*;
+import jahspotify.storage.JahStorage;
 import org.apache.commons.logging.*;
 
 /**
@@ -13,6 +14,8 @@ import org.apache.commons.logging.*;
 public class JahSpotifyImpl implements JahSpotify
 {
     private Log _log = LogFactory.getLog(JahSpotify.class);
+
+    private JahStorage _jahStorage;
 
     private boolean _loggedIn = false;
 
@@ -34,6 +37,11 @@ public class JahSpotifyImpl implements JahSpotify
     private User _user;
 
     private native int initialize(String username, String password);
+
+    public void setJahStorage(final JahStorage jahStorage)
+    {
+        _jahStorage = jahStorage;
+    }
 
     private JahSpotifyImpl()
     {
@@ -228,12 +236,6 @@ public class JahSpotifyImpl implements JahSpotify
         _jahSpotifyThread.start();
     }
 
-    @Override
-    public Artist readArtist(final Link uri)
-    {
-        return retrieveArtist(uri.asString());
-    }
-
     private native int readImage(String uri, OutputStream outputStream);
 
     private native User retrieveUser();
@@ -250,21 +252,103 @@ public class JahSpotifyImpl implements JahSpotify
 
     public Album readAlbum(final Link uri)
     {
-        return retrieveAlbum(uri.asString());
+        Album album;
+        if (_jahStorage != null)
+        {
+            album = _jahStorage.readAlbum(uri);
+            if (album != null)
+            {
+                _log.debug("Found album for " + uri + " in storage, will return that");
+                return album;
+            }
+        }
+
+        album = retrieveAlbum(uri.asString());
+        if (_jahStorage != null && album != null)
+        {
+            _jahStorage.store(album);
+        }
+        return album;
     }
+
+    @Override
+    public Artist readArtist(final Link uri)
+    {
+        Artist artist;
+        if (_jahStorage != null)
+        {
+            artist = _jahStorage.readArtist(uri);
+            if (artist != null)
+            {
+                _log.debug("Found artist for " + uri + " in storage, will return that");
+                return artist;
+            }
+        }
+        artist = retrieveArtist(uri.asString());
+        if (_jahStorage != null && artist != null)
+        {
+            _jahStorage.store(artist);
+        }
+        return artist;
+    }
+
+
 
     @Override
     public Track readTrack(Link uri)
     {
-        return retrieveTrack(uri.asString());
+        Track track;
+        if (_jahStorage != null)
+        {
+            track = _jahStorage.readTrack(uri);
+            if (track != null)
+            {
+                _log.debug("Found track for " + uri + " in storage, will return that");
+                return track;
+            }
+        }
+
+        track = retrieveTrack(uri.asString());
+
+        if (_jahStorage != null && track != null)
+        {
+            _jahStorage.store(track);
+        }
+
+        return track;
     }
 
     @Override
     public Image readImage(Link uri)
     {
+        if (_jahStorage != null)
+        {
+            Image image = _jahStorage.readImage(uri);
+            if (image != null)
+            {
+                _log.debug("Found image for " + uri + " in storage, will return that");
+                return image;
+            }
+        }
+
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        _jahSpotifyImpl.readImage(uri.asString(), outputStream);
-        return new Image(uri,outputStream.toByteArray());
+        int len = _jahSpotifyImpl.readImage(uri.asString(), outputStream);
+        if (len != -1)
+        {
+
+            final byte[] bytes = outputStream.toByteArray();
+            if (len != bytes.length)
+            {
+                throw new IllegalStateException("Number bytes reported written does not match length of bytes (" + len + " != " + bytes.length + ")");
+            }
+            Image image = new Image(uri, bytes);
+            if (_jahStorage != null)
+            {
+                _jahStorage.store(image);
+            }
+            return image;
+        }
+        return null;
     }
 
     @Override
@@ -432,7 +516,7 @@ public class JahSpotifyImpl implements JahSpotify
 
             for (Link trackLink : playlist.getTracks())
             {
-                Track track = retrieveTrack(trackLink.getId());
+                Track track = readTrack(trackLink);
                 TrackNode trackNode = new TrackNode(track.getId().toString(),track.getTitle());
                 trackNode.setTrack(track);
                 playlistNode.addTrackNode(trackNode);

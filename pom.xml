@@ -40,6 +40,12 @@
             </dependency>
 
             <dependency>
+                <groupId>jahspotify</groupId>
+                <artifactId>jahspotify-storage</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>1.7.1</version>

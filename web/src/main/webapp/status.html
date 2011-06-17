@@ -13,188 +13,200 @@
 </head>
 <script>
 
-    $(document).ready(function ()
-    {
-        loadLibrary();
-        loadStatus();
-        reloadCurrentQueue();
+$(document).ready(function ()
+{
+    loadLibrary();
+    loadStatus();
+    reloadCurrentQueue();
+});
+
+
+function loadLibrary()
+{
+    jQuery("#playlist").jstree({
+        dnd : {
+            "drop_finish" : function (data)
+            {
+                // FIXME Should support multiple selections
+                $.getJSON('add-to-queue/' + data.o.attr("id"), function(addToQueueData)
+                {
+                    reloadCurrentQueue();
+                });
+            },
+            "drag_check" : function (data)
+            {
+                if (data.r.attr("id") == "phtml_1")
+                {
+                    return false;
+                }
+                return {
+                    after : false,
+                    before : false,
+                    inside : true
+                };
+            },
+            "drag_finish" : function (data)
+            {
+                alert("DRAG OK");
+            }
+        },
+        json_data : {
+            ajax : {
+                "url" : "library/",
+                "data" : function (n)
+                {
+                    return { id : n.attr ? n.attr("id") : 0 };
+                },
+                error: function(e)
+                {
+                    alert("Error: " + e);
+                }
+            }
+        },
+        rules : {
+            deletable : "none",
+            renameable : "none",
+            creatable : [ "none" ],
+            draggable : [ "folder", "playlist" , "track" ],
+            drag_button : "left",
+            droppable : [ "tree-drop" ]
+        },
+        types : {
+            "valid_children" : [ "root", "folder", "playlist", "track" ],
+            "types" : {
+                "root" : {
+                    "valid_children" : [ "folder", "playlist" ]
+                },
+                "folder" : {
+                    "valid_children" : [ "folder", "playlist" ]
+                },
+                "playlist" : {
+                    "valid_children" : [ "track" ]
+                },
+                "track" : {
+                    "valid_children" : [ "none" ],
+                    "icon" : {
+                        "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
+                    }
+                }
+            }
+        },
+        "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types","dnd"]
     });
-
-
-    function loadLibrary()
+}
+function loadStatus()
+{
+    $.getJSON('system/status', function(data)
     {
-        jQuery("#playlist").jstree({
-            dnd : {
-                "drop_finish" : function (data)
-                {
-                    // FIXME Should support multiple selections
-                    $.getJSON('add-to-queue/' + data.o.attr("id"), function(addToQueueData)
-                    {
-                        reloadCurrentQueue();
-                    });
-                },
-                "drag_check" : function (data)
-                {
-                    if (data.r.attr("id") == "phtml_1")
-                    {
-                        return false;
-                    }
-                    return {
-                        after : false,
-                        before : false,
-                        inside : true
-                    };
-                },
-                "drag_finish" : function (data)
-                {
-                    alert("DRAG OK");
-                }
-            },
-            json_data : {
-                ajax : {
-                    "url" : "library/",
-                    "data" : function (n)
-                    {
-                        return { id : n.attr ? n.attr("id") : 0 };
-                    },
-                    error: function(e)
-                    {
-                        alert("Error: " + e);
-                    }
-                }
-            },
-            rules : {
-                deletable : "none",
-                renameable : "none",
-                creatable : [ "none" ],
-                draggable : [ "folder", "playlist" , "track" ],
-                drag_button : "left",
-                droppable : [ "tree-drop" ]
-            },
-            types : {
-                "valid_children" : [ "root", "folder", "playlist", "track" ],
-                "types" : {
-                    "root" : {
-                        "valid_children" : [ "folder", "playlist" ]
-                    },
-                    "folder" : {
-                        "valid_children" : [ "folder", "playlist" ]
-                    },
-                    "playlist" : {
-                        "valid_children" : [ "track" ]
-                    },
-                    "track" : {
-                        "valid_children" : [ "none" ],
-                        "icon" : {
-                            "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
-                        }
-                    }
-                }
-            },
-            "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types","dnd"]
-        });
-    }
-    function loadStatus()
+        $('#uptime').empty();
+        $('<p/>', {
+            html: data.upSince
+        }).appendTo('#uptime');
+        $('#total_memory').empty();
+        $('<p/>', {
+            html: data.totalMemory
+        }).appendTo('#total_memory');
+        $('#current_memory').empty();
+        $('<p/>', {
+            html: data.freeMemory
+        }).appendTo('#current_memory');
+        $('#max_memory').empty();
+        $('<p/>', {
+            html: data.maxMemory
+        }).appendTo('#max_memory');
+    });
+}
+
+function reloadCurrentQueue()
+{
+    $.getJSON('queue/', function(data)
     {
-        $.getJSON('system/status', function(data)
+        $('#currently_playing_div').empty();
+
+        if (data.currentlyPlaying != null)
         {
-            $('#uptime').empty();
-            $('<p/>', {
-                html: data.upSince
-            }).appendTo('#uptime');
-            $('#total_memory').empty();
-            $('<p/>', {
-                html: data.totalMemory
-            }).appendTo('#total_memory');
-            $('#current_memory').empty();
-            $('<p/>', {
-                html: data.freeMemory
-            }).appendTo('#current_memory');
-            $('#max_memory').empty();
-            $('<p/>', {
-                html: data.maxMemory
-            }).appendTo('#max_memory');
-        });
-    }
 
-    function reloadCurrentQueue()
-    {
-        $.getJSON('queue/', function(data)
-        {
-            $('#currently_playing_div').empty();
-
-            if (data.currentlyPlaying != null)
+            $.getJSON('track/' + data.currentlyPlaying, function(data)
             {
-
-              $.getJSON('track/' + data.currentlyPlaying, function(data)
-              {
-                  $.getJSON('album/' + data.album.id,function(data)
-                  {
-                      $('<p/>',{
-                                  html: '<img src="image/' + data.cover.id + '"/>'
-                      }).appendTo("#currently_playing_div");
-                  });
-
-                  artists = "";
-                  first = true;
-                  $.each(data.artists, function(i, val)
-                  {
-                      if (first)
-                      {
-                          artists = ', <a id="' + val.id + '" href="artist/' + val.id + '">' + val.name + '</a>';
-                          first = false;
-                      }
-                      else
-                      {
-                        artists = artists + ', <a id="' + val.id + '" href="artist/' + val.id + '">' + val.name + '</a>';
-                      }
-
-/*
-                      $.getJSON('artist/' + val.id,function(data)
-                      {
-                          $('#' + val.id).text(data.name);
-                      });
-*/
-
-                  });
-
-                  $('<p/>', {
-                      html: 'Title: ' + data.title + '<br/>Artist(s): ' + artists
-                  }).appendTo("#currently_playing_div");
-
-              });
-            }
-
-            $('#queue').empty();
-            if ($.isEmptyObject(data.queuedTracks))
-            {
-                $('<p/>', {
-                    html: "Nothing in queue"
-                }).appendTo('#queue');
-            }
-            else
-            {
-                $('<ul/>', {
-                    id: "queued_tracks",
-                    html: ""
-                }).appendTo('#queue');
-
-                $.each(data.queuedTracks, function(i, val)
+                $.getJSON('album/' + data.album.id, function(data)
                 {
-                    $.getJSON('track/' + val.trackID, function(data)
-                    {
-                        $('<li/>', {
-                            html: '<li><a id="' + val.id + '" href="track/' + val.trackID + '">' + data.title + '</a></li>'
-                        }).appendTo("#queued_tracks");
-
-                    });
+                    $('<p/>', {
+                        html: '<img src="image/' + data.cover.id + '"/>'
+                    }).appendTo("#currently_playing_div");
                 });
 
+                artists = "";
+                first = true;
+                $.each(data.artists, function(i, val)
+                {
 
-            }
+                    $.ajax({
+                        type: 'GET',
+                        url: 'artist/' + val.id,
+                        dataType: 'json',
+                        success: function(data)
+                        {
+                            if (first)
+                            {
+                                artists = '<a href="artist/' + val.id + '">' + data.name + '</a>';
+                                first = false;
+                            }
+                            else
+                            {
+                                artists = artists + ', <a href="artist/' + val.id + '">' + data.name + '</a>';
+                            }
 
-        });
-    }
+
+                        },
+                        async: false
+                    });
+
+                });
+
+                $('<p/>', {
+                                     html: 'Title: ' + data.title + '<br/>Artist(s): ' + artists
+                                 }).appendTo("#currently_playing_div");
+
+            });
+        }
+
+        $('#queue').empty();
+        if ($.isEmptyObject(data.queuedTracks))
+        {
+            $('<p/>', {
+                html: "Nothing in queue"
+            }).appendTo('#queue');
+        }
+        else
+        {
+            $('<ul/>', {
+                id: "queued_tracks",
+                html: ""
+            }).appendTo('#queue');
+
+            $.each(data.queuedTracks, function(i, val)
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: 'track/' + val.trackID,
+                    dataType: 'json',
+                    success: function(data)
+                    {
+                        $('<li/>', {
+                            html: '<li><a href="track/' + data.id.id + '">' + data.title + '</a></li>'
+                        }).appendTo("#queued_tracks");
+
+                    },
+                    async: false
+                });
+
+            });
+
+
+        }
+
+    });
+}
 </script>
 <body class="body">
 
@@ -225,7 +237,7 @@
 
     <div id="playlist"></div>
 
- <div id="status" class="content">
+    <div id="status" class="content">
         <table>
             <tr>
                 <td>Up Since</td>

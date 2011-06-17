@@ -11,7 +11,7 @@
 
     <artifactId>jahspotify-storage</artifactId>
 
-    <name>jahspotify-storage</name>
+    <name>jahspotify-jahStorage</name>
 
     <dependencies>
 
@@ -19,6 +19,11 @@
             <groupId>jahspotify</groupId>
             <artifactId>jahspotify-api</artifactId>
         </dependency>
+
+        <dependency>
+                 <groupId>org.springframework</groupId>
+                 <artifactId>org.springframework.context</artifactId>
+             </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>

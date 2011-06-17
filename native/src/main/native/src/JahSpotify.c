@@ -797,6 +797,18 @@ char* toHexString(byte* bytes)
 }
 
 
+void imageLoadedCallback(sp_image *image, void *userdata)
+{
+  size_t len;
+  byte *imageData = (byte*)sp_image_data(image,&len);
+
+  fprintf(stderr,"jahspotify::imageLoadedCallback: loaded image: %d byte(s)\n",len);
+
+  // sp_image_remove_load_callback(image, imageLoadedCallback,NULL);
+  // sp_image_release(image);
+}
+
+
 void albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
 {
   fprintf(stderr,"jahspotify::albumBrowseCompleteCallback: album browse complete: %s\n", sp_error_message(sp_albumbrowse_error(result)));
@@ -827,11 +839,19 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
     {
       sp_albumbrowse_add_ref(albumBrowse);
       
-      while (!sp_albumbrowse_is_loaded(albumBrowse))
+      int count = 0;
+      
+      while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 5)
       {
 	fprintf(stderr,"jahspotify::createJAlbumInstance: waiting for album browse load to complete\n");
 	sleep(1);
-	// FIXME: add timeout?
+	count++;
+      }
+      
+      if (count == 5)
+      {
+	sp_albumbrowse_release(albumBrowse);
+	return NULL;
       }
   
   
@@ -863,6 +883,13 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 	      jobject albumCoverJLink = createJLinkInstance(env, albumCoverLink);
 	      setObjectObjectField(env,albumInstance,"cover","Ljahspotify/media/Link;",albumCoverJLink);
 
+	      sp_image *albumCoverImage = sp_image_create_from_link(g_sess,albumCoverLink);
+	      if (albumCoverImage)
+	      {
+		sp_image_add_ref(albumCoverImage);
+		sp_image_add_load_callback(albumCoverImage,imageLoadedCallback,NULL);
+	      }
+	      
 	      sp_link_release(albumCoverLink);
 
 	  }
@@ -1044,6 +1071,13 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                     sp_link *portraitLink = sp_link_create_from_string(dest);
 
+		    sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
+		    if (portrait)
+		    {
+		      sp_image_add_ref(portrait);
+		      sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
+		    }
+		    
                     free(dest);
                     free(portraitURIStr);
 
@@ -1246,8 +1280,6 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     if (nativeUri)
         free(nativeUri);
 
-    fprintf ( stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack: returning track: 0x%x\n",(unsigned int)trackInstance);
-
     return trackInstance;
 }
 
@@ -1314,7 +1346,8 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
     sp_link *imageLink = sp_link_create_from_string(nativeURI);
     size_t size;
     jclass jClass;
-
+    int numBytesWritten = -1;
+    
     if (imageLink)
     {
         sp_link_add_ref(imageLink);
@@ -1322,20 +1355,30 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
         if (image)
         {
             sp_image_add_ref(image);
-            while (!sp_image_is_loaded(image))
+	    
+	    int count = 0;
+	    
+            while (!sp_image_is_loaded(image) && count < 5)
             {
-                fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: Waiting for image to load ...\n");
                 sleep(1);
+		count++;
             }
+            
+            if (count == 5)
+	    {
+                fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: Timeout waiting for image to load ...\n");
+		sp_image_release(image);
+		sp_link_release(imageLink);
+		return -1;
+	    }
 
             byte *data = (byte*)sp_image_data(image,&size);
-            fprintf(stderr,"Image size: %d\n", size);
 
             jClass = (*env)->FindClass(env,"Ljava/io/OutputStream;");
             if (jClass == NULL)
             {
                 fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load class java.io.OutputStream\n");
-                return 1;
+                return -1;
             }
             // Lookup the method now - saves us looking it up for each iteration of the loop
             jmethodID jMethod = (*env)->GetMethodID(env,jClass,"write","(I)V");
@@ -1343,7 +1386,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             if (jMethod == NULL)
             {
                 fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load method write(int) on class java.io.OutputStream\n");
-                return 1;
+                return -1;
             }
 
             int i = 0;
@@ -1351,11 +1394,14 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             {
                 (*env)->CallVoidMethod(env,outputStream,jMethod,*data);
                 data++;
+		numBytesWritten++;
             }
             sp_image_release(image);
         }
         sp_link_release(imageLink);
     }
+    // Plus one because we start at -1
+    return numBytesWritten+1;
 
 }
 

@@ -7,14 +7,32 @@ import java.util.regex.*;
 import jahspotify.util.BaseConvert;
 
 /**
- * Represents a link (Spotify URI) to a media object.
+ * Represents a link (Spotify or Jah'Spotify URI) to a media object.
  * <p/>
- * Provides methods to convert different objects to
- * {@link Link} objects.
+ * Provides methods to convert different objects to {@link Link} objects.
  * <p/>
  * <b>Note:</b> Offset in track link not supported yet.
+ * <p/>
+ * The following Spotify URIs are supported:<br/>
+ * <ul>
+ *     <li>spotify:album:&gt;album-identifier&lt;</li>
+ *     <li>spotify:artist:&gt;artist-identifier&lt;</li>
+ *     <li>spotify:track:&gt;track-identifier&lt;</li>
+ *     <li>spotify:image:&gt;image-indentifier&lt;</li>
+ *     <li>spotify:playlist:&gt;username&lt;:&gt;playlist-identifier&lt;</li>
+ * </ul>
+ * <p/>
+ * In addition to the above Spotify URIs, the following Jah'Spotify URIs are used:
+ *
+ * <ul>
+ *     <li>jahspotify:folder:&gtfolder-id&lt;</li>
+ *     <li>jahspotify:queue:&gtqueue-name&lt;</li>
+ *     <li>jahspotify:queue:&gtqueue-name&lt;:&gt;queue-entry-identifier&lt;</li>
+ * </ul>
+ *
  *
  * @author Felix Bruns <felixbruns@web.de>
+ * @author Johan Lindquist
  */
 public class Link
 {
@@ -78,6 +96,14 @@ public class Link
     private static final Pattern searchPattern = Pattern.compile("spotify:search:([^\\s]+)");
 
     /**
+        * A regular expression to match search URIs:
+        * <p/>
+        * <pre>jahspotify:queue:([^\\s]+)</pre>
+        */
+       private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue(:([^\\s]+))");
+
+
+    /**
      * The {@link Link.Type} of this link.
      */
     private Type type;
@@ -104,7 +130,6 @@ public class Link
      * @param id    The id to set (for artists, albums and tracks) or {@code null}.
      * @param user  The user to set (for playlists) or {@code null}.
      * @param query The search query to set (for search) or {@code null}.
-     * @return A {@link Link} object.
      * @throws InvalidSpotifyURIException If the Spotify URI is invalid.
      */
     private Link(Type type, String id, String user, String query)
@@ -119,7 +144,6 @@ public class Link
      * Create a {@link Link} from a Spotify URI.
      *
      * @param uri A Spotify URI to parse.
-     * @return A {@link Link} object.
      * @throws InvalidSpotifyURIException If the Spotify URI is invalid.
      */
     private Link(String uri) throws InvalidSpotifyURIException
@@ -438,5 +462,49 @@ public class Link
         }
 
         return uri.toString();
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof Link))
+        {
+            return false;
+        }
+
+        final Link link = (Link) o;
+
+        if (id != null ? !id.equals(link.id) : link.id != null)
+        {
+            return false;
+        }
+        if (query != null ? !query.equals(link.query) : link.query != null)
+        {
+            return false;
+        }
+        if (type != link.type)
+        {
+            return false;
+        }
+        if (user != null ? !user.equals(link.user) : link.user != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (query != null ? query.hashCode() : 0);
+        return result;
     }
 }

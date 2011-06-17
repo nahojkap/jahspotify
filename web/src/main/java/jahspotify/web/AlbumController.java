@@ -26,8 +26,15 @@ public class AlbumController extends BaseController
         {
             final Link link = retrieveLink(httpServletRequest);
             Album album = _jahSpotifyService.getJahSpotify().readAlbum(link);
-            _log.debug("Got album: " + album);
-            super.writeResponseGeneric(httpServletResponse,album);
+            if (album == null)
+            {
+
+            }
+            else
+            {
+                _log.debug("Got album: " + album);
+                super.writeResponseGeneric(httpServletResponse,album);
+            }
         }
         catch (Exception e)
         {

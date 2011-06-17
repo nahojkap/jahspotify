@@ -54,6 +54,10 @@
     </build>
 
     <dependencies>
+          <dependency>
+            <groupId>jahspotify</groupId>
+            <artifactId>jahspotify-storage</artifactId>
+        </dependency>
 
          <dependency>
             <groupId>jahspotify</groupId>
