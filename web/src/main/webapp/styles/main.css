@@ -8,9 +8,20 @@ body {
 }
 
 .logo_container {
-    padding-left: 25px;
     background: white;
+    margin-left: 15px;
+    padding: 5px;
 }
+
+.logo
+{
+    background: white;
+    font-weight: bold;
+    font-size: 16pt;
+    font-family: Courier, serif;
+    text-decoration: underline;
+}
+
 .container {
     width: 855px;
     padding: 10px;
@@ -45,20 +56,11 @@ h1 {
     font-family: Courier, serif;
 }
 
-.logo
-{
-    background: white;
-    font-weight: bold;
-    font-size: 12pt;
-    font-family: Courier, serif;
-    text-decoration: underline;
-}
-
 .footer {
     margin-top: 100px;
     font-size: .8em;
     text-align: center;
-
+    margin-left: 15px;
 }
 
 #current_track_container {
@@ -78,17 +80,19 @@ h1 {
 #current_track_info_container {
     background: white;
     width: 600px;
-    padding-left: 15px;
+    margin-left: 15px;
 }
 
 #queue_container {
     background: white;
     width: 400pt;
+    margin-left: 15px;
 }
 
 #play_controller_container {
     background: white;
     width: 400px;
+    margin-left: 15px;
 }
 
 #queue_track_container {
@@ -98,4 +102,6 @@ h1 {
     font-weight: bold;
     text-align: center;
     border: 1px solid green;
+    padding-left: 15px;
+    margin-left: 15px;
 }
