@@ -3,32 +3,17 @@ package jahspotify.web;
 /**
  * @author Johan Lindquist
  */
-public class SystemStatusResponse extends BasicResponse
+public class QueueConfiguration
 {
-    private long upSince;
-
-    private long freeMemory;
-    private long totalMemory;
-    private long maxMemory;
-
     private String callbackURL;
     private boolean reportTrackChanges;
     private boolean reportEmptyQueue;
     private boolean autoRefill;
     private String remoteQueueName;
-    private int numberProcessors;
 
-    private QueueStatusResponse queueStatusResponse;
-
-    public long getMaxMemory()
-    {
-        return maxMemory;
-    }
-
-    public void setMaxMemory(final long maxMemory)
-    {
-        this.maxMemory = maxMemory;
-    }
+    private boolean repeatCurrentTrack;
+    private boolean repeatCurrentQueue;
+    private boolean shuffle;
 
     public boolean isAutoRefill()
     {
@@ -48,16 +33,6 @@ public class SystemStatusResponse extends BasicResponse
     public void setCallbackURL(final String callbackURL)
     {
         this.callbackURL = callbackURL;
-    }
-
-    public long getFreeMemory()
-    {
-        return freeMemory;
-    }
-
-    public void setFreeMemory(final long freeMemory)
-    {
-        this.freeMemory = freeMemory;
     }
 
     public String getRemoteQueueName()
@@ -90,43 +65,48 @@ public class SystemStatusResponse extends BasicResponse
         this.reportTrackChanges = reportTrackChanges;
     }
 
-    public long getTotalMemory()
+    public boolean isRepeatCurrentQueue()
     {
-        return totalMemory;
+        return repeatCurrentQueue;
     }
 
-    public void setTotalMemory(final long totalMemory)
+    public void setRepeatCurrentQueue(final boolean repeatCurrentQueue)
     {
-        this.totalMemory = totalMemory;
+        this.repeatCurrentQueue = repeatCurrentQueue;
     }
 
-    public long getUpSince()
+    public boolean isRepeatCurrentTrack()
     {
-        return upSince;
+        return repeatCurrentTrack;
     }
 
-    public void setUpSince(final long upSince)
+    public void setRepeatCurrentTrack(final boolean repeatCurrentTrack)
     {
-        this.upSince = upSince;
+        this.repeatCurrentTrack = repeatCurrentTrack;
     }
 
-    public void setNumberProcessors(final int numberProcessors)
+    public boolean isShuffle()
     {
-        this.numberProcessors = numberProcessors;
+        return shuffle;
     }
 
-    public int getNumberProcessors()
+    public void setShuffle(final boolean shuffle)
     {
-        return numberProcessors;
+        this.shuffle = shuffle;
     }
 
-    public void setQueueStatusResponse(final QueueStatusResponse queueStatusResponse)
+    @Override
+    public String toString()
     {
-        this.queueStatusResponse = queueStatusResponse;
-    }
-
-    public QueueStatusResponse getQueueStatusResponse()
-    {
-        return queueStatusResponse;
+        return "QueueConfiguration{" +
+                "autoRefill=" + autoRefill +
+                ", callbackURL='" + callbackURL + '\'' +
+                ", reportTrackChanges=" + reportTrackChanges +
+                ", reportEmptyQueue=" + reportEmptyQueue +
+                ", remoteQueueName='" + remoteQueueName + '\'' +
+                ", repeatCurrentTrack=" + repeatCurrentTrack +
+                ", repeatCurrentQueue=" + repeatCurrentQueue +
+                ", shuffle=" + shuffle +
+                '}';
     }
 }

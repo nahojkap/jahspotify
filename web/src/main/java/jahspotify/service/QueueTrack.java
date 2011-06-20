@@ -5,12 +5,12 @@ import jahspotify.media.Link;
 /**
  * @author Johan Lindquist
  */
-public class QueuedTrack
+public class QueueTrack
 {
     String _id;
     Link _trackID;
 
-    public QueuedTrack(final String id, final Link trackUri)
+    public QueueTrack(final String id, final Link trackUri)
     {
         _id = id;
         _trackID = trackUri;
@@ -52,12 +52,12 @@ public class QueuedTrack
         {
             return true;
         }
-        if (!(o instanceof QueuedTrack))
+        if (!(o instanceof QueueTrack))
         {
             return false;
         }
 
-        final QueuedTrack that = (QueuedTrack) o;
+        final QueueTrack that = (QueueTrack) o;
 
         if (_id != null ? !_id.equals(that._id) : that._id != null)
         {

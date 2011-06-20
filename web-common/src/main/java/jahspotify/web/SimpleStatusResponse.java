@@ -3,7 +3,7 @@ package jahspotify.web;
 /**
  * @author Johan Lindquist
  */
-public class BasicResponse
+public class SimpleStatusResponse
 {
     private ResponseStatus responseStatus;
 

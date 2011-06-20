@@ -19,17 +19,17 @@ public class BaseController
     @Autowired
     protected JahSpotifyService _jahSpotifyService;
 
-    protected void writeResponse(final HttpServletResponse httpServletResponse, final BasicResponse basicResponse)
+    protected void writeResponse(final HttpServletResponse httpServletResponse, final SimpleStatusResponse simpleStatusResponse)
     {
         Gson gson = new Gson();
         try
         {
             httpServletResponse.setContentType("application/json; charset=utf-8");
 
-            _log.debug("Serializing: " + basicResponse);
+            _log.debug("Serializing: " + simpleStatusResponse);
 
             final PrintWriter writer = httpServletResponse.getWriter();
-            final String s = gson.toJson(basicResponse);
+            final String s = gson.toJson(simpleStatusResponse);
             _log.debug("Serialized: " + s);
 
             writer.write(s);

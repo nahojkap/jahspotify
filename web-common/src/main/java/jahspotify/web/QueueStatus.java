@@ -3,7 +3,7 @@ package jahspotify.web;
 /**
  * @author Johan Lindquist
  */
-public class QueueStatusResponse
+public class QueueStatus
 {
     private int totalTracksPlayed;
     private int totalTracksCompleted;

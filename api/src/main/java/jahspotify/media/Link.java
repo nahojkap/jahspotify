@@ -41,7 +41,7 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH;
+        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH, QUEUE;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -100,7 +100,7 @@ public class Link
         * <p/>
         * <pre>jahspotify:queue:([^\\s]+)</pre>
         */
-       private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue(:([^\\s]+))");
+       private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
 
 
     /**
@@ -122,6 +122,8 @@ public class Link
      * The search query of a search link.
      */
     private String query;
+
+    private String queue;
 
     /**
      * Create a {@link Link} using the given parameters.
@@ -153,6 +155,7 @@ public class Link
         Matcher imageMatcher = imagePattern.matcher(uri);
         Matcher playlistMatcher = playlistPattern.matcher(uri);
         Matcher searchMatcher = searchPattern.matcher(uri);
+        Matcher jahQueueMatcher = jahQueuePattern.matcher(uri);
 
         /* Check if URI matches artist/album/track pattern. */
         if (mediaMatcher.matches())
@@ -211,6 +214,17 @@ public class Link
                 throw new InvalidSpotifyURIException("Invalid encoding of query");
             }
         }
+        else if (jahQueueMatcher.matches())
+        {
+            this.type = Type.QUEUE;
+            this.id = uri;
+            this.queue = "default";
+            if (searchMatcher.groupCount() > 0)
+            {
+                this.queue = jahQueueMatcher.group(3);
+            }
+        }
+
         /* If nothing was matched. */
         else
         {
@@ -308,6 +322,11 @@ public class Link
         }
 
         return this.user;
+    }
+
+    public String getQueue()
+    {
+        return queue;
     }
 
     /**

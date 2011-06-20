@@ -29,7 +29,7 @@
 
                 $('#current_track_cover_art_container').empty();
 
-                $.getJSON('track/' + data.currentlyPlaying, function(data)
+                $.getJSON('track/' + data.currentlyPlaying.trackID, function(data)
                 {
                     $.getJSON('album/' + data.album.id, function(data)
                     {

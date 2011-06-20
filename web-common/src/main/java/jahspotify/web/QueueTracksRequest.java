@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author Johan Lindquist
  */
-public class QueueRequest
+public class QueueTracksRequest
 {
     private boolean autoPlay = true;
     private List<String> uriQueue;

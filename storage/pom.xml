@@ -11,7 +11,7 @@
 
     <artifactId>jahspotify-storage</artifactId>
 
-    <name>jahspotify-jahStorage</name>
+    <name>jahspotify-storage</name>
 
     <dependencies>
 

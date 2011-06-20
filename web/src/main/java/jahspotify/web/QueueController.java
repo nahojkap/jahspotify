@@ -1,13 +1,11 @@
 package jahspotify.web;
 
-import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
 
-import com.google.gson.Gson;
 import jahspotify.media.Link;
 import jahspotify.service.*;
-import jahspotify.service.QueueStatus;
+import jahspotify.service.QueueConfiguration;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,27 +35,27 @@ public class QueueController extends BaseController
 
         try
         {
-            final QueueRequest queueRequest = readRequest(httpServletRequest, QueueRequest.class);
+            final QueueTracksRequest queueTracksRequest = readRequest(httpServletRequest, QueueTracksRequest.class);
 
-            final List<Link> uriQueue = convertToLinkList(queueRequest.getURIQueue());
+            final List<Link> uriQueue = convertToLinkList(queueTracksRequest.getURIQueue());
             _queueManager.addToQueue(uriQueue);
-            if (queueRequest.isAutoPlay() && _queueManager.getQueueState() != jahspotify.service.QueueState.PLAYING)
+            if (queueTracksRequest.isAutoPlay() && _queueManager.getQueueState() != jahspotify.service.QueueState.PLAYING)
             {
                 // _queueManager.play();
             }
 
-            BasicResponse basicResponse = new BasicResponse();
-            basicResponse.setResponseStatus(ResponseStatus.OK);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
 
-            writeResponse(httpServletResponse, basicResponse);
+            writeResponse(httpServletResponse, simpleStatusResponse);
 
 
         }
         catch (Exception e)
         {
-            BasicResponse basicResponse = new BasicResponse();
-            basicResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, basicResponse);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
+            writeResponse(httpServletResponse, simpleStatusResponse);
         }
     }
 
@@ -79,17 +77,17 @@ public class QueueController extends BaseController
             Link uri = retrieveLink(httpServletRequest);
             _queueManager.addToQueue(uri);
 
-            BasicResponse basicResponse = new BasicResponse();
-            basicResponse.setResponseStatus(ResponseStatus.OK);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
 
-            writeResponse(httpServletResponse, basicResponse);
+            writeResponse(httpServletResponse, simpleStatusResponse);
         }
         catch (Exception e)
         {
             _log.error("Error processing request: " + e.getMessage(), e);
-            BasicResponse basicResponse = new BasicResponse();
-            basicResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, basicResponse);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
+            writeResponse(httpServletResponse, simpleStatusResponse);
         }
 
     }
@@ -105,14 +103,23 @@ public class QueueController extends BaseController
         {
             Link uri = retrieveLink(httpServletRequest);
             _queueManager.deleteQueuedTrack(uri);
-            BasicResponse basicResponse = new BasicResponse();
-            basicResponse.setResponseStatus(ResponseStatus.OK);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
     }
+
+    @RequestMapping(value = "/queue/shuffle", method = RequestMethod.GET)
+    public void shuffle(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        Link uri = retrieveLink(httpServletRequest);
+        jahspotify.service.CurrentQueue currentQueue = _queueManager.shuffle(uri);
+        writeCurrentQueue(httpServletResponse, currentQueue);
+    }
+
 
     @RequestMapping(value = "/queue/", method = RequestMethod.GET)
     public void getQueueRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
@@ -124,20 +131,25 @@ public class QueueController extends BaseController
     public void getQueue(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _log.debug("Request for the queue");
-        final CurrentQueue currentQueue = _queueManager.getCurrentQueue();
-        final QueueResponse currentQueueResponse = new QueueResponse();
-
-        final Link currentlyPlaying = currentQueue.getCurrentlyPlaying();
-        if (currentlyPlaying != null)
-        {
-            currentQueueResponse.setCurrentlyPlaying(currentlyPlaying.asString());
-        }
-
-        currentQueueResponse.setQueuedTracks(convertToWeb(currentQueue.getQueuedTracks()));
-        writeResponse(httpServletResponse, currentQueueResponse);
+        final jahspotify.service.CurrentQueue currentQueue = _queueManager.getCurrentQueue();
+        writeCurrentQueue(httpServletResponse, currentQueue);
     }
 
-    private List<QueuedTrack> convertToWeb(final List<jahspotify.service.QueuedTrack> queuedTracks)
+    private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final jahspotify.service.CurrentQueue currentQueue)
+    {
+        final CurrentQueue currentCurrentQueue = new CurrentQueue();
+
+        final QueueTrack currentlyPlaying = currentQueue.getCurrentlyPlaying();
+        if (currentlyPlaying != null)
+        {
+            currentCurrentQueue.setCurrentlyPlaying(new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString()));
+        }
+
+        currentCurrentQueue.setQueuedTracks(convertToWeb(currentQueue.getQueuedTracks()));
+        writeResponseGeneric(httpServletResponse, currentCurrentQueue);
+    }
+
+    private List<QueuedTrack> convertToWeb(final List<QueueTrack> queuedTracks)
     {
         if (queuedTracks.isEmpty())
         {
@@ -145,7 +157,7 @@ public class QueueController extends BaseController
         }
 
         List<QueuedTrack> queuedWebTracks = new ArrayList<QueuedTrack>();
-        for (jahspotify.service.QueuedTrack queuedTrack : queuedTracks)
+        for (QueueTrack queuedTrack : queuedTracks)
         {
             queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().asString()));
         }
@@ -160,78 +172,141 @@ public class QueueController extends BaseController
 
         final jahspotify.service.QueueStatus queueStatus = _queueManager.getQueueStatus();
 
-        SystemStatusResponse systemStatusResponse = new SystemStatusResponse();
-        systemStatusResponse.setQueueStatusResponse(convertToWeb(queueStatus));
+        SystemStatus systemStatus = new SystemStatus();
+        systemStatus.setQueueStatus(convertToWeb(queueStatus));
 
-        systemStatusResponse.setUpSince(_upSince);
+        systemStatus.setUpSince(_upSince);
 
-        systemStatusResponse.setTotalMemory(Runtime.getRuntime().totalMemory());
-        systemStatusResponse.setMaxMemory(Runtime.getRuntime().maxMemory());
-        systemStatusResponse.setFreeMemory(Runtime.getRuntime().freeMemory());
+        systemStatus.setTotalMemory(Runtime.getRuntime().totalMemory());
+        systemStatus.setMaxMemory(Runtime.getRuntime().maxMemory());
+        systemStatus.setFreeMemory(Runtime.getRuntime().freeMemory());
 
-        systemStatusResponse.setNumberProcessors(Runtime.getRuntime().availableProcessors());
+        systemStatus.setNumberProcessors(Runtime.getRuntime().availableProcessors());
 
-        writeResponse(httpServletResponse, systemStatusResponse);
+        writeResponseGeneric(httpServletResponse, systemStatus);
 
     }
 
-    private QueueStatusResponse convertToWeb(final QueueStatus queueStatus)
+
+    @RequestMapping(value = "/queue/configuration", method = RequestMethod.GET)
+    public void readQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        QueueStatusResponse webQueueStatusResponse = new QueueStatusResponse();
+        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+        final jahspotify.web.QueueConfiguration webQueueConfiguration = new jahspotify.web.QueueConfiguration();
+        webQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
+        webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
+        webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+        writeResponseGeneric(httpServletResponse, webQueueConfiguration);
 
-        webQueueStatusResponse.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
-        webQueueStatusResponse.setMaxQueueSize(queueStatus.getMaxQueueSize());
-        webQueueStatusResponse.setQueueState(QueueState.valueOf(queueStatus.getQueueState().name()));
-        webQueueStatusResponse.setTotalPlaytime(queueStatus.getTotalPlaytime());
-        webQueueStatusResponse.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
-        webQueueStatusResponse.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
-        webQueueStatusResponse.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
+    }
 
-        return webQueueStatusResponse;
+    @RequestMapping(value = "/queue/configuration", method = RequestMethod.POST)
+    public void updateQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        try
+        {
+            final jahspotify.web.QueueConfiguration webQueueConfiguration = readRequest(httpServletRequest, jahspotify.web.QueueConfiguration.class);
+            final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+
+
+            _queueManager.setQueueConfiguration(Link.create("jahspotify:queue:default"), mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
+
+            final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+            final jahspotify.web.QueueConfiguration newWebQueueConfiguration = new jahspotify.web.QueueConfiguration();
+            newWebQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
+            newWebQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
+            newWebQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+            writeResponseGeneric(httpServletResponse, newWebQueueConfiguration);
+
+
+        }
+        catch (Exception e)
+        {
+            _log.error("Error processing request: " + e.getMessage(), e);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+    }
+
+    private QueueConfiguration mergeConfigurations(final jahspotify.web.QueueConfiguration webQueueConfiguration, final QueueConfiguration currentQueueConfiguration)
+    {
+        final QueueConfiguration queueConfiguration = new QueueConfiguration();
+        queueConfiguration.setRepeatCurrentQueue(webQueueConfiguration.isRepeatCurrentQueue());
+        queueConfiguration.setRepeatCurrentTrack(webQueueConfiguration.isRepeatCurrentTrack());
+        queueConfiguration.setShuffle(webQueueConfiguration.isShuffle());
+        return queueConfiguration;
+    }
+
+    @RequestMapping(value = "/queue/configuration/*", method = RequestMethod.GET)
+    public void readQueueConfiguration(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        Link uri = retrieveLink(httpServletRequest);
+        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(uri);
+        final jahspotify.web.QueueConfiguration webQueueConfiguration = new jahspotify.web.QueueConfiguration();
+        webQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
+        webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
+        webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+        writeResponseGeneric(httpServletResponse, webQueueConfiguration);
+    }
+
+    private QueueStatus convertToWeb(final jahspotify.service.QueueStatus queueStatus)
+    {
+        QueueStatus webQueueStatus = new QueueStatus();
+
+        webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
+        webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
+        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getQueueState().name()));
+        webQueueStatus.setTotalPlaytime(queueStatus.getTotalPlaytime());
+        webQueueStatus.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
+        webQueueStatus.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
+        webQueueStatus.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
+
+        return webQueueStatus;
     }
 
     @RequestMapping(value = "/system/intialize", method = RequestMethod.POST)
     public void initialize(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, basicResponse);
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
     @RequestMapping(value = "/controller/pause", method = RequestMethod.GET)
     public void pause(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _queueManager.pause();
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, basicResponse);
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
     @RequestMapping(value = "/controller/resume", method = RequestMethod.GET)
     public void resume(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _queueManager.play();
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, basicResponse);
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
     @RequestMapping(value = "/controller/play", method = RequestMethod.GET)
     public void play(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _queueManager.play();
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, basicResponse);
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
     @RequestMapping(value = "/controller/skip", method = RequestMethod.GET)
     public void skip(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _queueManager.skip();
-        BasicResponse basicResponse = new BasicResponse();
-        basicResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, basicResponse);
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
 }

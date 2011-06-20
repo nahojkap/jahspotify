@@ -2,39 +2,71 @@ package jahspotify.service;
 
 import java.util.List;
 
-import jahspotify.media.Link;
-
 /**
  * @author Johan Lindquist
  */
 public class CurrentQueue
 {
-    private Link _currentlyPlaying;
-    private List<QueuedTrack> _queuedTracks;
+    private QueueTrack _currentlyPlaying;
+    private List<QueueTrack> _queuedTracks;
 
-    public CurrentQueue(final Link currentlyPlaying, final List<QueuedTrack> queuedTracks)
+    private boolean _shuffle;
+    private boolean _repeatCurrentQueue;
+    private boolean _repeatCurrentTrack;
+
+    public CurrentQueue(final QueueTrack currentlyPlaying, final List<QueueTrack> queuedTracks)
     {
         _currentlyPlaying = currentlyPlaying;
         _queuedTracks = queuedTracks;
     }
 
-    public Link getCurrentlyPlaying()
+    public QueueTrack getCurrentlyPlaying()
     {
         return _currentlyPlaying;
     }
 
-    public void setCurrentlyPlaying(final Link currentlyPlaying)
+    public void setCurrentlyPlaying(final QueueTrack currentlyPlaying)
     {
         _currentlyPlaying = currentlyPlaying;
     }
 
-    public List<QueuedTrack> getQueuedTracks()
+    public List<QueueTrack> getQueuedTracks()
     {
         return _queuedTracks;
     }
 
-    public void setQueuedTracks(final List<QueuedTrack> queuedTracks)
+    public void setQueuedTracks(final List<QueueTrack> queuedTracks)
     {
         _queuedTracks = queuedTracks;
+    }
+
+    public boolean isRepeatCurrentQueue()
+    {
+        return _repeatCurrentQueue;
+    }
+
+    public void setRepeatCurrentQueue(final boolean repeatCurrentQueue)
+    {
+        _repeatCurrentQueue = repeatCurrentQueue;
+    }
+
+    public boolean isRepeatCurrentTrack()
+    {
+        return _repeatCurrentTrack;
+    }
+
+    public void setRepeatCurrentTrack(final boolean repeatCurrentTrack)
+    {
+        _repeatCurrentTrack = repeatCurrentTrack;
+    }
+
+    public boolean isShuffle()
+    {
+        return _shuffle;
+    }
+
+    public void setShuffle(final boolean shuffle)
+    {
+        _shuffle = shuffle;
     }
 }
