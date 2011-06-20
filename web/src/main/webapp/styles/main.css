@@ -1,5 +1,5 @@
 body {
-    font-size: 10pt;
+    font-size: 8pt;
     letter-spacing: 1px;
     background: url(../images/xbg.gif) no-repeat;
     font-family: Helvetica, Arial, sans-serif;
@@ -8,7 +8,7 @@ body {
 }
 
 .logo_container {
-    padding: 5px;
+    padding-left: 25px;
     background: white;
 }
 .container {
@@ -16,74 +16,27 @@ body {
     padding: 10px;
 }
 
+.jahspotify_table
+{
+    border-collapse:collapse;
+    border-spacing: 0pt;
+}
+
 #content {
     background-color: #f7f7f7;
     padding: 20px 0 20px 20px;
 }
 
-#mainlinks {
-    height: 60px;
-    list-style: none;
-    margin: 0;
-}
-
-#mainlinks li {
-    float: right;
-    margin-right: 10px;
-    list-style-type: none;
-    list-style-image: none;
-}
-
-#mainlinks li a {
-    padding: 30px 0 0 0;
-    background: #d0d0d0;
-    display: block;
-    padding-top: 10px;
-    width: 100px;
-    height: 50px;
-    text-align: center;
-    color: #515151;
-    text-decoration: none;
-}
-
-#mainlinks li a:hover {
-    background: #f7f7f7;
-}
-
-#mainlinks li a.selected {
-    background: #f7f7f7;
-    color: #515151;
-}
-
 p {
-    line-height: 1.4em;
     font-family: Courier, serif;
 }
 
 td {
-    line-height: 1.4em;
     font-family: Courier, serif;
-}
-
-p.error {
-    color: red;
 }
 
 h1 {
     padding: 25px 0 5px 0;
-}
-
-#picturelist {
-    text-align: left;
-    margin-right: auto;
-    margin-left: auto;
-}
-
-#picturelist li {
-    list-style: none;
-    margin: 42px;
-    font-weight: bold;
-    color: #777777;
 }
 
 #play_controller_container {
@@ -92,30 +45,13 @@ h1 {
     font-family: Courier, serif;
 }
 
-.logo {
+.logo
+{
     background: white;
-    line-height: 1.4em;
     font-weight: bold;
-    font-size: 18pt;
+    font-size: 12pt;
     font-family: Courier, serif;
-}
-
-#picturelist img {
-    display: block;
-    border: 2px solid gray;
-}
-
-#picturelist img:hover {
-    border: 2px solid #515151;
-}
-
-#picturelist a {
-    color: #777777;
-    text-decoration: none;
-}
-
-#picturelist a:hover {
-    color: #999999;
+    text-decoration: underline;
 }
 
 .footer {
@@ -126,7 +62,7 @@ h1 {
 }
 
 #current_track_container {
-    width: 330px;
+    width: 320px;
     background: white;
 }
 
@@ -141,10 +77,8 @@ h1 {
 
 #current_track_info_container {
     background: white;
-    width: 300px;
+    width: 600px;
     padding-left: 15px;
-    padding-right: 15px;
-    padding-bottom: 15px;
 }
 
 #queue_container {

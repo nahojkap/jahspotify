@@ -6,11 +6,134 @@
 <head>
     <title>Jah'Spotify</title>
     <link rel="stylesheet" type="text/css" href="styles/main.css"/>
+    <script language="JavaScript" src="lib/jquery-1.6.1.js" type="text/javascript"></script>
+    <script language="JavaScript" src="lib/jquery.cookie.js" type="text/javascript"></script>
+    <script language="JavaScript" src="lib/jquery.hotkeys.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery.jstree.js"></script>
 </head>
-<body>
+<script>
+
+    $(document).ready(function ()
+    {
+        reloadCurrentQueue();
+    });
+
+    function reloadCurrentQueue()
+    {
+        $.getJSON('queue/', function(data)
+        {
+            if (data.currentlyPlaying != null)
+            {
+
+                $('#current_track_container').show();
+
+                $('#current_track_cover_art_container').empty();
+
+                $.getJSON('track/' + data.currentlyPlaying, function(data)
+                {
+                    $.getJSON('album/' + data.album.id, function(data)
+                    {
+                        $('<span/>', {
+                                    html:   "<img src=\"image/" + data.cover.id + "\" alt=\"[Cover Art]\"/>"
+                                }).appendTo("#current_track_cover_art_container");
+
+                        $('#current_track_album').empty();
+                        $('<span/>', {
+                                    html: '<a href="album/"' + data.id + "'>" + data.name + '</a>'
+                                }).appendTo("#current_track_album");
+
+
+                    });
+
+                    $('#current_track_name').empty();
+                    $('<span/>', {
+                                html: data.title
+                            }).appendTo("#current_track_name");
+
+
+                    artists = "";
+                    first = true;
+                    $.each(data.artists, function(i, val)
+                    {
+                        $.ajax({
+                                    type: 'GET',
+                                    url: 'artist/' + val.id,
+                                    dataType: 'json',
+                                    success: function(data)
+                                    {
+                                        if (first)
+                                        {
+                                            artists = '<a href="artist/' + val.id + '">' + data.name + '</a>';
+                                            first = false;
+                                        }
+                                        else
+                                        {
+                                            artists = artists + ', <a href="artist/' + val.id + '">' + data.name + '</a>';
+                                        }
+
+
+                                    },
+                                    async: false
+                                });
+
+                    });
+
+                    $('#current_track_artists').empty();
+                    $('<span/>', {
+                                html: artists
+                            }).appendTo("#current_track_artists");
+
+                });
+            }
+            else
+            {
+                $('#current_track_container').hide();
+            }
+
+            /*
+             $('#queue').empty();
+             if ($.isEmptyObject(data.queuedTracks))
+             {
+             $('<p/>', {
+             html: "Nothing in queue"
+             }).appendTo('#queue');
+             }
+             else
+             {
+             $('<ul/>', {
+             id: "queued_tracks",
+             html: ""
+             }).appendTo('#queue');
+
+             $.each(data.queuedTracks, function(i, val)
+             {
+             $.ajax({
+             type: 'GET',
+             url: 'track/' + val.trackID,
+             dataType: 'json',
+             success: function(data)
+             {
+             $('<li/>', {
+             html: '<li><a href="track/' + data.id.id + '">' + data.title + '</a></li>'
+             }).appendTo("#queued_tracks");
+
+             },
+             async: false
+             });
+
+             });
+
+
+             }
+             */
+
+        });
+    }
+</script>
+<body class="body">
 
 <div class="logo_container">
-    <p class="logo">Jah'Spotify</p>
+    <p class="logo">> Jah'Spotify</p>
 </div>
 
 <div class="container">
@@ -19,32 +142,29 @@
     <div id="current_track_container">
 
         <div id="current_track_cover_art_container">
-            <img src="images/logo.jpeg"
-                 alt="[Cover Art]"/>
-
         </div>
 
         <div id="current_track_info_container">
-            <table>
-                <p></p>
+            <table class="jahspotify_table">
                 <tr>
                     <td>Track:</td>
-                    <td id="current_track_name">Losing My Time</td>
+                    <td id="current_track_name"></td>
                 </tr>
                 <tr>
                     <td>Album:</td>
-                    <td id="current_track_album">Some other time</td>
+                    <td id="current_track_album"></td>
                 </tr>
                 <tr>
-                    <td>Artists:</td>
-                    <td id="current_track_artists">Some band</td>
+                    <td>Artist(s):</td>
+                    <td id="current_track_artists"></td>
                 </tr>
             </table>
         </div>
 
     </div>
     <div id="play_controller_container">
-        <p><a href="controller/skip">skip</a> <a href="controller/pause">pause</a> <a href="controller/play">play</a></p>
+        <p><a href="controller/skip">skip</a> <a href="controller/pause">pause</a> <a href="controller/play">play</a>
+        </p>
     </div>
 
     <div id="queue_container">
@@ -56,25 +176,34 @@
 
     <div id="playlist"></div>
 
-    <div id="status" class="content">
-        <table>
-            <tr>
-                <td>Up Since</td>
-                <td id="uptime"></td>
-            </tr>
-            <tr>
-                <td>Current Free Memory</td>
-                <td id="current_memory"></td>
-            </tr>
-            <tr>
-                <td>Total Available Memory</td>
-                <td id="total_memory"></td>
-            </tr>
-            <tr>
-                <td>Max Memory</td>
-                <td id="max_memory"></td>
-            </tr>
-        </table>
+    <!--
+        <div id="status" class="content">
+            <table>
+                <tr>
+                    <td>Up Since</td>
+                    <td id="uptime"></td>
+                </tr>
+                <tr>
+                    <td>Current Free Memory</td>
+                    <td id="current_memory"></td>
+                </tr>
+                <tr>
+                    <td>Total Available Memory</td>
+                    <td id="total_memory"></td>
+                </tr>
+                <tr>
+                    <td>Max Memory</td>
+                    <td id="max_memory"></td>
+                </tr>
+            </table>
+        </div>
+    -->
+    <div id="footer">
+        <p>Powered by Jah'Spotify</p>
+
+        <p class="small-print"><img href="images/spotify-core-logo-128x128.png"/> This product uses SPOTIFY(R) CORE but
+            is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trade mark
+            of the Spotify Group.</p>
     </div>
 </div>
 

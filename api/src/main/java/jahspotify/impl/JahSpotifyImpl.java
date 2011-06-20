@@ -27,8 +27,6 @@ public class JahSpotifyImpl implements JahSpotify
     private Stack<PlaylistFolderNode> _nodeStack = new Stack<PlaylistFolderNode>();
     private PlaylistFolderNode _currentPlaylistFolderNode = _rootNode;
 
-    private Map<String, Track> _trackCache = new HashMap<String, Track>();
-
     private Thread _jahSpotifyThread;
 
     private static JahSpotifyImpl _jahSpotifyImpl;
@@ -435,7 +433,6 @@ public class JahSpotifyImpl implements JahSpotify
 
     public Library retrieveLibrary()
     {
-
         while (_synching)
         {
             try

@@ -12,6 +12,7 @@
     <mvc:resources mapping="**/*.html" location="/"/>
     <mvc:resources mapping="**/*.js" location="/"/>
     <mvc:resources mapping="**/*.css" location="/"/>
+    <mvc:resources mapping="**/*.jpeg" location="/"/>
     <mvc:resources mapping="**/*.jpg" location="/"/>
     <mvc:resources mapping="**/*.gif" location="/"/>
     <mvc:resources mapping="**/*.png" location="/"/>
