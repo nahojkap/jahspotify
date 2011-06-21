@@ -9,7 +9,7 @@ body {
 
 .logo_container {
     background: white;
-    margin-left: 15px;
+    margin-left: 25px;
     padding: 5px;
 }
 
@@ -19,18 +19,16 @@ body {
     font-weight: bold;
     font-size: 16pt;
     font-family: Courier, serif;
-    text-decoration: underline;
 }
 
 .container {
     width: 855px;
-    padding: 10px;
 }
 
 .jahspotify_table
 {
     border-collapse:collapse;
-    border-spacing: 0pt;
+    border-spacing: 0px;
 }
 
 #content {
@@ -40,6 +38,7 @@ body {
 
 p {
     font-family: Courier, serif;
+    margin: 1px;
 }
 
 td {
@@ -50,22 +49,17 @@ h1 {
     padding: 25px 0 5px 0;
 }
 
-#play_controller_container {
-    background: white;
-    font-size: 8pt;
-    font-family: Courier, serif;
-}
-
 .footer {
     margin-top: 100px;
     font-size: .8em;
-    text-align: center;
+    text-align: left;
     margin-left: 15px;
 }
 
 #current_track_container {
     width: 320px;
     background: white;
+    padding: 5px;
 }
 
 
@@ -93,6 +87,7 @@ h1 {
     background: white;
     width: 400px;
     margin-left: 15px;
+    padding: 5px;
 }
 
 #queue_track_container {

@@ -7,6 +7,7 @@ import java.util.concurrent.locks.*;
 import jahspotify.*;
 import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.media.*;
+import jahspotify.web.QueuedTrack;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class QueueManager
     private Lock _queueLock = new ReentrantLock();
 
     // Holder for our 'shuffle' information - this is reset whenever the status of the 'shuffle' flag is changed
-    private Map<Link,Integer> _shuffleTracker = new HashMap<Link, Integer>();
+    private Map<Link, Integer> _shuffleTracker = new HashMap<Link, Integer>();
 
     private BlockingQueue<String> _blockingQueue = new ArrayBlockingQueue<String>(1, true);
     private QueueTrack _currentTrack = null;
@@ -44,6 +45,8 @@ public class QueueManager
     @Value(value = "${jahspotify.queue.auto-play-on-track-added}")
     private boolean _autoPlay = true;
     private static final Link DEFAULT_QUEUE_LINK = Link.create("jahspotify:queue:default");
+
+    private Set<QueueListener> _queueListeners = new TreeSet<QueueListener>();
 
     public QueueManager()
     {
@@ -109,7 +112,7 @@ public class QueueManager
                 }
                 catch (Exception e)
                 {
-                    _log.error("Error handling track ended callback: " + e.getMessage(),e);
+                    _log.error("Error handling track ended callback: " + e.getMessage(), e);
                 }
             }
 
@@ -131,7 +134,7 @@ public class QueueManager
         });
 
 
-        Thread t = new Thread(new Runnable()
+        final Thread t = new Thread(new Runnable()
         {
             @Override
             public void run()
@@ -140,7 +143,7 @@ public class QueueManager
                 {
                     while (true)
                     {
-                        String token = _blockingQueue.poll(100, TimeUnit.SECONDS);
+                        String token = _blockingQueue.poll(1000, TimeUnit.MILLISECONDS);
                         if ("NEXT".equals(token))
                         {
                             final QueueTrack dequeuedTrack = _uriQueue.poll();
@@ -298,17 +301,19 @@ public class QueueManager
                 }
             }
         }
-/*        if (uri.isQueueURI("jahspotify:queue:default:.*"))
+        else if (uri.isQueueLink())
         {
-            for (QueuedTrack queuedTrack : _uriQueue)
+           for (QueueTrack queuedTrack : _uriQueue)
             {
-                if (queuedTrack.getId().equals(uri))
+                // Extract the ID from the URI
+                String queueId = uri.getQueueId();
+                if (queuedTrack.getId().equals(queueId))
                 {
                     _uriQueue.remove(queuedTrack);
                     count++;
                 }
             }
-        }*/
+        }
 
         return count;
     }
@@ -411,4 +416,8 @@ public class QueueManager
         }
     }
 
+    public void addQueueListener(final QueueListener queueListener)
+    {
+        _queueListeners.add(queueListener);
+    }
 }

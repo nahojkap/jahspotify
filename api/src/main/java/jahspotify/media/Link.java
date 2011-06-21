@@ -96,11 +96,11 @@ public class Link
     private static final Pattern searchPattern = Pattern.compile("spotify:search:([^\\s]+)");
 
     /**
-        * A regular expression to match search URIs:
-        * <p/>
-        * <pre>jahspotify:queue:([^\\s]+)</pre>
-        */
-       private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
+     * A regular expression to match search URIs:
+     * <p/>
+     * <pre>jahspotify:queue:([^\\s]+)</pre>
+     */
+    private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
 
 
     /**
@@ -124,6 +124,8 @@ public class Link
     private String query;
 
     private String queue;
+
+    private String queueId;
 
     /**
      * Create a {@link Link} using the given parameters.
@@ -242,6 +244,11 @@ public class Link
         return this.type;
     }
 
+    public String getQueueId()
+    {
+        return queue;
+    }
+
     /**
      * Check if this link is an artist link.
      *
@@ -293,6 +300,16 @@ public class Link
     }
 
     /**
+     * Check if this link is a queue link.
+     *
+     * @return true if this link is a queue link, false otherwise.
+     */
+    public boolean isQueueLink()
+    {
+        return this.type.equals(Type.QUEUE);
+    }
+
+    /**
      * Get the id of this link.
      *
      * @return A 32-character hex id.
@@ -326,6 +343,10 @@ public class Link
 
     public String getQueue()
     {
+        if (!this.isQueueLink())
+        {
+            throw new IllegalStateException("Link is not a queue link!");
+        }
         return queue;
     }
 
@@ -353,34 +374,6 @@ public class Link
      */
     public String asString()
     {
-        /*if (this.isPlaylistLink())
-        {
-            return String.format(
-                    "spotify:user:%s:playlist:%s",
-                    this.user, Link.toBase62(this.id)
-            );
-        }
-        else if (this.isSearchLink())
-        {
-            try
-            {
-                return String.format(
-                        "spotify:search:%s",
-                        URLEncoder.encode(this.query, "UTF-8")
-                );
-            }
-            catch (UnsupportedEncodingException e)
-            {
-                return null;
-            }
-        }
-        else
-        {
-            return String.format(
-                    "spotify:%s:%s", this.type,
-                    Link.toBase62(this.id)
-            );
-        }*/
         return id;
     }
 
