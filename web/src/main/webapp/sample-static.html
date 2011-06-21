@@ -16,7 +16,84 @@
     $(document).ready(function ()
     {
         reloadCurrentQueue();
+        loadLibrary();
+
     });
+
+    function loadLibrary()
+    {
+        jQuery("#playlist").jstree({
+            dnd : {
+                "drop_finish" : function (data)
+                {
+                    // FIXME Should support multiple selections
+                    $.getJSON('add-to-queue/' + data.o.attr("id"), function(addToQueueData)
+                    {
+                        reloadCurrentQueue();
+                    });
+                },
+                "drag_check" : function (data)
+                {
+                    if (data.r.attr("id") == "phtml_1")
+                    {
+                        return false;
+                    }
+                    return {
+                        after : false,
+                        before : false,
+                        inside : true
+                    };
+                },
+                "drag_finish" : function (data)
+                {
+                    alert("DRAG OK");
+                }
+            },
+            json_data : {
+                ajax : {
+                    "url" : "library/",
+                    "data" : function (n)
+                    {
+                        return { id : n.attr ? n.attr("id") : 0 };
+                    },
+                    error: function(e)
+                    {
+                        alert("Error: " + e);
+                    }
+                }
+            },
+            rules : {
+                deletable : "none",
+                renameable : "none",
+                creatable : [ "none" ],
+                draggable : [ "folder", "playlist" , "track" ],
+                drag_button : "left",
+                droppable : [ "tree-drop" ]
+            },
+            types : {
+                "valid_children" : [ "root", "folder", "playlist", "track" ],
+                "types" : {
+                    "root" : {
+                        "valid_children" : [ "folder", "playlist" ]
+                    },
+                    "folder" : {
+                        "valid_children" : [ "folder", "playlist" ]
+                    },
+                    "playlist" : {
+                        "valid_children" : [ "track" ]
+                    },
+                    "track" : {
+                        "valid_children" : [ "none" ],
+                        "icon" : {
+                            "image" : "http://laesferamusical.files.wordpress.com/2009/11/spotify-icon.gif?w=65&h=65"
+                        }
+                    }
+                }
+            },
+            "plugins" : [ "themes","json_data","ui","crrm","hotkeys", "types","dnd"]
+        });
+    }
+
 
     function reloadCurrentQueue()
     {
@@ -34,21 +111,21 @@
                     $.getJSON('album/' + data.album.id, function(data)
                     {
                         $('<span/>', {
-                                    html:   "<img src=\"image/" + data.cover.id + "\" alt=\"[Cover Art]\"/>"
-                                }).appendTo("#current_track_cover_art_container");
+                            html:   "<img src=\"image/" + data.cover.id + "\" alt=\"[Cover Art]\"/>"
+                        }).appendTo("#current_track_cover_art_container");
 
                         $('#current_track_album').empty();
                         $('<span/>', {
-                                    html: '<a href="album/"' + data.id + "'>" + data.name + '</a>'
-                                }).appendTo("#current_track_album");
+                            html: '<a href="album/"' + data.id + "'>" + data.name + '</a>'
+                        }).appendTo("#current_track_album");
 
 
                     });
 
                     $('#current_track_name').empty();
                     $('<span/>', {
-                                html: data.title
-                            }).appendTo("#current_track_name");
+                        html: data.title
+                    }).appendTo("#current_track_name");
 
 
                     artists = "";
@@ -56,32 +133,32 @@
                     $.each(data.artists, function(i, val)
                     {
                         $.ajax({
-                                    type: 'GET',
-                                    url: 'artist/' + val.id,
-                                    dataType: 'json',
-                                    success: function(data)
-                                    {
-                                        if (first)
-                                        {
-                                            artists = '<a href="artist/' + val.id + '">' + data.name + '</a>';
-                                            first = false;
-                                        }
-                                        else
-                                        {
-                                            artists = artists + ', <a href="artist/' + val.id + '">' + data.name + '</a>';
-                                        }
+                            type: 'GET',
+                            url: 'artist/' + val.id,
+                            dataType: 'json',
+                            success: function(data)
+                            {
+                                if (first)
+                                {
+                                    artists = '<a href="artist/' + val.id + '">' + data.name + '</a>';
+                                    first = false;
+                                }
+                                else
+                                {
+                                    artists = artists + ', <a href="artist/' + val.id + '">' + data.name + '</a>';
+                                }
 
 
-                                    },
-                                    async: false
-                                });
+                            },
+                            async: false
+                        });
 
                     });
 
                     $('#current_track_artists').empty();
                     $('<span/>', {
-                                html: artists
-                            }).appendTo("#current_track_artists");
+                        html: artists
+                    }).appendTo("#current_track_artists");
 
                 });
             }
@@ -90,42 +167,41 @@
                 $('#current_track_container').hide();
             }
 
-            /*
-             $('#queue').empty();
-             if ($.isEmptyObject(data.queuedTracks))
-             {
-             $('<p/>', {
-             html: "Nothing in queue"
-             }).appendTo('#queue');
-             }
-             else
-             {
-             $('<ul/>', {
-             id: "queued_tracks",
-             html: ""
-             }).appendTo('#queue');
+            $('#queue_container').empty();
+            if ($.isEmptyObject(data.queuedTracks))
+            {
+                $('<p/>', {
+                    html: "Nothing in queue"
+                }).appendTo('#queue_container');
+            }
+            else
+            {
+                $('<ul/>', {
+                    id: "queued_tracks",
+                    html: ""
+                }).appendTo('#queue_container');
 
-             $.each(data.queuedTracks, function(i, val)
-             {
-             $.ajax({
-             type: 'GET',
-             url: 'track/' + val.trackID,
-             dataType: 'json',
-             success: function(data)
-             {
-             $('<li/>', {
-             html: '<li><a href="track/' + data.id.id + '">' + data.title + '</a></li>'
-             }).appendTo("#queued_tracks");
+                $.each(data.queuedTracks, function(i, val)
+                {
+                    $.ajax({
+                        type: 'GET',
+                        url: 'track/' + val.trackID,
+                        dataType: 'json',
+                        success: function(data)
+                        {
+                            $('<li/>', {
+                                html: '<li><a href="track/' + data.id.id + '">' + data.title + '</a></li>'
+                            }).appendTo("#queued_tracks");
 
-             },
-             async: false
-             });
+                        },
+                        async: false
+                    });
 
-             });
+                });
 
 
-             }
-             */
+            }
+
 
         });
     }
@@ -162,6 +238,7 @@
         </div>
 
     </div>
+
     <div id="play_controller_container">
         <p><a href="controller/skip">skip</a> <a href="controller/pause">pause</a> <a href="controller/play">play</a>
         </p>

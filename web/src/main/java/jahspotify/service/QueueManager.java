@@ -54,9 +54,13 @@ public class QueueManager
         _jahSpotify.addPlaybackListener(new PlaybackListener()
         {
             @Override
-            public void trackStarted(final String uri)
+            public void trackStarted(final String uriStr)
             {
+                Link uri = Link.create(uriStr);
                 _log.debug("Track started: " + uri);
+
+                // FIXME: Add this track to the 'history' of tracks played
+
                 _queueState = QueueState.PLAYING;
                 _currentTrackStart = System.currentTimeMillis();
             }

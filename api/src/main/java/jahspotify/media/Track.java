@@ -27,11 +27,6 @@ public class Track extends Media
     private Link album;
 
     /**
-     * Release year of this track.
-     */
-    private int year;
-
-    /**
      * Track number on a certain disk.
      */
     private int trackNumber;
@@ -64,7 +59,6 @@ public class Track extends Media
         this.title = null;
         this.artists = new ArrayList<Link>();
         this.album = null;
-        this.year = -1;
         this.trackNumber = -1;
         this.length = -1;
         this.files = new ArrayList<File>();
@@ -139,32 +133,6 @@ public class Track extends Media
     public void setAlbum(Link album)
     {
         this.album = album;
-    }
-
-    /**
-     * Get the tracks release year.
-     *
-     * @return An integer denoting the release year or -1 if not available.
-     */
-    public int getYear()
-    {
-        return this.year;
-    }
-
-    /**
-     * Set the tracks release year.
-     *
-     * @param year A positive integer denoting the release year.
-     */
-    public void setYear(int year)
-    {
-        /* Check if year is valid. Years B.C. are not supported :-P */
-        if (year < 0)
-        {
-            throw new IllegalArgumentException("Expecting a positive year.");
-        }
-
-        this.year = year;
     }
 
     /**
