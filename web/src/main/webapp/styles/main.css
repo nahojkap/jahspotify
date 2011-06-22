@@ -208,4 +208,21 @@ ul.tabs a.xl.current {
 .panes .pane {
     display: none;
 }
+/*
 
+a:link, a:visited {
+	border-bottom: 1px solid red;
+	text-decoration: underline;
+	color: red;
+	}
+a:hover, a:active {
+	border-bottom: 3px solid red;
+	text-decoration: none;
+	color: maroon;
+	}
+*/
+
+img {
+	text-decoration: none;
+	border: 0 none;
+	}
