@@ -152,7 +152,10 @@ public class JahSpotifyImpl implements JahSpotify
                 {
                     _currentPlaylistFolderNode.addChild(new PlaylistNode(link,name));
                 }
-
+                else
+                {
+                    _library = null;
+                }
                 for (PlaylistListener listener : _playlistListeners)
                 {
                     listener.playlist(name, link);

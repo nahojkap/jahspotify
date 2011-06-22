@@ -37,11 +37,6 @@ public class Track extends Media
     private int length;
 
     /**
-     * Files available for this track.
-     */
-    private List<File> files;
-
-    /**
      * The identifier for this tracks cover image (32-character string).
      */
     private String cover;
@@ -61,7 +56,6 @@ public class Track extends Media
         this.album = null;
         this.trackNumber = -1;
         this.length = -1;
-        this.files = new ArrayList<File>();
         this.cover = null;
     }
 
@@ -183,67 +177,6 @@ public class Track extends Media
         }
 
         this.length = length;
-    }
-
-    /**
-     * Get a list of files of this track.
-     *
-     * @return A {@link List} of {@link File} objects.
-     */
-    public List<File> getFiles()
-    {
-        return this.files;
-    }
-
-    /**
-     * Set the list of {@link File} objects for this track.
-     *
-     * @param files A {@link List} of {@link File} objects.
-     */
-    public void setFiles(List<File> files)
-    {
-        this.files = files;
-    }
-
-    /**
-     * Add a {@link File} to the list of files.
-     *
-     * @param file The {@link File} to add.
-     */
-    public void addFile(File file)
-    {
-        this.files.add(file);
-    }
-
-    /**
-     * Get a file of this track that matches the given bitrate best.
-     *
-     * @param bitrate A bitrate to match files against (e.g. 160000,
-     *                to choose a 160 kbps file).
-     * @return A {@link File} object or null if no files are available.
-     */
-    public File getFile(int bitrate)
-    {
-        File result = null;
-        int min = -1;
-        int diff;
-
-        /* Make sure files are sorted (highest bitrate last). */
-        Collections.sort(this.files);
-
-        /* Pick the best-match. */
-        for (File file : this.files)
-        {
-            diff = Math.abs(file.getBitrate() - bitrate);
-
-            if (min == -1 || diff <= min)
-            {
-                min = diff;
-                result = file;
-            }
-        }
-
-        return result;
     }
 
     /**
