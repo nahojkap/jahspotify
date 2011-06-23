@@ -280,6 +280,16 @@ public class Link
     }
 
     /**
+     * Check if this link is an image link.
+     *
+     * @return true if this link is an image link, false otherwise.
+     */
+    public boolean isImageLink()
+    {
+        return this.type.equals(Type.IMAGE);
+    }
+
+    /**
      * Check if this link is a playlist link.
      *
      * @return true if this link is a playlist link, false otherwise.

@@ -81,10 +81,12 @@ h1 {
 }
 
 #play_controller_container {
-    background: white;
-    width: 400px;
+    background: #d3d3d3;
+    width: 300px;
     margin-left: 15px;
-    padding: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 15px;
 }
 
 #queue_track_container {

@@ -1,13 +1,15 @@
 package jahspotify.web;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 import jahspotify.media.Link;
 import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.*;
 
 /**
  * @author Johan Lindquist
@@ -18,6 +20,9 @@ public class BaseController
 
     @Autowired
     protected JahSpotifyService _jahSpotifyService;
+
+    @Value(value = "${jahspotify.web.controller.track-expires-duration}")
+    private int _trackExpiresDuration;
 
     protected void writeResponse(final HttpServletResponse httpServletResponse, final SimpleStatusResponse simpleStatusResponse)
     {
@@ -49,6 +54,7 @@ public class BaseController
         try
         {
             httpServletResponse.setContentType("application/json; charset=utf-8");
+            httpServletResponse.addHeader("Expires", createExpiresHeader(_trackExpiresDuration)); // 5 minutes for now
             _log.debug("Serializing: " + object);
             final PrintWriter writer = httpServletResponse.getWriter();
             final String s = gson.toJson(object);
@@ -62,6 +68,19 @@ public class BaseController
         {
             e.printStackTrace();
         }
+    }
+
+    protected String createExpiresHeader(int expires)
+    {
+        final Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
+        utc.add(Calendar.SECOND,expires);
+        return toHttpDate(utc.getTime());
+    }
+
+    protected String toHttpDate(Date date)
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+        return simpleDateFormat.format(date);
     }
 
     protected Link retrieveLink(final HttpServletRequest httpServletRequest)

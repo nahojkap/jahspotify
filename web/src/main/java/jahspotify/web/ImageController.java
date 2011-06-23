@@ -1,6 +1,8 @@
 package jahspotify.web;
 
-import java.io.IOException;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
@@ -26,25 +28,112 @@ public class ImageController extends BaseController
         {
             final Link uri = retrieveLink(httpServletRequest);
 
-            // FIXME: This image should be cached
+            if (uri == null)
+            {
+                final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+                simpleStatusResponse.setResponseStatus(ResponseStatus.MISSING_PARAMETER);
+                writeResponse(httpServletResponse, simpleStatusResponse);
+                return;
+            }
 
-            final Image image = _jahSpotifyService.getJahSpotify().readImage(uri);
-            byte[] bytes = image.getBytes();
+            if (!uri.isImageLink())
+            {
+                final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+                simpleStatusResponse.setResponseStatus(ResponseStatus.INVALID_PARAMETER);
+                writeResponse(httpServletResponse, simpleStatusResponse);
+                return;
+            }
 
-            httpServletResponse.setContentType("image/jpeg");
-            httpServletResponse.setContentLength(bytes.length);
 
-            final ServletOutputStream outputStream = httpServletResponse.getOutputStream();
-            outputStream.write(bytes);
-            outputStream.flush();
-            outputStream.close();
+            Image image = getFromCache(uri);
+            if (image == null)
+            {
+                image = _jahSpotifyService.getJahSpotify().readImage(uri);
+            }
+
+            if (image != null)
+            {
+                byte[] bytes = image.getBytes();
+
+                cacheImage(uri, bytes);
+
+                httpServletResponse.setContentType("image/jpeg");
+
+                // Setup caching parameters
+                httpServletResponse.addHeader("Last-Modified", "Tue, 6 Sep 2005 15:10:00 UTC+1");
+
+                final Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
+                utc.add(Calendar.YEAR, 1);
+
+                httpServletResponse.addHeader("Expires", toHttpDate(utc.getTime()));
+
+                httpServletResponse.setContentLength(bytes.length);
+
+                final ServletOutputStream outputStream = httpServletResponse.getOutputStream();
+                outputStream.write(bytes);
+                outputStream.flush();
+                outputStream.close();
+            }
+
+        }
+        catch (Exception e)
+        {
+            _log.error("Error while service image: " + e.getMessage(), e);
+            final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+
+
+    }
+
+    private Image getFromCache(final Link uri)
+    {
+        final String substring = uri.asString().substring(uri.asString().lastIndexOf(":") + 1);
+        File f = new File("/tmp/jahspotify/web/cache/images/" + substring);
+        byte[] bytes;
+        if (f.exists())
+        {
+            _log.debug("Image found in cache: " + uri);
+
+            try
+            {
+                FileInputStream fileInputStream = new FileInputStream(f);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[16000];
+                int len = fileInputStream.read(buffer,0,16000);
+                while (len != -1)
+                {
+                    baos.write(buffer,0,len);
+                    len = fileInputStream.read(buffer,0,16000);
+                }
+                _log.debug("Image size in cache: " + baos.toByteArray().length);
+
+                return new Image(uri,baos.toByteArray());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private void cacheImage(final Link uri, final byte[] bytes)
+    {
+        final String substring = uri.asString().substring(uri.asString().lastIndexOf(":") + 1);
+        new File("/tmp/jahspotify/web/cache/images/").mkdirs();
+        try
+        {
+            FileOutputStream fileOutputStream = new FileOutputStream("/tmp/jahspotify/web/cache/images/" + substring);
+            fileOutputStream.write(bytes);
+            fileOutputStream.flush();
+            fileOutputStream.close();
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-
-
     }
 
 }

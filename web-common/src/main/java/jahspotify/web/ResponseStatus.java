@@ -5,5 +5,5 @@ package jahspotify.web;
  */
 public enum ResponseStatus
 {
-    OK, BAD_REQUEST, INTERNAL_ERROR
+    OK, BAD_REQUEST, INTERNAL_ERROR, MISSING_PARAMETER, INVALID_PARAMETER, RESOURCE_NOT_FOUND
 }

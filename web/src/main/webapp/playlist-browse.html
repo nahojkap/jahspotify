@@ -19,23 +19,52 @@
 
     });
 
+    function customMenu(node) {
+
+        // The default set of all items
+        var items = {
+            "queue" : {
+                "label" : "Queue Track",
+               /* "action" : function (obj)
+                {
+                    $.getJSON('add-to-queue/' + obj.o.attr("id"), function(addToQueueData)
+                    {
+                    });
+                }*/
+
+                visible : function (NODE, TREE_OBJ) {
+                    // return -1 for not visible
+                    if(NODE.attr("id") == "pjson5_2") return -1;
+                    // return false for disabled
+                    if(NODE.attr("id") == "pjson5_3") return false;
+                    // return true for visible and clickable
+                    return true;
+                },
+                action  : function (NODE, TREE_OBJ) {
+                    // Just a demo of the arguments
+                    $.getJSON('add-to-queue/' + NODE.attr("id") , function(addToQueueData)
+                    {
+                    });
+                }
+
+            }
+        };
+
+        if ($(node).hasClass("folder")) {
+            // Delete the "delete" menu item
+            delete items.deleteItem;
+        }
+
+        return items;
+    }
+
+
     function loadLibrary()
     {
         jQuery("#playlist").jstree({
 
             contextmenu : {
-                items: {
-                    "queue" : {
-                        "label" : "Queue Track",
-                        "action" : function (obj)
-                        {
-                            $.getJSON('add-to-queue/' + obj.o.attr("id"), function(addToQueueData)
-                            {
-                            });
-                        }
-                    }
-
-                }
+                items: customMenu
             },
 
             dnd : {
