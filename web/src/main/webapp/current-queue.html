@@ -16,7 +16,60 @@
     $(document).ready(function ()
     {
         reloadCurrentQueue();
+
+        $("#playback_button").bind("click", function()
+        {
+            setupPlaybackButton($("#playback_button").attr("src") == 'images/playback-start-32x32.png');
+        });
+
+        $("#skip_button").bind("click", function()
+        {
+            $.getJSON('controller/skip', function(data)
+            {
+                if (data == 'OK')
+                {
+                    reloadCurrentQueue();
+                }
+            });
+        });
+
     });
+
+    function setupPlaybackButton(playing)
+    {
+            if (playing)
+            {
+                $.getJSON('controller/play', function(data)
+                {
+                    if (data == 'OK')
+                    {
+                        $("#playback_button").attr("src", "images/playback-pause-32x32.png");
+                    }
+                });
+            }
+            else
+            {
+                $.getJSON('controller/pause', function(data)
+                {
+                    if (data == 'OK')
+                    {
+                        $("#playback_button").attr("src", "images/playback-start-32x32.png");
+                    }
+                });
+            }
+    }
+
+    function getTrack(trackId, callback, async)
+    {
+        $.ajax({
+            type: 'GET',
+            url: 'track/' + trackId,
+            dataType: 'json',
+            success: callback,
+            async: async
+        });
+
+    }
 
     function reloadCurrentQueue()
     {
@@ -24,32 +77,32 @@
         {
             if (data.currentlyPlaying != null)
             {
+                setupPlaybackButton(true);
+                $('#jahspotify_current_track_container').show();
+                $('#jahspotify_play_controller_container').show();
 
-                $('#current_track_container').show();
-                $('#play_controller_container').show();
+                $('#jahspotify_current_track_cover_art_container').empty();
 
-                $('#current_track_cover_art_container').empty();
-
-                $.getJSON('track/' + data.currentlyPlaying.trackID, function(data)
+                getTrack(data.currentlyPlaying.trackID, function(data)
                 {
                     $.getJSON('album/' + data.album.id, function(data)
                     {
                         $('<span/>', {
-                            html:   "<img src=\"image/" + data.cover.id + "\" alt=\"[Cover Art]\"/>"
-                        }).appendTo("#current_track_cover_art_container");
+                            html:   "<img id=\"album_cover\" src=\"image/" + data.cover.id + "\" alt=\"[Cover Art]\"/>"
+                        }).appendTo("#jahspotify_current_track_cover_art_container");
 
-                        $('#current_track_album').empty();
+                        $('#jahspotify_current_track_album').empty();
                         $('<span/>', {
                             html: '<a href="album/"' + data.id + "'>" + data.name + '</a>'
-                        }).appendTo("#current_track_album");
+                        }).appendTo("#jahspotify_current_track_album");
 
 
                     });
 
-                    $('#current_track_name').empty();
+                    $('#jahspotify_current_track_name').empty();
                     $('<span/>', {
                         html: data.title
-                    }).appendTo("#current_track_name");
+                    }).appendTo("#jahspotify_current_track_name");
 
 
                     artists = "";
@@ -79,48 +132,53 @@
 
                     });
 
-                    $('#current_track_artists').empty();
+                    $('#jahspotify_current_track_artists').empty();
                     $('<span/>', {
                         html: artists
-                    }).appendTo("#current_track_artists");
+                    }).appendTo("#jahspotify_current_track_artists");
 
-                });
+                },true);
             }
             else
             {
-                $('#current_track_container').hide();
-                $('#play_controller_container').hide();
+                $('#jahspotify_current_track_container').hide();
+                $('#jahspotify_play_controller_container').hide();
             }
 
-            $('#queue_container').empty();
+            $('#jahspotify_queue_container').empty();
             if ($.isEmptyObject(data.queuedTracks))
             {
                 $('<p/>', {
                     html: "Nothing in queue"
-                }).appendTo('#queue_container');
+                }).appendTo('#jahspotify_queue_container');
             }
             else
             {
-                $('<ul/>', {
-                    id: "queued_tracks",
-                    html: ""
-                }).appendTo('#queue_container');
+                getTrack(data.queuedTracks[0].trackID,function(data)
+                {
+                    $('<span/>' , {
+                        html: '1. <a href="track/' + data.id.id + '">' + data.title + '</a>'
+                    }).appendTo('#jahspotify_queue_container');
+                }, false);
+
+                $('<ol/>', {
+                    id: "jahspotify_queued_tracks",
+                    html: "",
+                    style: "counter-reset: start 9;"
+                }).appendTo('#jahspotify_queue_container');
 
                 $.each(data.queuedTracks, function(i, val)
                 {
-                    $.ajax({
-                        type: 'GET',
-                        url: 'track/' + val.trackID,
-                        dataType: 'json',
-                        success: function(data)
-                        {
-                            $('<li/>', {
-                                html: '<li><a href="track/' + data.id.id + '">' + data.title + '</a></li>'
-                            }).appendTo("#queued_tracks");
+                    if (i != 0)
+                    {
+                        getTrack(val.trackID, function(data)
+                            {
+                                $('<li/>', {
+                                    html: '<a href="track/' + data.id.id + '">' + data.title + '</a>'
+                                }).appendTo("#jahspotify_queued_tracks");
 
-                        },
-                        async: false
-                    });
+                            },false);
+                    }
 
                 });
 
@@ -140,36 +198,36 @@
 <div class="container">
 
 
-    <div id="current_track_container">
+    <div id="jahspotify_current_track_container">
 
-        <div id="current_track_cover_art_container">
+        <div id="jahspotify_current_track_cover_art_container">
         </div>
 
-        <div id="current_track_info_container">
+        <div id="jahspotify_current_track_info_container">
             <table class="jahspotify_table">
                 <tr>
                     <td>Track:</td>
-                    <td id="current_track_name"></td>
+                    <td id="jahspotify_current_track_name"></td>
                 </tr>
                 <tr>
                     <td>Album:</td>
-                    <td id="current_track_album"></td>
+                    <td id="jahspotify_current_track_album"></td>
                 </tr>
                 <tr>
                     <td>Artist(s):</td>
-                    <td id="current_track_artists"></td>
+                    <td id="jahspotify_current_track_artists"></td>
                 </tr>
             </table>
         </div>
 
     </div>
 
-    <div id="play_controller_container">
-        <p><img src="images/playback-start-32x32.png"> <img src="images/skip-forward-32x32.png"> <a href="controller/skip">skip</a> <a href="controller/pause">pause</a> <a href="controller/play">play</a>
-        </p>
+    <div id="jahspotify_play_controller_container">
+        <p><img id="playback_button" src="images/playback-start-32x32.png" onclick="return false;" alt="[Play/Pause]" title="[Play/Pause]"> <img title="[Skip]" alt="[Skip]"
+                id="skip_button" src="images/skip-forward-32x32.png" onclick="return false;"></p>
     </div>
 
-    <div id="queue_container">
+    <div id="jahspotify_queue_container">
     </div>
 
     <div class="footer">

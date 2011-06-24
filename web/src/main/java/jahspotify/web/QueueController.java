@@ -112,7 +112,7 @@ public class QueueController extends BaseController
         }
     }
 
-    @RequestMapping(value = "/queue/shuffle", method = RequestMethod.GET)
+    @RequestMapping(value = "/queue/shuffle/*", method = RequestMethod.GET)
     public void shuffle(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         Link uri = retrieveLink(httpServletRequest);
@@ -131,6 +131,21 @@ public class QueueController extends BaseController
     public void getQueue(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         _log.debug("Request for the queue");
+
+        int count = -1;
+        final String countStr = httpServletRequest.getParameter("count");
+        if (countStr != null)
+        {
+            try
+            {
+                count = Integer.parseInt(countStr);
+            }
+            catch (NumberFormatException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
         final jahspotify.service.CurrentQueue currentQueue = _queueManager.getCurrentQueue();
         writeCurrentQueue(httpServletResponse, currentQueue);
     }

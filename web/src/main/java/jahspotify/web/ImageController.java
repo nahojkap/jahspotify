@@ -60,7 +60,7 @@ public class ImageController extends BaseController
                 httpServletResponse.setContentType("image/jpeg");
 
                 // Setup caching parameters
-                httpServletResponse.addHeader("Last-Modified", "Tue, 6 Sep 2005 15:10:00 UTC+1");
+                httpServletResponse.addHeader("Last-Modified", "Tue, 6 Sep 2005 15:10:00 UTC");
 
                 final Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
                 utc.add(Calendar.YEAR, 1);

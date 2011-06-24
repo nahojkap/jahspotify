@@ -14,6 +14,9 @@ public class Media
      */
     protected Link id;
 
+    /**
+     * Date when this media object was considered to have been modified
+     */
     private Date _lastModified;
 
     /**
@@ -65,9 +68,9 @@ public class Media
 
     public Date getLastModified()
     {
-        if (_lastModified != null)
+        if (_lastModified == null)
         {
-
+            _lastModified = new Date();
         }
         return _lastModified;
     }

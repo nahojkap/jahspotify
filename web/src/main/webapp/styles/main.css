@@ -54,33 +54,34 @@ h1 {
     margin-left: 15px;
 }
 
-#current_track_container {
+#jahspotify_current_track_container {
     width: 320px;
     background: white;
     padding: 5px;
 }
 
-#current_track_cover_art_container {
-    background: white;
+#jahspotify_current_track_cover_art_container {
+    background:#fff url('../images/loading.gif') 50% 50% no-repeat;
     width: 300px;
+    height: 300px;
     padding-top: 15px;
     padding-left: 15px;
     padding-right: 15px;
 }
 
-#current_track_info_container {
+#jahspotify_current_track_info_container {
     background: white;
     width: 600px;
     margin-left: 15px;
 }
 
-#queue_container {
+#jahspotify_queue_container {
     background: white;
     width: 400pt;
     margin-left: 15px;
 }
 
-#play_controller_container {
+#jahspotify_play_controller_container {
     background: #d3d3d3;
     width: 300px;
     margin-left: 15px;
@@ -89,7 +90,7 @@ h1 {
     padding-left: 15px;
 }
 
-#queue_track_container {
+#jahspotify_queue_track_container {
     background: white;
     width: 300px;
     font-size: 12pt;

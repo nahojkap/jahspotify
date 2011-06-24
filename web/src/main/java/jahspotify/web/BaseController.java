@@ -21,8 +21,8 @@ public class BaseController
     @Autowired
     protected JahSpotifyService _jahSpotifyService;
 
-    @Value(value = "${jahspotify.web.controller.track-expires-duration}")
-    private int _trackExpiresDuration;
+    @Value(value = "${jahspotify.web.controller.default-media-expires-duration}")
+    private int _defaultMediaExpirationTime;
 
     protected void writeResponse(final HttpServletResponse httpServletResponse, final SimpleStatusResponse simpleStatusResponse)
     {
@@ -30,33 +30,31 @@ public class BaseController
         try
         {
             httpServletResponse.setContentType("application/json; charset=utf-8");
-
             _log.debug("Serializing: " + simpleStatusResponse);
-
             final PrintWriter writer = httpServletResponse.getWriter();
-            final String s = gson.toJson(simpleStatusResponse);
-            _log.debug("Serialized: " + s);
-
-            writer.write(s);
-
+            gson.toJson(simpleStatusResponse.getResponseStatus(), writer);
             writer.flush();
             writer.close();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while writing response: " + e.getMessage(),e);
         }
     }
 
     protected void writeResponseGeneric(final HttpServletResponse httpServletResponse, final Object object)
     {
-
         this.writeResponseGenericWithDate(httpServletResponse,null,object);
-
     }
 
 
     protected void writeResponseGenericWithDate(final HttpServletResponse httpServletResponse, final Date lastModified, final Object object)
+    {
+        writeResponseGenericWithDate(httpServletResponse,lastModified, _defaultMediaExpirationTime,object);
+
+    }
+
+    protected void writeResponseGenericWithDate(final HttpServletResponse httpServletResponse, final Date lastModified, final int expirationTime, final Object object)
     {
         Gson gson = new Gson();
         try
@@ -64,23 +62,21 @@ public class BaseController
             httpServletResponse.setContentType("application/json; charset=utf-8");
             if (lastModified != null)
             {
-                httpServletResponse.addHeader("Expires", createDateHeader(_trackExpiresDuration)); // 5 minutes for now
+                httpServletResponse.addHeader("Expires", createDateHeader(expirationTime));
                 httpServletResponse.addHeader("Last-Modified", toHttpDate(lastModified));
             }
             _log.debug("Serializing: " + object);
             final PrintWriter writer = httpServletResponse.getWriter();
-            final String s = gson.toJson(object);
-            _log.debug("Serialized: " + s);
-            writer.write(s);
-
+            gson.toJson(object,writer);
             writer.flush();
             writer.close();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while writing response: " + e.getMessage(),e);
         }
     }
+
 
     protected String createDateHeader(int expires)
     {
@@ -91,7 +87,7 @@ public class BaseController
 
     protected String toHttpDate(Date date)
     {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
         return simpleDateFormat.format(date);
     }
 
@@ -104,20 +100,9 @@ public class BaseController
 
     protected <T> T readRequest(final HttpServletRequest httpServletRequest, final Class<T> classOfT) throws IOException
     {
-        BufferedReader br = new BufferedReader(httpServletRequest.getReader());
-        StringBuffer sb = new StringBuffer();
-
-        String tmp = br.readLine();
-        while (tmp != null)
-        {
-            sb.append(tmp);
-            sb.append("\n");
-            tmp = br.readLine();
-        }
-
+        final BufferedReader br = new BufferedReader(httpServletRequest.getReader());
         Gson gson = new Gson();
-        return gson.fromJson(sb.toString(), classOfT);
+        return gson.fromJson(br,classOfT);
     }
-
 
 }
