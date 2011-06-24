@@ -14,6 +14,8 @@ public class Media
      */
     protected Link id;
 
+    private Date _lastModified;
+
     /**
      * Redirects (other identifiers) for this media (32-character hex strings).
      */
@@ -59,6 +61,20 @@ public class Media
     public void setId(Link id)
     {
         this.id = id;
+    }
+
+    public Date getLastModified()
+    {
+        if (_lastModified != null)
+        {
+
+        }
+        return _lastModified;
+    }
+
+    public void setLastModified(final Date lastModified)
+    {
+        _lastModified = lastModified;
     }
 
     /**

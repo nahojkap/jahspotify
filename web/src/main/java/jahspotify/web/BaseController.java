@@ -50,11 +50,23 @@ public class BaseController
 
     protected void writeResponseGeneric(final HttpServletResponse httpServletResponse, final Object object)
     {
+
+        this.writeResponseGenericWithDate(httpServletResponse,null,object);
+
+    }
+
+
+    protected void writeResponseGenericWithDate(final HttpServletResponse httpServletResponse, final Date lastModified, final Object object)
+    {
         Gson gson = new Gson();
         try
         {
             httpServletResponse.setContentType("application/json; charset=utf-8");
-            httpServletResponse.addHeader("Expires", createExpiresHeader(_trackExpiresDuration)); // 5 minutes for now
+            if (lastModified != null)
+            {
+                httpServletResponse.addHeader("Expires", createDateHeader(_trackExpiresDuration)); // 5 minutes for now
+                httpServletResponse.addHeader("Last-Modified", toHttpDate(lastModified));
+            }
             _log.debug("Serializing: " + object);
             final PrintWriter writer = httpServletResponse.getWriter();
             final String s = gson.toJson(object);
@@ -70,10 +82,10 @@ public class BaseController
         }
     }
 
-    protected String createExpiresHeader(int expires)
+    protected String createDateHeader(int expires)
     {
         final Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
-        utc.add(Calendar.SECOND,expires);
+        utc.add(Calendar.SECOND, expires);
         return toHttpDate(utc.getTime());
     }
 
@@ -106,7 +118,6 @@ public class BaseController
         Gson gson = new Gson();
         return gson.fromJson(sb.toString(), classOfT);
     }
-
 
 
 }
