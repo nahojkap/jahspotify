@@ -1353,7 +1353,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
         if (image)
         {
             sp_image_add_ref(image);
-	    sp_image_add_load_callback(imageLoadedCallback, NULL);
+	    sp_image_add_load_callback(image, imageLoadedCallback, NULL);
 	    
 	    int count = 0;
 	    

@@ -18,6 +18,9 @@ public interface JahStorage
     public Album readAlbum(Link uri);
 
     public void store(Playlist playlist);
+    public Playlist readPlaylist(Link uri);
+
     public void store(Image image);
     public Image readImage(Link uri);
+
 }

@@ -2,6 +2,8 @@
 
 #define JAHSPOTIFY_CALLBACKS
 
+#include <libspotify/api.h>
+
 void startPlaybackSignalled();
 int signalLoggedIn();
 int signalStartFolderSeen(char *folderName, uint64_t folderId);
@@ -16,7 +18,8 @@ int signalPlaylistSeen(const char *playlistName, char *linkName);
 
 void signalImageLoaded(sp_image *image);
 void signalTrackLoaded(sp_track *track);
-void signalAlbumBrowseLoaded(sp_album_browse *albumBrowse);
-void signalArtistBrowseLoaded(sp_artist_browse *artistBrowse);
+
+void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse);
+void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse);
 
 #endif

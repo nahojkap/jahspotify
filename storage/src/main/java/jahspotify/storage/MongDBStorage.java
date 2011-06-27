@@ -58,6 +58,12 @@ public class MongDBStorage implements JahStorage
     }
 
     @Override
+    public Playlist readPlaylist(final Link uri)
+    {
+        return null;
+    }
+
+    @Override
     public void store(final Image image)
     {
     }

@@ -711,7 +711,7 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
     return 0;
 }
 
-void signalArtistBrowseLoaded(sp_artist *artist)
+void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse)
 {
 }
 
@@ -720,7 +720,7 @@ void signalImageLoaded(sp_image *image)
   
 }
 
-void signalAlbumBrowseLoaded(sp_album_browse *albumBrowse)
+void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse)
 {
   
 }
