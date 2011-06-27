@@ -163,7 +163,7 @@ static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *user
 
 static void playlist_metadata_updated ( sp_playlist *pl, void *userdata )
 {
-    // fprintf ( stderr,"jahspotify: playlist metadata updated: %s\n",sp_playlist_name ( pl ) );
+    signalMetadataUpdated();
 }
 
 /**
@@ -259,18 +259,18 @@ static void container_loaded ( sp_playlistcontainer *pc, void *userdata )
         }
         switch ( sp_playlistcontainer_playlist_type ( pc,i ) )
         {
-        case SP_PLAYLIST_TYPE_PLAYLIST:
+          case SP_PLAYLIST_TYPE_PLAYLIST:
             signalPlaylistSeen(sp_playlist_name ( pl ),linkStr);
             break;
-        case SP_PLAYLIST_TYPE_START_FOLDER:
+          case SP_PLAYLIST_TYPE_START_FOLDER:
             sp_playlistcontainer_playlist_folder_name ( pc,i,folderName, MAX_LENGTH_FOLDER_NAME);
             signalStartFolderSeen(folderName, sp_playlistcontainer_playlist_folder_id(pc,i));
             break;
-        case SP_PLAYLIST_TYPE_END_FOLDER:
+          case SP_PLAYLIST_TYPE_END_FOLDER:
             sp_playlistcontainer_playlist_folder_name ( pc,i,folderName,MAX_LENGTH_FOLDER_NAME);
             signalEndFolderSeen();
             break;
-        case SP_PLAYLIST_TYPE_PLACEHOLDER:
+          case SP_PLAYLIST_TYPE_PLACEHOLDER:
             fprintf ( stderr,"jahspotify: placeholder\n");
         }
 
@@ -796,22 +796,24 @@ char* toHexString(byte* bytes)
     return finalHash;
 }
 
+void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
+{
+  signalArtistBrowseLoaded(result);
+}
 
 void imageLoadedCallback(sp_image *image, void *userdata)
 {
-  size_t len;
-  byte *imageData = (byte*)sp_image_data(image,&len);
-
-  fprintf(stderr,"jahspotify::imageLoadedCallback: loaded image: %d byte(s)\n",len);
-
-  // sp_image_remove_load_callback(image, imageLoadedCallback,NULL);
-  // sp_image_release(image);
+  signalImageLoaded(image);
 }
 
+void trackLoadedCallback(sp_track *track, void *userdata)
+{
+  signalTrackLoaded(track);
+}
 
 void albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
 {
-  fprintf(stderr,"jahspotify::albumBrowseCompleteCallback: album browse complete: %s\n", sp_error_message(sp_albumbrowse_error(result)));
+  signalAlbumBrowseLoaded(result);
 }
 
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
@@ -972,10 +974,6 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
 }
 
-void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
-{
-}
-
 jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 {
     jclass jClass;
@@ -1000,7 +998,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
         sp_link_release(artistLink);
 
         setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
-
+	
         sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,artistBrowseCompleteCallback,NULL);
 
         if (artistBrowse)
@@ -1355,6 +1353,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
         if (image)
         {
             sp_image_add_ref(image);
+	    sp_image_add_load_callback(imageLoadedCallback, NULL);
 	    
 	    int count = 0;
 	    

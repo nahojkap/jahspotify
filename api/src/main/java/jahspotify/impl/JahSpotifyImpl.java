@@ -78,11 +78,13 @@ public class JahSpotifyImpl implements JahSpotify
                 return null;
             }
         });
-        registerPlaylistListener(new PlaylistListener()
+        registerPlaylistListener(new AbstractPlaylistListener()
         {
             @Override
             public void synchCompleted()
             {
+                _log.debug("Synch complete");
+
                 if (!_nodeStack.isEmpty())
                 {
                     // Something is wrong
@@ -108,6 +110,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void synchStarted(int numPlaylists)
             {
+                _log.debug("Synch started: " + numPlaylists);
                 _synching = true;
                 _rootNode.clear();
                 _nodeStack.clear();
@@ -118,6 +121,25 @@ public class JahSpotifyImpl implements JahSpotify
                 {
                     listener.synchStarted(numPlaylists);
                 }
+            }
+
+            public void metadataUpdated()
+            {
+                _log.debug("Metadata updated, initiating reload of watched playlists");
+                if (_synching)
+                {
+                    _log.debug("Metadata update received during synch - will ignore");
+                    return;
+                }
+
+                _library = null;
+
+                // Should trawl the tree, from the root node down and update:
+                // - folders
+                // - playlists
+                // - tracks
+                // - albums
+
             }
 
             @Override
@@ -162,7 +184,7 @@ public class JahSpotifyImpl implements JahSpotify
                 }
             }
         });
-        registerConnectionListener(new ConnectionListener()
+        registerConnectionListener(new AbstractConnectionListener()
         {
             @Override
             public void connected()

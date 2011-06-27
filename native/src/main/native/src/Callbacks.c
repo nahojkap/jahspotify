@@ -23,6 +23,17 @@ extern jclass g_connectionListenerClass;
 
 extern JavaVM* g_vm;
 
+void* threaded_startPlaybackSignalled(void* threadargs);
+void* threaded_signalPlaylistSeen(void *threadarg);
+void* threaded_signalTrackEnded(void *threadarg);
+void* threaded_signalTrackStarted(void *threadarg);
+void* threaded_signalStartFolderSeen(void *threadarg);
+void* threaded_signalSynchCompleted(void *threadarg);
+void* threaded_signalMetadataUpdated(void *threadarg);
+void* threaded_signalSynchStarting(void *threadarg);
+void* threaded_signalEndFolderSeen(void *threadarg);
+void* threaded_signalLoggedIn(void *threadarg);
+
 struct threaded_signalTrackEnded_Parameters
 {
     char *uri;
@@ -326,6 +337,42 @@ exit:
 
 }
 
+void* threaded_signalMetadataUpdated(void *threadarg)
+{
+    JNIEnv* env = NULL;
+    int result;
+    jclass aClass;
+    jmethodID method;
+    int alreadyAttachedToThread = 0;
+
+    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    {
+        goto fail;
+    }
+
+    method = (*env)->GetMethodID(env, g_playlistListenerClass, "metadataUpdated", "()V");
+
+    if (method == NULL)
+    {
+        fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: could not load callback method metadataUpdated() on class jahnotify.PlaylistListener\n");
+        goto fail;
+    }
+
+    (*env)->CallVoidMethod(env, g_playlistListener, method);
+
+    goto exit;
+
+fail:
+    fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: error during callback\n");
+
+exit:
+    if (alreadyAttachedToThread != 0)
+    {
+        // Detach from the thread at this point - since we re-attached, this is required
+        result = (*g_vm)->DetachCurrentThread(g_vm);
+    }
+}
+
 
 void* threaded_signalSynchCompleted(void *threadarg)
 {
@@ -371,7 +418,7 @@ void* threaded_signalSynchStarting(void *threadarg)
     jclass aClass;
     jmethodID method;
     int alreadyAttachedToThread = 0;
-    int *numPlaylists = (int *)threadarg;
+    int numPlaylists = *(int*)threadarg;
 
     if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
     {
@@ -490,9 +537,7 @@ int signalLoggedIn()
         return 1;
     }
 
-    // fprintf(stderr,"jahspotify::signalLoggedIn: called connection listener: %x\n", g_connectionListener);
-    
-   threaded_signalLoggedIn(NULL);
+    threaded_signalLoggedIn(NULL);
 //    if (placeInThread(threaded_signalLoggedIn,1) != 0)
 //    {
 //      fprintf ( stderr, "jahspotify::signalPlaylistSeen: error placing onto thread\n");
@@ -520,9 +565,9 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
     
     threaded_signalStartFolderSeen(threaded_signalFolderSeen_Params);
     // if (placeInThread(threaded_signalStartFolderSeen,folderNameCopy) != 0)
-    //{
-//      fprintf ( stderr, "jahspotify::signalStartFolderSeen: error placing onto thread\n");
-    //}
+    // {
+    //   fprintf ( stderr, "jahspotify::signalStartFolderSeen: error placing onto thread\n");
+    // }
 
     return 0;
 }
@@ -538,10 +583,10 @@ int signalSynchStarting(int numPlaylists)
     
     threaded_signalSynchStarting(&numPlaylists);
     
-//    if (placeInThread(threaded_signalSynchStarting,numPlaylists) != 0)
-//    {
-//      fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
-//    }
+    // if (placeInThread(threaded_signalSynchStarting,&numPlaylists) != 0)
+    // {
+    //  fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
+    // }
 
     return 0;
 }
@@ -550,17 +595,33 @@ int signalSynchCompleted()
 {
     if (!g_playlistListener)
     {
-        fprintf ( stderr, "jahspotify::signalSynchStarting: no playlist listener registered\n");
+        fprintf ( stderr, "jahspotify::signalSynchCompleted: no playlist listener registered\n");
         return 1;
     }
     threaded_signalSynchCompleted(NULL);
-//    if (placeInThread(threaded_signalSynchCompleted,NULL) != 0)
-//    {
-//      fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
-//    }
+    // if (placeInThread(threaded_signalSynchCompleted,NULL) != 0)
+    // {
+    //  fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
+    // }
 
     return 0;
 }
+
+int signalMetadataUpdated()
+{
+    if (!g_playlistListener)
+    {
+        fprintf ( stderr, "jahspotify::signalMetadataUpdated: no playlist listener registered\n");
+        return 1;
+    }
+    if (placeInThread(threaded_signalMetadataUpdated,NULL) != 0)
+    {
+      fprintf ( stderr, "jahspotify::signalMetadataUpdated: error placing onto thread\n");
+    }
+
+    return 0;
+}
+
 
 int signalEndFolderSeen()
 {
@@ -649,3 +710,23 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
 
     return 0;
 }
+
+void signalArtistBrowseLoaded(sp_artist *artist)
+{
+}
+
+void signalImageLoaded(sp_image *image)
+{
+  
+}
+
+void signalAlbumBrowseLoaded(sp_album_browse *albumBrowse)
+{
+  
+}
+
+void signalTrackLoaded(sp_track *track)
+{
+  
+}
+
