@@ -431,6 +431,8 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean shutdown();
 
+    private native void initiateSearch(String query);
+
     @Override
     public User getUser()
     {
@@ -579,6 +581,12 @@ public class JahSpotifyImpl implements JahSpotify
     public void stop()
     {
         shutdown();
+    }
+
+    @Override
+    public void intitiateSearch(final String query)
+    {
+        initiateSearch(query);
     }
 
     private static class Node

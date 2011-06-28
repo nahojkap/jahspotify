@@ -49,4 +49,6 @@ public interface JahSpotify
     public boolean isStarted();
 
     public void stop();
+
+    public void intitiateSearch(String query);
 }

@@ -21,6 +21,12 @@ public class ImageController extends BaseController
 {
     private Log _log = LogFactory.getLog(ImageController.class);
 
+    @RequestMapping(value = "/search/*", method = RequestMethod.GET)
+    public void search(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        _jahSpotifyService.getJahSpotify().intitiateSearch("t4est");
+    }
+
     @RequestMapping(value = "/image/*", method = RequestMethod.GET)
     public void retrieveImage(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
