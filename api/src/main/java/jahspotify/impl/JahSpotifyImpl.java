@@ -552,15 +552,21 @@ public class JahSpotifyImpl implements JahSpotify
         {
             playlist = retrievePlaylist(playlistNode.getID());
 
-            playlistNode.setPlaylist(playlist);
-
-            for (Link trackLink : playlist.getTracks())
+            if (playlist != null)
             {
-                Track track = readTrack(trackLink);
-                TrackNode trackNode = new TrackNode(track.getId().toString(), track.getTitle());
-                trackNode.setTrack(track);
-                playlistNode.addTrackNode(trackNode);
-                playlistEntry.addSubEntry(Library.Entry.createTrackEntry(track.getId().toString(), track.getTitle()));
+                playlistNode.setPlaylist(playlist);
+                for (Link trackLink : playlist.getTracks())
+                {
+                    Track track = readTrack(trackLink);
+                    TrackNode trackNode = new TrackNode(track.getId().toString(), track.getTitle());
+                    trackNode.setTrack(track);
+                    playlistNode.addTrackNode(trackNode);
+                    playlistEntry.addSubEntry(Library.Entry.createTrackEntry(track.getId().toString(), track.getTitle()));
+                }
+            }
+            else
+            {
+                _log.debug("Could not load playlist for: " + playlistNode.getID());
             }
         }
         else

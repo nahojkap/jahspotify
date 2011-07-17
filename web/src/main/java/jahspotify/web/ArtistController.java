@@ -24,6 +24,10 @@ public class ArtistController extends BaseController
         {
             Link uri = retrieveLink(httpServletRequest);
             Artist artist = _jahSpotifyService.getJahSpotify().readArtist(uri);
+            if (artist == null)
+            {
+                super.writeMediaNotReadable(httpServletResponse);
+            }
             _log.debug("Got artist: " + artist);
             super.writeResponseGeneric(httpServletResponse,artist);
         }

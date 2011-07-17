@@ -28,7 +28,7 @@ public class AlbumController extends BaseController
             Album album = _jahSpotifyService.getJahSpotify().readAlbum(link);
             if (album == null)
             {
-
+                super.writeMediaNotReadable(httpServletResponse);
             }
             else
             {
@@ -38,7 +38,7 @@ public class AlbumController extends BaseController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 

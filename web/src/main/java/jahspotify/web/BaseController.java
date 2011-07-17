@@ -42,6 +42,13 @@ public class BaseController
         }
     }
 
+    protected void writeMediaNotReadable(final HttpServletResponse httpServletResponse)
+    {
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.RESOURCE_NOT_FOUND);
+        writeResponse(httpServletResponse, simpleStatusResponse);
+    }
+
     protected void writeResponseGeneric(final HttpServletResponse httpServletResponse, final Object object)
     {
         this.writeResponseGenericWithDate(httpServletResponse,null,object);
@@ -105,4 +112,10 @@ public class BaseController
         return gson.fromJson(br,classOfT);
     }
 
+    public void writeErrorResponse(final HttpServletResponse httpServletResponse, final Exception e)
+    {
+        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+        simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
+        writeResponse(httpServletResponse, simpleStatusResponse);
+    }
 }

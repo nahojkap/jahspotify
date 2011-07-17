@@ -3,7 +3,7 @@ package jahspotify.service;
 /**
  * @author Johan Lindquist
  */
-public enum QueueState
+public enum MediaPlayerState
 {
     STOPPED, PLAYING, PAUSED
 }

@@ -39,10 +39,6 @@ public class QueueController extends BaseController
 
             final List<Link> uriQueue = convertToLinkList(queueTracksRequest.getURIQueue());
             _queueManager.addToQueue(uriQueue);
-            if (queueTracksRequest.isAutoPlay() && _queueManager.getQueueState() != jahspotify.service.QueueState.PLAYING)
-            {
-                // _queueManager.play();
-            }
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
@@ -132,7 +128,7 @@ public class QueueController extends BaseController
     {
         _log.debug("Request for the queue");
 
-        int count = -1;
+        int count = 0;
         final String countStr = httpServletRequest.getParameter("count");
         if (countStr != null)
         {
@@ -146,7 +142,7 @@ public class QueueController extends BaseController
             }
         }
 
-        final jahspotify.service.CurrentQueue currentQueue = _queueManager.getCurrentQueue();
+        final jahspotify.service.CurrentQueue currentQueue = _queueManager.getCurrentQueue(count);
         writeCurrentQueue(httpServletResponse, currentQueue);
     }
 
@@ -271,7 +267,7 @@ public class QueueController extends BaseController
 
         webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
         webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
-        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getQueueState().name()));
+        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getMediaPlayerState().name()));
         webQueueStatus.setTotalPlaytime(queueStatus.getTotalPlaytime());
         webQueueStatus.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
         webQueueStatus.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
@@ -283,42 +279,6 @@ public class QueueController extends BaseController
     @RequestMapping(value = "/system/intialize", method = RequestMethod.POST)
     public void initialize(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, simpleStatusResponse);
-    }
-
-    @RequestMapping(value = "/controller/pause", method = RequestMethod.GET)
-    public void pause(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _queueManager.pause();
-        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, simpleStatusResponse);
-    }
-
-    @RequestMapping(value = "/controller/resume", method = RequestMethod.GET)
-    public void resume(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _queueManager.play();
-        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, simpleStatusResponse);
-    }
-
-    @RequestMapping(value = "/controller/play", method = RequestMethod.GET)
-    public void play(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _queueManager.play();
-        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, simpleStatusResponse);
-    }
-
-    @RequestMapping(value = "/controller/skip", method = RequestMethod.GET)
-    public void skip(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _queueManager.skip();
         SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
         writeResponse(httpServletResponse, simpleStatusResponse);

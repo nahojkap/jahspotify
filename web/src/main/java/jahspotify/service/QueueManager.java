@@ -4,18 +4,21 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
+import javax.annotation.PostConstruct;
+
 import jahspotify.*;
 import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.media.*;
-import jahspotify.web.QueuedTrack;
 import org.apache.commons.logging.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Johan Lindquist
  */
 @Service
+@Lazy(false)
 public class QueueManager
 {
     private Log _log = LogFactory.getLog(QueueManager.class);
@@ -27,52 +30,49 @@ public class QueueManager
 
     private long _currentTrackStart;
 
-    private QueueState _queueState = QueueState.STOPPED;
     private BlockingDeque<QueueTrack> _uriQueue = new LinkedBlockingDeque<QueueTrack>();
+
+
     private boolean _repeatCurrentQueue;
     private boolean _repeatCurrentTrack;
     private boolean _shuffle;
+
     private Lock _queueLock = new ReentrantLock();
 
     // Holder for our 'shuffle' information - this is reset whenever the status of the 'shuffle' flag is changed
     private Map<Link, Integer> _shuffleTracker = new HashMap<Link, Integer>();
 
-    private BlockingQueue<String> _blockingQueue = new ArrayBlockingQueue<String>(1, true);
     private QueueTrack _currentTrack = null;
-    private JahSpotifyImpl _jahSpotify;
+    private JahSpotify _jahSpotify;
 
-    // Defines whether or not play should start immediately when a track is added to an empty queue
-    @Value(value = "${jahspotify.queue.auto-play-on-track-added}")
-    private boolean _autoPlay = true;
     private static final Link DEFAULT_QUEUE_LINK = Link.create("jahspotify:queue:default");
 
     private Set<QueueListener> _queueListeners = new TreeSet<QueueListener>();
 
-    public QueueManager()
+    @Autowired
+    private MediaPlayer _mediaPlayer;
+
+    @PostConstruct
+    public void initialize()
     {
         _jahSpotify = JahSpotifyImpl.getInstance();
-        _jahSpotify.addPlaybackListener(new PlaybackListener()
+
+        _mediaPlayer.addMediaPlayerListener(new MediaPlayerListener()
         {
             @Override
-            public void trackStarted(final String uriStr)
+            public void trackStart(final QueueTrack queueTrack)
             {
-                Link uri = Link.create(uriStr);
-                _log.debug("Track started: " + uri);
-
-                // FIXME: Add this track to the 'history' of tracks played
-
-                _queueState = QueueState.PLAYING;
+                _log.debug("Track start signalled: " + queueTrack);
                 _currentTrackStart = System.currentTimeMillis();
+                _currentTrack = queueTrack;
             }
 
             @Override
-            public void trackEnded(final String uri, boolean forcedEnd)
+            public void trackEnd(final QueueTrack queueTrack, boolean forcedEnd)
             {
                 try
                 {
-                    final Link trackEnded = Link.create(uri);
-
-                    _queueState = QueueState.STOPPED;
+                    final Link trackEnded = queueTrack.getTrackUri();
 
                     _numTracksPlayed++;
                     _totalPlayTime += ((System.currentTimeMillis() - _currentTrackStart) / 1000);
@@ -111,7 +111,7 @@ public class QueueManager
                         }
 
                         _currentTrack = null;
-                        _blockingQueue.add("NEXT");
+
                     }
                 }
                 catch (Exception e)
@@ -120,8 +120,7 @@ public class QueueManager
                 }
             }
 
-            @Override
-            public String nextTrackToPreload()
+            public QueueTrack nextTrackToQueue()
             {
                 if (_repeatCurrentTrack)
                 {
@@ -131,83 +130,76 @@ public class QueueManager
                 final QueueTrack peek = _uriQueue.peek();
                 if (peek != null)
                 {
-                    return peek.getTrackUri().asString();
+                    return peek;
                 }
                 return null;
             }
-        });
 
-
-        final Thread t = new Thread(new Runnable()
-        {
             @Override
-            public void run()
+            public void paused(final QueueTrack currentTrack)
             {
-                try
-                {
-                    while (true)
-                    {
-                        String token = _blockingQueue.poll(1000, TimeUnit.MILLISECONDS);
-                        if ("NEXT".equals(token))
-                        {
-                            final QueueTrack dequeuedTrack = _uriQueue.poll();
-
-                            if (dequeuedTrack != null)
-                            {
-                                _log.debug("Initiating play of: " + dequeuedTrack);
-                                _currentTrack = dequeuedTrack;
-                                _jahSpotify.play(dequeuedTrack.getTrackUri());
-                            }
-                            else
-                            {
-                                // FIXME: This should handle the case where the last command was 'skip' and
-                                // the queue was empty.  Play should stop
-                                _log.debug("Queue is empty, will have wait ...");
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _log.error("Error in queue monitor: " + e.getMessage(), e);
-                }
             }
+
+            @Override
+            public void resume(final QueueTrack currentTrack)
+            {
+            }
+
+            @Override
+            public void skip(final QueueTrack currentTrack, final QueueTrack nextTrack)
+            {
+            }
+
         });
-        t.start();
+
     }
 
+    /**
+     *
+     * @param uris
+     * @return
+     */
     public CurrentQueue addToQueue(List<Link> uris)
     {
-        // This should check if uris are:
-        // - track (spotify:track:2zvot9pY2FNl1E94kc4K8M)
-        // - album (spotify:album:46g6b33tbttcPtzbwzBoG6)
-        // - playlist (spotify:user:<username>:playlist:5kAbHzlaZP8vMb6HVIWmdF)
-
         final List<Link> allURIs = new ArrayList<Link>();
 
-        for (Link uri : uris)
+        for (final Link uri : uris)
         {
             if (uri.isPlaylistLink())
             {
                 _log.debug("Received playlist, processing for tracks");
                 // Have playlist
                 Playlist playlist = _jahSpotify.readPlaylist(uri);
-                for (Link track : playlist.getTracks())
+                if (playlist != null)
                 {
-                    allURIs.add(track);
+                    for (final Link track : playlist.getTracks())
+                    {
+                        allURIs.add(track);
+                    }
+                    _log.debug("Playlist processed ...");
                 }
-                _log.debug("Playlist processed ...");
+                else
+                {
+                    _log.warn("Playlist could not be retrieved");
+                }
             }
             else if (uri.isAlbumLink())
             {
                 _log.debug("Received album, processing for tracks");
                 // Have album
                 Album album = _jahSpotify.readAlbum(uri);
-                for (Link track : album.getTracks())
+                if (album != null)
                 {
-                    allURIs.add(track);
+                    for (Link track : album.getTracks())
+                    {
+                        allURIs.add(track);
+                    }
+                    _log.debug("Album processed ...");
                 }
-                _log.debug("Album processed ...");
+                else
+                {
+                    _log.warn("Album could not be retrieved");
+                }
             }
             else if (uri.isTrackLink())
             {
@@ -216,27 +208,42 @@ public class QueueManager
             }
         }
 
-        addTracksToQueue(allURIs);
-        return getCurrentQueue();
+        if (_log.isDebugEnabled())
+        {
+            _log.debug("Queueing tracks: " + allURIs);
+        }
+
+        final CurrentQueue currentQueue = addTracksToQueue(allURIs);
+
+        if (_log.isDebugEnabled())
+        {
+            _log.debug("Tracks queued: " + allURIs);
+        }
+
+        return currentQueue;
     }
 
     public CurrentQueue addToQueue(Link... uris)
     {
-        addToQueue(Arrays.asList(uris));
-        return getCurrentQueue();
+        return addToQueue(Arrays.asList(uris));
     }
 
-    private void addTracksToQueue(final List<Link> trackURIs)
+    private CurrentQueue addTracksToQueue(final List<Link> trackURIs)
     {
         _queueLock.lock();
         try
         {
+            final List<QueueTrack> queuedTracks = new ArrayList<QueueTrack>();
             // Add all elements to the array
             for (Link trackURI : trackURIs)
             {
                 QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI);
+                queuedTracks.add(queuedTrack);
                 _uriQueue.add(queuedTrack);
             }
+
+            final QueueTrack[] queueTracks = new QueueTrack[queuedTracks.size()];
+            queuedTracks.toArray(queueTracks);
 
             // Update the maximum queue size seen if the queue size is now the biggest ever seen
             if (_uriQueue.size() > _maxQueueSize)
@@ -244,45 +251,18 @@ public class QueueManager
                 _maxQueueSize = _uriQueue.size();
             }
 
-            //
-            if (_autoPlay && _currentTrack == null)
+            CurrentQueue currentQueue = getCurrentQueue(0);
+
+            for (final QueueListener queueListener : _queueListeners)
             {
-                _blockingQueue.add("NEXT");
+                queueListener.tracksAdded(queueTracks);
             }
+
+            return currentQueue;
         }
         finally
         {
             _queueLock.unlock();
-        }
-    }
-
-    public void pause()
-    {
-        switch (_queueState)
-        {
-            case PLAYING:
-                _jahSpotify.pause();
-                _queueState = QueueState.PAUSED;
-                break;
-            default:
-                // FIXME: Should really do something
-        }
-    }
-
-    public void play()
-    {
-        switch (_queueState)
-        {
-            case PAUSED:
-                _jahSpotify.resume();
-                _queueState = QueueState.PLAYING;
-                break;
-            case STOPPED:
-                // FIXME: Should this evaluate the queue?
-                nextTrack();
-                break;
-            default:
-                // FIXME: Should really do something
         }
     }
 
@@ -292,6 +272,7 @@ public class QueueManager
         // spotify:track:...
         // jahspotify:queue:<quename>:<uuid>
 
+        final List<QueueTrack> removedTracks = new ArrayList<QueueTrack>();
         int count = 0;
 
         if (uri.isTrackLink())
@@ -300,6 +281,7 @@ public class QueueManager
             {
                 if (queuedTrack.getTrackUri().equals(uri))
                 {
+                    removedTracks.add(queuedTrack);
                     _uriQueue.remove(queuedTrack);
                     count++;
                 }
@@ -313,58 +295,36 @@ public class QueueManager
                 String queueId = uri.getQueueId();
                 if (queuedTrack.getId().equals(queueId))
                 {
+                    removedTracks.add(queuedTrack);
                     _uriQueue.remove(queuedTrack);
                     count++;
                 }
             }
         }
 
+        if (count > 0)
+        {
+            for (QueueListener queueListener : _queueListeners)
+            {
+                queueListener.tracksRemoved(removedTracks.toArray(new QueueTrack[removedTracks.size()]));
+            }
+        }
+
         return count;
-    }
-
-    private void nextTrack()
-    {
-        try
-        {
-            _blockingQueue.put("NEXT");
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void skip()
-    {
-        switch (_queueState)
-        {
-            case PLAYING:
-            case PAUSED:
-                nextTrack();
-                break;
-            default:
-                // FIXME: Should really do something
-        }
-
     }
 
     public QueueStatus getQueueStatus()
     {
         final QueueStatus queueStatus = new QueueStatus();
-        queueStatus.setQueueState(_queueState);
+        queueStatus.setMediaPlayerState(_mediaPlayer.getMediaPlayerState());
         queueStatus.setTotalTracksPlayed(_numTracksPlayed);
         queueStatus.setTotalTracksCompleted(_numTracksPlayed - _numTracksSkipped);
         queueStatus.setTotalTracksSkipped(_numTracksSkipped);
-        queueStatus.setTotalPlaytime(_totalPlayTime + (_queueState == QueueState.PLAYING ? (System.currentTimeMillis() - _currentTrackStart) / 1000 : 0));
+        queueStatus.setTotalPlaytime(_totalPlayTime + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - _currentTrackStart) / 1000 : 0));
         queueStatus.setCurrentQueueSize(_uriQueue.size());
         queueStatus.setMaxQueueSize(_maxQueueSize);
 
         return queueStatus;
-    }
-
-    public QueueState getQueueState()
-    {
-        return _queueState;
     }
 
     public QueueConfiguration getQueueConfiguration(Link uri)
@@ -374,8 +334,7 @@ public class QueueManager
             throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
         }
 
-        final QueueConfiguration queueConfiguration = new QueueConfiguration(_repeatCurrentQueue, _repeatCurrentTrack, _shuffle);
-        return queueConfiguration;
+        return new QueueConfiguration(_repeatCurrentQueue, _repeatCurrentTrack, _shuffle);
     }
 
     public void setQueueConfiguration(Link uri, QueueConfiguration queueConfiguration)
@@ -390,12 +349,14 @@ public class QueueManager
         _shuffle = queueConfiguration.isShuffle();
     }
 
-    public CurrentQueue getCurrentQueue()
+    public CurrentQueue getCurrentQueue(final int count)
     {
         _queueLock.lock();
         try
         {
-            return new CurrentQueue(_currentTrack, new ArrayList<QueueTrack>(_uriQueue));
+            final ArrayList<QueueTrack> queueTracks = new ArrayList<QueueTrack>(_uriQueue);
+            // final int toIndex = count == 0 ? queueTracks.size() - 1 : count - 1;
+            return new CurrentQueue(_currentTrack, queueTracks);
         }
         finally
         {
@@ -412,7 +373,7 @@ public class QueueManager
             _uriQueue.clear();
             Collections.shuffle(queuedTracks);
             _uriQueue.addAll(queuedTracks);
-            return getCurrentQueue();
+            return getCurrentQueue(0);
         }
         finally
         {
@@ -423,5 +384,13 @@ public class QueueManager
     public void addQueueListener(final QueueListener queueListener)
     {
         _queueListeners.add(queueListener);
+    }
+
+    public QueueTrack getNextQueueTrack()
+    {
+        final QueueTrack nextTrack = _uriQueue.poll();
+        _log.debug("Retrieved next track: " + nextTrack);
+        return nextTrack;
+
     }
 }

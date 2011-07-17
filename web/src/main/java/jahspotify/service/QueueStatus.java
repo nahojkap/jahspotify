@@ -11,7 +11,7 @@ public class QueueStatus
     private long _totalPlaytime;
     private int _maxQueueSize;
     private int _currentQueueSize;
-    private QueueState _queueState;
+    private MediaPlayerState _mediaPlayerState;
 
     public int getCurrentQueueSize()
     {
@@ -73,13 +73,13 @@ public class QueueStatus
         _totalTracksSkipped = totalTracksSkipped;
     }
 
-    public void setQueueState(final QueueState queueState)
+    public void setMediaPlayerState(final MediaPlayerState mediaPlayerState)
     {
-        _queueState = queueState;
+        _mediaPlayerState = mediaPlayerState;
     }
 
-    public QueueState getQueueState()
+    public MediaPlayerState getMediaPlayerState()
     {
-        return _queueState;
+        return _mediaPlayerState;
     }
 }

@@ -24,7 +24,7 @@
 
         $("#skip_button").bind("click", function()
         {
-            $.getJSON('controller/skip', function(data)
+            $.getJSON('player/skip', function(data)
             {
                 if (data == 'OK')
                 {
@@ -39,7 +39,7 @@
     {
             if (playing)
             {
-                $.getJSON('controller/play', function(data)
+                $.getJSON('player/play', function(data)
                 {
                     if (data == 'OK')
                     {
@@ -49,7 +49,7 @@
             }
             else
             {
-                $.getJSON('controller/pause', function(data)
+                $.getJSON('player/pause', function(data)
                 {
                     if (data == 'OK')
                     {
@@ -174,7 +174,7 @@
                         getTrack(val.trackID, function(data)
                             {
                                 $('<li/>', {
-                                    html: '<a href="track/' + data.id.id + '">' + data.title + '</a>'
+                                    html: '<a href="track/' + data.id.id + '">' + data.title + '</a>' + ' <img width="10px" src="images/delete-button.jpeg">'
                                 }).appendTo("#jahspotify_queued_tracks");
 
                             },false);
@@ -233,9 +233,8 @@
     <div class="footer">
         <p>Powered by Jah'Spotify</p>
 
-        <p class="small-print">This product uses SPOTIFY(R) CORE but
-            is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trade mark
-            of the Spotify Group.</p>
+        <p class="small-print">This product uses SPOTIFY(R) CORE but is not endorsed, certified or otherwise approved
+            in any way by Spotify. Spotify is the registered trade mark of the Spotify Group.</p>
     </div>
 </div>
 

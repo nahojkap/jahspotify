@@ -26,17 +26,7 @@ public class Shuffler
             }
 
             @Override
-            public void trackStart(final QueueTrack queueTrack)
-            {
-            }
-
-            @Override
-            public void trackEnd(final QueueTrack queueTrack)
-            {
-            }
-
-            @Override
-            public void trackRemoved(final QueueTrack queueTrack)
+            public void tracksRemoved(final QueueTrack... queueTracks)
             {
             }
         });
