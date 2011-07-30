@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class SimpleFileStorage implements JahStorage
 {
     @Value(value="${jahspotify.storage.simple-file-based.directory}")
-    private String _baseDirectoryStr = "/tmp/jahspotify/simple-file-storage/";
+    private String _baseDirectoryStr = "/var/lib/jahspotify/simple-file-storage/";
 
     private File _trackBaseDirectory;
     private File _albumBaseDirectory;

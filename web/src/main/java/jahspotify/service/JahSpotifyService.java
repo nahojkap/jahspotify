@@ -32,7 +32,7 @@ public class JahSpotifyService
             }
             if (!_jahSpotifyImpl.isStarted())
             {
-                _jahSpotifyImpl.start(System.getProperty("spotify.username"), System.getProperty("spotify.password"));
+                _jahSpotifyImpl.login(System.getProperty("spotify.username"), System.getProperty("spotify.password"));
             }
         }
     }

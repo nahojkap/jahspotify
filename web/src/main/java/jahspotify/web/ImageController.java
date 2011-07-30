@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ImageController extends BaseController
 {
     private Log _log = LogFactory.getLog(ImageController.class);
+    private String _cacheLocation = "/var/lib/jahspotify/web/cache/images/";
 
     @RequestMapping(value = "/search/*", method = RequestMethod.GET)
     public void search(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
@@ -96,7 +97,7 @@ public class ImageController extends BaseController
     private Image getFromCache(final Link uri)
     {
         final String substring = uri.asString().substring(uri.asString().lastIndexOf(":") + 1);
-        File f = new File("/tmp/jahspotify/web/cache/images/" + substring);
+        File f = new File(_cacheLocation + substring);
         byte[] bytes;
         if (f.exists())
         {
@@ -128,10 +129,10 @@ public class ImageController extends BaseController
     private void cacheImage(final Link uri, final byte[] bytes)
     {
         final String substring = uri.asString().substring(uri.asString().lastIndexOf(":") + 1);
-        new File("/tmp/jahspotify/web/cache/images/").mkdirs();
+        new File(_cacheLocation).mkdirs();
         try
         {
-            FileOutputStream fileOutputStream = new FileOutputStream("/tmp/jahspotify/web/cache/images/" + substring);
+            FileOutputStream fileOutputStream = new FileOutputStream(_cacheLocation + substring);
             fileOutputStream.write(bytes);
             fileOutputStream.flush();
             fileOutputStream.close();

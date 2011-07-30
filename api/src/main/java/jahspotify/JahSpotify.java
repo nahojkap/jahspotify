@@ -14,7 +14,7 @@ public interface JahSpotify
      * @param username
      * @param password
      */
-    public void start(String username, String password);
+    public void login(String username, String password);
 
     public Artist readArtist(Link link);
 

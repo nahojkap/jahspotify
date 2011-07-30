@@ -36,12 +36,17 @@ import jahspotify.util.BaseConvert;
  */
 public class Link
 {
+    public String getUri()
+    {
+        return uri;
+    }
+
     /**
      * Different possible link types.
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH, QUEUE;
+        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -102,6 +107,19 @@ public class Link
      */
     private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
 
+    /**
+     * A regular expression to match podcast URIs:
+     * <p/>
+     * <pre>jahspotify:podcast:([^\\s]+)</pre>
+     */
+    private static final Pattern jahPodcastPattern = Pattern.compile("jahspotify:podcast:([^\\s]+)");
+
+    /**
+     * A regular expression to match MP3 URIs:
+     * <p/>
+     * <pre>jahspotify:podcast:([^\\s]+)</pre>
+     */
+    private static final Pattern jahMP3Pattern = Pattern.compile("jahspotify:mp3:([^\\s]+)");
 
     /**
      * The {@link Link.Type} of this link.
@@ -126,6 +144,8 @@ public class Link
     private String queue;
 
     private String queueId;
+
+    private String uri;
 
     /**
      * Create a {@link Link} using the given parameters.
@@ -158,6 +178,8 @@ public class Link
         Matcher playlistMatcher = playlistPattern.matcher(uri);
         Matcher searchMatcher = searchPattern.matcher(uri);
         Matcher jahQueueMatcher = jahQueuePattern.matcher(uri);
+        Matcher jahPodcastMatcher = jahPodcastPattern.matcher(uri);
+        Matcher jahMp3Matcher = jahMP3Pattern.matcher(uri);
 
         /* Check if URI matches artist/album/track pattern. */
         if (mediaMatcher.matches())
@@ -226,7 +248,18 @@ public class Link
                 this.queue = jahQueueMatcher.group(3);
             }
         }
-
+        else if (jahPodcastMatcher.matches())
+        {
+            this.type = Type.PODCAST;
+            this.id = uri;
+            this.uri = jahPodcastMatcher.group(1);
+        }
+        else if (jahMp3Matcher.matches())
+        {
+            this.type = Type.MP3;
+            this.id = uri;
+            this.uri = jahMp3Matcher.group(1);
+        }
         /* If nothing was matched. */
         else
         {

@@ -242,7 +242,7 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public void start(final String username, final String password)
+    public void login(final String username, final String password)
     {
         if (_jahSpotifyThread != null)
         {

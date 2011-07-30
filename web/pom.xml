@@ -54,12 +54,19 @@
     </build>
 
     <dependencies>
-          <dependency>
+
+        <dependency>
+            <groupId>rome</groupId>
+            <artifactId>rome</artifactId>
+            <version>0.9</version>
+        </dependency>
+
+        <dependency>
             <groupId>jahspotify</groupId>
             <artifactId>jahspotify-storage</artifactId>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>jahspotify</groupId>
             <artifactId>jahspotify-web-common</artifactId>
         </dependency>
