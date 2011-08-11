@@ -68,3 +68,5 @@ Resume play: http://localhost:8080/jahspotify/controller/play
 There are other URLs - please examine the web module for them.
 
 NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
+NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration: http://ebr.springsource.com/repository/app/faq#q8
+
