@@ -48,6 +48,8 @@ To run up the Jah'Spotify RESTful API
 
 mvn jetty:run -Dspotify.username=<your username> -Dspotify.password=<your password>
 
+NOTE: The username and password can also be specified in your settings.xml
+
 http://localhost:8080/jahspotify/status.html
 
 Library retrieval: http://localhost:8080/jahspotify/library/
@@ -61,12 +63,12 @@ Retrieving play queue: http://localhost:8080/jahspotify/queue
 
 While playing:
 
-Skip to next track in queue: http://localhost:8080/jahspotify/controller/skip
-Pause playback: http://localhost:8080/jahspotify/controller/pause
-Resume play: http://localhost:8080/jahspotify/controller/play
+Skip to next track in queue: http://localhost:8080/jahspotify/player/skip
+Pause playback: http://localhost:8080/jahspotify/player/pause
+Resume play: http://localhost:8080/jahspotify/player/play
 
 There are other URLs - please examine the web module for them.
 
 NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
-NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration: http://ebr.springsource.com/repository/app/faq#q8
+NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
 

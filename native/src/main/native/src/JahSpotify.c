@@ -500,6 +500,24 @@ static sp_session_config spconfig =
     NULL,
 };
 
+
+void searchCompleteCallback(sp_search *result, void *userdata)
+{
+  if (sp_search_error(result) == SP_ERROR_OK)
+  {
+    fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(result), sp_search_num_albums(result), sp_search_num_artists(result));
+  }
+  else
+  {
+    fprintf(stderr,"jahspotify::searchCompleteCallback: Search completed with error: %s\n",sp_error_message(sp_search_error(result)));
+  }
+}
+
+JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_initiateSearch(JNIEnv *env, jobject obj, jstring query)
+{
+    sp_search_create(g_sess,"tag:new",0,255,0,255,0,255,searchCompleteCallback,NULL);
+}
+
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerPlaybackListener (JNIEnv *env, jobject obj, jobject playbackListener)
 {
     g_playbackListener = (*env)->NewGlobalRef(env, playbackListener);
