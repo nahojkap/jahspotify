@@ -131,33 +131,7 @@ static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *user
             signalPlaylistSeen(name,playListlinkStr);
         }
 
-
-
-        //sp_link_release(link);
-        //  int numTracks = sp_playlist_num_tracks(pl);
-        //  fprintf ( stderr,"jahspotify: playlist: %s num tracks: %d id: %s\n",name,numTracks,playListlinkStr);
-
-        //  for (trackCounter = 0 ; trackCounter < numTracks; trackCounter++)
-        //  {
-        //      sp_track *track = sp_playlist_track(pl,trackCounter);
-        //      if (sp_track_is_loaded(track))
-        //      {
-        //	  link = sp_link_create_from_track(track,0);
-        //	  trackLinkStr = malloc ( sizeof ( char ) * ( 100 ) );
-        //	  sp_link_as_string(link,trackLinkStr,100);
-        //	  fprintf ( stderr,"jahspotify: track name: %s track id: %s\n",sp_track_name(track),trackLinkStr);
-        //	  sp_link_release(link);
-        //	  if (trackLinkStr) (trackLinkStr);
-        //      }
-        //      sp_track_release(track);
-        //  }
-        //
-        //  if (playListlinkStr) free(playListlinkStr);
-        // }
     }
-
-
-
 
 }
 
@@ -256,6 +230,7 @@ static void container_loaded ( sp_playlistcontainer *pc, void *userdata )
         else
         {
             strcpy(linkStr,"N/A\0");
+            // strcpy(linkStr,sp_playlist_name(pl));
         }
         switch ( sp_playlistcontainer_playlist_type ( pc,i ) )
         {
@@ -1340,7 +1315,7 @@ JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTra
     // For each track, read out the info and populate all of the info in the Track instance
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_pause (JNIEnv *env, jobject obj)
+JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *env, jobject obj)
 {
     if (g_currenttrack)
     {
@@ -1348,7 +1323,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_pause (JNIEnv *env, jo
     }
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_resume (JNIEnv *env, jobject obj)
+JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv *env, jobject obj)
 {
     if (g_currenttrack)
     {
@@ -1417,20 +1392,21 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
         }
         sp_link_release(imageLink);
     }
+
     // Plus one because we start at -1
     return numBytesWritten+1;
 
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env, jobject obj, jstring uri)
+JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEnv *env, jobject obj, jstring uri)
 {
     uint8_t *nativeURI = NULL;
 
-    fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Initiating play\n");
+    fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Initiating play\n");
 
     nativeURI = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
 
-    fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: uri: %s\n", nativeURI);
+    fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: uri: %s\n", nativeURI);
 
     if (!g_audio_initialized)
     {
@@ -1452,30 +1428,28 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env
 
         while (!sp_track_is_available(g_sess,t))
         {
-            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Waiting for track ...\n");
+            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Waiting for track ...\n");
             sleep(1);
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)
         {
-            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Error with track: %s\n",sp_error_message(sp_track_error(t)));
+            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Error with track: %s\n",sp_error_message(sp_track_error(t)));
 
             return;
         }
 
-        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: name: %s duration: %d\n",sp_track_name(t),sp_track_duration(t));
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: name: %s duration: %d\n",sp_track_name(t),sp_track_duration(t));
 
         if (g_currenttrack == t)
         {
-            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Same track!\n");
+            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Same track!\n");
             return;
         }
 
         // If there is one playing, unload that now
         if (g_currenttrack && t != g_currenttrack)
         {
-            // audio_fifo_flush(&g_audiofifo);
-
             // Unload the current track now
             sp_session_player_unload(g_sess);
 
@@ -1500,12 +1474,6 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env
             g_currenttrack = NULL;
 
         }
-        else
-        {
-            // audio_fifo_flush(&g_audiofifo);
-            // audio_close();
-            // audio_init(&g_audiofifo);
-        }
 
         sp_track_add_ref(t);
 
@@ -1513,10 +1481,10 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env
 
         if (sp_track_error(t) != SP_ERROR_OK)
         {
-            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Issue loading track: %s\n", sp_error_message((sp_track_error(t))));
+            fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Issue loading track: %s\n", sp_error_message((sp_track_error(t))));
         }
 
-        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Track loaded: %s\n", (result == SP_ERROR_OK ? "yes" : "no"));
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Track loaded: %s\n", (result == SP_ERROR_OK ? "yes" : "no"));
 
         // Update the global reference
         g_currenttrack = t;
@@ -1524,7 +1492,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env
         // Start playing the next track
         sp_session_player_play(g_sess, 1);
 
-        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Playing track\n");
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Playing track\n");
 
         sp_link_release(link);
 
@@ -1534,7 +1502,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_playTrack (JNIEnv *env
     }
     else
     {
-        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_play: Unable to load link at this point\n");
+        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Unable to load link at this point\n");
     }
 
     return 1;

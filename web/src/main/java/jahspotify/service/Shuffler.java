@@ -18,6 +18,7 @@ public class Shuffler
     @PostConstruct
     private void initialize()
     {
+/*
         _queueManager.addQueueListener(new QueueListener()
         {
             @Override
@@ -30,6 +31,7 @@ public class Shuffler
             {
             }
         });
+*/
     }
 
     @PreDestroy

@@ -397,7 +397,7 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public List<Track> readTracks(Link... uris)
+    public List<Track> readTracks(Link... links)
     {
         return Collections.emptyList();
     }
@@ -410,18 +410,28 @@ public class JahSpotifyImpl implements JahSpotify
     private native Track[] nativeReadTracks(String[] uris);
 
     @Override
-    public native int pause();
-
-    @Override
-    public native int resume();
-
-    @Override
-    public int play(Link uri)
+    public void pause()
     {
-        return playTrack(uri.asString());
+        nativePause();
     }
 
-    private native int playTrack(String uri);
+    private native int nativePause();
+
+    @Override
+    public void resume()
+    {
+        nativeResume();
+    }
+
+    private native int nativeResume();
+
+    @Override
+    public void play(Link link)
+    {
+        nativePlayTrack(link.asString());
+    }
+
+    private native int nativePlayTrack(String uri);
 
     private native boolean registerConnectionListener(final ConnectionListener connectionListener);
 
@@ -473,6 +483,11 @@ public class JahSpotifyImpl implements JahSpotify
     public void addConnectionListener(final ConnectionListener connectionListener)
     {
         _connectionListeners.add(connectionListener);
+    }
+
+    @Override
+    public void addSearchListener(final SearchListener searchListener)
+    {
     }
 
     public Library retrieveLibrary()
