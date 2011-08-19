@@ -1,14 +1,8 @@
 package jahspotify.service;
 
-import java.io.*;
-import java.net.*;
+import java.net.URL;
 import java.util.List;
 
-import jahspotify.mp3.MPG123Player;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.stereotype.Service;
 
 /**

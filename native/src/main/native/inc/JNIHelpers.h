@@ -5,6 +5,8 @@
 
 #define JNI_HELPERS
 
+jint createNativeString(JNIEnv *env, jstring str, char **nativeStr);
+
 jint setObjectFloatField(JNIEnv * env, jobject obj, const char *name, jfloat value);
 jint setObjectIntField(JNIEnv * env, jobject obj, const char *name, jint value);
 jint setObjectLongField(JNIEnv * env, jobject obj, const char *name, jlong value);
@@ -18,5 +20,6 @@ jint getObjectIntField(JNIEnv * env, jobject obj, const char *name, jint *value)
 jobject createInstance(JNIEnv *env, char *className);
 
 int retrieveEnv(JNIEnv* env, int *alreadyAttachedToThread);
+jint detachThread();
 
 #endif

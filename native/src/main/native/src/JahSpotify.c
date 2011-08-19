@@ -476,7 +476,7 @@ static sp_session_config spconfig =
 };
 
 
-void searchCompleteCallback(sp_search *result, void *userdata)
+static void searchCompleteCallback(sp_search *result, void *userdata)
 {
   if (sp_search_error(result) == SP_ERROR_OK)
   {
@@ -488,9 +488,16 @@ void searchCompleteCallback(sp_search *result, void *userdata)
   }
 }
 
-JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_initiateSearch(JNIEnv *env, jobject obj, jstring query)
+JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(JNIEnv *env, jobject obj,
+										jint token,
+										jstring query)
 {
-    sp_search_create(g_sess,"tag:new",0,255,0,255,0,255,searchCompleteCallback,NULL);
+  char *nativeQuery;
+  if (createNativeString(env,query,&nativeQuery) != 1)
+  {
+    fprintf(stderr,"jahspotify::initiateSearch: Initiating search: %s\n",nativeQuery);
+    sp_search_create(g_sess,nativeQuery,0,255,0,255,0,255,searchCompleteCallback,NULL);
+  }
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerPlaybackListener (JNIEnv *env, jobject obj, jobject playbackListener)

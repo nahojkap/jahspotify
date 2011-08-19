@@ -1,3 +1,6 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "JNIHelpers.h"
 
 JavaVM* g_vm = NULL;
@@ -5,6 +8,37 @@ JavaVM* g_vm = NULL;
 jclass g_playbackListenerClass;
 jclass g_playlistListenerClass;
 jclass g_connectionListenerClass;
+
+
+jint detachThread()
+{
+  JNIEnv* env = NULL;
+  jint result = (*g_vm)->GetEnv(g_vm,(void**)&env, JNI_VERSION_1_4);
+  if (result != JNI_EDETACHED)
+  {
+    result = (*g_vm)->DetachCurrentThread(g_vm);
+    if (result != JNI_OK)
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+jint createNativeString(JNIEnv *env, jstring str, char **nativeStr)
+{
+  char *tmpStr = NULL;
+  char *tmpStrCopy = NULL;
+  if (str)
+  {
+    tmpStr = (*env)->GetStringUTFChars(env, str, NULL);
+    tmpStrCopy = (char*)malloc(strlen(tmpStr)+1);
+    strcpy(tmpStrCopy,tmpStr);
+    *nativeStr = tmpStrCopy;
+    if (tmpStr) (*env)->ReleaseStringUTFChars(env, str, (char *)tmpStr);
+  }
+  return 0;
+}
 
 jobject createInstance(JNIEnv *env, char *className)
 {

@@ -111,8 +111,9 @@ public interface JahSpotify
     /** Initiates a search for the specified query.  Results are returned asynchronously via the {@link SearchListener} API.
      *
      * @param query The query to execute towards the Spotify APIs.
+     * @param searchListener The listener to report results found to
      */
-    public void intitiateSearch(String query);
+    public void intitiateSearch(final String query, final SearchListener searchListener);
 
     public void addPlaybackListener(PlaybackListener playbackListener);
 

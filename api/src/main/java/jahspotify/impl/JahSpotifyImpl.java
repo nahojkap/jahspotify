@@ -2,6 +2,7 @@ package jahspotify.impl;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import jahspotify.*;
 import jahspotify.media.*;
@@ -33,6 +34,7 @@ public class JahSpotifyImpl implements JahSpotify
     private Library _library;
     private boolean _synching = false;
     private User _user;
+    private AtomicInteger _globalToken = new AtomicInteger(0);
 
     private native int initialize(String username, String password);
 
@@ -441,7 +443,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean shutdown();
 
-    private native void initiateSearch(String query);
+    private native void nativeInitiateSearch(int token, String query);
 
     @Override
     public User getUser()
@@ -604,10 +606,10 @@ public class JahSpotifyImpl implements JahSpotify
         shutdown();
     }
 
-    @Override
-    public void intitiateSearch(final String query)
+    public void intitiateSearch(final String query, final SearchListener searchListener)
     {
-        initiateSearch(query);
+        int token = _globalToken.incrementAndGet();
+        nativeInitiateSearch(token, query);
     }
 
     private static class Node

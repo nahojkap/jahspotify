@@ -46,6 +46,13 @@
             </dependency>
 
             <dependency>
+                <groupId>jahspotify</groupId>
+                <artifactId>libjahspotify</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <type>so</type>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>1.7.1</version>
