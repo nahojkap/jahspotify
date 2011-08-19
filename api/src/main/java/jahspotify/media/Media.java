@@ -17,7 +17,7 @@ public class Media
     /**
      * Date when this media object was considered to have been modified
      */
-    private Date _lastModified;
+    private Date lastModified;
 
     /**
      * Redirects (other identifiers) for this media (32-character hex strings).
@@ -68,16 +68,16 @@ public class Media
 
     public Date getLastModified()
     {
-        if (_lastModified == null)
+        if (lastModified == null)
         {
-            _lastModified = new Date();
+            lastModified = new Date();
         }
-        return _lastModified;
+        return lastModified;
     }
 
     public void setLastModified(final Date lastModified)
     {
-        _lastModified = lastModified;
+        this.lastModified = lastModified;
     }
 
     /**
