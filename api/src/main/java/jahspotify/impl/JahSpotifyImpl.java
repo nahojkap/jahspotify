@@ -443,7 +443,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean shutdown();
 
-    private native void nativeInitiateSearch(int token, String query);
+    private native void nativeInitiateSearch(NativeSearchParameters token, SearchListener query);
 
     @Override
     public User getUser()
@@ -606,10 +606,41 @@ public class JahSpotifyImpl implements JahSpotify
         shutdown();
     }
 
-    public void intitiateSearch(final String query, final SearchListener searchListener)
+    public void initiateSearch(final Search search, final SearchListener searchListener)
     {
-        int token = _globalToken.incrementAndGet();
-        nativeInitiateSearch(token, query);
+        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
+        nativeInitiateSearch(nativeSearchParameters, searchListener);
+    }
+
+    public NativeSearchParameters initializeFromSearch(Search search)
+    {
+        NativeSearchParameters nativeSearchParameters = new NativeSearchParameters();
+        nativeSearchParameters._token = _globalToken.getAndIncrement();
+        nativeSearchParameters._query = search.getQuery().serialize();
+        nativeSearchParameters.albumOffset = search.getAlbumOffset();
+        nativeSearchParameters.artistOffset = search.getArtistOffset();
+        nativeSearchParameters.trackOffset = search.getTrackOffset();
+        nativeSearchParameters.numAlbums = search.getNumAlbums();
+        nativeSearchParameters.numArtists = search.getNumArtists();
+        nativeSearchParameters.numTracks = search.getNumTracks();
+        return nativeSearchParameters;
+    }
+
+    public static class NativeSearchParameters
+    {
+        int _token;
+        String _query;
+
+        int trackOffset = 0;
+        int numTracks = 255;
+
+        int albumOffset = 0;
+        int numAlbums = 255;
+
+        int artistOffset = 0;
+        int numArtists = 255;
+
+
     }
 
     private static class Node

@@ -476,28 +476,67 @@ static sp_session_config spconfig =
 };
 
 
+typedef struct 
+{
+   int32_t token;
+   jobject searchListener;
+} SearchContext;
+
+
 static void searchCompleteCallback(sp_search *result, void *userdata)
 {
-  if (sp_search_error(result) == SP_ERROR_OK)
-  {
-    fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(result), sp_search_num_albums(result), sp_search_num_artists(result));
-  }
-  else
-  {
-    fprintf(stderr,"jahspotify::searchCompleteCallback: Search completed with error: %s\n",sp_error_message(sp_search_error(result)));
-  }
+    SearchContext *searchContext = (SearchContext*)userdata;
+    if (sp_search_error(result) == SP_ERROR_OK)
+    {
+        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: context: 0x%x\n",(unsigned int)searchContext);
+        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: token: %d searchListener: 0x%x\n",searchContext->token, (unsigned int)searchContext->searchListener);
+        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(result), sp_search_num_albums(result), sp_search_num_artists(result));
+    }
+    else
+    {
+        fprintf(stderr,"jahspotify::searchCompleteCallback: Search completed with error: %s\n",sp_error_message(sp_search_error(result)));
+    }
 }
 
 JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(JNIEnv *env, jobject obj,
-										jint token,
-										jstring query)
+										jobject nativeSearchParameters, jobject searchListener)
 {
   char *nativeQuery;
-  if (createNativeString(env,query,&nativeQuery) != 1)
+  int32_t token, numAlbums, albumOffset, numArtists, artistOffset, numTracks, trackOffset;
+  jint value;
+  
+  SearchContext *searchContext = malloc(sizeof(SearchContext));
+
+  getObjectIntField(env,nativeSearchParameters,"numAlbums",&value);
+  numAlbums = value;
+  getObjectIntField(env,nativeSearchParameters,"albumOffset",&value);
+  albumOffset = value;
+  getObjectIntField(env,nativeSearchParameters,"numArtists",&value);
+  numArtists = value;
+  getObjectIntField(env,nativeSearchParameters,"artistOffset",&value);
+  artistOffset = value;
+  getObjectIntField(env,nativeSearchParameters,"numTracks",&value);
+  numTracks = value;
+  getObjectIntField(env,nativeSearchParameters,"trackOffset",&value);
+  trackOffset = value;
+
+  getObjectIntField(env,nativeSearchParameters,"_token",&value);
+  token = value;
+
+  
+  searchContext->searchListener = (*env)->NewGlobalRef(env,searchListener);
+  searchContext->token = token;
+  
+
+  if (createNativeString(env, getObjectStringField(env, nativeSearchParameters,"_query"),&nativeQuery) != 1)
   {
-    fprintf(stderr,"jahspotify::initiateSearch: Initiating search: %s\n",nativeQuery);
-    sp_search_create(g_sess,nativeQuery,0,255,0,255,0,255,searchCompleteCallback,NULL);
+      // FIXME: Handle error
   }
+  
+  fprintf(stderr,"jahspotify::initiateSearch: Initiating search: query: %s numAlbums: %d albumOffset: %d numTracks: %d trackOffset: %d numArtists: %d artistOffset: %d\n",nativeQuery, numAlbums, albumOffset, numTracks, trackOffset, numArtists, artistOffset);
+        
+  sp_search_create(g_sess,nativeQuery,trackOffset,numTracks,albumOffset,numAlbums,artistOffset,numArtists,searchCompleteCallback,searchContext);
+  
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerPlaybackListener (JNIEnv *env, jobject obj, jobject playbackListener)

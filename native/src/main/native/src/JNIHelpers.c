@@ -31,7 +31,7 @@ jint createNativeString(JNIEnv *env, jstring str, char **nativeStr)
   char *tmpStrCopy = NULL;
   if (str)
   {
-    tmpStr = (*env)->GetStringUTFChars(env, str, NULL);
+    tmpStr = (char*)(*env)->GetStringUTFChars(env, str, NULL);
     tmpStrCopy = (char*)malloc(strlen(tmpStr)+1);
     strcpy(tmpStrCopy,tmpStr);
     *nativeStr = tmpStrCopy;

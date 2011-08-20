@@ -1,15 +1,12 @@
 package jahspotify.web;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
 import jahspotify.media.*;
-import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +18,6 @@ public class ImageController extends BaseController
 {
     private Log _log = LogFactory.getLog(ImageController.class);
     private String _cacheLocation = "/var/lib/jahspotify/web/cache/images/";
-
-    @RequestMapping(value = "/search/*", method = RequestMethod.GET)
-    public void search(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _jahSpotifyService.getJahSpotify().intitiateSearch("t4est");
-    }
 
     @RequestMapping(value = "/image/*", method = RequestMethod.GET)
     public void retrieveImage(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)

@@ -104,23 +104,40 @@ public interface JahSpotify
      */
     public boolean isStarted();
 
-    /** Shuts down the Spotify connection and cleans up any internal structures.
+    /**
+     * Shuts down the Spotify connection and cleans up any internal structures.
      */
     public void stop();
 
     /** Initiates a search for the specified query.  Results are returned asynchronously via the {@link SearchListener} API.
      *
-     * @param query The query to execute towards the Spotify APIs.
+     * @param search The search to execute towards the Spotify APIs.  This bundles both the query and result parameters.
      * @param searchListener The listener to report results found to
      */
-    public void intitiateSearch(final String query, final SearchListener searchListener);
+    public void initiateSearch(final Search search, final SearchListener searchListener);
 
+    /**
+     *
+     * @param playbackListener
+     */
     public void addPlaybackListener(PlaybackListener playbackListener);
 
+    /**
+     *
+     * @param playlistListener
+     */
     public void addPlaylistListener(PlaylistListener playlistListener);
 
+    /**
+     *
+     * @param connectionListener
+     */
     public void addConnectionListener(ConnectionListener connectionListener);
 
+    /**
+     *
+     * @param searchListener
+     */
     public void addSearchListener(SearchListener searchListener);
 
 }
