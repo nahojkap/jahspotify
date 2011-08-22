@@ -475,22 +475,15 @@ static sp_session_config spconfig =
     NULL,
 };
 
-
-typedef struct 
-{
-   int32_t token;
-   jobject searchListener;
-} SearchContext;
-
-
 static void searchCompleteCallback(sp_search *result, void *userdata)
 {
-    SearchContext *searchContext = (SearchContext*)userdata;
+    int32_t *token = (int32_t*)userdata;
+    
     if (sp_search_error(result) == SP_ERROR_OK)
     {
-        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: context: 0x%x\n",(unsigned int)searchContext);
-        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: token: %d searchListener: 0x%x\n",searchContext->token, (unsigned int)searchContext->searchListener);
+        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: token: %d\n",*token);
         fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(result), sp_search_num_albums(result), sp_search_num_artists(result));
+        signalSearchComplete(result, token);
     }
     else
     {
@@ -499,14 +492,12 @@ static void searchCompleteCallback(sp_search *result, void *userdata)
 }
 
 JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(JNIEnv *env, jobject obj,
-										jobject nativeSearchParameters, jobject searchListener)
+										jobject nativeSearchParameters)
 {
   char *nativeQuery;
   int32_t token, numAlbums, albumOffset, numArtists, artistOffset, numTracks, trackOffset;
   jint value;
   
-  SearchContext *searchContext = malloc(sizeof(SearchContext));
-
   getObjectIntField(env,nativeSearchParameters,"numAlbums",&value);
   numAlbums = value;
   getObjectIntField(env,nativeSearchParameters,"albumOffset",&value);
@@ -523,11 +514,6 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(
   getObjectIntField(env,nativeSearchParameters,"_token",&value);
   token = value;
 
-  
-  searchContext->searchListener = (*env)->NewGlobalRef(env,searchListener);
-  searchContext->token = token;
-  
-
   if (createNativeString(env, getObjectStringField(env, nativeSearchParameters,"_query"),&nativeQuery) != 1)
   {
       // FIXME: Handle error
@@ -535,8 +521,10 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(
   
   fprintf(stderr,"jahspotify::initiateSearch: Initiating search: query: %s numAlbums: %d albumOffset: %d numTracks: %d trackOffset: %d numArtists: %d artistOffset: %d\n",nativeQuery, numAlbums, albumOffset, numTracks, trackOffset, numArtists, artistOffset);
         
-  sp_search_create(g_sess,nativeQuery,trackOffset,numTracks,albumOffset,numAlbums,artistOffset,numArtists,searchCompleteCallback,searchContext);
-  
+  sp_search *search = sp_search_create(g_sess,nativeQuery,trackOffset,numTracks,albumOffset,numAlbums,artistOffset,numArtists,searchCompleteCallback,&token);
+
+  fprintf(stderr,"jahspotify::initiateSearch: Search initiated: result: %s",sp_error_message(sp_search_error(search)));
+
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerPlaybackListener (JNIEnv *env, jobject obj, jobject playbackListener)
@@ -837,22 +825,22 @@ char* toHexString(byte* bytes)
 
 void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
 {
-  signalArtistBrowseLoaded(result);
+  signalArtistBrowseLoaded(result, NULL);
 }
 
 void imageLoadedCallback(sp_image *image, void *userdata)
 {
-  signalImageLoaded(image);
+  signalImageLoaded(image, NULL);
 }
 
 void trackLoadedCallback(sp_track *track, void *userdata)
 {
-  signalTrackLoaded(track);
+  signalTrackLoaded(track, NULL);
 }
 
 void albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
 {
-  signalAlbumBrowseLoaded(result);
+  signalAlbumBrowseLoaded(result, NULL);
 }
 
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album)

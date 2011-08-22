@@ -16,10 +16,10 @@ void signalTrackEnded(char *uri, bool forcedTrackEnd);
 void signalTrackStarted(char *uri);
 int signalPlaylistSeen(const char *playlistName, char *linkName);
 
-void signalImageLoaded(sp_image *image);
-void signalTrackLoaded(sp_track *track);
-
-void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse);
-void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse);
+void signalSearchComplete(sp_search *search, int32_t token);
+void signalImageLoaded(sp_image *image, void *userData);
+void signalTrackLoaded(sp_track *track, void *userData);
+void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, void *userData);
+void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, void *userData);
 
 #endif

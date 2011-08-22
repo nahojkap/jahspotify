@@ -598,11 +598,11 @@ int signalSynchCompleted()
         fprintf ( stderr, "jahspotify::signalSynchCompleted: no playlist listener registered\n");
         return 1;
     }
-    threaded_signalSynchCompleted(NULL);
-    // if (placeInThread(threaded_signalSynchCompleted,NULL) != 0)
-    // {
-    //  fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
-    // }
+    // threaded_signalSynchCompleted(NULL);
+    if (placeInThread(threaded_signalSynchCompleted,NULL) != 0)
+    {
+      fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
+    }
 
     return 0;
 }
@@ -711,22 +711,25 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
     return 0;
 }
 
-void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse)
+void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, void *userData)
 {
 }
 
-void signalImageLoaded(sp_image *image)
-{
-  
-}
-
-void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse)
+void signalImageLoaded(sp_image *image, void *userData)
 {
   
 }
 
-void signalTrackLoaded(sp_track *track)
+void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, void *userData)
 {
   
 }
 
+void signalTrackLoaded(sp_track *track, void *userData)
+{
+  
+}
+
+void signalSearchComplete(sp_search *search, int32_t token)
+{
+}

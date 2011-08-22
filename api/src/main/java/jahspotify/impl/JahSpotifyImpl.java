@@ -443,7 +443,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean shutdown();
 
-    private native void nativeInitiateSearch(NativeSearchParameters token, SearchListener query);
+    private native void nativeInitiateSearch(NativeSearchParameters token);
 
     @Override
     public User getUser()
@@ -608,14 +608,18 @@ public class JahSpotifyImpl implements JahSpotify
 
     public void initiateSearch(final Search search, final SearchListener searchListener)
     {
-        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
-        nativeInitiateSearch(nativeSearchParameters, searchListener);
+        int token = _globalToken.getAndIncrement();
+        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search, token);
+
+        // TODO: Register the lister for the specified token
+
+        nativeInitiateSearch(nativeSearchParameters);
     }
 
-    public NativeSearchParameters initializeFromSearch(Search search)
+    public NativeSearchParameters initializeFromSearch(Search search, int token)
     {
         NativeSearchParameters nativeSearchParameters = new NativeSearchParameters();
-        nativeSearchParameters._token = _globalToken.getAndIncrement();
+        nativeSearchParameters._token = token;
         nativeSearchParameters._query = search.getQuery().serialize();
         nativeSearchParameters.albumOffset = search.getAlbumOffset();
         nativeSearchParameters.artistOffset = search.getArtistOffset();
