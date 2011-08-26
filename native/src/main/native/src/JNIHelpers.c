@@ -311,24 +311,24 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
     fprintf(stderr,"jahspotify::JNI_OnLoad: vm: 0x%x\n", (int)g_vm);
 
-    aClass = (*env)->FindClass(env, "jahspotify/PlaybackListener");
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativePlaybackListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.PlaybackListener\n");
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.PlaybackListener\n");
     }
     g_playbackListenerClass = (*env)->NewGlobalRef(env,aClass);
     
-    aClass = (*env)->FindClass(env, "jahspotify/PlaylistListener");
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativePlaylistListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.PlaylistListener\n");
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.PlaylistListener\n");
     }
     g_playlistListenerClass = (*env)->NewGlobalRef(env,aClass);
 
-    aClass = (*env)->FindClass(env, "jahspotify/ConnectionListener");
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativeConnectionListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.ConnectionListener\n");
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.ConnectionListener\n");
     }
     g_connectionListenerClass = (*env)->NewGlobalRef(env,aClass);
     

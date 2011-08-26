@@ -45,7 +45,8 @@ public class JahSpotifyImpl implements JahSpotify
 
     private JahSpotifyImpl()
     {
-        registerPlaybackListener(new PlaybackListener()
+
+        registerPlaybackListener(new NativePlaybackListener()
         {
             @Override
             public void trackStarted(final String uri)
@@ -186,7 +187,7 @@ public class JahSpotifyImpl implements JahSpotify
                 }
             }
         });
-        registerConnectionListener(new AbstractConnectionListener()
+        registerConnectionListener(new NativeConnectionListener()
         {
             @Override
             public void connected()
@@ -198,6 +199,11 @@ public class JahSpotifyImpl implements JahSpotify
             }
 
             @Override
+            public void disconnected()
+            {
+            }
+
+            @Override
             public void loggedIn()
             {
                 _loggedIn = true;
@@ -205,6 +211,11 @@ public class JahSpotifyImpl implements JahSpotify
                 {
                     listener.loggedIn();
                 }
+            }
+
+            @Override
+            public void loggedOut()
+            {
             }
         });
     }
@@ -435,11 +446,11 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native int nativePlayTrack(String uri);
 
-    private native boolean registerConnectionListener(final ConnectionListener connectionListener);
+    private native boolean registerConnectionListener(final NativeConnectionListener nativeConnectionListener);
 
     private native boolean registerPlaylistListener(PlaylistListener playlistListener);
 
-    private native boolean registerPlaybackListener(PlaybackListener playbackListener);
+    private native boolean registerPlaybackListener(NativePlaybackListener nativePlaybackListener);
 
     private native boolean shutdown();
 

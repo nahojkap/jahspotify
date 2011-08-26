@@ -6,6 +6,9 @@
 
 void startPlaybackSignalled();
 int signalLoggedIn();
+int signalDisconnected();
+int signalLoggedOut();
+
 int signalStartFolderSeen(char *folderName, uint64_t folderId);
 int signalSynchStarting(int numPlaylists);
 int signalSynchCompleted();
@@ -17,9 +20,9 @@ void signalTrackStarted(char *uri);
 int signalPlaylistSeen(const char *playlistName, char *linkName);
 
 void signalSearchComplete(sp_search *search, int32_t token);
-void signalImageLoaded(sp_image *image, void *userData);
-void signalTrackLoaded(sp_track *track, void *userData);
-void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, void *userData);
-void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, void *userData);
+void signalImageLoaded(sp_image *image, int32_t token);
+void signalTrackLoaded(sp_track *track, int32_t token);
+void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token);
+void signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token);
 
 #endif

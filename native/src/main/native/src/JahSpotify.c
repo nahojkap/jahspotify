@@ -287,7 +287,7 @@ static void logged_in ( sp_session *sess, sp_error error )
         exit ( 2 );
     }
 
-    fprintf ( stderr, "jahspotify: Login Success: %d\n", sp_playlistcontainer_num_playlists(pc));
+    fprintf ( stderr, "jahspotify::logged_in: Login Success: %d\n", sp_playlistcontainer_num_playlists(pc));
 
     for (i = 0; i < sp_playlistcontainer_num_playlists(pc); ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(pc, i);
@@ -301,6 +301,8 @@ static void logged_in ( sp_session *sess, sp_error error )
 
 static void logged_out ( sp_session *sess )
 {
+  fprintf ( stderr, "jahspotify::logged_out");
+  signalLoggedOut();
 }
 
 
@@ -481,9 +483,7 @@ static void searchCompleteCallback(sp_search *result, void *userdata)
     
     if (sp_search_error(result) == SP_ERROR_OK)
     {
-        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: token: %d\n",*token);
-        fprintf(stderr,"jahspotify::searchCompleteCallback: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(result), sp_search_num_albums(result), sp_search_num_artists(result));
-        signalSearchComplete(result, token);
+        signalSearchComplete(result, *token);
     }
     else
     {
@@ -495,7 +495,13 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(
 										jobject nativeSearchParameters)
 {
   char *nativeQuery;
-  int32_t token, numAlbums, albumOffset, numArtists, artistOffset, numTracks, trackOffset;
+  int32_t *token = calloc(1, sizeof(int32_t));
+  int32_t numAlbums;
+  int32_t albumOffset;
+  int32_t numArtists; 
+  int32_t artistOffset;
+  int32_t numTracks;
+  int32_t trackOffset;
   jint value;
   
   getObjectIntField(env,nativeSearchParameters,"numAlbums",&value);
@@ -512,7 +518,7 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(
   trackOffset = value;
 
   getObjectIntField(env,nativeSearchParameters,"_token",&value);
-  token = value;
+  *token = value;
 
   if (createNativeString(env, getObjectStringField(env, nativeSearchParameters,"_query"),&nativeQuery) != 1)
   {
@@ -521,7 +527,7 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(
   
   fprintf(stderr,"jahspotify::initiateSearch: Initiating search: query: %s numAlbums: %d albumOffset: %d numTracks: %d trackOffset: %d numArtists: %d artistOffset: %d\n",nativeQuery, numAlbums, albumOffset, numTracks, trackOffset, numArtists, artistOffset);
         
-  sp_search *search = sp_search_create(g_sess,nativeQuery,trackOffset,numTracks,albumOffset,numAlbums,artistOffset,numArtists,searchCompleteCallback,&token);
+  sp_search *search = sp_search_create(g_sess,nativeQuery,trackOffset,numTracks,albumOffset,numAlbums,artistOffset,numArtists,searchCompleteCallback,token);
 
   fprintf(stderr,"jahspotify::initiateSearch: Search initiated: result: %s",sp_error_message(sp_search_error(search)));
 
@@ -825,22 +831,26 @@ char* toHexString(byte* bytes)
 
 void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
 {
-  signalArtistBrowseLoaded(result, NULL);
+  int32_t *token = (int32_t*)userdata;
+  signalArtistBrowseLoaded(result, *token);
 }
 
 void imageLoadedCallback(sp_image *image, void *userdata)
 {
-  signalImageLoaded(image, NULL);
+  int32_t *token = (int32_t*)userdata;
+  signalImageLoaded(image, *token);
 }
 
 void trackLoadedCallback(sp_track *track, void *userdata)
 {
-  signalTrackLoaded(track, NULL);
+  int32_t *token = (int32_t*)userdata;
+  signalTrackLoaded(track, *token);
 }
 
 void albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
 {
-  signalAlbumBrowseLoaded(result, NULL);
+  int32_t *token = (int32_t*)userdata;
+  signalAlbumBrowseLoaded(result, *token);
 }
 
 jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
@@ -1669,6 +1679,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
             break;
         case SP_CONNECTION_STATE_DISCONNECTED:
             fprintf ( stderr, "Disconnected!\n");
+	    signalDisconnected();
             break;
         }
 
