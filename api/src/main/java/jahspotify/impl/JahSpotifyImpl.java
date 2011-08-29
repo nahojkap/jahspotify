@@ -19,22 +19,26 @@ public class JahSpotifyImpl implements JahSpotify
     private JahStorage _jahStorage;
 
     private boolean _loggedIn = false;
+    private boolean _connected;
 
     private List<PlaybackListener> _playbackListeners = new ArrayList<PlaybackListener>();
     private List<ConnectionListener> _connectionListeners = new ArrayList<ConnectionListener>();
-    private List<PlaylistListener> _playlistListeners = new ArrayList<PlaylistListener>();
 
+    private List<SearchListener> _searchListeners = new ArrayList<SearchListener>();
+    private Map<Integer, SearchListener> _prioritySearchListeners = new HashMap<Integer, SearchListener>();
+
+    private List<PlaylistListener> _playlistListeners = new ArrayList<PlaylistListener>();
     private PlaylistFolderNode _rootNode = new PlaylistFolderNode("ROOT_NODE", "ROOT_NODE");
     private Stack<PlaylistFolderNode> _nodeStack = new Stack<PlaylistFolderNode>();
+
     private PlaylistFolderNode _currentPlaylistFolderNode = _rootNode;
 
     private Thread _jahSpotifyThread;
-
     private static JahSpotifyImpl _jahSpotifyImpl;
     private Library _library;
     private boolean _synching = false;
     private User _user;
-    private AtomicInteger _globalToken = new AtomicInteger(0);
+    private AtomicInteger _globalToken = new AtomicInteger(1);
 
     private native int initialize(String username, String password);
 
@@ -45,6 +49,54 @@ public class JahSpotifyImpl implements JahSpotify
 
     private JahSpotifyImpl()
     {
+        registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
+        {
+            @Override
+            public void track(final Link link)
+            {
+            }
+
+            @Override
+            public void playlist(final int token, final Link link)
+            {
+                System.out.println("Loaded playlist: " + link);
+            }
+
+            @Override
+            public void album(final Link link)
+            {
+            }
+
+            @Override
+            public void image(final Link link)
+            {
+            }
+
+            @Override
+            public void artist(final Link link)
+            {
+            }
+        });
+
+        registerNativeSearchCompleteListener(new NativeSearchCompleteListener()
+        {
+            @Override
+            public void searchCompleted(final int token, final SearchResult searchResult)
+            {
+                if (token > 0)
+                {
+                    final SearchListener searchListener = _prioritySearchListeners.get(token);
+                    if (searchListener != null)
+                    {
+                        searchListener.searchComplete(searchResult);
+                    }
+                }
+                for (SearchListener searchListener : _searchListeners)
+                {
+                    searchListener.searchComplete(searchResult);
+                }
+            }
+        });
 
         registerPlaybackListener(new NativePlaybackListener()
         {
@@ -81,8 +133,9 @@ public class JahSpotifyImpl implements JahSpotify
                 return null;
             }
         });
-        registerPlaylistListener(new AbstractPlaylistListener()
+        registerPlaylistListener(new NativePlaylistListener()
         {
+
             @Override
             public void synchCompleted()
             {
@@ -192,6 +245,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void connected()
             {
+                _connected = true;
                 for (ConnectionListener listener : _connectionListeners)
                 {
                     listener.connected();
@@ -271,6 +325,8 @@ public class JahSpotifyImpl implements JahSpotify
         };
         _jahSpotifyThread.start();
     }
+
+    private native boolean registerNativeMediaLoadedListener(final NativeMediaLoadedListener nativeMediaLoadedListener);
 
     private native int readImage(String uri, OutputStream outputStream);
 
@@ -448,13 +504,15 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean registerConnectionListener(final NativeConnectionListener nativeConnectionListener);
 
-    private native boolean registerPlaylistListener(PlaylistListener playlistListener);
+    private native boolean registerNativeSearchCompleteListener(final NativeSearchCompleteListener nativeSearchCompleteListener);
+
+    private native boolean registerPlaylistListener(NativePlaylistListener playlistListener);
 
     private native boolean registerPlaybackListener(NativePlaybackListener nativePlaybackListener);
 
     private native boolean shutdown();
 
-    private native void nativeInitiateSearch(NativeSearchParameters token);
+    private native void nativeInitiateSearch(final int i, NativeSearchParameters token);
 
     @Override
     public User getUser()
@@ -501,6 +559,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void addSearchListener(final SearchListener searchListener)
     {
+        _searchListeners.add(searchListener);
     }
 
     public Library retrieveLibrary()
@@ -617,20 +676,24 @@ public class JahSpotifyImpl implements JahSpotify
         shutdown();
     }
 
+    public void initiateSearch(final Search search)
+    {
+        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
+        // TODO: Register the lister for the specified token
+        nativeInitiateSearch(0,nativeSearchParameters);
+    }
+
     public void initiateSearch(final Search search, final SearchListener searchListener)
     {
         int token = _globalToken.getAndIncrement();
-        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search, token);
-
-        // TODO: Register the lister for the specified token
-
-        nativeInitiateSearch(nativeSearchParameters);
+        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
+        _prioritySearchListeners.put(token,searchListener);
+        nativeInitiateSearch(token, nativeSearchParameters);
     }
 
-    public NativeSearchParameters initializeFromSearch(Search search, int token)
+    public NativeSearchParameters initializeFromSearch(Search search)
     {
         NativeSearchParameters nativeSearchParameters = new NativeSearchParameters();
-        nativeSearchParameters._token = token;
         nativeSearchParameters._query = search.getQuery().serialize();
         nativeSearchParameters.albumOffset = search.getAlbumOffset();
         nativeSearchParameters.artistOffset = search.getArtistOffset();
@@ -643,7 +706,6 @@ public class JahSpotifyImpl implements JahSpotify
 
     public static class NativeSearchParameters
     {
-        int _token;
         String _query;
 
         int trackOffset = 0;

@@ -132,8 +132,17 @@ public class Playlist extends Container
         return (this.id != null) ? this.id.hashCode() : 0;
     }
 
+    @Override
     public String toString()
     {
-        return String.format("[Playlist: %s, %s]", this.author, this.name);
+        return "Playlist{" +
+                "author='" + author + '\'' +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", collaborative=" + collaborative +
+                ", description='" + description + '\'' +
+                ", picture=" + picture +
+                ", tracks=" + tracks +
+                "} " + super.toString();
     }
 }

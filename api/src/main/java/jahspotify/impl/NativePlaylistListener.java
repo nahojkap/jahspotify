@@ -13,10 +13,4 @@ public interface NativePlaylistListener
     public void endFolder();
     public void playlist(final String name, final String link);
     public void metadataUpdated();
-
-    public void track(final Track track);
-    public void playlist(final Playlist playlist);
-    public void album(final Album album);
-    public void image(final Image image);
-    public void artist(final Artist artist);
 }

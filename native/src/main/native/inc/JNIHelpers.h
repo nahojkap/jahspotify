@@ -5,6 +5,8 @@
 
 #define JNI_HELPERS
 
+jobject createJLinkInstance(JNIEnv *env, sp_link *link);
+
 jint createNativeString(JNIEnv *env, jstring str, char **nativeStr);
 
 jint setObjectFloatField(JNIEnv * env, jobject obj, const char *name, jfloat value);
@@ -22,6 +24,7 @@ jobject createInstanceFromJClass(JNIEnv *env, jclass jClass);
 
 jint invokeNonStaticVoidMethod(JNIEnv *env, jobject instance, const char *methodName, const char *methodSig, void *returnValue, ...);
 
+jint checkException(JNIEnv *env);
 int retrieveEnv(JNIEnv* env);
 jint detachThread();
 
