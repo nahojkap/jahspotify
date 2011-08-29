@@ -18,8 +18,11 @@ jstring getObjectStringField(JNIEnv * env, jobject obj, const char *name);
 jint getObjectIntField(JNIEnv * env, jobject obj, const char *name, jint *value);
 
 jobject createInstance(JNIEnv *env, char *className);
+jobject createInstanceFromJClass(JNIEnv *env, jclass jClass);
 
-int retrieveEnv(JNIEnv* env, int *alreadyAttachedToThread);
+jint invokeNonStaticVoidMethod(JNIEnv *env, jobject instance, const char *methodName, const char *methodSig, void *returnValue, ...);
+
+int retrieveEnv(JNIEnv* env);
 jint detachThread();
 
 #endif

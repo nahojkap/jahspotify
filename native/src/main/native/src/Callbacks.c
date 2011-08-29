@@ -20,6 +20,8 @@ extern jobject g_playbackListener;
 extern jclass g_playbackListenerClass;
 extern jclass g_playlistListenerClass;
 extern jclass g_connectionListenerClass;
+extern jclass g_searchCompleteListenerClass;
+extern jclass g_nativeSearchResultClass;
 
 extern JavaVM* g_vm;
 
@@ -113,17 +115,63 @@ void* threaded_signalAlbumBrowseLoaded(void *threadarg)
 {
 }
 
+jint addObjectToCollection(JNIEnv *env, jobject collection, jobject object)
+{
+    jclass clazz;
+    jmethodID methodID;
+
+    clazz = (*env)->GetObjectClass(env, collection);
+    if (clazz == NULL)
+        return 1;
+
+    methodID = (*env)->GetMethodID(env, clazz,"add","(Ljava/lang/Object;)Z");
+    if (methodID == NULL)
+        return 1;
+    
+    // Invoke the method
+    jboolean result = (*env)->CallBooleanMethod(env,collection,methodID,object);
+}
+
 void* threaded_signalSearchComplete(void *threadarg)
 {
-  
-  struct threaded_signalSearchComplete_Parameters *threaded_signalSearchComplete_Params = (struct threaded_signalSearchComplete_Parameters*)threadarg;
-  sp_search *search = threaded_signalSearchComplete_Params->search;
-  
-  fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Search complete: token: %d\n",threaded_signalSearchComplete_Params->token);
-  fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(search), sp_search_num_albums(search), sp_search_num_artists(search));
-  
-  sp_search_release(search);
+    JNIEnv* env = NULL;
+    struct threaded_signalSearchComplete_Parameters *threaded_signalSearchComplete_Params = (struct threaded_signalSearchComplete_Parameters*)threadarg;
+    sp_search *search = threaded_signalSearchComplete_Params->search;
+    jobject nativeSearchResult;
+    jobject trackLinkCollection;
+    jobject albumLinkCollection;
+    jobject artistLinkCollection;
 
+    if (!retrieveEnv((JNIEnv*)&env))
+    {
+        goto fail;
+    }
+
+    
+    fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Search complete: token: %d\n",threaded_signalSearchComplete_Params->token);
+    fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Search complete: tracks: %d albums: %d artists:%d\n", sp_search_num_tracks(search), sp_search_num_albums(search), sp_search_num_artists(search));
+  
+    // Create the Native Search Result instance
+    nativeSearchResult = createInstanceFromJClass(env,g_nativeSearchResultClass);
+    
+    trackLinkCollection = createInstance(env,"java/util/ArrayList");
+    setObjectObjectField(env,nativeSearchResult,"_tracksFound","Ljava/util/List;",trackLinkCollection);
+    
+    albumLinkCollection = createInstance(env,"java/util/ArrayList");
+    setObjectObjectField(env,nativeSearchResult,"_tracksFound","Ljava/util/List;",trackLinkCollection);
+
+    artistLinkCollection = createInstance(env,"java/util/ArrayList");
+    setObjectObjectField(env,nativeSearchResult,"_tracksFound","Ljava/util/List;",trackLinkCollection);
+    
+  
+    sp_search_release(search);
+
+fail:
+    
+exit:
+
+    detachThread();
+    
 }
 
 void* threaded_startPlaybackSignalled(void* threadargs)
@@ -134,9 +182,8 @@ void* threaded_startPlaybackSignalled(void* threadargs)
     jmethodID method;
     jstring nextUriStr;
     char *nextUri;
-    int alreadyAttachedToThread;
     
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -148,7 +195,6 @@ void* threaded_startPlaybackSignalled(void* threadargs)
         fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: could not load callback method string nextTrackToPreload() on class PlaybackListener\n");
         goto fail;
     }
-
 
     nextUriStr = (*env)->CallObjectMethod(env, g_playbackListener, method);
 
@@ -178,13 +224,7 @@ fail:
 
 exit:
 
-
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
-
+    result = detachThread();
 }  
  
 void* threaded_signalPlaylistSeen(void *threadarg)
@@ -197,9 +237,8 @@ void* threaded_signalPlaylistSeen(void *threadarg)
     jmethodID aMethod;
     jstring playListStr;
     jstring linkNameStr;
-    int alreadyAttachedToThread = 0;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -245,11 +284,7 @@ exit:
     if (linkNameStr) (*env)->DeleteLocalRef(env, linkNameStr);
     if (playListStr) (*env)->DeleteLocalRef(env, playListStr);
 
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+    result = detachThread();
 
 }
 
@@ -259,11 +294,10 @@ void* threaded_signalTrackEnded(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
     struct threaded_signalTrackEnded_Parameters *threaded_signalTrackEnded_Params = (struct threaded_signalTrackEnded_Parameters*)threadarg;
     jstring uriStr;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -298,12 +332,9 @@ fail:
 exit:
     if (uriStr) (*env)->DeleteLocalRef(env, uriStr);
     if (threaded_signalTrackEnded_Params) free(threaded_signalTrackEnded_Params);
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
-
+    
+    result = detachThread();
+    
 }
 
 void* threaded_signalTrackStarted(void *threadarg)
@@ -312,12 +343,11 @@ void* threaded_signalTrackStarted(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
     char *uri = (char*)threadarg;
 
     jstring uriStr;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -350,12 +380,8 @@ fail:
 exit:
     if (uriStr) (*env)->DeleteLocalRef(env, uriStr);
     if (uri) free(uri);
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
 
+    result = detachThread();
 }
 
 
@@ -365,12 +391,11 @@ void* threaded_signalStartFolderSeen(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
 
     jstring folderNameStr;
     struct threaded_signalStartFolderSeen_Parameters *threaded_signalFolderSeen_Params = (struct threaded_signalStartFolderSeen_Parameters*)threadarg;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -403,12 +428,9 @@ fail:
 exit:
     if (folderNameStr) (*env)->DeleteLocalRef(env, folderNameStr);
     if (threaded_signalFolderSeen_Params) free(threaded_signalFolderSeen_Params);
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
 
+    result = detachThread();
+    
 }
 
 void* threaded_signalMetadataUpdated(void *threadarg)
@@ -417,9 +439,8 @@ void* threaded_signalMetadataUpdated(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -440,11 +461,9 @@ fail:
     fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: error during callback\n");
 
 exit:
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+
+    result = detachThread();
+    
 }
 
 
@@ -454,9 +473,8 @@ void* threaded_signalSynchCompleted(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -477,11 +495,9 @@ fail:
     fprintf(stderr,"jahspotify::threaded_signalSynchCompleted: error during callback\n");
 
 exit:
-    if (alreadyAttachedToThread != 0)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+
+    result = detachThread();
+    
 }
 
 
@@ -491,10 +507,9 @@ void* threaded_signalSynchStarting(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
     int numPlaylists = *(int*)threadarg;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -515,11 +530,9 @@ fail:
     fprintf(stderr,"jahspotify::threaded_signalSynchStarting: error during callback\n");
 
 exit:
-    if (!alreadyAttachedToThread)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+
+    result = detachThread();
+    
 }
 
 
@@ -529,9 +542,8 @@ void* threaded_signalEndFolderSeen(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -552,11 +564,9 @@ fail:
     fprintf(stderr,"jahspotify::threaded_signalEndFolderSeen: error during callback\n");
 
 exit:
-    if (!alreadyAttachedToThread)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+
+    result = detachThread();
+
 }
 
 
@@ -566,9 +576,8 @@ void* threaded_signalLoggedIn(void *threadarg)
     int result;
     jclass aClass;
     jmethodID method;
-    int alreadyAttachedToThread = 0;
 
-    if (!retrieveEnv((JNIEnv*)&env,&alreadyAttachedToThread))
+    if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
     }
@@ -591,11 +600,8 @@ fail:
     fprintf(stderr,"jahspotify::threaded_signalLoggedIn: error during callback\n");
 
 exit:
-    if (!alreadyAttachedToThread)
-    {
-        // Detach from the thread at this point - since we re-attached, this is required
-        result = (*g_vm)->DetachCurrentThread(g_vm);
-    }
+
+    result = detachThread();
 
 }
 
@@ -813,11 +819,23 @@ void signalImageLoaded(sp_image *image, int32_t token)
   if (placeInThread(threaded_signalImageLoaded,threaded_signalImageLoaded_Params) != 0)
   {
     fprintf ( stderr, "jahspotify::signalImageLoaded: error placing onto thread\n");
-  }}
+  }    
+}
 
 void signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)
 {
+    
+    sp_albumbrowse_add_ref(albumBrowse);
+
+  struct threaded_signalAlbumBrowseLoaded_Parameters *threaded_signalAlbumBrowseLoaded_Params = calloc(1,sizeof(struct threaded_signalAlbumBrowseLoaded_Parameters));
   
+  threaded_signalAlbumBrowseLoaded_Params->albumBrowse = albumBrowse;
+  threaded_signalAlbumBrowseLoaded_Params->token = token;
+
+  if (placeInThread(threaded_signalAlbumBrowseLoaded,threaded_signalAlbumBrowseLoaded_Params) != 0)
+  {
+    fprintf ( stderr, "jahspotify::signalImageLoaded: error placing onto thread\n");
+  }
 }
 
 void signalTrackLoaded(sp_track *track, int32_t token)

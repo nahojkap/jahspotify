@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "JNIHelpers.h"
 
@@ -8,12 +9,14 @@ JavaVM* g_vm = NULL;
 jclass g_playbackListenerClass;
 jclass g_playlistListenerClass;
 jclass g_connectionListenerClass;
-
+jclass g_nativeSearchResultClass;
+jclass g_searchCompleteListenerClass;
 
 jint detachThread()
 {
   JNIEnv* env = NULL;
   jint result = (*g_vm)->GetEnv(g_vm,(void**)&env, JNI_VERSION_1_4);
+  
   if (result != JNI_EDETACHED)
   {
     result = (*g_vm)->DetachCurrentThread(g_vm);
@@ -24,6 +27,30 @@ jint detachThread()
   }
   return 0;
 }
+
+jint invokeNonStaticVoidMethod(JNIEnv *env, jobject instance, const char *methodName, const char *methodSig, void *returnValue, ...)
+{
+/*    jclass clazz;
+    jmethodID method;
+
+    clazz = (*env)->GetObjectClass(env, obj);
+    if (clazz == NULL)
+        return 1;
+    
+    method = (*env).GetMethodID(clazz,methodName, methodSig);
+
+    if (method == NULL)
+        return 1;
+    
+    
+    
+    
+    
+    
+    
+    */
+}
+
 
 jint createNativeString(JNIEnv *env, jstring str, char **nativeStr)
 {
@@ -57,6 +84,18 @@ jobject createInstance(JNIEnv *env, char *className)
   }
   return instance;
 }
+
+jobject createInstanceFromJClass(JNIEnv *env, jclass jClass)
+{
+  jobject instance = (*env)->AllocObject(env,jClass);
+  if (!instance)
+  {
+    fprintf(stderr,"jahspotify::createInstance: could not create instance\n");
+    return NULL;
+  }
+  return instance;
+}
+
 
 jint setObjectIntField(JNIEnv * env, jobject obj, const char *name, jint value)
 {
@@ -167,29 +206,6 @@ jint setObjectObjectField(JNIEnv * env, jobject obj,const char *name, char *fiel
     clazz = (*env)->GetObjectClass(env, obj);
     if (clazz == NULL)
         return 1;
-
-/*    fieldClazz = (*env)->GetObjectClass(env,value);
-    if (fieldClazz == NULL)
-    {
-      return 1;
-    }*/
-    
-/*    jmethodID msgMethodID;
-    msgMethodID = (*env)->GetMethodID(env, fieldClazz, "getName","()Ljava/lang/String;");
-    if(msgMethodID == NULL) 
-    {
-      printf("getName is returning NULL......\n");
-      return 1;
-    }
-
-    jstring clsName = (jstring)(*env)->CallObjectMethod(env, obj, msgMethodID, NULL);
-    
-    const char* localstr = (*env)->GetStringUTFChars(env, clsName, NULL);
-    printf("\n\nException class name: %s\n", localstr);    
-
-    (*env)->ReleaseStringUTFChars(env, clsName, localstr);
-    
-    */
     
     field = (*env)->GetFieldID(env, clazz, name, fieldClassName);
     
@@ -250,7 +266,7 @@ jint getObjectIntField(JNIEnv * env, jobject obj, const char *name, jint *value)
     return 0;
 }
 
-int retrieveEnv(JNIEnv* env, int *alreadyAttachedToThread)
+int retrieveEnv(JNIEnv* env)
 {
     JNIEnv* myEnv = NULL;
 
@@ -269,7 +285,6 @@ int retrieveEnv(JNIEnv* env, int *alreadyAttachedToThread)
 
     if (result == JNI_EDETACHED)
     {
-        *alreadyAttachedToThread = JNI_FALSE;
         // fprintf(stderr,"jahspotify::retrieveEnv: detected thread not attached, attempting to attach it\n");
         result = (*g_vm)->AttachCurrentThread(g_vm,(void**)&myEnv, NULL);
         // fprintf(stderr,"jahspotify::retrieveEnv: attach completed: result: %d env: 0x%x\n",result,myEnv);
@@ -325,6 +340,14 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     }
     g_playlistListenerClass = (*env)->NewGlobalRef(env,aClass);
 
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativeSearchResult");
+    if (aClass == NULL)
+    {
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeSearchResult\n");
+    }
+    g_nativeSearchResultClass = (*env)->NewGlobalRef(env,aClass);
+    
+    
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativeConnectionListener");
     if (aClass == NULL)
     {
@@ -332,6 +355,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     }
     g_connectionListenerClass = (*env)->NewGlobalRef(env,aClass);
     
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativeSearchCompleteListener");
+    if (aClass == NULL)
+    {
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeSearchCompleteListener\n");
+    }
+    g_searchCompleteListenerClass = (*env)->NewGlobalRef(env,aClass);
 
     /* success -- return valid version number */
     result = JNI_VERSION_1_4;
