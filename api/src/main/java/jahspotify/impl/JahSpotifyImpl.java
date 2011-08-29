@@ -59,7 +59,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void playlist(final int token, final Link link)
             {
-                System.out.println("Loaded playlist: " + link);
+
             }
 
             @Override
