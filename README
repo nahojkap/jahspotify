@@ -60,6 +60,7 @@ Track retrieval: http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxI
 Image retrieval: http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
 Adding a track to the play queue: http://localhost:8080/jahspotify/queue/add-to-queue/spotify:track:2WTn8V1SuH7peQSYJwrsiI
 Retrieving play queue: http://localhost:8080/jahspotify/queue
+Searching: http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
 
 While playing:
 
