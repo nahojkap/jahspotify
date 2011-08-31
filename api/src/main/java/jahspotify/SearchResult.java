@@ -9,88 +9,88 @@ import jahspotify.media.Link;
  */
 public class SearchResult
 {
-   private String _query;
-   private String _didYouMean;
-   private List<Link> _tracksFound;
-   private int _totalNumTracks;
-   private int _trackOffset;
-   private List<Link> _albumsFound;
-   private int _totalNumAlbums;
-   private int _albumOffset;
-   private List<Link> _artistsFound;
-   private int _totalNumArtists;
-   private int _artistOffset;
+   private String query;
+   private String didYouMean;
+   private List<Link> tracksFound;
+   private int totalNumTracks;
+   private int trackOffset;
+   private List<Link> albumsFound;
+   private int totalNumAlbums;
+   private int albumOffset;
+   private List<Link> artistsFound;
+   private int totalNumArtists;
+   private int artistOffset;
 
     public String getDidYouMean()
     {
-        return _didYouMean;
+        return didYouMean;
     }
 
     public int getAlbumOffset()
     {
-        return _albumOffset;
+        return albumOffset;
     }
 
     public List<Link> getAlbumsFound()
     {
-        return _albumsFound;
+        return albumsFound;
     }
 
     public int getArtistOffset()
     {
-        return _artistOffset;
+        return artistOffset;
     }
 
     public List<Link> getArtistsFound()
     {
-        return _artistsFound;
+        return artistsFound;
     }
 
     public String getQuery()
     {
-        return _query;
+        return query;
     }
 
     public int getTotalNumAlbums()
     {
-        return _totalNumAlbums;
+        return totalNumAlbums;
     }
 
     public int getTotalNumArtists()
     {
-        return _totalNumArtists;
+        return totalNumArtists;
     }
 
     public int getTotalNumTracks()
     {
-        return _totalNumTracks;
+        return totalNumTracks;
     }
 
     public int getTrackOffset()
     {
-        return _trackOffset;
+        return trackOffset;
     }
 
     public List<Link> getTracksFound()
     {
-        return _tracksFound;
+        return tracksFound;
     }
 
     @Override
     public String toString()
     {
         return "SearchResult{" +
-                "_albumOffset=" + _albumOffset +
-                ", _query='" + _query + '\'' +
-                ", _didYouMean='" + _didYouMean + '\'' +
-                ", _tracksFound=" + _tracksFound +
-                ", _totalNumTracks=" + _totalNumTracks +
-                ", _trackOffset=" + _trackOffset +
-                ", _albumsFound=" + _albumsFound +
-                ", _totalNumAlbums=" + _totalNumAlbums +
-                ", _artistsFound=" + _artistsFound +
-                ", _totalNumArtists=" + _totalNumArtists +
-                ", _artistOffset=" + _artistOffset +
+                "albumOffset=" + albumOffset +
+                ", query='" + query + '\'' +
+                ", didYouMean='" + didYouMean + '\'' +
+                ", tracksFound=" + tracksFound +
+                ", totalNumTracks=" + totalNumTracks +
+                ", trackOffset=" + trackOffset +
+                ", albumsFound=" + albumsFound +
+                ", totalNumAlbums=" + totalNumAlbums +
+                ", artistsFound=" + artistsFound +
+                ", totalNumArtists=" + totalNumArtists +
+                ", artistOffset=" + artistOffset +
                 '}';
     }
 }

@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.*;
  */
 public class BaseController
 {
-    private Log _log = LogFactory.getLog(BaseController.class);
+    protected Log _log = LogFactory.getLog(BaseController.class);
 
     @Autowired
     protected JahSpotifyService _jahSpotifyService;
