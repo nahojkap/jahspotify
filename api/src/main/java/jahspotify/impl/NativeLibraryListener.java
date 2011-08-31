@@ -5,7 +5,7 @@ import jahspotify.media.*;
 /**
  * @author Johan Lindquist
  */
-public interface NativePlaylistListener
+public interface NativeLibraryListener
 {
     public void synchStarted(int numPlaylists);
     public void synchCompleted();

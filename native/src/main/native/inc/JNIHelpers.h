@@ -5,8 +5,6 @@
 
 #define JNI_HELPERS
 
-jobject createJLinkInstance(JNIEnv *env, sp_link *link);
-
 jint createNativeString(JNIEnv *env, jstring str, char **nativeStr);
 
 jint setObjectFloatField(JNIEnv * env, jobject obj, const char *name, jfloat value);

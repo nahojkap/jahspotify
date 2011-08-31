@@ -3,6 +3,7 @@ package jahspotify.impl;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
+import java.util.concurrent.locks.*;
 
 import jahspotify.*;
 import jahspotify.media.*;
@@ -17,6 +18,8 @@ public class JahSpotifyImpl implements JahSpotify
     private Log _log = LogFactory.getLog(JahSpotify.class);
 
     private JahStorage _jahStorage;
+
+    private Lock _libSpotifyLock = new ReentrantLock();
 
     private boolean _loggedIn = false;
     private boolean _connected;
@@ -52,28 +55,27 @@ public class JahSpotifyImpl implements JahSpotify
         registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
         {
             @Override
-            public void track(final Link link)
+            public void track(final int token,final Link link)
             {
             }
 
             @Override
             public void playlist(final int token, final Link link)
             {
-
             }
 
             @Override
-            public void album(final Link link)
+            public void album(final int token,final Link link)
             {
             }
 
             @Override
-            public void image(final Link link)
+            public void image(final int token, final Link link)
             {
             }
 
             @Override
-            public void artist(final Link link)
+            public void artist(final int token,final Link link)
             {
             }
         });
@@ -98,7 +100,7 @@ public class JahSpotifyImpl implements JahSpotify
             }
         });
 
-        registerPlaybackListener(new NativePlaybackListener()
+        registerNativePlaybackListener(new NativePlaybackListener()
         {
             @Override
             public void trackStarted(final String uri)
@@ -133,7 +135,7 @@ public class JahSpotifyImpl implements JahSpotify
                 return null;
             }
         });
-        registerPlaylistListener(new NativePlaylistListener()
+        registerNativeLibraryListener(new NativeLibraryListener()
         {
 
             @Override
@@ -240,7 +242,7 @@ public class JahSpotifyImpl implements JahSpotify
                 }
             }
         });
-        registerConnectionListener(new NativeConnectionListener()
+        registerNativeConnectionListener(new NativeConnectionListener()
         {
             @Override
             public void connected()
@@ -311,19 +313,27 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void login(final String username, final String password)
     {
-        if (_jahSpotifyThread != null)
+        _libSpotifyLock.lock();
+        try
         {
-            return;
-        }
-        _jahSpotifyThread = new Thread()
-        {
-            @Override
-            public void run()
+            if (_jahSpotifyThread != null)
             {
-                initialize(username, password);
+                return;
             }
-        };
-        _jahSpotifyThread.start();
+            _jahSpotifyThread = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    initialize(username, password);
+                }
+            };
+            _jahSpotifyThread.start();
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
     }
 
     private native boolean registerNativeMediaLoadedListener(final NativeMediaLoadedListener nativeMediaLoadedListener);
@@ -355,7 +365,17 @@ public class JahSpotifyImpl implements JahSpotify
             }
         }
 
-        album = retrieveAlbum(uri.asString());
+
+        _libSpotifyLock.lock();
+        try
+        {
+            album = retrieveAlbum(uri.asString());
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
+
         if (_jahStorage != null && album != null)
         {
             _jahStorage.store(album);
@@ -399,7 +419,15 @@ public class JahSpotifyImpl implements JahSpotify
             }
         }
 
-        track = retrieveTrack(uri.asString());
+         _libSpotifyLock.lock();
+        try
+        {
+            track = retrieveTrack(uri.asString());
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
 
         if (_jahStorage != null && track != null)
         {
@@ -423,7 +451,18 @@ public class JahSpotifyImpl implements JahSpotify
         }
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        int len = _jahSpotifyImpl.readImage(uri.asString(), outputStream);
+
+        _libSpotifyLock.lock();
+        int len = -1;
+        try
+        {
+            len = _jahSpotifyImpl.readImage(uri.asString(), outputStream);
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
+
         if (len != -1)
         {
 
@@ -455,7 +494,16 @@ public class JahSpotifyImpl implements JahSpotify
             }
         }
 
-        final Playlist playlist = retrievePlaylist(uri.asString());
+        _libSpotifyLock.lock();
+        final Playlist playlist;
+        try
+        {
+            playlist = retrievePlaylist(uri.asString());
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
 
         if (_jahStorage != null && playlist != null)
         {
@@ -502,13 +550,13 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native int nativePlayTrack(String uri);
 
-    private native boolean registerConnectionListener(final NativeConnectionListener nativeConnectionListener);
+    private native boolean registerNativeConnectionListener(final NativeConnectionListener nativeConnectionListener);
 
     private native boolean registerNativeSearchCompleteListener(final NativeSearchCompleteListener nativeSearchCompleteListener);
 
-    private native boolean registerPlaylistListener(NativePlaylistListener playlistListener);
+    private native boolean registerNativeLibraryListener(NativeLibraryListener nativeLibraryListener);
 
-    private native boolean registerPlaybackListener(NativePlaybackListener nativePlaybackListener);
+    private native boolean registerNativePlaybackListener(NativePlaybackListener nativePlaybackListener);
 
     private native boolean shutdown();
 
@@ -578,10 +626,10 @@ public class JahSpotifyImpl implements JahSpotify
 
         if (_library == null)
         {
-            _library = new Library();
+            Library library = new Library();
             if (getUser() != null)
             {
-                _library.setOwner(getUser().getDisplayName());
+                library.setOwner(getUser().getDisplayName());
             }
 
             for (Node node : _rootNode.getChildren())
@@ -598,11 +646,10 @@ public class JahSpotifyImpl implements JahSpotify
 
                 if (entry != null)
                 {
-                    _library.addEntry(entry);
+                    library.addEntry(entry);
                 }
-
-
             }
+            _library = library;
 
 
         }
@@ -678,17 +725,33 @@ public class JahSpotifyImpl implements JahSpotify
 
     public void initiateSearch(final Search search)
     {
-        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
-        // TODO: Register the lister for the specified token
-        nativeInitiateSearch(0,nativeSearchParameters);
+        _libSpotifyLock.lock();
+        try
+        {
+            NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
+            // TODO: Register the lister for the specified token
+            nativeInitiateSearch(0,nativeSearchParameters);
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
     }
 
     public void initiateSearch(final Search search, final SearchListener searchListener)
     {
-        int token = _globalToken.getAndIncrement();
-        NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
-        _prioritySearchListeners.put(token,searchListener);
-        nativeInitiateSearch(token, nativeSearchParameters);
+        _libSpotifyLock.lock();
+        try
+        {
+            int token = _globalToken.getAndIncrement();
+            NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
+            _prioritySearchListeners.put(token,searchListener);
+            nativeInitiateSearch(token, nativeSearchParameters);
+        }
+        finally
+        {
+            _libSpotifyLock.unlock();
+        }
     }
 
     public NativeSearchParameters initializeFromSearch(Search search)

@@ -10,6 +10,8 @@
 #include "JNIHelpers.h"
 #include "ThreadHelpers.h"
 
+extern jobject createJLinkInstance(JNIEnv *env, sp_link *link);
+
 extern sp_session *g_sess;
 extern sp_track *g_currenttrack;
 
@@ -421,8 +423,6 @@ void* threaded_signalSearchComplete(void *threadarg)
       fprintf(stderr,"jahspotify::threaded_signalSearchComplete: exception while calling search complete listener\n");
     }
 
-    fprintf(stderr,"jahspotify::threaded_signalSearchComplete: callback invokved\n");
-
 fail:
     
 exit:
@@ -455,7 +455,6 @@ void* threaded_startPlaybackSignalled(void* threadargs)
 
     nextUriStr = (*env)->CallObjectMethod(env, g_playbackListener, method);
     checkException(env);
-    
 
     if (nextUriStr)
     {
@@ -482,6 +481,11 @@ fail:
     fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error during callback\n");
 
 exit:
+
+    if (nextUri) 
+    {
+      (*env)->ReleaseStringUTFChars(env, nextUriStr,nextUri);
+    }
 
     result = detachThread();
 }  
@@ -591,8 +595,6 @@ void* threaded_signalTrackEnded(void *threadarg)
     {
       fprintf(stderr,"jahspotify::threaded_signalTrackEnded: exception while calling callback\n");
     }
-    
-    fprintf(stderr,"jahspotify::threaded_signalTrackEnded: callback called\n");
 
     goto exit;
 
@@ -609,6 +611,7 @@ exit:
 
 void* threaded_signalTrackStarted(void *threadarg)
 {
+
     JNIEnv* env = NULL;
     int result;
     jclass aClass;
@@ -616,7 +619,7 @@ void* threaded_signalTrackStarted(void *threadarg)
     char *uri = (char*)threadarg;
 
     jstring uriStr;
-
+    
     if (!retrieveEnv((JNIEnv*)&env))
     {
         goto fail;
@@ -921,7 +924,11 @@ exit:
 
 void startPlaybackSignalled()
 {
-  placeInThread(threaded_startPlaybackSignalled,0);
+  //    threaded_signalLoggedIn(NULL);
+  if (placeInThread(threaded_startPlaybackSignalled,0) != 0)
+  {
+    fprintf ( stderr, "jahspotify::startPlaybackSignalled: error placing onto thread\n");
+  }
 }
 
 int signalConnected()
@@ -1062,7 +1069,6 @@ int signalEndFolderSeen()
 
 int signalTrackEnded(char *uri, bool forcedTrackEnd)
 {
-  char *uriCopy;
   struct threaded_signalTrackEnded_Parameters *threaded_signalTrackEnded_Params;
 
   if (!g_playbackListener)
@@ -1071,15 +1077,15 @@ int signalTrackEnded(char *uri, bool forcedTrackEnd)
     return 1;
   }
   
-  uriCopy = malloc(sizeof(char) * (strlen(uri)+1));
-  strcpy(uriCopy,uri);
+  threaded_signalTrackEnded_Params = calloc(1, sizeof(struct threaded_signalTrackEnded_Parameters));
   
-  threaded_signalTrackEnded_Params = malloc(sizeof(struct threaded_signalTrackEnded_Parameters));
-  
-  threaded_signalTrackEnded_Params->uri = uriCopy;
+  threaded_signalTrackEnded_Params->uri = strdup(uri);
   threaded_signalTrackEnded_Params->forcedTrackEnd = forcedTrackEnd;
   
-  threaded_signalTrackEnded(threaded_signalTrackEnded_Params);
+  if (placeInThread(threaded_signalTrackEnded,threaded_signalTrackEnded_Params) != 0)
+  {
+    fprintf ( stderr, "jahspotify::signalTrackEnded: error placing onto thread\n");
+  }
 
 }
 
@@ -1094,10 +1100,10 @@ int signalTrackStarted(char *uri)
     return 1;
   }
   
-  uriCopy = malloc(sizeof(char) * (strlen(uri)+1));
-  strcpy(uriCopy,uri);
+  uriCopy = strdup(uri);
 
-  if (placeInThread(threaded_signalTrackStarted,uri) != 0)
+  fprintf ( stderr, "jahspotify::signalTrackStarted: placing in thread\n", uriCopy); 
+  if (placeInThread(threaded_signalTrackStarted,uriCopy) != 0)
   {
     fprintf ( stderr, "jahspotify::signalTrackStarted: error placing onto thread\n");
   }
@@ -1141,14 +1147,11 @@ int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
 int signalImageLoaded(sp_image *image, int32_t token)
 {
   
-   if (!g_mediaLoadedListener)
-    {
-        fprintf ( stderr, "jahspotify::signalImageLoaded: no playlist media loaded listener registered\n");
-        return 1;
-    }
-
-  
-  sp_image_add_ref(image);
+  if (!g_mediaLoadedListener)
+  {
+      fprintf ( stderr, "jahspotify::signalImageLoaded: no playlist media loaded listener registered\n");
+      return 1;
+  }
 
   struct threaded_signalImageLoaded_Parameters *threaded_signalImageLoaded_Params = calloc(1,sizeof(struct threaded_signalImageLoaded_Parameters));
   
@@ -1176,11 +1179,12 @@ int signalPlaylistLoaded(sp_playlist *playlist, int32_t token)
   threaded_signalPlaylistLoaded_Params->playlist = playlist;
   threaded_signalPlaylistLoaded_Params->token = token;
 
-  if (placeInThread(threaded_signalPlaylistLoaded,threaded_signalPlaylistLoaded_Params) != 0)
+/*  if (placeInThread(threaded_signalPlaylistLoaded,threaded_signalPlaylistLoaded_Params) != 0)
   {
     fprintf ( stderr, "jahspotify::signalPlaylistLoaded: error placing onto thread\n");
-  }
-  
+  }*/
+  threaded_signalPlaylistLoaded(threaded_signalPlaylistLoaded_Params);
+
 }
 
 int signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)

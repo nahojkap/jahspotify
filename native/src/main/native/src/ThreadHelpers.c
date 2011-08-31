@@ -6,21 +6,28 @@
 int placeInThread(void *threadFunction, void *threadParams)
 {
     pthread_t thread_id;
-    size_t size;
     pthread_attr_t attr;
+    int result;
 
     pthread_attr_init(&attr);
     
-    pthread_attr_getstacksize(&attr, &size);
-
-    if (!pthread_attr_setstacksize(&attr, 512*1024))
+    result = pthread_attr_setstacksize(&attr, 512*1024);
+    if (result != 0)
     {
-        // fprintf(stderr,"jahspotify::placeInThread: error setting stack size\n");
+        fprintf(stderr,"jahspotify::placeInThread: error setting stack size\n");
     }
 
-    pthread_create(&thread_id, &attr, (void*) threadFunction, (void *)threadParams);
-    
-    return 0;
+    result = pthread_create(&thread_id, &attr, (void*) threadFunction, (void *)threadParams);
+    if (result != 0)
+    {
+        fprintf(stderr,"jahspotify::placeInThread: error starting thread: %d\n", result);
+	return 1;
+    }
+    else
+    {
+      fprintf(stderr,"jahspotify::placeInThread: thread started: id: %d\n", thread_id);
+      return 0;
+    }
     
 }
 

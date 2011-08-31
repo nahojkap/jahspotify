@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <name>jahspotify-root</name>
     <description>Jahspotify</description>
-    <url></url>
+    <url>https://github.com/johanlindquist/jahspotify</url>
     <inceptionYear>2011</inceptionYear>
 
     <modules>
