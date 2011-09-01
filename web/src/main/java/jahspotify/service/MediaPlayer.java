@@ -79,8 +79,6 @@ public class MediaPlayer
                 {
                     final Link trackEnded = Link.create(uri);
 
-                    _mediaPlayerState = MediaPlayerState.STOPPED;
-
                     _log.debug("End of track: " + trackEnded + (forcedEnd ? " (forced)" : ""));
                     if (!forcedEnd)
                     {
@@ -96,6 +94,7 @@ public class MediaPlayer
                             mediaPlayerListener.trackEnd(_currentTrack, forcedEnd);
                         }
 
+                        _mediaPlayerState = MediaPlayerState.STOPPED;
                         _currentTrack = null;
                         _blockingQueue.add("NEXT");
                     }
