@@ -301,7 +301,7 @@ void* threaded_signalSearchComplete(void *threadarg)
     nativeSearchResult = createInstanceFromJClass(env,g_nativeSearchResultClass);
     
     trackLinkCollection = createInstance(env,"java/util/ArrayList");
-    setObjectObjectField(env,nativeSearchResult,"_tracksFound","Ljava/util/List;",trackLinkCollection);
+    setObjectObjectField(env,nativeSearchResult,"tracksFound","Ljava/util/List;",trackLinkCollection);
     
     numResultsFound = sp_search_num_tracks(search);
     for (index = 0; index < numResultsFound; index++)
@@ -333,7 +333,7 @@ void* threaded_signalSearchComplete(void *threadarg)
     }
     
     albumLinkCollection = createInstance(env,"java/util/ArrayList");
-    setObjectObjectField(env,nativeSearchResult,"_albumsFound","Ljava/util/List;",albumLinkCollection);
+    setObjectObjectField(env,nativeSearchResult,"albumsFound","Ljava/util/List;",albumLinkCollection);
 
     numResultsFound = sp_search_num_albums(search);
     for (index = 0; index < numResultsFound; index++)
@@ -366,7 +366,7 @@ void* threaded_signalSearchComplete(void *threadarg)
         
     
     artistLinkCollection = createInstance(env,"java/util/ArrayList");
-    setObjectObjectField(env,nativeSearchResult,"_artistsFound","Ljava/util/List;",artistLinkCollection);
+    setObjectObjectField(env,nativeSearchResult,"artistsFound","Ljava/util/List;",artistLinkCollection);
     
     numResultsFound = sp_search_num_artists(search);
     for (index = 0; index < numResultsFound; index++)
@@ -397,17 +397,17 @@ void* threaded_signalSearchComplete(void *threadarg)
       }
     }
   
-    setObjectIntField(env,nativeSearchResult,"_totalNumTracks",sp_search_total_tracks(search));
-    setObjectIntField(env,nativeSearchResult,"_trackOffset",sp_search_num_tracks(search));
+    setObjectIntField(env,nativeSearchResult,"totalNumTracks",sp_search_total_tracks(search));
+    setObjectIntField(env,nativeSearchResult,"trackOffset",sp_search_num_tracks(search));
    
-    setObjectIntField(env,nativeSearchResult,"_totalNumAlbums",sp_search_total_albums(search));
-    setObjectIntField(env,nativeSearchResult,"_albumOffset",sp_search_num_albums(search));
+    setObjectIntField(env,nativeSearchResult,"totalNumAlbums",sp_search_total_albums(search));
+    setObjectIntField(env,nativeSearchResult,"albumOffset",sp_search_num_albums(search));
     
-    setObjectIntField(env,nativeSearchResult,"_totalNumArtists",sp_search_total_artists(search));
-    setObjectIntField(env,nativeSearchResult,"_artistOffset",sp_search_num_artists(search));
+    setObjectIntField(env,nativeSearchResult,"totalNumArtists",sp_search_total_artists(search));
+    setObjectIntField(env,nativeSearchResult,"artistOffset",sp_search_num_artists(search));
 
-    setObjectStringField(env,nativeSearchResult,"_query",sp_search_query(search));
-    setObjectStringField(env,nativeSearchResult,"_didYouMean",sp_search_did_you_mean(search));
+    setObjectStringField(env,nativeSearchResult,"query",sp_search_query(search));
+    setObjectStringField(env,nativeSearchResult,"didYouMean",sp_search_did_you_mean(search));
     
     method = (*env)->GetMethodID(env, g_searchCompleteListenerClass, "searchCompleted", "(ILjahspotify/SearchResult;)V");
 
