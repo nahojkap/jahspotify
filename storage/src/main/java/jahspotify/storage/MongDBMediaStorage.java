@@ -1,8 +1,5 @@
 package jahspotify.storage;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import jahspotify.media.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,7 +9,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Qualifier(value = "mongo")
-public class MongDBStorage implements JahStorage
+public class MongDBMediaStorage implements MediaStorage
 {
     @Override
     public void store(final Track track)

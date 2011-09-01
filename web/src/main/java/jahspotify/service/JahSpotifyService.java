@@ -18,7 +18,7 @@ public class JahSpotifyService
 
     @Autowired(required = false)
     @Qualifier(value ="in-memory")
-    private JahStorage _jahStorage;
+    private MediaStorage _mediaStorage;
 
     @PostConstruct
     public void initialize()
@@ -26,9 +26,9 @@ public class JahSpotifyService
         if (_jahSpotifyImpl == null)
         {
             _jahSpotifyImpl = JahSpotifyImpl.getInstance();
-            if (_jahStorage != null)
+            if (_mediaStorage != null)
             {
-                _jahSpotifyImpl.setJahStorage(_jahStorage);
+                _jahSpotifyImpl.setMediaStorage(_mediaStorage);
             }
             if (!_jahSpotifyImpl.isStarted())
             {

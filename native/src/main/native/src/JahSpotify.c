@@ -1433,7 +1433,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
     sp_link *imageLink = sp_link_create_from_string(nativeURI);
     size_t size;
     jclass jClass;
-    int numBytesWritten = -1;
+    int numBytesWritten = 0;
     
     if (imageLink)
     {
@@ -1445,11 +1445,11 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             sp_image_add_ref(image);
 	    sp_image_add_load_callback(image, imageLoadedCallback, NULL);
 	    
-	    int count = 0;
-	    
             if (sp_image_is_loaded(image))
             {
 	      byte *data = (byte*)sp_image_data(image,&size);
+
+	      fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: have image data: len: %d\n", size);
 
 	      jClass = (*env)->FindClass(env,"Ljava/io/OutputStream;");
 	      if (jClass == NULL)
@@ -1485,8 +1485,7 @@ fail:
   
 exit: 
   
-  // Plus one because we start at -1
-  return numBytesWritten+1;
+  return numBytesWritten;
 
 }
 

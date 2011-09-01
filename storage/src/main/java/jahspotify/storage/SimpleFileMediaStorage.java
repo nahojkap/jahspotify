@@ -1,8 +1,6 @@
 package jahspotify.storage;
 
 import java.io.*;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Qualifier(value = "simple-file")
-public class SimpleFileStorage implements JahStorage
+public class SimpleFileMediaStorage implements MediaStorage
 {
     @Value(value="${jahspotify.storage.simple-file-based.directory}")
     private String _baseDirectoryStr = "/var/lib/jahspotify/simple-file-storage/";
@@ -28,7 +26,7 @@ public class SimpleFileStorage implements JahStorage
     private File _imageBaseDirectory;
     private File _playlistBaseDirectory;
 
-    private Log _log = LogFactory.getLog(SimpleFileStorage.class);
+    private Log _log = LogFactory.getLog(SimpleFileMediaStorage.class);
 
     @PostConstruct
     public void initialize()

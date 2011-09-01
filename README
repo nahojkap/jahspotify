@@ -28,11 +28,13 @@ on the http://developer.spotify.com website.  Generate the key and download the 
 in a file called AppKey.h in the native/src/main/native/inc directory.  You may want to place some #ifndef APPKEY
 statements in this to prevent linking problems.
 
-Next, to build the sources, check 'em out from git
+Next, to build the sources, check them out from git
 
 git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
 mvn clean install
+
+NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
 
 ---- Modules -----
 
@@ -71,5 +73,8 @@ Resume play: http://localhost:8080/jahspotify/player/play
 There are other URLs - please examine the web module for them.
 
 NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
-NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
 
+Discussions and other:
+
+For now, there is nothing concrete setup but try the issues page on github, contacting me on github.  Also found at times
+on freenode - #jahspotify.

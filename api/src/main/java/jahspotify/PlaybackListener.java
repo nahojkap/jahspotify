@@ -1,11 +1,13 @@
 package jahspotify;
 
+import jahspotify.media.Link;
+
 /**
  * @author Johan Lindquist
  */
 public interface PlaybackListener
 {
-    public void trackStarted(String uri);
-    public void trackEnded(String uri, boolean forcedEnd);
-    public String nextTrackToPreload();
+    public void trackStarted(Link link);
+    public void trackEnded(Link link, boolean forcedEnd);
+    public Link nextTrackToPreload();
 }

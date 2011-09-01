@@ -93,7 +93,7 @@
 
                         $('#jahspotify_current_track_album').empty();
                         $('<span/>', {
-                            html: '<a href="album/"' + data.id.id + "'>" + data.name + '</a>'
+                            html: '<a href="album/"' + data.id + "'>" + data.name + '</a>'
                         }).appendTo("#jahspotify_current_track_album");
 
 
@@ -220,14 +220,6 @@
             </table>
         </div>
 
-    </div>
-
-    <div id="jahspotify_play_controller_container">
-        <p><img id="playback_button" src="images/playback-start-32x32.png" onclick="return false;" alt="[Play/Pause]" title="[Play/Pause]"> <img title="[Skip]" alt="[Skip]"
-                id="skip_button" src="images/skip-forward-32x32.png" onclick="return false;"></p>
-    </div>
-
-    <div id="jahspotify_queue_container">
     </div>
 
     <div class="footer">
