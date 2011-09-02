@@ -219,50 +219,76 @@ public class Track extends Media
         this.explicit = explicit;
     }
 
-
-    /**
-     * Determines if an object is equal to this {@link Track} object.
-     * If both objects are {@link Track} objects, it will compare their identifiers.
-     *
-     * @param o Another object to compare.
-     * @return true of the objects are equal, false otherwise.
-     */
-    public boolean equals(Object o)
+    @Override
+    public boolean equals(final Object o)
     {
-        if (o instanceof Track)
+        if (this == o)
         {
-            Track t = (Track) o;
-
-            if (this.id.equals(t.id))
-            {
-                return true;
-            }
-
-            for (String id : this.redirects)
-            {
-                if (id.equals(t.id))
-                {
-                    return true;
-                }
-            }
+            return true;
+        }
+        if (!(o instanceof Track))
+        {
+            return false;
         }
 
-        return false;
+        final Track track = (Track) o;
+
+        if (explicit != track.explicit)
+        {
+            return false;
+        }
+        if (length != track.length)
+        {
+            return false;
+        }
+        if (trackNumber != track.trackNumber)
+        {
+            return false;
+        }
+        if (album != null ? !album.equals(track.album) : track.album != null)
+        {
+            return false;
+        }
+        if (artists != null ? !artists.equals(track.artists) : track.artists != null)
+        {
+            return false;
+        }
+        if (cover != null ? !cover.equals(track.cover) : track.cover != null)
+        {
+            return false;
+        }
+        if (title != null ? !title.equals(track.title) : track.title != null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    /**
-     * Return the hash code of this {@link Track} object. This will give the value returned
-     * by the {@code hashCode} method of the identifier string.
-     *
-     * @return The {@link Track} objects hash code.
-     */
+    @Override
     public int hashCode()
     {
-        return (this.id != null) ? this.id.hashCode() : 0;
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (artists != null ? artists.hashCode() : 0);
+        result = 31 * result + (album != null ? album.hashCode() : 0);
+        result = 31 * result + trackNumber;
+        result = 31 * result + length;
+        result = 31 * result + (cover != null ? cover.hashCode() : 0);
+        result = 31 * result + (explicit ? 1 : 0);
+        return result;
     }
 
+    @Override
     public String toString()
     {
-        return String.format("[Track: %s, %s, %s]", this.artists, this.album, this.title);
+        return "Track{" +
+                "album=" + album +
+                ", title='" + title + '\'' +
+                ", artists=" + artists +
+                ", trackNumber=" + trackNumber +
+                ", length=" + length +
+                ", cover='" + cover + '\'' +
+                ", explicit=" + explicit +
+                "} " + super.toString();
     }
 }

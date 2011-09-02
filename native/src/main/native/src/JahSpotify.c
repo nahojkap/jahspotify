@@ -1180,7 +1180,16 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
                 }
             }
 
-            // sp_artistbrowse_num_albums()
+            int numAlbums = sp_artistbrowse_num_albums(artistBrowse);
+	    if (numAlbums > 0)
+	    {
+	      int count = 0;
+	      for (count = 0; count < numAlbums; count++)
+	      {
+		sp_album *album = sp_artistbrowse_album(artistBrowse,count);
+	      }
+	    }
+
             // sp_artistbrowse_album()
 
             const char *bios = sp_artistbrowse_biography(artistBrowse);

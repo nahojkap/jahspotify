@@ -7,7 +7,7 @@ import java.util.concurrent.locks.*;
 
 import jahspotify.*;
 import jahspotify.media.*;
-import jahspotify.storage.MediaStorage;
+import jahspotify.media.MediaStorage;
 import org.apache.commons.logging.*;
 
 /**

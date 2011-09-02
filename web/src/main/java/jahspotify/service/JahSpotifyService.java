@@ -4,7 +4,7 @@ import javax.annotation.*;
 
 import jahspotify.JahSpotify;
 import jahspotify.impl.JahSpotifyImpl;
-import jahspotify.storage.*;
+import jahspotify.media.MediaStorage;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 

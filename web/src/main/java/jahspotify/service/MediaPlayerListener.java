@@ -1,7 +1,5 @@
 package jahspotify.service;
 
-import jahspotify.web.QueuedTrack;
-
 /**
  * @author Johan Lindquist
  */

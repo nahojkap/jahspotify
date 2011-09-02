@@ -6,6 +6,9 @@ import javax.servlet.http.*;
 import jahspotify.media.Link;
 import jahspotify.service.*;
 import jahspotify.service.QueueConfiguration;
+import jahspotify.web.queue.*;
+import jahspotify.web.queue.QueueStatus;
+import jahspotify.web.system.SystemStatus;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -148,7 +151,7 @@ public class QueueController extends BaseController
 
     private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final jahspotify.service.CurrentQueue currentQueue)
     {
-        final CurrentQueue currentCurrentQueue = new CurrentQueue();
+        final jahspotify.web.queue.CurrentQueue currentCurrentQueue = new jahspotify.web.queue.CurrentQueue();
 
         final QueueTrack currentlyPlaying = currentQueue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
@@ -203,7 +206,7 @@ public class QueueController extends BaseController
     public void readQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
-        final jahspotify.web.QueueConfiguration webQueueConfiguration = new jahspotify.web.QueueConfiguration();
+        final jahspotify.web.queue.QueueConfiguration webQueueConfiguration = new jahspotify.web.queue.QueueConfiguration();
         webQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
         webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
         webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
@@ -216,14 +219,14 @@ public class QueueController extends BaseController
     {
         try
         {
-            final jahspotify.web.QueueConfiguration webQueueConfiguration = readRequest(httpServletRequest, jahspotify.web.QueueConfiguration.class);
+            final jahspotify.web.queue.QueueConfiguration webQueueConfiguration = readRequest(httpServletRequest, jahspotify.web.queue.QueueConfiguration.class);
             final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
 
 
             _queueManager.setQueueConfiguration(Link.create("jahspotify:queue:default"), mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
 
             final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
-            final jahspotify.web.QueueConfiguration newWebQueueConfiguration = new jahspotify.web.QueueConfiguration();
+            final jahspotify.web.queue.QueueConfiguration newWebQueueConfiguration = new jahspotify.web.queue.QueueConfiguration();
             newWebQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
             newWebQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
             newWebQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
@@ -240,7 +243,7 @@ public class QueueController extends BaseController
         }
     }
 
-    private QueueConfiguration mergeConfigurations(final jahspotify.web.QueueConfiguration webQueueConfiguration, final QueueConfiguration currentQueueConfiguration)
+    private QueueConfiguration mergeConfigurations(final jahspotify.web.queue.QueueConfiguration webQueueConfiguration, final QueueConfiguration currentQueueConfiguration)
     {
         final QueueConfiguration queueConfiguration = new QueueConfiguration();
         queueConfiguration.setRepeatCurrentQueue(webQueueConfiguration.isRepeatCurrentQueue());
@@ -254,7 +257,7 @@ public class QueueController extends BaseController
     {
         Link uri = retrieveLink(httpServletRequest);
         final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(uri);
-        final jahspotify.web.QueueConfiguration webQueueConfiguration = new jahspotify.web.QueueConfiguration();
+        final jahspotify.web.queue.QueueConfiguration webQueueConfiguration = new jahspotify.web.queue.QueueConfiguration();
         webQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
         webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
         webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
@@ -265,6 +268,7 @@ public class QueueController extends BaseController
     {
         QueueStatus webQueueStatus = new QueueStatus();
 
+        webQueueStatus.setQueueState(convertToQueueStatus(queueStatus.getMediaPlayerState()));
         webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
         webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
         webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getMediaPlayerState().name()));
@@ -274,6 +278,21 @@ public class QueueController extends BaseController
         webQueueStatus.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
 
         return webQueueStatus;
+    }
+
+    private QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    {
+        switch (mediaPlayerState)
+        {
+            case PAUSED:
+                return QueueState.PAUSED;
+            case PLAYING:
+                return QueueState.PLAYING;
+            case STOPPED:
+                return QueueState.STOPPED;
+            default:
+                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
+        }
     }
 
     @RequestMapping(value = "/system/intialize", method = RequestMethod.POST)

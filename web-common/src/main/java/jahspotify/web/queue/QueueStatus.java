@@ -1,4 +1,6 @@
-package jahspotify.web;
+package jahspotify.web.queue;
+
+import jahspotify.web.queue.QueueState;
 
 /**
  * @author Johan Lindquist

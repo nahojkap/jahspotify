@@ -1,4 +1,4 @@
-package jahspotify.web;
+package jahspotify.web.queue;
 
 /**
  * @author Johan Lindquist

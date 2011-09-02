@@ -26,6 +26,7 @@ public class QueueManager
     private int _maxQueueSize;
     private int _numTracksPlayed;
     private int _numTracksSkipped;
+    private int _numTrackCompleted;
     private int _totalPlayTime;
 
     private long _currentTrackStart;
@@ -65,6 +66,7 @@ public class QueueManager
                 _log.debug("Track start signalled: " + queueTrack);
                 _currentTrackStart = System.currentTimeMillis();
                 _currentTrack = queueTrack;
+                _numTracksPlayed++;
             }
 
             @Override
@@ -74,11 +76,14 @@ public class QueueManager
                 {
                     final Link trackEnded = queueTrack.getTrackUri();
 
-                    _numTracksPlayed++;
                     _totalPlayTime += ((System.currentTimeMillis() - _currentTrackStart) / 1000);
                     if (forcedEnd)
                     {
                         _numTracksSkipped++;
+                    }
+                    else
+                    {
+                        _numTrackCompleted++;
                     }
 
                     _log.debug("End of track: " + trackEnded + (forcedEnd ? " (forced)" : ""));
@@ -318,7 +323,7 @@ public class QueueManager
         final QueueStatus queueStatus = new QueueStatus();
         queueStatus.setMediaPlayerState(_mediaPlayer.getMediaPlayerState());
         queueStatus.setTotalTracksPlayed(_numTracksPlayed);
-        queueStatus.setTotalTracksCompleted(_numTracksPlayed - _numTracksSkipped);
+        queueStatus.setTotalTracksCompleted(_numTrackCompleted);
         queueStatus.setTotalTracksSkipped(_numTracksSkipped);
         queueStatus.setTotalPlaytime(_totalPlayTime + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - _currentTrackStart) / 1000 : 0));
         queueStatus.setCurrentQueueSize(_uriQueue.size());

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class MediaPlayer
 {
     private JahSpotifyImpl _jahSpotify;
-    private MediaPlayerState _mediaPlayerState;
+    private MediaPlayerState _mediaPlayerState = MediaPlayerState.STOPPED;
     private Log _log = LogFactory.getLog(MediaPlayer.class);
     private BlockingQueue<Integer> _commandQueue = new ArrayBlockingQueue<Integer>(1, true);
     private QueueTrack _currentTrack;
@@ -100,6 +100,12 @@ public class MediaPlayer
                 try
                 {
                     _log.debug("End of track: " + link + (forcedEnd ? " (forced)" : ""));
+
+                    for (final MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
+                    {
+                        mediaPlayerListener.trackEnd(_currentTrack, forcedEnd);
+                    }
+
                     if (!forcedEnd)
                     {
                         if (_currentTrack == null)
@@ -118,6 +124,7 @@ public class MediaPlayer
                         _currentTrack = null;
                         _commandQueue.add(QUEUE_NEXT);
                     }
+
                 }
                 catch (Exception e)
                 {
