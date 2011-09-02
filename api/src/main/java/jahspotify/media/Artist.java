@@ -18,7 +18,7 @@ public class Artist extends Media
     /**
      * The identifier for this artists portrait image (40-character string).
      */
-    private Link portrait;
+    private List<Link> portraits;
 
     /**
      * A {@link List} of genres.
@@ -40,6 +40,11 @@ public class Artist extends Media
      */
     private List<Link> albums;
 
+     /**
+     * A {@link List} of tracks.
+     */
+    private List<Link> tracks;
+
     /**
      * A {@link List} of similar artists.
      */
@@ -51,7 +56,7 @@ public class Artist extends Media
     public Artist()
     {
         this.name = null;
-        this.portrait = null;
+        this.portraits = new ArrayList<Link>();
         this.genres = new ArrayList<String>();
         this.yearsActive = new ArrayList<String>();
         this.bios = null;
@@ -82,21 +87,35 @@ public class Artist extends Media
     /**
      * Get the artists portrait image identifier.
      *
-     * @return A 40-character hex string.
+     * @return A list of image links
      */
-    public Link getPortrait()
+    public List<Link> getPortraits()
     {
-        return this.portrait;
+        return this.portraits;
     }
 
     /**
      * Set the artists portrait image identifier.
      *
-     * @param portrait A 40-character hex string.
+     * @param portraits A list of image links
      */
-    public void setPortrait(Link portrait)
+    public void setPortraits(List<Link> portraits)
     {
-        this.portrait = portrait;
+        this.portraits = portraits;
+    }
+
+    /**
+     * Adds a artist portrait image identifier.
+     *
+     * @param portrait An image links
+     */
+    public void addPortrait(Link portrait)
+    {
+        if (this.portraits == null)
+        {
+            this.portraits = new ArrayList<Link>();
+        }
+        portraits.add(portrait);
     }
 
     /**
@@ -177,6 +196,16 @@ public class Artist extends Media
     public void setAlbums(List<Link> albums)
     {
         this.albums = albums;
+    }
+
+
+    public void addAlbum(Link album)
+    {
+        if (albums == null)
+        {
+            albums = new ArrayList<Link>();
+        }
+        albums.add(album);
     }
 
     /**

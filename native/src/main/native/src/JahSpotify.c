@@ -1107,7 +1107,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method setAlbum(link) on class Track\n");
+                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addSimilarArtist(link) on class Artist\n");
                     return NULL;
                 }
 
@@ -1143,39 +1143,55 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
             if (numPortraits > 0)
             {
-                // Load portrait url
-                const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,0);
+                jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addPortrait","(Ljahspotify/media/Link;)V");
 
-                if (portraitURI)
+                if (jMethod == NULL)
                 {
-                    char *portraitURIStr = toHexString((byte*)portraitURI);
-                    const char spotifyURI[] = "spotify:image:";
-                    int len = strlen(spotifyURI) + strlen(portraitURIStr);
-                    char *dest = calloc(1, len+1);
-                    dest[0] = 0;
-                    strcat(dest,spotifyURI);
-                    strcat(dest,portraitURIStr);
+                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addAlbum(link) on class Artist\n");
+                    return NULL;
+                }
 
-                    sp_link *portraitLink = sp_link_create_from_string(dest);
+                int count = 0;
+                
+                for (count = 0; count < numPortraits; count++)
+                {
+                    // Load portrait url
+                    const byte *portraitURI = sp_artistbrowse_portrait(artistBrowse,count);
 
-		    sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
-		    if (portrait)
-		    {
-		      sp_image_add_ref(portrait);
-		      sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
-		    }
-		    
-                    free(dest);
-                    free(portraitURIStr);
-
-                    if (portraitLink)
+                    if (portraitURI)
                     {
-                        sp_link_add_ref(portraitLink);
+                        char *portraitURIStr = toHexString((byte*)portraitURI);
+                        const char spotifyURI[] = "spotify:image:";
+                        int len = strlen(spotifyURI) + strlen(portraitURIStr);
+                        char *dest = calloc(1, len+1);
+                        dest[0] = 0;
+                        strcat(dest,spotifyURI);
+                        strcat(dest,portraitURIStr);
+                        
+                        sp_link *portraitLink = sp_link_create_from_string(dest);
+                        if (portraitLink)
+                        {
+                            sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
+                            if (portrait)
+                            {
+                                sp_image_add_ref(portrait);
+                                sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
+                            }
+                            
+                            sp_link_add_ref(portraitLink);
 
-                        jobject portraitJLlink = createJLinkInstance(env,portraitLink);
-                        setObjectObjectField(env,artistInstance,"portrait","Ljahspotify/media/Link;",portraitJLlink);
+                            jobject portraitJLlink = createJLinkInstance(env,portraitLink);
 
-                        sp_link_release(portraitLink);
+                            // setObjectObjectField(env,artistInstance,"portrait","Ljahspotify/media/Link;",portraitJLlink);
+                            (*env)->CallVoidMethod(env,artistInstance,jMethod,portraitJLlink);
+
+                            sp_link_release(portraitLink);
+                        }
+
+                        
+                        free(dest);
+                        free(portraitURIStr);
+
                     }
                 }
             }
@@ -1183,23 +1199,40 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
             int numAlbums = sp_artistbrowse_num_albums(artistBrowse);
 	    if (numAlbums > 0)
 	    {
-	      int count = 0;
-	      for (count = 0; count < numAlbums; count++)
-	      {
-		sp_album *album = sp_artistbrowse_album(artistBrowse,count);
-	      }
-	    }
+                jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addAlbum","(Ljahspotify/media/Link;)V");
 
-            // sp_artistbrowse_album()
+                if (jMethod == NULL)
+                {
+                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addAlbum(link) on class Artist\n");
+                    return NULL;
+                }
+                
+                int count = 0;
+                for (count = 0; count < numAlbums; count++)
+                {
+                    sp_album *album = sp_artistbrowse_album(artistBrowse,count);
+                    if (album)
+                    {
+                        sp_album_add_ref(album);
+                        sp_link *albumLink = sp_link_create_from_album(album);
+                        if (albumLink)
+                        {
+                            sp_link_add_ref(albumLink);
+                            jobject albumJLink = createJLinkInstance(env,albumLink);
+                            // set it on the track
+                            (*env)->CallVoidMethod(env,artistInstance,jMethod,albumJLink);
+                            sp_link_release(albumLink);
+                        }
+                        sp_album_release(album);
+                    }
+                }
+	    }
 
             const char *bios = sp_artistbrowse_biography(artistBrowse);
 	    if (bios)
 	    {
 	      setObjectStringField(env,artistInstance,"bios",bios);
 	    }
-
-            // sp_artistbrowse_num_tracks()
-            // sp_artistbrowse_track()
 
             sp_artistbrowse_release(artistBrowse);
         }

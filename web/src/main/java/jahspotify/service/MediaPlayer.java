@@ -115,11 +115,6 @@ public class MediaPlayer
                             return;
                         }
 
-                        for (final MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
-                        {
-                            mediaPlayerListener.trackEnd(_currentTrack, forcedEnd);
-                        }
-
                         _mediaPlayerState = MediaPlayerState.STOPPED;
                         _currentTrack = null;
                         _commandQueue.add(QUEUE_NEXT);
