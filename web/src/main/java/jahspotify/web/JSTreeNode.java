@@ -7,7 +7,8 @@ import java.util.*;
  */
 public class JSTreeNode
 {
-    private String data;
+    private JSTreeNodeData data;
+    private String title;
     private Map<String, String> attr;
     private String state;
     private List<JSTreeNode> children = new ArrayList<JSTreeNode>();
@@ -15,6 +16,16 @@ public class JSTreeNode
     public Map<String,String> getAttr()
     {
         return attr;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public void setTitle(final String title)
+    {
+        this.title = title;
     }
 
     public void setAttr(final Map<String, String> attr)
@@ -37,12 +48,12 @@ public class JSTreeNode
         this.children = children;
     }
 
-    public String getData()
+    public JSTreeNodeData getData()
     {
         return data;
     }
 
-    public void setData(final String data)
+    public void setData(final JSTreeNodeData data)
     {
         this.data = data;
     }
@@ -55,5 +66,42 @@ public class JSTreeNode
     public void setState(final String state)
     {
         this.state = state;
+    }
+
+    public static class JSTreeNodeData
+    {
+        private String title;
+        private String icon;
+        private Map<String, String> attr;
+
+        public Map<String, String> getAttr()
+        {
+            return attr;
+        }
+
+        public void setAttr(final Map<String, String> attr)
+        {
+            this.attr = attr;
+        }
+
+        public String getIcon()
+        {
+            return icon;
+        }
+
+        public void setIcon(final String icon)
+        {
+            this.icon = icon;
+        }
+
+        public String getTitle()
+        {
+            return title;
+        }
+
+        public void setTitle(final String title)
+        {
+            this.title = title;
+        }
     }
 }

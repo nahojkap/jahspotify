@@ -204,7 +204,7 @@ public class JahSpotifyImpl implements JahSpotify
             public void startFolder(final String folderName, final long folderID)
             {
                 _nodeStack.push(_currentPlaylistFolderNode);
-                _currentPlaylistFolderNode = new PlaylistFolderNode(Long.toString(folderID), folderName);
+                _currentPlaylistFolderNode = new PlaylistFolderNode(Link.createFolderLink(folderID).getId(), folderName);
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -607,6 +607,91 @@ public class JahSpotifyImpl implements JahSpotify
     public void addSearchListener(final SearchListener searchListener)
     {
         _searchListeners.add(searchListener);
+    }
+
+    @Override
+    public Library.Entry readFolder(final Link uri, final int level)
+    {
+        Library library = retrieveLibrary();
+        if (library == null)
+        {
+            return null;
+        }
+
+        if (uri.getFolderId() == 0)
+        {
+            Library.Entry rootEntry = new Library.Entry("jahspotify:folder:ROOT","ROOT",Library.Entry.FOLDER_ENTRY_TYPE);
+            rootEntry.setSubEntries(library.getEntries());
+            return trimToLevel(rootEntry,1,level);
+        }
+
+        for (Library.Entry entry : library.getEntries())
+        {
+            Library.Entry folderEntry = findFolder(entry, uri);
+            if (folderEntry != null)
+            {
+                return trimToLevel(folderEntry,1,level);
+            }
+        }
+        return null;
+    }
+
+    private Library.Entry trimToLevel(final Library.Entry folderEntry, final int currentLevel, final int level)
+    {
+        if (level == 0)
+        {
+            return folderEntry;
+        }
+
+        final List<Library.Entry> strippedSubEntries = new ArrayList<Library.Entry>();
+        if (level == currentLevel)
+        {
+            // Remove all children of any sub-entries now
+            for (Library.Entry entry : folderEntry.getSubEntries())
+            {
+                strippedSubEntries.add(new Library.Entry(entry.getId(),entry.getName(), entry.getType()));
+            }
+        }
+        else
+        {
+            for (Library.Entry entry : folderEntry.getSubEntries())
+            {
+                strippedSubEntries.add(trimToLevel(entry,currentLevel+1,level));
+            }
+        }
+
+        final Library.Entry entry = new Library.Entry(folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        entry.setSubEntries(strippedSubEntries);
+        return entry;
+    }
+
+    private Library.Entry findFolder(final Library.Entry rootEntry, final Link uri)
+    {
+        if (isFolderMatch(rootEntry, uri))
+        {
+            return rootEntry;
+        }
+        for (Library.Entry entry : rootEntry.getSubEntries())
+        {
+            Library.Entry foundEntry = findFolder(entry,uri);
+            if (foundEntry != null)
+            {
+                return foundEntry;
+            }
+        }
+        return null;
+    }
+
+    private boolean isFolderMatch(final Library.Entry rootEntry, final Link uri)
+    {
+        if (rootEntry.getType().equals(Library.Entry.FOLDER_ENTRY_TYPE))
+        {
+            if (rootEntry.getId().equals(uri.getId()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Library retrieveLibrary()

@@ -22,15 +22,10 @@
     function customMenu(node) {
 
         // The default set of all items
+        label = (node.attr("rel") == "folder" ? "Queue Folder" : (node.attr("rel") == "playlist" ? "Queue Playlist" : "Queue Track"));
         var items = {
             "queue" : {
-                "label" : "Queue Track",
-               /* "action" : function (obj)
-                {
-                    $.getJSON('add-to-queue/' + obj.o.attr("id"), function(addToQueueData)
-                    {
-                    });
-                }*/
+                "label" : label,
 
                 visible : function (NODE, TREE_OBJ) {
                     // return -1 for not visible
@@ -103,7 +98,8 @@
                     {
                         alert("Error: " + e);
                     }
-                }
+                },
+                "progressive_render" : false
             },
             rules : {
                 deletable : "none",

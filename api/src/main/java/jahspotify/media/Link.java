@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.regex.*;
 
-import jahspotify.util.BaseConvert;
+import jahspotify.util.*;
 
 /**
  * Represents a link (Spotify or Jah'Spotify URI) to a media object.
@@ -46,7 +46,7 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -122,6 +122,13 @@ public class Link
     private static final Pattern jahMP3Pattern = Pattern.compile("jahspotify:mp3:([^\\s]+)");
 
     /**
+     * A regular expression to match Spotify folder URIs:
+     * <p/>
+     * <pre>jahspotify:folder:([^\\s]+)</pre>
+     */
+    private static final Pattern jahFolderPattern = Pattern.compile("jahspotify:folder:(ROOT|([0-9A-Za-z]{16}))");
+
+    /**
      * The {@link Link.Type} of this link.
      */
     private Type type;
@@ -146,6 +153,8 @@ public class Link
     private String queueId;
 
     private String uri;
+
+    private long folderId;
 
     /**
      * Create a {@link Link} using the given parameters.
@@ -180,6 +189,7 @@ public class Link
         Matcher jahQueueMatcher = jahQueuePattern.matcher(uri);
         Matcher jahPodcastMatcher = jahPodcastPattern.matcher(uri);
         Matcher jahMp3Matcher = jahMP3Pattern.matcher(uri);
+        Matcher jahFolderMatcher = jahFolderPattern.matcher(uri);
 
         /* Check if URI matches artist/album/track pattern. */
         if (mediaMatcher.matches())
@@ -260,11 +270,34 @@ public class Link
             this.id = uri;
             this.uri = jahMp3Matcher.group(1);
         }
+        else if (jahFolderMatcher.matches())
+        {
+            this.type = Type.FOLDER;
+            this.id = uri;
+            final String group = jahFolderMatcher.group(1);
+            if (group.equals("ROOT"))
+            {
+                this.folderId = 0;
+            }
+            else
+            {
+                this.folderId = Hex.hexToLong(group);
+            }
+        }
         /* If nothing was matched. */
         else
         {
             throw new InvalidSpotifyURIException("Invalid URI: " + uri);
         }
+    }
+
+    public static Link createFolderLink(final long folderID)
+    {
+        if (folderID == 0)
+        {
+            return new Link("jahspotify:folder:ROOT");
+        }
+        return new Link("jahspotify:folder:" + Hex.toHex(folderID,8));
     }
 
     /**
@@ -290,6 +323,11 @@ public class Link
     public boolean isArtistLink()
     {
         return this.type.equals(Type.ARTIST);
+    }
+
+    public long getFolderId()
+    {
+        return folderId;
     }
 
     /**
@@ -350,6 +388,16 @@ public class Link
     public boolean isQueueLink()
     {
         return this.type.equals(Type.QUEUE);
+    }
+
+    /**
+     * Check if this link is a folder link.
+     *
+     * @return true if this link is a folder link, false otherwise.
+     */
+    public boolean isFolderLink()
+    {
+        return this.type.equals(Type.FOLDER);
     }
 
     /**

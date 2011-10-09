@@ -140,4 +140,5 @@ public interface JahSpotify
      */
     public void addSearchListener(SearchListener searchListener);
 
+    public Library.Entry readFolder(Link uri, final int level);
 }

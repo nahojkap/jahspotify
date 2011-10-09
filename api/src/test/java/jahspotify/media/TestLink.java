@@ -33,5 +33,14 @@ public class TestLink extends TestCase
         assertEquals("bad type", Link.Type.MP3,link.getType());
         assertEquals("bad uri","http://www.localhost/",link.getUri());
 
+        link = Link.create("jahspotify:folder:0000000000000001");
+        assertNotNull("no link created", link);
+        assertEquals("bad type", Link.Type.FOLDER,link.getType());
+
+         link = Link.create("jahspotify:folder:ROOT");
+        assertNotNull("no link created", link);
+        assertEquals("bad type", Link.Type.FOLDER,link.getType());
+
+
     }
 }

@@ -8,17 +8,17 @@ Jah'Spotify is a simple Java wrapper built on top of the Spotify native APIs (li
 
 Currently supports:
 
-- retrieving library (all user playlists)
+- retrieving library (all user playlists/folders)
 - retrieve a playlist
+- retrieve a folder (including/excluding sub-folders and playlists)
 - retrieve an album
 - retrieve a track
 - retrieve an image
 - add tracks to a queue
 - play tracks
-- pause/skip/play functions
+- pause/skip functions
 
-All the above functions are accessible over a JSON based RESTful API.  This is very much work in progress and will
-most likely change over time.
+All the above functions are accessible over a JSON based RESTful API.
 
 ---- To build -----
 
@@ -43,6 +43,7 @@ NOTE: You need to add the SpringSource Enterprise Bundle Repository to your mave
 - web: provides the RESTful API (json based)
 - web-client: provides java client for interacting with the RESTful API
 - web-common: provides the java beans which are serialized over the RESTful API
+- storage: provides basic storage implementations for caching media objects (tracks/images/etc)
 
 ---- REST API -----
 
@@ -55,6 +56,7 @@ NOTE: The username and password can also be specified in your settings.xml
 http://localhost:8080/jahspotify/status.html
 
 Library retrieval: http://localhost:8080/jahspotify/library/
+Folder retrieval: http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
 Playlist retrieval: http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
 Album retrieval: http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
 Artist retrieval: http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR

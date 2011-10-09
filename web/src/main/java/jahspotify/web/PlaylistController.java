@@ -37,6 +37,43 @@ public class PlaylistController extends BaseController
         }
     }
 
+    @RequestMapping(value = "/folder/*", method = RequestMethod.GET)
+    public void retrieveFolder(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        try
+        {
+            final Link uri = retrieveLink(httpServletRequest);
+
+            int level = (httpServletRequest.getParameter("level") == null ? 0 : Integer.parseInt(httpServletRequest.getParameter("level")));
+
+            _log.debug("Retriving folder:" + uri + " (to level " + level +")");
+            Library.Entry folderEntry = _jahSpotifyService.getJahSpotify().readFolder(uri, level);
+            _log.debug("Got folder: " + folderEntry);
+
+            JSTreeNode rootNode = new JSTreeNode();
+            rootNode.setState("open");
+            final JSTreeNode.JSTreeNodeData jsTreeNodeData = new JSTreeNode.JSTreeNodeData();
+            jsTreeNodeData.setTitle(folderEntry.getName());
+            rootNode.setData(jsTreeNodeData);
+            final HashMap<String, String> attr = new HashMap<String, String>();
+            attr.put("id", folderEntry.getId());
+            rootNode.setAttr(attr);
+
+            final List<Library.Entry> children = folderEntry.getSubEntries();
+            for (Library.Entry child : children)
+            {
+                rootNode.addChild(processEntry(child));
+            }
+
+            writeResponseGeneric(httpServletResponse, rootNode);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
     public void retrieveLibrary(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
@@ -44,7 +81,9 @@ public class PlaylistController extends BaseController
 
         JSTreeNode rootNode = new JSTreeNode();
         rootNode.setState("open");
-        rootNode.setData("ROOT");
+        final JSTreeNode.JSTreeNodeData data = new JSTreeNode.JSTreeNodeData();
+        data.setTitle("ROOT");
+        rootNode.setData(data);
         final HashMap<String, String> attr = new HashMap<String, String>();
         attr.put("id", "ROOT");
         rootNode.setAttr(attr);
@@ -65,10 +104,12 @@ public class PlaylistController extends BaseController
         JSTreeNode jsTreeNode = new JSTreeNode();
         // Retrieve the playlist
 
-        jsTreeNode.setData(entry.getName());
+        final JSTreeNode.JSTreeNodeData data = new JSTreeNode.JSTreeNodeData();
+        data.setTitle(entry.getName());
+        jsTreeNode.setData(data);
         Map<String, String> map = new HashMap<String, String>();
         map.put("id", entry.getId());
-        map.put("rel",entry.getType());
+        map.put("rel", entry.getType());
         jsTreeNode.setAttr(map);
 
         for (Library.Entry subEntry : entry.getSubEntries())
