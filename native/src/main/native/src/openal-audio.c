@@ -38,14 +38,20 @@
 
 #define NUM_BUFFERS 3
 
+static ALuint source;
+
+
 static void error_exit(const char *msg)
 {
     puts(msg);
     exit(1);
 }
 
+
+
 void audio_close()
 {
+    
     ALCdevice *device = NULL;
     ALCcontext *context = NULL;
     // Exit
@@ -60,6 +66,21 @@ void audio_close()
     }
 
 }
+
+float getAudioGain()
+{
+    // FIXME: should check for NULL source (not initialized)
+    ALfloat currentGain;
+    alGetSourcef(source, AL_GAIN, &currentGain);
+    return currentGain;
+}
+
+void setAudioGain(float gain)
+{
+    // FIXME: should check for NULL source (not initialized)
+    alSourcef(source, AL_GAIN, gain);
+}
+
 
 static int queue_buffer(ALuint source, audio_fifo_t *af, ALuint buffer)
 {
@@ -83,11 +104,11 @@ static void* audio_start(void *aux)
     ALCdevice *device = NULL;
     ALCcontext *context = NULL;
     ALuint buffers[NUM_BUFFERS];
-    ALuint source;
     ALint processed;
     ALenum error;
     ALint rate;
     ALint channels;
+    
     device = alcOpenDevice(NULL); /* Use the default device */
     if (!device) error_exit("failed to open device");
     context = alcCreateContext(device, NULL);
