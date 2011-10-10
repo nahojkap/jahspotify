@@ -374,6 +374,11 @@ public class QueueManager
         }
     }
 
+    /*public List<QueueTrack> getQueue(QueueCriteria queueCriteria)
+    {
+
+    }*/
+
     public CurrentQueue shuffle(final Link uri)
     {
         _queueLock.lock();

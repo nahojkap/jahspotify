@@ -1,8 +1,9 @@
-package jahspotify.statistics;
+package jahspotify.storage.statistics;
 
 import java.util.List;
 
 import jahspotify.media.Link;
+import jahspotify.storage.statistics.*;
 
 /**
  * @author Johan Lindquist

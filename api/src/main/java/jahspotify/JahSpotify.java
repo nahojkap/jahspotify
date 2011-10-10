@@ -55,20 +55,6 @@ public interface JahSpotify
      */
     public Playlist readPlaylist(Link link);
 
-    /** Read the information for the specified artist.
-     *
-     * @param links The link for the artist in question
-     * @return The read artist or null if it could not be read
-     */
-    public List<Track> readTracks(List<Link> links);
-
-    /** Read the information for the specified artist.
-     *
-     * @param links The link for the artist in question
-     * @return The read artist or null if it could not be read
-     */
-    public List<Track> readTracks(Link... links);
-
     /** Retrieves the library for the currently logged in user.  This will retrieve all playlists and playlist folders
      * for the user.
      *

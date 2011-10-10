@@ -1,4 +1,4 @@
-package jahspotify.media;
+package jahspotify.storage.media;
 
 import jahspotify.media.*;
 

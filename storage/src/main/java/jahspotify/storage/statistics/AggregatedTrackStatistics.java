@@ -1,6 +1,4 @@
-package jahspotify.statistics;
-
-import java.util.Date;
+package jahspotify.storage.statistics;
 
 /**
  * @author Johan Lindquist

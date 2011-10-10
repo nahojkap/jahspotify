@@ -1,6 +1,7 @@
-package jahspotify.storage;
+package jahspotify.storage.media;
 
 import jahspotify.media.*;
+import jahspotify.storage.media.MediaStorage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

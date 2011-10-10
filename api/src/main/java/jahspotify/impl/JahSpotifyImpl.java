@@ -7,7 +7,6 @@ import java.util.concurrent.locks.*;
 
 import jahspotify.*;
 import jahspotify.media.*;
-import jahspotify.media.MediaStorage;
 import org.apache.commons.logging.*;
 
 /**
@@ -16,8 +15,6 @@ import org.apache.commons.logging.*;
 public class JahSpotifyImpl implements JahSpotify
 {
     private Log _log = LogFactory.getLog(JahSpotify.class);
-
-    private MediaStorage _mediaStorage;
 
     private Lock _libSpotifyLock = new ReentrantLock();
 
@@ -45,12 +42,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native int initialize(String username, String password);
 
-    public void setMediaStorage(final MediaStorage mediaStorage)
-    {
-        _mediaStorage = mediaStorage;
-    }
-
-    private JahSpotifyImpl()
+    protected JahSpotifyImpl()
     {
         registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
         {
@@ -351,108 +343,52 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native Playlist retrievePlaylist(String uri);
 
-    private native String[] getTracksForPlaylist(String uri);
-
     public Album readAlbum(final Link uri)
     {
-        Album album;
-        if (_mediaStorage != null)
-        {
-            album = _mediaStorage.readAlbum(uri);
-            if (album != null)
-            {
-                _log.debug("Found album for " + uri + " in storage, will return that");
-                return album;
-            }
-        }
-
-
         _libSpotifyLock.lock();
         try
         {
-            album = retrieveAlbum(uri.asString());
+            return retrieveAlbum(uri.asString());
         }
         finally
         {
             _libSpotifyLock.unlock();
         }
-
-        if (_mediaStorage != null && album != null)
-        {
-            _mediaStorage.store(album);
-        }
-        return album;
     }
 
     @Override
     public Artist readArtist(final Link uri)
     {
-        Artist artist;
-        if (_mediaStorage != null)
+        try
         {
-            artist = _mediaStorage.readArtist(uri);
-            if (artist != null)
-            {
-                _log.debug("Found artist for " + uri + " in storage, will return that");
-                return artist;
-            }
+            _libSpotifyLock.lock();
+            return retrieveArtist(uri.asString());
         }
-        artist = retrieveArtist(uri.asString());
-        if (_mediaStorage != null && artist != null)
+        finally
         {
-            _mediaStorage.store(artist);
+            _libSpotifyLock.unlock();
         }
-        return artist;
     }
 
 
     @Override
     public Track readTrack(Link uri)
     {
-        Track track;
-        if (_mediaStorage != null)
-        {
-            track = _mediaStorage.readTrack(uri);
-            if (track != null)
-            {
-                _log.debug("Found track for " + uri + " in storage, will return that");
-                return track;
-            }
-        }
-
-         _libSpotifyLock.lock();
         try
         {
-            track = retrieveTrack(uri.asString());
+            _libSpotifyLock.lock();
+            return retrieveTrack(uri.asString());
         }
         finally
         {
             _libSpotifyLock.unlock();
         }
-
-        if (_mediaStorage != null && track != null)
-        {
-            _mediaStorage.store(track);
-        }
-
-        return track;
     }
 
     @Override
     public Image readImage(Link uri)
     {
-        if (_mediaStorage != null)
-        {
-            Image image = _mediaStorage.readImage(uri);
-            if (image != null)
-            {
-                _log.debug("Found image for " + uri + " in storage, will return that");
-                return image;
-            }
-        }
-
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         _libSpotifyLock.lock();
         int len = -1;
         try
@@ -471,12 +407,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 throw new IllegalStateException("Number bytes reported written does not match length of bytes (" + len + " != " + bytes.length + ")");
             }
-            Image image = new Image(uri, bytes);
-            if (_mediaStorage != null)
-            {
-                _mediaStorage.store(image);
-            }
-            return image;
+            return new Image(uri, bytes);
         }
         return null;
     }
@@ -484,47 +415,16 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Playlist readPlaylist(Link uri)
     {
-        if (_mediaStorage != null)
-        {
-            Playlist playlist = _mediaStorage.readPlaylist(uri);
-            if (playlist != null)
-            {
-                _log.debug("Found playlist for " + uri + " in storage, will return that");
-                return playlist;
-            }
-        }
-
         _libSpotifyLock.lock();
-        final Playlist playlist;
         try
         {
-            playlist = retrievePlaylist(uri.asString());
+            return retrievePlaylist(uri.asString());
         }
         finally
         {
             _libSpotifyLock.unlock();
         }
-
-        if (_mediaStorage != null && playlist != null)
-        {
-            _mediaStorage.store(playlist);
-        }
-
-        return playlist;
     }
-
-    @Override
-    public List<Track> readTracks(Link... links)
-    {
-        return Collections.emptyList();
-    }
-
-    public List<Track> readTracks(List<Link> uris)
-    {
-        return Collections.emptyList();
-    }
-
-    private native Track[] nativeReadTracks(String[] uris);
 
     @Override
     public void pause()

@@ -1,4 +1,4 @@
-package jahspotify.storage;
+package jahspotify.storage.media;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

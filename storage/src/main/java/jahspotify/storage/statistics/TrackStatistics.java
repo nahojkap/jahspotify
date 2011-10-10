@@ -1,4 +1,4 @@
-package jahspotify.statistics;
+package jahspotify.storage.statistics;
 
 /**
  * @author Johan Lindquist

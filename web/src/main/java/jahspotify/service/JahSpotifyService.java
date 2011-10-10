@@ -4,7 +4,8 @@ import javax.annotation.*;
 
 import jahspotify.JahSpotify;
 import jahspotify.impl.JahSpotifyImpl;
-import jahspotify.media.MediaStorage;
+import jahspotify.storage.media.MediaStorage;
+import jahspotify.storage.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JahSpotifyService
 {
-    private JahSpotifyImpl _jahSpotifyImpl;
+    private JahSpotify _jahSpotify;
 
     @Autowired(required = false)
     @Qualifier(value ="in-memory")
@@ -23,16 +24,20 @@ public class JahSpotifyService
     @PostConstruct
     public void initialize()
     {
-        if (_jahSpotifyImpl == null)
+        if (_jahSpotify == null)
         {
-            _jahSpotifyImpl = JahSpotifyImpl.getInstance();
             if (_mediaStorage != null)
             {
-                _jahSpotifyImpl.setMediaStorage(_mediaStorage);
+                _jahSpotify = StorageAwareJahspotify.getInstance();
+                ((StorageAwareJahspotify)_jahSpotify).setMediaStorage(_mediaStorage);
             }
-            if (!_jahSpotifyImpl.isStarted())
+            else
             {
-                _jahSpotifyImpl.login(System.getProperty("spotify.username"), System.getProperty("spotify.password"));
+                _jahSpotify = JahSpotifyImpl.getInstance();
+            }
+            if (!_jahSpotify.isStarted())
+            {
+                _jahSpotify.login(System.getProperty("spotify.username"), System.getProperty("spotify.password"));
             }
         }
     }
@@ -40,16 +45,16 @@ public class JahSpotifyService
     @PreDestroy
     public void shutdown()
     {
-        if (_jahSpotifyImpl != null)
+        if (_jahSpotify != null)
         {
-            _jahSpotifyImpl.pause();
-            _jahSpotifyImpl.stop();
+            _jahSpotify.pause();
+            _jahSpotify.stop();
         }
     }
 
     public JahSpotify getJahSpotify()
     {
-        return _jahSpotifyImpl;
+        return _jahSpotify;
     }
 
 }
