@@ -33,7 +33,8 @@ public class PlaylistController extends BaseController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while retrieving playlist: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 
@@ -70,6 +71,8 @@ public class PlaylistController extends BaseController
         catch (Exception e)
         {
             e.printStackTrace();
+            super.writeErrorResponse(httpServletResponse, e);
+
         }
     }
 

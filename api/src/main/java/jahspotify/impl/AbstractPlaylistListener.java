@@ -19,47 +19,23 @@ public abstract class AbstractPlaylistListener implements PlaylistListener
     }
 
     @Override
-    public void startFolder(final String folderName, final long folderID)
+    public void startFolder(final Link link, final String folderName)
     {
     }
 
     @Override
-    public void endFolder()
+    public void endFolder(final Link link)
     {
     }
 
     @Override
-    public void playlist(final String name, final String link)
+    public void playlist(final Link link, final String name)
     {
     }
 
     @Override
-    public void metadataUpdated()
+    public void metadataUpdated(final Link link)
     {
     }
 
-    @Override
-    public void track(final Track track)
-    {
-    }
-
-    @Override
-    public void playlist(final Playlist playlist)
-    {
-    }
-
-    @Override
-    public void album(final Album album)
-    {
-    }
-
-    @Override
-    public void image(final Image image)
-    {
-    }
-
-    @Override
-    public void artist(final Artist artist)
-    {
-    }
 }

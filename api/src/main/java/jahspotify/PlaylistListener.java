@@ -9,14 +9,9 @@ public interface PlaylistListener
 {
     public void synchStarted(int numPlaylists);
     public void synchCompleted();
-    public void startFolder(String folderName, final long folderID);
-    public void endFolder();
-    public void playlist(final String name, final String link);
-    public void metadataUpdated();
+    public void startFolder(final Link link, String folderName);
+    public void endFolder(final Link link);
+    public void playlist(final Link link, final String name);
+    public void metadataUpdated(final Link link);
 
-    public void track(final Track track);
-    public void playlist(final Playlist playlist);
-    public void album(final Album album);
-    public void image(final Image image);
-    public void artist(final Artist artist);
 }

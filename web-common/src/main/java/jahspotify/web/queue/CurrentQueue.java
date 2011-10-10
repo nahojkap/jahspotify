@@ -7,6 +7,8 @@ import java.util.List;
  */
 public class CurrentQueue
 {
+    private String id;
+
     private CurrentTrack currentlyPlaying;
     private List<QueuedTrack> queuedTracks;
     private QueueState queueState;
@@ -14,6 +16,16 @@ public class CurrentQueue
     private boolean shuffle;
     private boolean repeatCurrentQueue;
     private boolean repeatCurrentTrack;
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(final String id)
+    {
+        this.id = id;
+    }
 
     public QueueState getQueueState()
     {

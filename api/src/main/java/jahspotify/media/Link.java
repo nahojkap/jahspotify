@@ -154,7 +154,7 @@ public class Link
 
     private String uri;
 
-    private long folderId;
+    private Long folderId;
 
     /**
      * Create a {@link Link} using the given parameters.
@@ -277,7 +277,7 @@ public class Link
             final String group = jahFolderMatcher.group(1);
             if (group.equals("ROOT"))
             {
-                this.folderId = 0;
+                this.folderId = 0l;
             }
             else
             {

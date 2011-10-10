@@ -18,11 +18,23 @@ public class SearchController extends BaseController
     @Autowired
     SearchEngine _searchEngine;
 
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public void searchAsGetRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        searchAsGet(httpServletRequest,httpServletResponse);
+    }
+
     @RequestMapping(value = "/search/", method = RequestMethod.GET)
     public void searchAsGet(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         // Read in search parameters
         String query = httpServletRequest.getParameter("query");
+        if (query == null)
+        {
+            final SimpleStatusResponse simpleStatusResponse = SimpleStatusResponse.createParameterMissingErrorResponse("query");
+            super.writeResponse(httpServletResponse, simpleStatusResponse);
+            return;
+        }
 
         int trackOffset = getIntegerParameter(httpServletRequest,"trackOffset",0);
         int numTracks = getIntegerParameter(httpServletRequest,"numTracks",255);

@@ -33,7 +33,8 @@ public class ArtistController extends BaseController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while retrieving artist: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 

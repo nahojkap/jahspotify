@@ -361,7 +361,12 @@ public class QueueManager
         {
             final ArrayList<QueueTrack> queueTracks = new ArrayList<QueueTrack>(_uriQueue);
             // final int toIndex = count == 0 ? queueTracks.size() - 1 : count - 1;
-            return new CurrentQueue(_currentTrack, queueTracks);
+            final CurrentQueue currentQueue = new CurrentQueue(_currentTrack, queueTracks);
+            currentQueue.setRepeatCurrentTrack(_repeatCurrentTrack);
+            currentQueue.setRepeatCurrentQueue(_repeatCurrentQueue);
+            currentQueue.setShuffle(_shuffle);
+            currentQueue.setId(DEFAULT_QUEUE_LINK);
+            return currentQueue;
         }
         finally
         {

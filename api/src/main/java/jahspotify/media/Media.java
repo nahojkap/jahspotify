@@ -27,7 +27,7 @@ public class Media
     /**
      * Popularity of this media (from 0 to 100).
      */
-    protected int popularity;
+    protected Integer popularity;
 
     /**
      * Restrictions of this media.
@@ -119,7 +119,7 @@ public class Media
     public void setPopularity(int popularity)
     {
         /* Check if popularity value is valid. */
-        if (popularity != -1 && (popularity < 0 || popularity > 1))
+        if (popularity != -1 && (popularity < 0 || popularity > 100))
         {
             throw new IllegalArgumentException("Expecting a value from 0 to 100 or -1");
         }

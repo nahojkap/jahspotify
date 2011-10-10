@@ -76,10 +76,8 @@ public class ImageController extends BaseController
         }
         catch (Exception e)
         {
-            _log.error("Error while service image: " + e.getMessage(), e);
-            final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, simpleStatusResponse);
+            _log.error("Error while retrieving image: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
 
 

@@ -2,6 +2,8 @@ package jahspotify.service;
 
 import java.util.List;
 
+import jahspotify.media.Link;
+
 /**
  * @author Johan Lindquist
  */
@@ -13,6 +15,8 @@ public class CurrentQueue
     private boolean _shuffle;
     private boolean _repeatCurrentQueue;
     private boolean _repeatCurrentTrack;
+
+    private Link _id;
 
     public CurrentQueue(final QueueTrack currentlyPlaying, final List<QueueTrack> queuedTracks)
     {
@@ -68,5 +72,15 @@ public class CurrentQueue
     public void setShuffle(final boolean shuffle)
     {
         _shuffle = shuffle;
+    }
+
+    public Link getId()
+    {
+        return _id;
+    }
+
+    public void setId(final Link id)
+    {
+        _id = id;
     }
 }

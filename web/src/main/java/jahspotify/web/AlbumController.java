@@ -38,6 +38,7 @@ public class AlbumController extends BaseController
         }
         catch (Exception e)
         {
+            _log.error("Error while retrieving album: " + e.getMessage(), e);
             super.writeErrorResponse(httpServletResponse, e);
         }
     }

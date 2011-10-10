@@ -181,9 +181,9 @@ public class JahSpotifyImpl implements JahSpotify
                 }
             }
 
-            public void metadataUpdated()
+            public void metadataUpdated(String link)
             {
-                _log.debug("Metadata updated, initiating reload of watched playlists");
+                _log.debug("Metadata updated for '" + link + "', initiating reload of watched playlists");
                 if (_synching)
                 {
                     _log.debug("Metadata update received during synch - will ignore");
@@ -204,11 +204,12 @@ public class JahSpotifyImpl implements JahSpotify
             public void startFolder(final String folderName, final long folderID)
             {
                 _nodeStack.push(_currentPlaylistFolderNode);
-                _currentPlaylistFolderNode = new PlaylistFolderNode(Link.createFolderLink(folderID).getId(), folderName);
+                final Link folderLink = Link.createFolderLink(folderID);
+                _currentPlaylistFolderNode = new PlaylistFolderNode(folderLink.getId(), folderName);
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.startFolder(folderName, folderID);
+                    listener.startFolder(folderLink, folderName);
                 }
             }
 
@@ -221,7 +222,7 @@ public class JahSpotifyImpl implements JahSpotify
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.endFolder();
+                    listener.endFolder(Link.create(playlistFolderNode.getID()));
                 }
             }
 
@@ -238,7 +239,7 @@ public class JahSpotifyImpl implements JahSpotify
                 }
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.playlist(name, link);
+                    listener.playlist(Link.create(link),name);
                 }
             }
         });

@@ -52,9 +52,8 @@ public class QueueController extends BaseController
         }
         catch (Exception e)
         {
-            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, simpleStatusResponse);
+            _log.error("Error while adding to queue: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 
@@ -83,10 +82,8 @@ public class QueueController extends BaseController
         }
         catch (Exception e)
         {
-            _log.error("Error processing request: " + e.getMessage(), e);
-            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, simpleStatusResponse);
+            _log.error("Error while adding to queue: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
 
     }
@@ -107,16 +104,25 @@ public class QueueController extends BaseController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while retrieving queue: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 
     @RequestMapping(value = "/queue/shuffle/*", method = RequestMethod.GET)
     public void shuffle(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        Link uri = retrieveLink(httpServletRequest);
-        jahspotify.service.CurrentQueue currentQueue = _queueManager.shuffle(uri);
-        writeCurrentQueue(httpServletResponse, currentQueue);
+        try
+        {
+            Link uri = retrieveLink(httpServletRequest);
+            jahspotify.service.CurrentQueue currentQueue = _queueManager.shuffle(uri);
+            writeCurrentQueue(httpServletResponse, currentQueue);
+        }
+        catch (Exception e)
+        {
+            _log.error("Error shuffling queue: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
+        }
     }
 
 
@@ -152,6 +158,12 @@ public class QueueController extends BaseController
     private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final jahspotify.service.CurrentQueue currentQueue)
     {
         final jahspotify.web.queue.CurrentQueue currentCurrentQueue = new jahspotify.web.queue.CurrentQueue();
+
+        currentCurrentQueue.setQueueState(convertToQueueStatus(_queueManager.getQueueStatus().getMediaPlayerState()));
+        currentCurrentQueue.setId(currentQueue.getId().getId());
+        currentCurrentQueue.setRepeatCurrentQueue(currentQueue.isRepeatCurrentQueue());
+        currentCurrentQueue.setRepeatCurrentTrack(currentQueue.isRepeatCurrentTrack());
+        currentCurrentQueue.setShuffle(currentQueue.isShuffle());
 
         final QueueTrack currentlyPlaying = currentQueue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
@@ -236,10 +248,8 @@ public class QueueController extends BaseController
         }
         catch (Exception e)
         {
-            _log.error("Error processing request: " + e.getMessage(), e);
-            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-            simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
-            writeResponse(httpServletResponse, simpleStatusResponse);
+            _log.error("Error while configuring queue: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
         }
     }
 

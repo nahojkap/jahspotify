@@ -12,5 +12,5 @@ public interface NativeLibraryListener
     public void startFolder(String folderName, final long folderID);
     public void endFolder();
     public void playlist(final String name, final String link);
-    public void metadataUpdated();
+    public void metadataUpdated(String link);
 }

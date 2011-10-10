@@ -37,7 +37,9 @@ public class TrackController extends BaseController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while retrieving track: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
+
         }
     }
 
