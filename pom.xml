@@ -19,10 +19,12 @@
         <module>storage</module>
         <module>web-client</module>
         <module>web-common</module>
+        <module>executable-war</module>
     </modules>
 
     <properties>
         <spring.version>3.0.4.RELEASE</spring.version>
+        <jetty.version>6.1.25</jetty.version>
     </properties>
 
     <dependencyManagement>

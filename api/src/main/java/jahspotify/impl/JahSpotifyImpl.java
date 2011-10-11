@@ -97,6 +97,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void trackStarted(final String uri)
             {
+                _log.debug("Track started: " + uri);
                 for (PlaybackListener listener : _playbackListeners)
                 {
                     listener.trackStarted(Link.create(uri));
@@ -106,6 +107,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void trackEnded(final String uri, final boolean forcedEnd)
             {
+                _log.debug("Track ended signalled: " + uri + " (" + (forcedEnd ? "forced)" : "natural ending)"));
                 for (PlaybackListener listener : _playbackListeners)
                 {
                     listener.trackEnded(Link.create(uri), forcedEnd);
@@ -116,11 +118,13 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public String nextTrackToPreload()
             {
+                _log.debug("Next to pre-load, will query listeners");
                 for (PlaybackListener listener : _playbackListeners)
                 {
                     Link nextTrack = listener.nextTrackToPreload();
                     if (nextTrack != null)
                     {
+                        _log.debug("Listener returned non-null value: " + nextTrack);
                         return nextTrack.asString();
                     }
                 }

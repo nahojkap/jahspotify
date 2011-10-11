@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
-import jahspotify.PlaybackListener;
+import jahspotify.*;
 import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.media.Link;
 import org.apache.commons.logging.*;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaPlayer
 {
-    private JahSpotifyImpl _jahSpotify;
     private MediaPlayerState _mediaPlayerState = MediaPlayerState.STOPPED;
     private Log _log = LogFactory.getLog(MediaPlayer.class);
     private BlockingQueue<Integer> _commandQueue = new ArrayBlockingQueue<Integer>(1, true);
@@ -33,6 +32,11 @@ public class MediaPlayer
     // Defines whether or not play should start immediately when a track is added to an empty queue
     @Value(value = "${jahspotify.player.auto-play-on-track-added}")
     private boolean _autoPlay = true;
+
+    @Autowired
+    private JahSpotifyService _jahSpotifyService;
+
+    private JahSpotify _jahSpotify;
 
     @PreDestroy
     public void shutdown()
@@ -72,7 +76,8 @@ public class MediaPlayer
 
             }
         });
-        _jahSpotify = JahSpotifyImpl.getInstance();
+        _jahSpotify = _jahSpotifyService.getJahSpotify();
+
         _jahSpotify.addPlaybackListener(new PlaybackListener()
         {
             @Override

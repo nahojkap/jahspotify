@@ -1,0 +1,28 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1 http://maven.apache.org/xsd/assembly-1.1.1.xsd">
+
+    <id>jahspotify</id>
+    <formats>
+        <format>war</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <unpack>true</unpack>
+            <scope>runtime</scope>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>jahspotify:jahspotify-web:*:*</exclude>
+            </excludes>
+        </dependencySet>
+        <dependencySet>
+            <unpack>true</unpack>
+            <scope>runtime</scope>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>jahspotify:jahspotify-web:*:*</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
