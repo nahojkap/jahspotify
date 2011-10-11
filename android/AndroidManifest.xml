@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="jahspotify.android"
+
+          android:versionName="0.0.1"
+          android:versionCode="0.0.1">
+
+
+    <application android:icon="@drawable/jahspotify_plain_logo" android:label="@string/jahspotify_app_name"
+                 android:name=".JahSpotifyApplication" >
+
+        <activity android:name=".activities.LauncherActivity" android:label="@string/jahspotify_app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!--  -->
+        <activity android:name=".activities.HomeActivity" android:configChanges="keyboardHidden|orientation" />
+
+    </application>
+
+    <uses-sdk android:minSdkVersion="7"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <supports-screens android:largeScreens="true" android:normalScreens="true" android:smallScreens="true"/>
+
+</manifest>

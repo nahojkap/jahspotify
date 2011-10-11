@@ -20,6 +20,7 @@
         <module>web-client</module>
         <module>web-common</module>
         <module>executable-war</module>
+        <module>android</module>
     </modules>
 
     <properties>

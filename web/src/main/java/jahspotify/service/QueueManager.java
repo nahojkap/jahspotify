@@ -271,6 +271,13 @@ public class QueueManager
         }
     }
 
+    public int clearCurrentQueue()
+    {
+        final int size = _uriQueue.size();
+        _uriQueue.clear();
+        return size;
+    }
+
     public int deleteQueuedTrack(Link uri)
     {
         // uris are in the form of:
