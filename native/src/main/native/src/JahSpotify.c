@@ -757,7 +757,7 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
         setObjectStringField(env,trackInstance,"title",sp_track_name(track));
         setObjectIntField(env,trackInstance,"length",sp_track_duration(track));
-        setObjectIntField(env,trackInstance,"popularity",sp_track_popularity(track));
+        // setObjectIntField(env,trackInstance,"popularity",sp_track_popularity(track));
         setObjectIntField(env,trackInstance,"trackNumber",sp_track_index(track));
 
         sp_album *album = sp_track_album(track);

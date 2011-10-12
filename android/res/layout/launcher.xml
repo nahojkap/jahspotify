@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#ffffff"
+        >
+
+    <ImageView
+            android:id="@+id/launcher"
+            android:layout_width="300dip"
+            android:layout_height="150dip"
+            android:paddingTop="20px"
+            android:scaleType="center"
+            android:src="@drawable/jahspotify_logo_no_tagline_256x64"
+            android:layout_gravity="center_horizontal"
+            />
+
+    <TextView
+            android:id="@+id/init_messages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            >
+    </TextView>
+
+</LinearLayout>
+
