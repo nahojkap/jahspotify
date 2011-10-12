@@ -13,7 +13,7 @@
             android:layout_height="150dip"
             android:paddingTop="20px"
             android:scaleType="center"
-            android:src="@drawable/jahspotify_logo_no_tagline_256x64"
+            android:src="@drawable/jahspotify_logo"
             android:layout_gravity="center_horizontal"
             />
 
