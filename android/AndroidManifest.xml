@@ -3,10 +3,10 @@
           package="jahspotify.android"
 
           android:versionName="0.0.1"
-          android:versionCode="0.0.1">
+          android:versionCode="1">
 
 
-    <application android:icon="@drawable/jahspotify_plain_logo" android:label="@string/jahspotify_app_name"
+    <application android:icon="@drawable/jahspotify_logo" android:label="@string/jahspotify_app_name"
                  android:name=".JahSpotifyApplication" >
 
         <activity android:name=".activities.LauncherActivity" android:label="@string/jahspotify_app_name">
