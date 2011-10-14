@@ -9,7 +9,7 @@
     <application android:icon="@drawable/jahspotify_logo" android:label="@string/jahspotify_app_name"
                  android:name=".JahSpotifyApplication" >
 
-        <activity android:name=".activities.LauncherActivity" android:label="@string/jahspotify_app_name">
+        <activity android:name=".activities.PlaylistBrowseActivity" android:label="@string/jahspotify_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -17,12 +17,17 @@
         </activity>
         <!--  -->
         <activity android:name=".activities.HomeActivity" android:configChanges="keyboardHidden|orientation" />
+        <!--<activity android:name=".activities.PlaylistBrowseActivity" android:configChanges="keyboardHidden|orientation" />-->
 
     </application>
 
     <uses-sdk android:minSdkVersion="7"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:smallScreens="true"/>
 
