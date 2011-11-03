@@ -28,7 +28,7 @@ public class JahSpotifyImpl implements JahSpotify
     private Map<Integer, SearchListener> _prioritySearchListeners = new HashMap<Integer, SearchListener>();
 
     private List<PlaylistListener> _playlistListeners = new ArrayList<PlaylistListener>();
-    private PlaylistFolderNode _rootNode = new PlaylistFolderNode("ROOT_NODE", "ROOT_NODE");
+    private PlaylistFolderNode _rootNode = new PlaylistFolderNode(null,"ROOT_NODE", "ROOT_NODE");
     private Stack<PlaylistFolderNode> _nodeStack = new Stack<PlaylistFolderNode>();
 
     private PlaylistFolderNode _currentPlaylistFolderNode = _rootNode;
@@ -201,7 +201,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 _nodeStack.push(_currentPlaylistFolderNode);
                 final Link folderLink = Link.createFolderLink(folderID);
-                _currentPlaylistFolderNode = new PlaylistFolderNode(folderLink.getId(), folderName);
+                _currentPlaylistFolderNode = new PlaylistFolderNode(_currentPlaylistFolderNode.getID(),folderLink.getId(), folderName);
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -227,7 +227,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 if (_synching)
                 {
-                    _currentPlaylistFolderNode.addChild(new PlaylistNode(link, name));
+                    _currentPlaylistFolderNode.addChild(new PlaylistNode(_currentPlaylistFolderNode.getID(),link, name));
                 }
                 else
                 {
@@ -526,7 +526,7 @@ public class JahSpotifyImpl implements JahSpotify
 
         if (uri.getFolderId() == 0)
         {
-            Library.Entry rootEntry = new Library.Entry("jahspotify:folder:ROOT","ROOT",Library.Entry.FOLDER_ENTRY_TYPE);
+            Library.Entry rootEntry = new Library.Entry(null,"jahspotify:folder:ROOT","ROOT",Library.Entry.FOLDER_ENTRY_TYPE);
             rootEntry.setSubEntries(library.getEntries());
             return trimToLevel(rootEntry,1,level);
         }
@@ -555,7 +555,7 @@ public class JahSpotifyImpl implements JahSpotify
             // Remove all children of any sub-entries now
             for (Library.Entry entry : folderEntry.getSubEntries())
             {
-                strippedSubEntries.add(new Library.Entry(entry.getId(),entry.getName(), entry.getType()));
+                strippedSubEntries.add(new Library.Entry(folderEntry.getParentID(),entry.getId(),entry.getName(), entry.getType()));
             }
         }
         else
@@ -566,7 +566,7 @@ public class JahSpotifyImpl implements JahSpotify
             }
         }
 
-        final Library.Entry entry = new Library.Entry(folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        final Library.Entry entry = new Library.Entry(folderEntry.getParentID(),folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
         entry.setSubEntries(strippedSubEntries);
         return entry;
     }
@@ -649,7 +649,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private Library.Entry createFolderFromNode(final PlaylistFolderNode playlistFolderNode)
     {
-        Library.Entry folder = Library.Entry.createFolderEntry(playlistFolderNode.getID(), playlistFolderNode.getName());
+        Library.Entry folder = Library.Entry.createFolderEntry(playlistFolderNode.getParent(),playlistFolderNode.getID(), playlistFolderNode.getName());
 
         for (Node node : playlistFolderNode.getChildren())
         {
@@ -670,7 +670,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private Library.Entry createPlaylistFromNode(final PlaylistNode playlistNode)
     {
-        final Library.Entry playlistEntry = Library.Entry.createPlaylistEntry(playlistNode.getID(), playlistNode.getName());
+        final Library.Entry playlistEntry = Library.Entry.createPlaylistEntry(playlistNode.getParent(),playlistNode.getID(), playlistNode.getName());
         Playlist playlist = playlistNode.getPlaylist();
         if (playlist == null)
         {
@@ -682,10 +682,10 @@ public class JahSpotifyImpl implements JahSpotify
                 for (Link trackLink : playlist.getTracks())
                 {
                     Track track = readTrack(trackLink);
-                    TrackNode trackNode = new TrackNode(track.getId().toString(), track.getTitle());
+                    TrackNode trackNode = new TrackNode(playlistNode.getID(), track.getId().toString(), track.getTitle());
                     trackNode.setTrack(track);
                     playlistNode.addTrackNode(trackNode);
-                    playlistEntry.addSubEntry(Library.Entry.createTrackEntry(track.getId().toString(), track.getTitle()));
+                    playlistEntry.addSubEntry(Library.Entry.createTrackEntry(playlistNode.getID(),track.getId().toString(), track.getTitle()));
                 }
             }
             else
@@ -775,15 +775,21 @@ public class JahSpotifyImpl implements JahSpotify
 
     private static class Node
     {
-        private Node(final String id, final String name)
+        private Node(final String parent, final String id, final String name)
         {
+            _parent = parent;
             _id = id;
             _name = name;
         }
 
+        String _parent;
         String _name;
         String _id;
 
+        public String getParent()
+        {
+            return _parent;
+        }
 
         public String getID()
         {
@@ -800,6 +806,7 @@ public class JahSpotifyImpl implements JahSpotify
         {
             return "Node{" +
                     "_id='" + _id + '\'' +
+                    ", _parent='" + _parent + '\'' +
                     ", _name='" + _name + '\'' +
                     '}';
         }
@@ -807,9 +814,9 @@ public class JahSpotifyImpl implements JahSpotify
 
     private static class PlaylistFolderNode extends Node
     {
-        private PlaylistFolderNode(String id, String name)
+        private PlaylistFolderNode(String parent, String id, String name)
         {
-            super(id, name);
+            super(parent, id, name);
         }
 
         List<Node> _children = new ArrayList<Node>();
@@ -847,9 +854,9 @@ public class JahSpotifyImpl implements JahSpotify
 
     private static class PlaylistNode extends Node
     {
-        private PlaylistNode(String id, String name)
+        private PlaylistNode(String parent, String id, String name)
         {
-            super(id, name);
+            super(parent, id, name);
         }
 
         Playlist _playlist;
@@ -894,9 +901,9 @@ public class JahSpotifyImpl implements JahSpotify
     {
         Track _track;
 
-        private TrackNode(final String id, final String name)
+        private TrackNode(final String parent, final String id, final String name)
         {
-            super(id, name);
+            super(parent, id, name);
         }
 
         public Track getTrack()

@@ -52,7 +52,7 @@ public class PlaylistController extends BaseController
             Library.Entry folderEntry = _jahSpotifyService.getJahSpotify().readFolder(uri, level);
             _log.debug("Got folder: " + folderEntry);
 
-            jahspotify.web.media.Library.Entry rootFolder = convertToWebEntry(null, folderEntry);
+            jahspotify.web.media.Library.Entry rootFolder = convertToWebEntry(folderEntry);
 
             writeResponseGeneric(httpServletResponse, rootFolder);
         }
@@ -64,13 +64,13 @@ public class PlaylistController extends BaseController
         }
     }
 
-    private jahspotify.web.media.Library.Entry convertToWebEntry(final jahspotify.web.media.Library.Entry parent, final Library.Entry folderEntry)
+    private jahspotify.web.media.Library.Entry convertToWebEntry(final Library.Entry folderEntry)
     {
         final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
-        webFolderEntry.setParentFolderID((parent == null ? null : parent.getId()));
+        webFolderEntry.setParentID(folderEntry.getParentID());
         for (Library.Entry subEntry : folderEntry.getSubEntries())
         {
-            webFolderEntry.addSubEntry(convertToWebEntry(webFolderEntry, subEntry));
+            webFolderEntry.addSubEntry(convertToWebEntry(subEntry));
         }
         return webFolderEntry;
     }
@@ -93,7 +93,7 @@ public class PlaylistController extends BaseController
         webLibrary.setOwner(library.getOwner());
         for (Library.Entry entry : library.getEntries())
         {
-            webLibrary.addEntry(convertToWebEntry(null,entry));
+            webLibrary.addEntry(convertToWebEntry(entry));
         }
         return webLibrary;
     }

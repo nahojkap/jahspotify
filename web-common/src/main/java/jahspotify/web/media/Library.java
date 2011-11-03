@@ -61,7 +61,7 @@ public class Library
         public static final String PLAYLIST_ENTRY_TYPE="playlist";
         public static final String TRACK_ENTRY_TYPE="track";
 
-        private String parentFolderID;
+        private String parentID;
 
         public Entry(final String id, final String name, final String type)
         {
@@ -135,14 +135,14 @@ public class Library
         }
 
 
-        public void setParentFolderID(final String parentFolderID)
+        public void setParentID(final String parentID)
         {
-            this.parentFolderID = parentFolderID;
+            this.parentID = parentID;
         }
 
-        public String getParentFolderID()
+        public String getParentID()
         {
-            return parentFolderID;
+            return parentID;
         }
 
         @Override
@@ -153,7 +153,7 @@ public class Library
                     ", name='" + name + '\'' +
                     ", type='" + type + '\'' +
                     ", subEntries=" + subEntries +
-                    ", parentFolder=" + parentFolderID +
+                    ", parentID=" + parentID +
                     '}';
         }
 
@@ -179,7 +179,7 @@ public class Library
             {
                 return false;
             }
-            if (parentFolderID != null ? !parentFolderID.equals(entry.parentFolderID) : entry.parentFolderID != null)
+            if (parentID != null ? !parentID.equals(entry.parentID) : entry.parentID != null)
             {
                 return false;
             }
@@ -202,7 +202,7 @@ public class Library
             result = 31 * result + (name != null ? name.hashCode() : 0);
             result = 31 * result + (type != null ? type.hashCode() : 0);
             result = 31 * result + (subEntries != null ? subEntries.hashCode() : 0);
-            result = 31 * result + (parentFolderID != null ? parentFolderID.hashCode() : 0);
+            result = 31 * result + (parentID != null ? parentID.hashCode() : 0);
             return result;
         }
     }
