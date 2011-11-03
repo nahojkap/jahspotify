@@ -2,6 +2,8 @@ package jahspotify.android.data;
 
 import java.io.*;
 
+import jahspotify.client.JahSpotifyClient;
+import jahspotify.web.media.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -13,43 +15,26 @@ import org.json.*;
  */
 public class LibraryRetriever
 {
-
-    public String[] getRoot()
+    public static Library.Entry getRoot(int levels) throws IOException
     {
-        try
-        {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpGet get = new HttpGet("http://localhost:8080/jahspotify/folder/jahspotify:folder:ROOT?level=1");
-
-            final HttpResponse execute = httpClient.execute(get);
-
-            if (execute.getStatusLine().getStatusCode() == 200)
-            {
-                final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(execute.getEntity().getContent()));
-
-                String tmp = bufferedReader.readLine();
-
-                final StringBuilder rootList = new StringBuilder();
-                rootList.append(tmp);
-
-                JSONObject json = new JSONObject(rootList.toString());
-                final JSONArray children = json.getJSONArray("children");
-
-                for (int i = 0; i < children.length(); i++)
-                {
-
-                }
-
-            }
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-
-        return new String[0];
+        return getEntry("jahspotify:folder:ROOT", levels);
     }
 
+    public static Library.Entry getEntry(final String uri, int levels) throws IOException
+    {
+        final JahSpotifyClient jahSpotifyClient = new JahSpotifyClient("http://10.40.42.41:8080/jahspotify/");
+        return jahSpotifyClient.readFolder(uri,levels);
+    }
+
+    public static Track getTrack(final String trackLink) throws IOException
+    {
+        final JahSpotifyClient jahSpotifyClient = new JahSpotifyClient("http://10.40.42.41:8080/jahspotify/");
+        return jahSpotifyClient.readTrack(trackLink);
+    }
+
+    public static Playlist getPlaylist(final String uri) throws IOException
+    {
+        final JahSpotifyClient jahSpotifyClient = new JahSpotifyClient("http://10.40.42.41:8080/jahspotify/");
+        return jahSpotifyClient.readPlaylist(uri);
+    }
 }

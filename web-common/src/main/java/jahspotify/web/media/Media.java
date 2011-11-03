@@ -12,7 +12,7 @@ public class Media
     /**
      * Identifier for this media object (32-character hex string).
      */
-    protected String id;
+    protected Link id;
 
     /**
      * Date when this media object was considered to have been modified
@@ -56,12 +56,12 @@ public class Media
      *
      * @return A 32-character identifier.
      */
-    public String getId()
+    public Link getId()
     {
         return this.id;
     }
 
-    public void setId(String id)
+    public void setId(Link id)
     {
         this.id = id;
     }

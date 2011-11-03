@@ -55,6 +55,12 @@ NOTE: The username and password can also be specified in your settings.xml
 
 http://localhost:8080/jahspotify/status.html
 
+All media can be retrieved using the Media Controller URL
+
+http://localhost:8080/jahspotify/media/<URI>
+
+Where the URI is any of the URIs specified below, in the more specialized controllers
+
 Library retrieval: http://localhost:8080/jahspotify/library/
 Folder retrieval: http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
 Playlist retrieval: http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO

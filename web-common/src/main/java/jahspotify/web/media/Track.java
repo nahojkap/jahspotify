@@ -19,12 +19,12 @@ public class Track extends Media
     /**
      * {@String Artist}s of this track.
      */
-    private List<String> artists = new ArrayList<String>();
+    private List<Link> artists = new ArrayList<Link>();
 
     /**
      * A {@String String} to the album which this track belongs to.
      */
-    private String album;
+    private Link album;
 
     /**
      * Track number on a certain disk.
@@ -52,7 +52,7 @@ public class Track extends Media
     public Track()
     {
         this.title = null;
-        this.artists = new ArrayList<String>();
+        this.artists = new ArrayList<Link>();
         this.album = null;
         this.trackNumber = -1;
         this.length = -1;
@@ -84,7 +84,7 @@ public class Track extends Media
      *
      * @return An {@String Artist}s object.
      */
-    public List<String> getArtists()
+    public List<Link> getArtists()
     {
         return this.artists;
     }
@@ -94,16 +94,16 @@ public class Track extends Media
      *
      * @param artists The desired {@String Artist}s of this track.
      */
-    public void setArtists(List<String> artists)
+    public void setArtists(List<Link> artists)
     {
         this.artists = artists;
     }
 
-    public void addArtist(String artist)
+    public void addArtist(Link artist)
     {
         if (artists == null)
         {
-            artists = new ArrayList<String>();
+            artists = new ArrayList<Link>();
         }
         artists.add(artist);
 
@@ -114,7 +114,7 @@ public class Track extends Media
      *
      * @return An {@String Album} object.
      */
-    public String getAlbum()
+    public Link getAlbum()
     {
         return this.album;
     }
@@ -124,7 +124,7 @@ public class Track extends Media
      *
      * @param album The desired {@String Album} of this track.
      */
-    public void setAlbum(String album)
+    public void setAlbum(Link album)
     {
         this.album = album;
     }

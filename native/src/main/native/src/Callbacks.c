@@ -15,14 +15,14 @@ extern jobject createJLinkInstance(JNIEnv *env, sp_link *link);
 extern sp_session *g_sess;
 extern sp_track *g_currenttrack;
 
-extern jobject g_playlistListener;
+extern jobject g_libraryListener;
 extern jobject g_connectionListener;
 extern jobject g_playbackListener;
 extern jobject g_searchCompleteListener;
 extern jobject g_mediaLoadedListener;
 
 extern jclass g_playbackListenerClass;
-extern jclass g_playlistListenerClass;
+extern jclass g_libraryListenerClass;
 extern jclass g_connectionListenerClass;
 extern jclass g_searchCompleteListenerClass;
 extern jclass g_nativeSearchResultClass;
@@ -506,11 +506,11 @@ void* threaded_signalPlaylistSeen(void *threadarg)
         goto fail;
     }
 
-    aMethod = (*env)->GetMethodID(env, g_playlistListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;)V");
+    aMethod = (*env)->GetMethodID(env, g_libraryListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;)V");
 
     if (aMethod == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: could not load callback method playlistSeen(string) on class PlaylistListener\n");
+        fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: could not load callback method playlistSeen(string) on class NativeLibraryListener\n");
         goto fail;
     }
 
@@ -534,7 +534,7 @@ void* threaded_signalPlaylistSeen(void *threadarg)
         }
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, aMethod, playListStr,linkNameStr);
+    (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr,linkNameStr);
     if (checkException(env) != 0)
     {
       fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: exception while calling callback\n");
@@ -684,7 +684,7 @@ void* threaded_signalStartFolderSeen(void *threadarg)
         }
     }
 
-    method = (*env)->GetMethodID(env, g_playlistListenerClass, "startFolder", "(Ljava/lang/String;J)V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "startFolder", "(Ljava/lang/String;J)V");
 
     if (method == NULL)
     {
@@ -692,7 +692,7 @@ void* threaded_signalStartFolderSeen(void *threadarg)
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, method,folderNameStr,threaded_signalFolderSeen_Params->folderId);
+    (*env)->CallVoidMethod(env, g_libraryListener, method,folderNameStr,threaded_signalFolderSeen_Params->folderId);
     if (checkException(env) != 0)
     {
       fprintf(stderr,"jahspotify::threaded_signalStartFolderSeen: exception while calling callback\n");
@@ -723,15 +723,15 @@ void* threaded_signalMetadataUpdated(void *threadarg)
         goto fail;
     }
 
-    method = (*env)->GetMethodID(env, g_playlistListenerClass, "metadataUpdated", "()V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "metadataUpdated", "(Ljava/lang/String;)V");
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: could not load callback method metadataUpdated() on class jahnotify.PlaylistListener\n");
+        fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: could not load callback method metadataUpdated() on class NativeLibraryListener\n");
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, method);
+    (*env)->CallVoidMethod(env, g_libraryListener, method);
     if (checkException(env) != 0)
     {
       fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: exception while calling callback\n");
@@ -762,7 +762,7 @@ void* threaded_signalSynchCompleted(void *threadarg)
         goto fail;
     }
 
-    method = (*env)->GetMethodID(env, g_playlistListenerClass, "synchCompleted", "()V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "synchCompleted", "()V");
 
     if (method == NULL)
     {
@@ -770,7 +770,7 @@ void* threaded_signalSynchCompleted(void *threadarg)
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, method);
+    (*env)->CallVoidMethod(env, g_libraryListener, method);
     checkException(env);
 
     goto exit;
@@ -798,7 +798,7 @@ void* threaded_signalSynchStarting(void *threadarg)
         goto fail;
     }
 
-    method = (*env)->GetMethodID(env, g_playlistListenerClass, "synchStarted", "(I)V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "synchStarted", "(I)V");
 
     if (method == NULL)
     {
@@ -806,7 +806,7 @@ void* threaded_signalSynchStarting(void *threadarg)
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, method, numPlaylists);
+    (*env)->CallVoidMethod(env, g_libraryListener, method, numPlaylists);
     checkException(env);
 
     goto exit;
@@ -833,7 +833,7 @@ void* threaded_signalEndFolderSeen(void *threadarg)
         goto fail;
     }
 
-    method = (*env)->GetMethodID(env, g_playlistListenerClass, "endFolder", "()V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "endFolder", "()V");
 
     if (method == NULL)
     {
@@ -841,7 +841,7 @@ void* threaded_signalEndFolderSeen(void *threadarg)
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_playlistListener, method);
+    (*env)->CallVoidMethod(env, g_libraryListener, method);
     checkException(env);
 
     goto exit;
@@ -979,7 +979,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
     char *folderNameCopy;
     struct threaded_signalStartFolderSeen_Parameters *threaded_signalFolderSeen_Params = malloc(sizeof(struct threaded_signalStartFolderSeen_Parameters));
     
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalStartFolderSeen: no playlist listener registered\n");
         return 1;
@@ -1003,7 +1003,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
 int signalSynchStarting(int numPlaylists)
 {
   int numPlayLists = numPlaylists;
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalSynchStarting: no playlist listener registered\n");
         return 1;
@@ -1021,7 +1021,7 @@ int signalSynchStarting(int numPlaylists)
 
 int signalSynchCompleted()
 {
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalSynchCompleted: no playlist listener registered\n");
         return 1;
@@ -1037,7 +1037,7 @@ int signalSynchCompleted()
 
 int signalMetadataUpdated(sp_playlist *playlist)
 {
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalMetadataUpdated: no playlist listener registered\n");
         return 1;
@@ -1054,7 +1054,7 @@ int signalMetadataUpdated(sp_playlist *playlist)
 
 int signalEndFolderSeen()
 {
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalEndFolderSeen: no playlist listener registered\n");
         return 1;
@@ -1118,7 +1118,7 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
     char *playlistNameCopy;
     struct threaded_signalPlaylistSeen_Parameters *threaded_signalPlaylistSeen_Params;
 
-    if (!g_playlistListener)
+    if (!g_libraryListener)
     {
         fprintf ( stderr, "jahspotify::signalPlaylistSeen: no playlist listener registered\n");
         return 1;

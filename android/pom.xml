@@ -24,6 +24,21 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jahspotify</groupId>
+            <artifactId>jahspotify-client</artifactId>
+            <exclusions>
+                <exclusion>
+                   <groupId>org.apache.httpcomponents</groupId>
+                   <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -32,8 +47,8 @@
             <plugins>
                 <plugin>
                     <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                    <artifactId>maven-android-plugin</artifactId>
-                    <version>3.0.0-alpha-11</version>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>3.0.0-alpha-13</version>
                     <configuration>
                         <sdk>
                             <platform>2.2</platform>

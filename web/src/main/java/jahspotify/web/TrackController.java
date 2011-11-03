@@ -5,7 +5,10 @@ import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 import jahspotify.media.*;
+import jahspotify.media.Link;
+import jahspotify.media.Track;
 import jahspotify.service.*;
+import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -32,8 +35,10 @@ public class TrackController extends BaseController
         {
             final Link uri = retrieveLink(httpServletRequest);
             final Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
-            _log.debug("Got track: " + track);
-            writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, track);
+
+            jahspotify.web.media.Track webTrack = convertToWebTrack(track);
+
+            writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, webTrack);
         }
         catch (Exception e)
         {
@@ -41,6 +46,18 @@ public class TrackController extends BaseController
             super.writeErrorResponse(httpServletResponse, e);
 
         }
+    }
+
+    private jahspotify.web.media.Track convertToWebTrack(final Track track)
+    {
+        jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
+
+        webTrack.setAlbum(toWebLink(track.getAlbum()));
+        webTrack.setArtists(convertToStringLinks(track.getArtists()));
+        webTrack.setCover(track.getCover());
+
+        return webTrack;
+
     }
 
 }

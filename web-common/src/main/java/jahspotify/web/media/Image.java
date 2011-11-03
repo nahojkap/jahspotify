@@ -1,5 +1,6 @@
 package jahspotify.web.media;
 
+import java.io.InputStream;
 import java.util.Arrays;
 
 /**
@@ -10,6 +11,8 @@ public class Image
     private String id;
     private ImageFormat imageFormat = ImageFormat.JPEG;
     private byte[] bytes;
+    private String _uri;
+    private InputStream inputStream;
 
     public Image()
     {
@@ -19,6 +22,17 @@ public class Image
     {
         this.id = uri;
         this.bytes = bytes;
+    }
+
+    public Image(final String uri, final InputStream inputStream)
+    {
+        this.id = uri;
+        this.inputStream = inputStream;
+    }
+
+    public InputStream getInputStream()
+    {
+        return inputStream;
     }
 
     public byte[] getBytes()

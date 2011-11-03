@@ -5,7 +5,10 @@ import javax.servlet.http.*;
 
 import jahspotify.media.*;
 import jahspotify.media.Library;
+import jahspotify.media.Link;
+import jahspotify.media.Playlist;
 import jahspotify.service.*;
+import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,8 +32,8 @@ public class PlaylistController extends BaseController
         {
             final Link uri = retrieveLink(httpServletRequest);
             Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri);
-            _log.debug("Got playlist: " + playlist);
-            writeResponseGeneric(httpServletResponse, playlist);
+            jahspotify.web.media.Playlist webPlaylist = concvertToWebPlaylist(playlist);
+            writeResponseGeneric(httpServletResponse, webPlaylist);
         }
         catch (Exception e)
         {
@@ -39,34 +42,40 @@ public class PlaylistController extends BaseController
         }
     }
 
+    private jahspotify.web.media.Playlist concvertToWebPlaylist(final Playlist playlist)
+    {
+        jahspotify.web.media.Playlist webPlaylist = new jahspotify.web.media.Playlist();
+        webPlaylist.setAuthor(playlist.getAuthor());
+        webPlaylist.setCollaborative(playlist.isCollaborative());
+        webPlaylist.setDescription(playlist.getDescription());
+        webPlaylist.setId(toWebLink(playlist.getId()));
+        webPlaylist.setPicture((playlist.getPicture() != null ? playlist.getPicture().asString() : null));
+        webPlaylist.setName(playlist.getName());
+        webPlaylist.setTracks(convertToStringLinks(playlist.getTracks()));
+        return webPlaylist;
+    }
+
     @RequestMapping(value = "/folder/*", method = RequestMethod.GET)
     public void retrieveFolder(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         try
         {
             final Link uri = retrieveLink(httpServletRequest);
-
-            int level = (httpServletRequest.getParameter("level") == null ? 0 : Integer.parseInt(httpServletRequest.getParameter("level")));
-
-            _log.debug("Retriving folder:" + uri + " (to level " + level +")");
-            Library.Entry folderEntry = _jahSpotifyService.getJahSpotify().readFolder(uri, level);
-            _log.debug("Got folder: " + folderEntry);
-
-            jahspotify.web.media.Library.Entry rootFolder = convertToWebEntry(folderEntry);
-
+            int levels = (httpServletRequest.getParameter("levels") == null ? 0 : Integer.parseInt(httpServletRequest.getParameter("levels")));
+            Library.Entry entry = _jahSpotifyService.getJahSpotify().readFolder(uri, levels);
+            jahspotify.web.media.Library.Entry rootFolder = convertToWebEntry(entry);
             writeResponseGeneric(httpServletResponse, rootFolder);
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            _log.error("Error while retrieving folder: " + e.getMessage(), e);
             super.writeErrorResponse(httpServletResponse, e);
-
         }
     }
 
     private jahspotify.web.media.Library.Entry convertToWebEntry(final Library.Entry folderEntry)
     {
-        final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(new jahspotify.web.media.Link(folderEntry.getId(), folderEntry.getType()), folderEntry.getName(), folderEntry.getType());
         webFolderEntry.setParentID(folderEntry.getParentID());
         for (Library.Entry subEntry : folderEntry.getSubEntries())
         {
@@ -78,9 +87,17 @@ public class PlaylistController extends BaseController
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
     public void retrieveLibrary(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
-        final jahspotify.web.media.Library webLibrary = convertToWebLibrary(library);
-        writeResponseGeneric(httpServletResponse, webLibrary);
+        try
+        {
+            final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
+            final jahspotify.web.media.Library webLibrary = convertToWebLibrary(library);
+            writeResponseGeneric(httpServletResponse, webLibrary);
+        }
+        catch (Exception e)
+        {
+            _log.error("Error while retrieving library: " + e.getMessage(), e);
+            super.writeErrorResponse(httpServletResponse, e);
+        }
     }
 
     private jahspotify.web.media.Library convertToWebLibrary(final Library library)

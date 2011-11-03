@@ -9,15 +9,16 @@
     <application android:icon="@drawable/jahspotify_logo" android:label="@string/jahspotify_app_name"
                  android:name=".JahSpotifyApplication" >
 
-        <activity android:name=".activities.PlaylistBrowseActivity" android:label="@string/jahspotify_app_name">
+        <activity android:name=".activities.FolderBrowseActivity" android:label="@string/jahspotify_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!--  -->
+
+        <activity android:name=".activities.PlaylistBrowseActivity" android:label="@string/jahspotify_app_name"/>
+
         <activity android:name=".activities.HomeActivity" android:configChanges="keyboardHidden|orientation" />
-        <!--<activity android:name=".activities.PlaylistBrowseActivity" android:configChanges="keyboardHidden|orientation" />-->
 
     </application>
 

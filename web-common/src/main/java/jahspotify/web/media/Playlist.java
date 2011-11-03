@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class Playlist extends Container
 {
-    private String id;
+    private Link id;
     private String name;
     private String author;
     private boolean collaborative;
@@ -31,12 +31,12 @@ public class Playlist extends Container
         this.picture = null;
     }
 
-    public String getId()
+    public Link getId()
     {
         return this.id;
     }
 
-    public void setId(String id)
+    public void setId(Link id)
     {
         this.id = id;
     }

@@ -21,7 +21,7 @@ sp_session *g_sess = NULL;
 /// Handle to the curren track
 sp_track *g_currenttrack = NULL;
 
-jobject g_playlistListener = NULL;
+jobject g_libraryListener = NULL;
 jobject g_connectionListener = NULL;
 jobject g_playbackListener = NULL;
 jobject g_searchCompleteListener = NULL;
@@ -574,8 +574,8 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativePla
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeLibraryListener (JNIEnv *env, jobject obj, jobject libraryListener)
 {
-    g_playlistListener = (*env)->NewGlobalRef(env, libraryListener);
-    fprintf ( stderr, "Registered playlist listener: 0x%x\n", (int)g_playlistListener);
+    g_libraryListener = (*env)->NewGlobalRef(env, libraryListener);
+    fprintf ( stderr, "Registered playlist listener: 0x%x\n", (int)g_libraryListener);
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeConnectionListener (JNIEnv *env, jobject obj, jobject connectionListener)
@@ -586,10 +586,10 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeCon
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_unregisterListeners (JNIEnv *env, jobject obj)
 {
-    if (g_playlistListener)
+    if (g_libraryListener)
     {
-        (*env)->DeleteGlobalRef(env, g_playlistListener);
-        g_playlistListener = NULL;
+        (*env)->DeleteGlobalRef(env, g_libraryListener);
+        g_libraryListener = NULL;
     }
 
     if (g_mediaLoadedListener)

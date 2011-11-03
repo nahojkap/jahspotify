@@ -1,13 +1,14 @@
 package jahspotify.client;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import com.google.gson.Gson;
+import jahspotify.web.media.*;
 import jahspotify.web.queue.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -16,11 +17,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
  */
 public class JahSpotifyClient
 {
-    private static String baseURL = "http://localhost:8080/jahspotify/";
+    private String _baseURL;
+
+    public JahSpotifyClient(final String baseURL)
+    {
+        _baseURL = baseURL;
+    }
 
     public static void main(String[] args) throws Exception
     {
-        // addTrack();
+        JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://localhost:8080/jahspotify/");
+
+        // addTrack(Arrays.asList("spotify:track:6UaRii9AH6Zss9xNMEQ2M9", "spotify:track:34q1KaLX8h73xE06xPBmNB", "spotify:track:52JyHLUiugFECIYBWM2qdh"));
 
         // command line:
 
@@ -32,32 +40,141 @@ public class JahSpotifyClient
         // jahspotify -u <url> --url=<url> playlist <playlist-id>
         // jahspotify -u <url> --url=<url> image -o <output-file> <image-id>
 
+    }
+
+    private QueueConfiguration getQueueConfiguration() throws IOException
+    {
         QueueConfiguration queueConfiguration = new QueueConfiguration();
         queueConfiguration.setRepeatCurrentTrack(false);
         queueConfiguration.setRepeatCurrentQueue(false);
 
-
-        final String s = postData(baseURL + "queue/configuration", queueConfiguration);
-
-        QueueConfiguration newQueueConfiguration = deserialize(s,QueueConfiguration.class);
-
+        final String s = getData(_baseURL + "queue/configuration");
+        return deserialize(s,QueueConfiguration.class);
     }
 
-    private static <T> T  deserialize(final String s, final Class<T> classOfT)
+    public QueueConfiguration setQueueConfiguration(QueueConfiguration queueConfiguration) throws IOException
+    {
+        final String s = postData(_baseURL + "queue/configuration", queueConfiguration);
+        QueueConfiguration newQueueConfiguration = deserialize(s,QueueConfiguration.class);
+        return newQueueConfiguration;
+    }
+
+    private <T> T  deserialize(final String s, final Class<T> classOfT)
     {
         Gson gson = new Gson();
-        return gson.fromJson(s,classOfT);
+        return gson.fromJson(s, classOfT);
     }
 
-    private static void addTrack() throws IOException
+    public Library readLibrary() throws IOException
+    {
+        String s = getData(_baseURL  + "library/");
+        return deserialize(s, Library.class);
+    }
+
+    public Image readImage(final String uri, boolean streamable) throws IOException
+    {
+        if (streamable)
+        {
+            InputStream inputStream = getDataAsStream(_baseURL + "media/" + uri);
+            return new Image(uri,inputStream);
+        }
+        else
+        {
+            final byte[] dataAsBytes = getDataAsBytes(_baseURL + "media/" + uri);
+            return new Image(uri,dataAsBytes);
+        }
+    }
+
+    public Library.Entry readFolder(final String uri, final int levels) throws IOException
+    {
+        String s = getData(_baseURL  + "media/" + uri + "?levels=" + levels);
+        return deserialize(s,Library.Entry.class);
+    }
+
+    public Playlist readPlaylist(final String uri) throws IOException
+    {
+        String s = getData(_baseURL  + "media/" + uri);
+        return deserialize(s,Playlist.class);
+    }
+
+    public Track readTrack(final String uri) throws IOException
+    {
+        String s = getData(_baseURL  + "media/" + uri);
+        return deserialize(s,Track.class);
+    }
+
+    public void queueTracks(boolean autoPlay, List<String> uris) throws IOException
     {
         QueueTracksRequest queueTracksRequest = new QueueTracksRequest();
-        queueTracksRequest.setAutoPlay(true);
-        queueTracksRequest.setURIQueue(Arrays.asList("spotify:track:6UaRii9AH6Zss9xNMEQ2M9", "spotify:track:34q1KaLX8h73xE06xPBmNB", "spotify:track:52JyHLUiugFECIYBWM2qdh"));
-
+        queueTracksRequest.setAutoPlay(autoPlay);
+        queueTracksRequest.setURIQueue(uris);
         final String s = postData("http://localhost:8080/jahspotify/queue/", queueTracksRequest);
-
     }
+
+    private InputStream getDataAsStream(final String url) throws IOException
+    {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        final HttpGet httpGet = new HttpGet(url);
+        final HttpResponse execute = httpClient.execute(httpGet);
+
+        if (execute.getStatusLine().getStatusCode() == 200)
+        {
+            return execute.getEntity().getContent();
+        }
+        return  null;
+    }
+
+    private static String getData(final String url) throws IOException
+    {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        final HttpGet httpGet = new HttpGet(url);
+        final HttpResponse execute = httpClient.execute(httpGet);
+
+        if (execute.getStatusLine().getStatusCode() == 200)
+        {
+            final InputStream content = execute.getEntity().getContent();
+            BufferedReader stringReader = new BufferedReader(new InputStreamReader(content));
+            StringBuffer sb = new StringBuffer();
+            String tmp = stringReader.readLine();
+            while (tmp != null)
+            {
+                sb.append(tmp);
+                tmp = stringReader.readLine();
+            }
+            return sb.toString();
+        }
+        return  null;
+    }
+
+    private static byte[] getDataAsBytes(final String url) throws IOException
+    {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        final HttpGet httpGet = new HttpGet(url);
+        final HttpResponse execute = httpClient.execute(httpGet);
+
+        if (execute.getStatusLine().getStatusCode() == 200)
+        {
+            final InputStream content = execute.getEntity().getContent();
+            // BufferedReader stringReader = new BufferedReader(new InputStreamReader(content));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[10000];
+
+            int len = content.read(buffer,0,10000);
+            while (len != -1)
+            {
+                baos.write(buffer,0,len);
+                len = content.read(buffer,0,10000);
+            }
+
+            return baos.toByteArray();
+        }
+        return  null;
+    }
+
 
     private static String postData(final String url, final Object obj) throws IOException
     {

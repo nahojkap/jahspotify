@@ -24,6 +24,24 @@ public class BaseController
     @Value(value = "${jahspotify.web.controller.default-media-expires-duration}")
     private int _defaultMediaExpirationTime;
 
+    protected jahspotify.web.media.Link toWebLink(final Link link)
+    {
+        return new jahspotify.web.media.Link(link.asString(), link.getType().toString());
+    }
+
+    protected List<jahspotify.web.media.Link> convertToStringLinks(final List<Link> tracks)
+    {
+        List<jahspotify.web.media.Link> stringLinks = new ArrayList<jahspotify.web.media.Link>(tracks.size());
+
+        for (Link track : tracks)
+        {
+            stringLinks.add(toWebLink(track));
+        }
+
+        return stringLinks;
+    }
+
+
     protected void writeResponse(final HttpServletResponse httpServletResponse, final SimpleStatusResponse simpleStatusResponse)
     {
         Gson gson = new Gson();

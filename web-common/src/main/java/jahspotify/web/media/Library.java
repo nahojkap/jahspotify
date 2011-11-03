@@ -52,7 +52,7 @@ public class Library
 
     public static class Entry
     {
-        private String id;
+        private Link id;
         private String name;
         private String type;
         private List<Entry> subEntries;
@@ -63,7 +63,7 @@ public class Library
 
         private String parentID;
 
-        public Entry(final String id, final String name, final String type)
+        public Entry(final Link id, final String name, final String type)
         {
             this.id = id;
             this.type = type;
@@ -80,12 +80,12 @@ public class Library
             this.type = type;
         }
 
-        public String getId()
+        public Link getId()
         {
             return id;
         }
 
-        public void setId(final String id)
+        public void setId(final Link id)
         {
             this.id = id;
         }
@@ -110,17 +110,17 @@ public class Library
             this.subEntries = subEntries;
         }
 
-        public static Entry createPlaylistEntry(final String id, final String name)
+        public static Entry createPlaylistEntry(final Link id, final String name)
         {
             return new Entry(id,name,PLAYLIST_ENTRY_TYPE);
         }
 
-        public static Entry createTrackEntry(final String id, final String name)
+        public static Entry createTrackEntry(final Link id, final String name)
         {
             return new Entry(id,name,TRACK_ENTRY_TYPE);
         }
 
-        public static Entry createFolderEntry(final String id, final String name)
+        public static Entry createFolderEntry(final Link id, final String name)
         {
             return new Entry(id,name,FOLDER_ENTRY_TYPE);
         }

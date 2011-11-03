@@ -29,12 +29,6 @@
 
     </dependencies>
 
-    <properties>
-        <spotify.username/>
-        <spotify.password/>
-    </properties>
-
-
     <build>
 
         <finalName>${project.artifactId}</finalName>
@@ -75,23 +69,6 @@
 
                 </configuration>
 
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-
-                <configuration>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                    <forkMode>once</forkMode>
-                    <systemPropertyVariables>
-                        <spotify.username>${spotify.username}</spotify.username>
-                        <spotify.password>${spotify.password}</spotify.password>
-                    </systemPropertyVariables>
-                    <environmentVariables>
-                        <LD_LIBRARY_PATH>${env.LD_LIBRARY_PATH}:${project.build.directory}</LD_LIBRARY_PATH>
-                    </environmentVariables>
-                </configuration>
             </plugin>
 
         </plugins>

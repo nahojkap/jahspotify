@@ -49,26 +49,31 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void track(final int token,final Link link)
             {
+                _log.debug(String.format("Track loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void playlist(final int token, final Link link)
             {
+                _log.debug(String.format("Playlist loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void album(final int token,final Link link)
             {
+                _log.debug(String.format("Album loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void image(final int token, final Link link)
             {
+                _log.debug(String.format("Image loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void artist(final int token,final Link link)
             {
+                _log.debug(String.format("Artist loaded: token=%d link=%s", token, link));
             }
         });
 
@@ -77,6 +82,8 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void searchCompleted(final int token, final SearchResult searchResult)
             {
+                _log.debug(String.format("Search completed: token=%d searchResult=%s", token, searchResult));
+
                 if (token > 0)
                 {
                     final SearchListener searchListener = _prioritySearchListeners.get(token);
@@ -145,10 +152,7 @@ public class JahSpotifyImpl implements JahSpotify
                     _log.warn("Node stack is not empty, yet we received synch completed");
                 }
 
-                if (_log.isDebugEnabled())
-                {
-                    debugPrintNodes(_rootNode, 0);
-                }
+                debugPrintNodes(_rootNode, 0);
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -177,8 +181,9 @@ public class JahSpotifyImpl implements JahSpotify
                 }
             }
 
-            public void metadataUpdated(String link)
+            public void metadataUpdated(String uri)
             {
+                final Link link = Link.create(uri);
                 _log.debug("Metadata updated for '" + link + "', initiating reload of watched playlists");
                 if (_synching)
                 {
@@ -193,6 +198,11 @@ public class JahSpotifyImpl implements JahSpotify
                 // - playlists
                 // - tracks
                 // - albums
+
+                for (PlaylistListener playlistListener : _playlistListeners)
+                {
+                    playlistListener.metadataUpdated(link);
+                }
 
             }
 
@@ -276,27 +286,29 @@ public class JahSpotifyImpl implements JahSpotify
 
     private void debugPrintNodes(final Node node, int indentation)
     {
-        String msg = "";
-        for (int i = 0; i < indentation; i++)
+        if (_log.isDebugEnabled())
         {
-            msg = msg + " ";
-        }
-        if (node instanceof PlaylistFolderNode)
-        {
-            msg = msg + "-" + node._name + "(" + node._id + ")";
-            _log.debug(msg);
-            List<Node> children = ((PlaylistFolderNode) node).getChildren();
-            for (Node child : children)
+            String msg = "";
+            for (int i = 0; i < indentation; i++)
             {
-                debugPrintNodes(child, indentation + 2);
+                msg = msg + " ";
+            }
+            if (node instanceof PlaylistFolderNode)
+            {
+                msg = msg + "-" + node._name + "(" + node._id + ")";
+                _log.debug(msg);
+                List<Node> children = ((PlaylistFolderNode) node).getChildren();
+                for (Node child : children)
+                {
+                    debugPrintNodes(child, indentation + 2);
+                }
+            }
+            else if (node instanceof PlaylistNode)
+            {
+                msg = msg + "* " + node._name + "(" + node._id + ")";
+                _log.debug(msg);
             }
         }
-        else if (node instanceof PlaylistNode)
-        {
-            msg = msg + "* " + node._name + "(" + node._id + ")";
-            _log.debug(msg);
-        }
-
     }
 
     public static JahSpotify getInstance()

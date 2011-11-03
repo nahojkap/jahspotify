@@ -8,7 +8,7 @@
 JavaVM* g_vm = NULL;
 
 jclass g_playbackListenerClass;
-jclass g_playlistListenerClass;
+jclass g_libraryListenerClass;
 jclass g_connectionListenerClass;
 jclass g_searchCompleteListenerClass;
 jclass g_mediaLoadedListenerClass;
@@ -356,7 +356,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
         fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeLibraryListener\n");
     }
-    g_playlistListenerClass = (*env)->NewGlobalRef(env,aClass);
+    g_libraryListenerClass = (*env)->NewGlobalRef(env,aClass);
 
     aClass = (*env)->FindClass(env, "jahspotify/SearchResult");
     if (aClass == NULL)

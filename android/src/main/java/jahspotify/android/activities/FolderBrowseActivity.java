@@ -1,12 +1,10 @@
 package jahspotify.android.activities;
 
 import java.io.IOException;
-import java.net.URI;
 
-import android.app.ListActivity;
-import android.content.Context;
+import android.app.*;
+import android.content.*;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import jahspotify.android.R;
@@ -16,13 +14,13 @@ import jahspotify.web.media.*;
 /**
  * @author Johan Lindquist
  */
-public class PlaylistBrowseActivity extends ListActivity implements ListView.OnScrollListener
+public class FolderBrowseActivity extends ListActivity implements ListView.OnScrollListener
 {
 
     private TextView mStatus;
 
     private boolean mBusy = false;
-    public PlaylistBrowseActivity.SlowAdapter _adapter;
+    public FolderBrowseActivity.SlowAdapter _adapter;
 
 
     /**
@@ -45,7 +43,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
          */
         public int getCount()
         {
-            return _currentPlaylist.getTracks().size();
+            return _currentFolder.getSubEntries().size();
         }
 
         /**
@@ -58,7 +56,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
          */
         public Object getItem(int position)
         {
-            return _currentPlaylist.getTracks().get(position);
+            return _currentFolder.getSubEntries().get(position);
         }
 
         /**
@@ -91,19 +89,37 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
             }
 
             text.setClickable(true);
+            text.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(final View view)
+                {
+                    try
+                    {
+                        final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
+                        if ("folder".equals(clickedEntry.getType()))
+                        {
+                            _currentFolder = LibraryRetriever.getEntry(clickedEntry.getId().getId(), 2);
+                            _adapter.notifyDataSetInvalidated();
+                        }
+                        else if ("playlist".equals(clickedEntry.getType()))
+                        {
+                            // Display a playlist!
+                            Intent intent = new Intent(FolderBrowseActivity.this, PlaylistBrowseActivity.class);
+                            intent.putExtra("URI",clickedEntry.getId().getId());
+                            startActivity(intent);
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
             if (!mBusy)
             {
-                try
-                {
-                    final String trackLink = _currentPlaylist.getTracks().get(position);
-                    Track track = LibraryRetriever.getTrack(trackLink);
-                    text.setText(track.getTitle());
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                text.setText(_currentFolder.getSubEntries().get(position).getName());
                 // Null tag means the view has the correct data
                 text.setTag(null);
             }
@@ -126,11 +142,9 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
         mStatus = (TextView) findViewById(R.id.status);
         mStatus.setText("Idle");
 
-        final String uri = getIntent().getStringExtra("URI");
         try
         {
-            Log.d("PlaylistBrowseActivity", "Retriving URI: " + uri);
-            _currentPlaylist = LibraryRetriever.getPlaylist(uri);
+            _currentFolder = LibraryRetriever.getRoot(2);
         }
         catch (IOException e)
         {
@@ -166,18 +180,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                     TextView t = (TextView) view.getChildAt(i);
                     if (t.getTag() != null)
                     {
-                        final String trackLink = _currentPlaylist.getTracks().get(first + i);
-
-                        try
-                        {
-                            Track track = LibraryRetriever.getTrack(trackLink);
-                            t.setText(track.getTitle());
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-
+                        t.setText(_currentFolder.getSubEntries().get(first + i).getName());
                         t.setTag(null);
                     }
                 }
@@ -195,7 +198,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
         }
     }
 
-    private Playlist _currentPlaylist;
+    private Library.Entry _currentFolder;
 
 
 }
