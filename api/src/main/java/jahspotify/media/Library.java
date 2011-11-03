@@ -48,6 +48,7 @@ public class Library
 
     public static class Entry
     {
+        private String parentID;
         private String id;
         private String name;
         private String type;
@@ -57,11 +58,22 @@ public class Library
         public static final String PLAYLIST_ENTRY_TYPE="playlist";
         public static final String TRACK_ENTRY_TYPE="track";
 
-        public Entry(final String id, final String name, final String type)
+        public Entry(final String parentID, final String id, final String name, final String type)
         {
+            this.parentID = parentID;
             this.id = id;
             this.type = type;
             this.name = name;
+        }
+
+        public String getParentID()
+        {
+            return parentID;
+        }
+
+        public void setParentID(final String parentID)
+        {
+            this.parentID = parentID;
         }
 
         public String getType()
@@ -104,19 +116,19 @@ public class Library
             this.subEntries = subEntries;
         }
 
-        public static Entry createPlaylistEntry(final String id, final String name)
+        public static Entry createPlaylistEntry(final String parentID, final String id, final String name)
         {
-            return new Entry(id,name,PLAYLIST_ENTRY_TYPE);
+            return new Entry(parentID,id,name,PLAYLIST_ENTRY_TYPE);
         }
 
-        public static Entry createTrackEntry(final String id, final String name)
+        public static Entry createTrackEntry(final String parentID, final String id, final String name)
         {
-            return new Entry(id,name,TRACK_ENTRY_TYPE);
+            return new Entry(parentID, id,name,TRACK_ENTRY_TYPE);
         }
 
-        public static Entry createFolderEntry(final String id, final String name)
+        public static Entry createFolderEntry(final String parentID, final String id, final String name)
         {
-            return new Entry(id,name,FOLDER_ENTRY_TYPE);
+            return new Entry(parentID, id,name,FOLDER_ENTRY_TYPE);
         }
 
         public void addSubEntry(final Entry entry)

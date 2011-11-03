@@ -1042,6 +1042,7 @@ int signalMetadataUpdated(sp_playlist *playlist)
         fprintf ( stderr, "jahspotify::signalMetadataUpdated: no playlist listener registered\n");
         return 1;
     }
+    threaded_signalMetadataUpdated(NULL);
 //     if (placeInThread(threaded_signalMetadataUpdated,NULL) != 0)
 //     {
 //       fprintf ( stderr, "jahspotify::signalMetadataUpdated: error placing onto thread\n");

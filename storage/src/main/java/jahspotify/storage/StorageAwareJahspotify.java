@@ -1,5 +1,6 @@
 package jahspotify.storage;
 
+import jahspotify.JahSpotify;
 import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.media.*;
 import jahspotify.storage.media.MediaStorage;
@@ -12,7 +13,7 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
 {
     private Log _log = LogFactory.getLog(StorageAwareJahspotify.class);
 
-    private static StorageAwareJahspotify _jahSpotify;
+    private static JahSpotify _jahSpotify;
 
     protected StorageAwareJahspotify()
     {
@@ -26,7 +27,7 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
     }
 
 
-    public static JahSpotifyImpl getInstance()
+    public static JahSpotify getInstanceStorageBasedInstance()
     {
         if (_jahSpotify == null)
         {
