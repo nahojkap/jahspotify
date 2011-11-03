@@ -34,7 +34,7 @@ public class JahSpotifyImpl implements JahSpotify
     private PlaylistFolderNode _currentPlaylistFolderNode = _rootNode;
 
     private Thread _jahSpotifyThread;
-    private static JahSpotifyImpl _jahSpotifyImpl;
+    private static JahSpotifyImpl _jahSpotify;
     private Library _library;
     private boolean _synching = false;
     private User _user;
@@ -259,6 +259,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void loggedIn()
             {
+                _log.debug("Logged in");
                 _loggedIn = true;
                 for (ConnectionListener listener : _connectionListeners)
                 {
@@ -298,13 +299,13 @@ public class JahSpotifyImpl implements JahSpotify
 
     }
 
-    public static JahSpotifyImpl getInstance()
+    public static JahSpotify getInstance()
     {
-        if (_jahSpotifyImpl == null)
+        if (_jahSpotify == null)
         {
-            _jahSpotifyImpl = new JahSpotifyImpl();
+            _jahSpotify = new JahSpotifyImpl();
         }
-        return _jahSpotifyImpl;
+        return _jahSpotify;
     }
 
     @Override
@@ -397,7 +398,7 @@ public class JahSpotifyImpl implements JahSpotify
         int len = -1;
         try
         {
-            len = _jahSpotifyImpl.readImage(uri.asString(), outputStream);
+            len = readImage(uri.asString(), outputStream);
         }
         finally
         {

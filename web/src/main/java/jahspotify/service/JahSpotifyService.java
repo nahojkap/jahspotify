@@ -28,7 +28,7 @@ public class JahSpotifyService
         {
             if (_mediaStorage != null)
             {
-                _jahSpotify = StorageAwareJahspotify.getInstance();
+                _jahSpotify = StorageAwareJahspotify.getInstanceStorageBasedInstance();
                 ((StorageAwareJahspotify)_jahSpotify).setMediaStorage(_mediaStorage);
             }
             else

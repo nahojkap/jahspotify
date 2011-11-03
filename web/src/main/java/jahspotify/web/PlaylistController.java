@@ -4,6 +4,7 @@ import java.util.*;
 import javax.servlet.http.*;
 
 import jahspotify.media.*;
+import jahspotify.media.Library;
 import jahspotify.service.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,22 +52,9 @@ public class PlaylistController extends BaseController
             Library.Entry folderEntry = _jahSpotifyService.getJahSpotify().readFolder(uri, level);
             _log.debug("Got folder: " + folderEntry);
 
-            JSTreeNode rootNode = new JSTreeNode();
-            rootNode.setState("open");
-            final JSTreeNode.JSTreeNodeData jsTreeNodeData = new JSTreeNode.JSTreeNodeData();
-            jsTreeNodeData.setTitle(folderEntry.getName());
-            rootNode.setData(jsTreeNodeData);
-            final HashMap<String, String> attr = new HashMap<String, String>();
-            attr.put("id", folderEntry.getId());
-            rootNode.setAttr(attr);
+            jahspotify.web.media.Library.Entry rootFolder = convertToWebEntry(null, folderEntry);
 
-            final List<Library.Entry> children = folderEntry.getSubEntries();
-            for (Library.Entry child : children)
-            {
-                rootNode.addChild(processEntry(child));
-            }
-
-            writeResponseGeneric(httpServletResponse, rootNode);
+            writeResponseGeneric(httpServletResponse, rootFolder);
         }
         catch (Exception e)
         {
@@ -76,9 +64,42 @@ public class PlaylistController extends BaseController
         }
     }
 
+    private jahspotify.web.media.Library.Entry convertToWebEntry(final jahspotify.web.media.Library.Entry parent, final Library.Entry folderEntry)
+    {
+        final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        webFolderEntry.setParentFolderID((parent == null ? null : parent.getId()));
+        for (Library.Entry subEntry : folderEntry.getSubEntries())
+        {
+            webFolderEntry.addSubEntry(convertToWebEntry(webFolderEntry, subEntry));
+        }
+        return webFolderEntry;
+    }
 
     @RequestMapping(value = "/library/", method = RequestMethod.GET)
     public void retrieveLibrary(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
+        final jahspotify.web.media.Library webLibrary = convertToWebLibrary(library);
+        writeResponseGeneric(httpServletResponse, webLibrary);
+    }
+
+    private jahspotify.web.media.Library convertToWebLibrary(final Library library)
+    {
+        if (library == null)
+        {
+            return null;
+        }
+        jahspotify.web.media.Library webLibrary = new jahspotify.web.media.Library();
+        webLibrary.setOwner(library.getOwner());
+        for (Library.Entry entry : library.getEntries())
+        {
+            webLibrary.addEntry(convertToWebEntry(null,entry));
+        }
+        return webLibrary;
+    }
+
+    @RequestMapping(value = "/ajax/library/", method = RequestMethod.GET)
+    public void retrieveLibraryAjax(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         final Library library = _jahSpotifyService.getJahSpotify().retrieveLibrary();
 

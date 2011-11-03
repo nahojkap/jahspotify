@@ -638,7 +638,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
     if (sp_user_is_loaded(user))
     {
         fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: user is loaded\n" );
-        value = sp_user_full_name(user);
+        value = sp_user_display_name(user);
         if (value)
         {
             setObjectStringField(env,userInstance,"fullName",value);
@@ -652,11 +652,6 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
         if (value)
         {
             setObjectStringField(env,userInstance,"displayName",value);
-        }
-        value = sp_user_picture(user);
-        if (value)
-        {
-            setObjectStringField(env,userInstance,"imageURL",value);
         }
 
         // Country encoded in an integer 'SE' = 'S' << 8 | 'E'
@@ -1088,7 +1083,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
         setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
 	
-        sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,artistBrowseCompleteCallback,NULL);
+        sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,SP_ARTISTBROWSE_FULL,artistBrowseCompleteCallback,NULL);
 
         if (artistBrowse)
         {

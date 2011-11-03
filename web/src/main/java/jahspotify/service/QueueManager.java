@@ -53,10 +53,13 @@ public class QueueManager
     @Autowired
     private MediaPlayer _mediaPlayer;
 
+    @Autowired
+    private JahSpotifyService _jahSpotifyService;
+
     @PostConstruct
     public void initialize()
     {
-        _jahSpotify = JahSpotifyImpl.getInstance();
+        _jahSpotify = _jahSpotifyService.getJahSpotify();
 
         _mediaPlayer.addMediaPlayerListener(new MediaPlayerListener()
         {
