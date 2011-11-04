@@ -18,12 +18,12 @@ public class Album extends Media
     /**
      * Artist of this album.
      */
-    private String artist;
+    private Link artist;
 
     /**
      * The identifier for this albums cover image (32-character string).
      */
-    private String cover;
+    private Link cover;
 
     /**
      * The type of this album (compilation, album, single).
@@ -88,7 +88,7 @@ public class Album extends Media
      *
      * @return An {@String Artist} object.
      */
-    public String getArtist()
+    public Link getArtist()
     {
         return this.artist;
     }
@@ -98,7 +98,7 @@ public class Album extends Media
      *
      * @param artist The desired {@String Artist} of this album.
      */
-    public void setArtist(String artist)
+    public void setArtist(Link artist)
     {
         this.artist = artist;
     }
@@ -108,7 +108,7 @@ public class Album extends Media
      *
      * @return A 32-character image identifier.
      */
-    public String getCover()
+    public Link getCover()
     {
         return this.cover;
     }
@@ -118,7 +118,7 @@ public class Album extends Media
      *
      * @param cover A 40-character image identifier.
      */
-    public void setCover(String cover)
+    public void setCover(Link cover)
     {
         this.cover = cover;
     }
