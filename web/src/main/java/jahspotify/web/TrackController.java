@@ -10,6 +10,7 @@ import jahspotify.media.Track;
 import jahspotify.service.*;
 import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -52,9 +53,10 @@ public class TrackController extends BaseController
     {
         jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
 
+        BeanUtils.copyProperties(track, webTrack,new String[] { "album", "artists", "id"});
         webTrack.setAlbum(toWebLink(track.getAlbum()));
         webTrack.setArtists(convertToStringLinks(track.getArtists()));
-        webTrack.setCover(track.getCover());
+        webTrack.setId(toWebLink(track.getId()));
 
         return webTrack;
 

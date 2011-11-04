@@ -1,7 +1,6 @@
 package jahspotify.android.activities;
 
 import java.io.IOException;
-import java.net.URI;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -91,12 +90,28 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
             }
 
             text.setClickable(true);
+            text.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(final View view)
+                {
+                    final Link link = _currentPlaylist.getTracks().get(position);
+                    try
+                    {
+                        LibraryRetriever.queue(link);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
             if (!mBusy)
             {
                 try
                 {
-                    final String trackLink = _currentPlaylist.getTracks().get(position);
+                    final Link trackLink = _currentPlaylist.getTracks().get(position);
                     Track track = LibraryRetriever.getTrack(trackLink);
                     text.setText(track.getTitle());
                 }
@@ -130,7 +145,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
         try
         {
             Log.d("PlaylistBrowseActivity", "Retriving URI: " + uri);
-            _currentPlaylist = LibraryRetriever.getPlaylist(uri);
+            _currentPlaylist = LibraryRetriever.getPlaylist(new Link(uri,"playlist"));
         }
         catch (IOException e)
         {
@@ -166,7 +181,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                     TextView t = (TextView) view.getChildAt(i);
                     if (t.getTag() != null)
                     {
-                        final String trackLink = _currentPlaylist.getTracks().get(first + i);
+                        final Link trackLink = _currentPlaylist.getTracks().get(first + i);
 
                         try
                         {

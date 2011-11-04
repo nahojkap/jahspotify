@@ -99,7 +99,7 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
                         final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
                         if ("folder".equals(clickedEntry.getType()))
                         {
-                            _currentFolder = LibraryRetriever.getEntry(clickedEntry.getId().getId(), 2);
+                            _currentFolder = LibraryRetriever.getEntry(clickedEntry.getId(), 2);
                             _adapter.notifyDataSetInvalidated();
                         }
                         else if ("playlist".equals(clickedEntry.getType()))
@@ -114,6 +114,26 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
                     {
                         e.printStackTrace();
                     }
+                }
+            });
+
+            text.setLongClickable(true);
+            text.setOnLongClickListener(new View.OnLongClickListener()
+            {
+                @Override
+                public boolean onLongClick(final View view)
+                {
+                    final Link link = _currentFolder.getSubEntries().get(position).getId();
+                    try
+                    {
+                        LibraryRetriever.queue(link);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    return true;
                 }
             });
 

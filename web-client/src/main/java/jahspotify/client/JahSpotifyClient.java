@@ -108,7 +108,7 @@ public class JahSpotifyClient
         QueueTracksRequest queueTracksRequest = new QueueTracksRequest();
         queueTracksRequest.setAutoPlay(autoPlay);
         queueTracksRequest.setURIQueue(uris);
-        final String s = postData("http://localhost:8080/jahspotify/queue/", queueTracksRequest);
+        final String s = postData(_baseURL + "queue/", queueTracksRequest);
     }
 
     private InputStream getDataAsStream(final String url) throws IOException

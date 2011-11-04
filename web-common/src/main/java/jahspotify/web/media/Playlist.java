@@ -18,14 +18,14 @@ public class Playlist extends Container
     private String description;
     private String picture;
 
-    private List<String> tracks;
+    private List<Link> tracks;
 
     public Playlist()
     {
         this.id = null;
         this.name = null;
         this.author = null;
-        this.tracks = new ArrayList<String>();
+        this.tracks = null;
         this.collaborative = false;
         this.description = null;
         this.picture = null;
@@ -56,11 +56,11 @@ public class Playlist extends Container
         return this.author;
     }
 
-    public void addTrack(String track)
+    public void addTrack(Link track)
     {
         if (tracks == null)
         {
-            tracks = new ArrayList<String>();
+            tracks = new ArrayList<Link>();
         }
         this.tracks.add(track);
     }
@@ -70,12 +70,12 @@ public class Playlist extends Container
         this.author = author;
     }
 
-    public List<String> getTracks()
+    public List<Link> getTracks()
     {
         return this.tracks;
     }
 
-    public void setTracks(List<String> tracks)
+    public void setTracks(List<Link> tracks)
     {
         this.tracks = tracks;
     }

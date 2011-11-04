@@ -1554,7 +1554,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEn
             return;
         }
 
-        while (!sp_track_is_available(g_sess,t))
+        while (!sp_track_is_loaded(t))
         {
             fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack: Waiting for track ...\n");
             sleep(1);
