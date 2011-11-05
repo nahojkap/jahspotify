@@ -145,7 +145,7 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
         try
         {
             Log.d("PlaylistBrowseActivity", "Retriving URI: " + uri);
-            _currentPlaylist = LibraryRetriever.getPlaylist(new Link(uri,"playlist"));
+            _currentPlaylist = LibraryRetriever.getPlaylist(new Link(uri, Link.Type.PLAYLIST));
         }
         catch (IOException e)
         {

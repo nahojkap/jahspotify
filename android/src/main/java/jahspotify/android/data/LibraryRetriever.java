@@ -22,7 +22,7 @@ public class LibraryRetriever
 
     public static Library.Entry getRoot(int levels) throws IOException
     {
-        return getEntry(new Link("jahspotify:folder:ROOT","folder"), levels);
+        return getEntry(new Link("jahspotify:folder:ROOT", Link.Type.FOLDER), levels);
     }
 
     public static Library.Entry getEntry(final Link link, int levels) throws IOException

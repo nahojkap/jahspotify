@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.servlet.http.*;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import jahspotify.media.Link;
 import jahspotify.service.JahSpotifyService;
 import org.apache.commons.logging.*;
@@ -26,14 +26,19 @@ public class BaseController
 
     protected jahspotify.web.media.Link toWebLink(final Link link)
     {
-        return new jahspotify.web.media.Link(link.asString(), link.getType().toString());
+        return new jahspotify.web.media.Link(link.asString(), jahspotify.web.media.Link.Type.valueOf(link.getType().name()));
     }
 
-    protected List<jahspotify.web.media.Link> convertToStringLinks(final List<Link> tracks)
+    protected List<jahspotify.web.media.Link> toWebLinks(final List<Link> links)
     {
-        List<jahspotify.web.media.Link> stringLinks = new ArrayList<jahspotify.web.media.Link>(tracks.size());
+        if (links == null || links.isEmpty())
+        {
+            return null;
+        }
 
-        for (Link track : tracks)
+        List<jahspotify.web.media.Link> stringLinks = new ArrayList<jahspotify.web.media.Link>(links.size());
+
+        for (Link track : links)
         {
             stringLinks.add(toWebLink(track));
         }

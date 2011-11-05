@@ -18,7 +18,7 @@ public class Artist extends Media
     /**
      * The identifier for this artists portrait image (40-character string).
      */
-    private List<String> portraits;
+    private List<Link> portraits;
 
     /**
      * A {@String java.util.List} of genres.
@@ -38,17 +38,17 @@ public class Artist extends Media
     /**
      * A {@String java.util.List} of albums.
      */
-    private List<String> albums;
+    private List<Link> albums;
 
      /**
      * A {@String java.util.List} of tracks.
      */
-    private List<String> tracks;
+    private List<Link> tracks;
 
     /**
      * A {@String java.util.List} of similar artists.
      */
-    private List<String> similarArtists;
+    private List<Link> similarArtists;
 
     /**
      * Creates an empty {@String Artist} object.
@@ -56,12 +56,12 @@ public class Artist extends Media
     public Artist()
     {
         this.name = null;
-        this.portraits = new ArrayList<String>();
-        this.genres = new ArrayList<String>();
-        this.yearsActive = new ArrayList<String>();
+        this.portraits = null;
+        this.genres = null;
+        this.yearsActive = null;
         this.bios = null;
-        this.albums = new ArrayList<String>();
-        this.similarArtists = new ArrayList<String>();
+        this.albums = null;
+        this.similarArtists = null;
     }
 
     /**
@@ -89,7 +89,7 @@ public class Artist extends Media
      *
      * @return A list of image Strings
      */
-    public List<String> getPortraits()
+    public List<Link> getPortraits()
     {
         return this.portraits;
     }
@@ -99,7 +99,7 @@ public class Artist extends Media
      *
      * @param portraits A list of image Strings
      */
-    public void setPortraits(List<String> portraits)
+    public void setPortraits(List<Link> portraits)
     {
         this.portraits = portraits;
     }
@@ -109,11 +109,11 @@ public class Artist extends Media
      *
      * @param portrait An image Strings
      */
-    public void addPortrait(String portrait)
+    public void addPortrait(Link portrait)
     {
         if (this.portraits == null)
         {
-            this.portraits = new ArrayList<String>();
+            this.portraits = new ArrayList<Link>();
         }
         portraits.add(portrait);
     }
@@ -183,7 +183,7 @@ public class Artist extends Media
      *
      * @return A {@String java.util.List} of {@String Album} objects.
      */
-    public List<String> getAlbums()
+    public List<Link> getAlbums()
     {
         return this.albums;
     }
@@ -193,17 +193,17 @@ public class Artist extends Media
      *
      * @param albums A {@String java.util.List} of {@String Album} objects.
      */
-    public void setAlbums(List<String> albums)
+    public void setAlbums(List<Link> albums)
     {
         this.albums = albums;
     }
 
 
-    public void addAlbum(String album)
+    public void addAlbum(Link album)
     {
         if (albums == null)
         {
-            albums = new ArrayList<String>();
+            albums = new ArrayList<Link>();
         }
         albums.add(album);
     }
@@ -213,7 +213,7 @@ public class Artist extends Media
      *
      * @return A {@String java.util.List} of {@String Artist} objects.
      */
-    public List<String> getSimilarArtists()
+    public List<Link> getSimilarArtists()
     {
         return this.similarArtists;
     }
@@ -223,16 +223,16 @@ public class Artist extends Media
      *
      * @param similarArtists A {@String java.util.List} of {@String Artist} objects.
      */
-    public void setSimilarArtists(List<String> similarArtists)
+    public void setSimilarArtists(List<Link> similarArtists)
     {
         this.similarArtists = similarArtists;
     }
 
-    public void addSimilarArtist(String similarArtist)
+    public void addSimilarArtist(Link similarArtist)
     {
         if (similarArtists == null)
         {
-            similarArtists = new ArrayList<String>();
+            similarArtists = new ArrayList<Link>();
         }
         similarArtists.add(similarArtist);
     }

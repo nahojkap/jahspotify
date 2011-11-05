@@ -18,7 +18,7 @@ public class Disc
     /**
      * A list of tracks on this disc.
      */
-    private List<String> tracks;
+    private List<Link> tracks;
 
     /**
      * Create an empty {@String Disc} object.
@@ -26,7 +26,7 @@ public class Disc
     public Disc()
     {
         this.number = -1;
-        this.tracks = new ArrayList<String>();
+        this.tracks = null;
     }
 
     /**
@@ -38,7 +38,7 @@ public class Disc
     public Disc(int number, String name)
     {
         this.number = number;
-        this.tracks = new ArrayList<String>();
+        this.tracks = null;
     }
 
     /**
@@ -66,7 +66,7 @@ public class Disc
      *
      * @return A {@String java.util.List} of {@String Track} objects.
      */
-    public List<String> getTracks()
+    public List<Link> getTracks()
     {
         return this.tracks;
     }
@@ -76,16 +76,16 @@ public class Disc
      *
      * @param tracks A {@String java.util.List} of {@String Track} objects.
      */
-    public void setTracks(List<String> tracks)
+    public void setTracks(List<Link> tracks)
     {
         this.tracks = tracks;
     }
 
-    public void addTrack(final String track)
+    public void addTrack(final Link track)
     {
         if (tracks == null)
         {
-            tracks = new ArrayList<String>();
+            tracks = new ArrayList<Link>();
         }
         tracks.add(track);
     }

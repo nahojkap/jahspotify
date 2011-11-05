@@ -3,12 +3,10 @@ package jahspotify.web;
 import java.util.*;
 import javax.servlet.http.*;
 
-import jahspotify.media.*;
 import jahspotify.media.Library;
 import jahspotify.media.Link;
 import jahspotify.media.Playlist;
 import jahspotify.service.*;
-import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -51,7 +49,7 @@ public class PlaylistController extends BaseController
         webPlaylist.setId(toWebLink(playlist.getId()));
         webPlaylist.setPicture((playlist.getPicture() != null ? playlist.getPicture().asString() : null));
         webPlaylist.setName(playlist.getName());
-        webPlaylist.setTracks(convertToStringLinks(playlist.getTracks()));
+        webPlaylist.setTracks(toWebLinks(playlist.getTracks()));
         return webPlaylist;
     }
 
@@ -75,7 +73,7 @@ public class PlaylistController extends BaseController
 
     private jahspotify.web.media.Library.Entry convertToWebEntry(final Library.Entry folderEntry)
     {
-        final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(new jahspotify.web.media.Link(folderEntry.getId(), folderEntry.getType()), folderEntry.getName(), folderEntry.getType());
+        final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(new jahspotify.web.media.Link(folderEntry.getId(), jahspotify.web.media.Link.Type.valueOf(folderEntry.getType())), folderEntry.getName(), folderEntry.getType());
         webFolderEntry.setParentID(folderEntry.getParentID());
         for (Library.Entry subEntry : folderEntry.getSubEntries())
         {

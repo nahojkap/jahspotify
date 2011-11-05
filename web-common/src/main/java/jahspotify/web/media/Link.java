@@ -6,16 +6,34 @@ package jahspotify.web.media;
 public class Link
 {
     private String id;
-    private String type;
+    private Type type;
 
     public Link()
     {
     }
 
-    public Link(final String id, final String type)
+    public Link(final String id, final Type type)
     {
         this.id = id;
         this.type = type;
+    }
+
+     /**
+     * Different possible link types.
+     */
+    public static enum Type
+    {
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
+
+        /**
+         * Returns the lower-case name of this enum constant.
+         *
+         * @return The lower-case name of this enum constant.
+         */
+        public String toString()
+        {
+            return this.name().toLowerCase();
+        }
     }
 
     public String getId()
@@ -28,12 +46,12 @@ public class Link
         this.id = id;
     }
 
-    public String getType()
+    public Type getType()
     {
         return type;
     }
 
-    public void setType(final String type)
+    public void setType(final Type type)
     {
         this.type = type;
     }

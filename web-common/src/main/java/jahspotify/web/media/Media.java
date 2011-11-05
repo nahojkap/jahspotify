@@ -45,10 +45,10 @@ public class Media
     protected Media()
     {
         this.id = null;
-        this.redirects = new ArrayList<String>();
+        this.redirects = null;
         this.popularity = -1;
-        this.restrictions = new ArrayList<Restriction>();
-        this.externalIds = new HashMap<String, String>();
+        this.restrictions = null;
+        this.externalIds = null;
     }
 
     /**
@@ -97,6 +97,10 @@ public class Media
      */
     public void addRedirect(String redirect)
     {
+        if (this.redirects == null)
+        {
+            this.redirects = new ArrayList<String>();
+        }
         this.redirects.add(redirect);
     }
 
@@ -152,13 +156,17 @@ public class Media
             throw new IllegalArgumentException("Expecting a 2-letter country code!");
         }
 
-        for (Restriction restriction : this.restrictions)
+        if (this.restrictions != null)
         {
-            if (restriction.isCatalogue(catalogue) &&
-                    (restriction.isForbidden(country) ||
-                            !restriction.isAllowed(country)))
+
+            for (Restriction restriction : this.restrictions)
             {
-                return true;
+                if (restriction.isCatalogue(catalogue) &&
+                        (restriction.isForbidden(country) ||
+                                !restriction.isAllowed(country)))
+                {
+                    return true;
+                }
             }
         }
 
@@ -178,10 +186,14 @@ public class Media
     /**
      * Get the media external identifiers.
      *
-     * @return A {@String java.util.Map} of external services and their identifers for the media.
+     * @return A {@String java.util.Map} of external services and their identifiers for the media.
      */
     public Map<String, String> getExternalIds()
     {
+        if (externalIds != null && externalIds.isEmpty())
+        {
+            return null;
+        }
         return this.externalIds;
     }
 
@@ -193,6 +205,10 @@ public class Media
      */
     public String getExternalId(String service)
     {
+        if (externalIds == null)
+        {
+            return null;
+        }
         return this.externalIds.get(service);
     }
 

@@ -1,14 +1,10 @@
 package jahspotify.web;
 
-import java.io.*;
 import javax.servlet.http.*;
 
-import com.google.gson.Gson;
-import jahspotify.media.*;
 import jahspotify.media.Link;
 import jahspotify.media.Track;
 import jahspotify.service.*;
-import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
@@ -37,6 +33,12 @@ public class TrackController extends BaseController
             final Link uri = retrieveLink(httpServletRequest);
             final Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
 
+            if (track == null)
+            {
+                super.writeMediaNotReadable(httpServletResponse);
+                return;
+            }
+
             jahspotify.web.media.Track webTrack = convertToWebTrack(track);
 
             writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, webTrack);
@@ -53,10 +55,12 @@ public class TrackController extends BaseController
     {
         jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
 
-        BeanUtils.copyProperties(track, webTrack,new String[] { "album", "artists", "id"});
         webTrack.setAlbum(toWebLink(track.getAlbum()));
-        webTrack.setArtists(convertToStringLinks(track.getArtists()));
+        webTrack.setArtists(toWebLinks(track.getArtists()));
         webTrack.setId(toWebLink(track.getId()));
+        // webTrack.setRestrictions(toWebRestrictions(track.getRestrictions()));
+
+        BeanUtils.copyProperties(track, webTrack,new String[] { "id", "restrictions", "album", "artists" });
 
         return webTrack;
 

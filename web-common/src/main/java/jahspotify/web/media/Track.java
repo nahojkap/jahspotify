@@ -19,7 +19,7 @@ public class Track extends Media
     /**
      * {@String Artist}s of this track.
      */
-    private List<Link> artists = new ArrayList<Link>();
+    private List<Link> artists;
 
     /**
      * A {@String String} to the album which this track belongs to.
@@ -39,7 +39,7 @@ public class Track extends Media
     /**
      * The identifier for this tracks cover image (32-character string).
      */
-    private String cover;
+    private Link cover;
 
     /**
      * If this track is explicit.
@@ -52,7 +52,7 @@ public class Track extends Media
     public Track()
     {
         this.title = null;
-        this.artists = new ArrayList<Link>();
+        this.artists = null;
         this.album = null;
         this.trackNumber = -1;
         this.length = -1;
@@ -177,26 +177,6 @@ public class Track extends Media
         }
 
         this.length = length;
-    }
-
-    /**
-     * Get the tracks cover image identifier.
-     *
-     * @return A 32-character image identifier.
-     */
-    public String getCover()
-    {
-        return this.cover;
-    }
-
-    /**
-     * Set the tracks cover image identifier.
-     *
-     * @param cover A 32-character image identifier.
-     */
-    public void setCover(String cover)
-    {
-        this.cover = cover;
     }
 
     /**

@@ -209,7 +209,7 @@ public class Album extends Media
         this.discs = discs;
     }
 
-    public void addTrack(int disc, String track)
+    public void addTrack(int disc, Link track)
     {
         if (discs == null)
         {
@@ -237,9 +237,9 @@ public class Album extends Media
      *
      * @return A {@String java.util.List} of {@String Track} objects.
      */
-    public List<String> getTracks()
+    public List<Link> getTracks()
     {
-        List<String> tracks = new ArrayList<String>();
+        List<Link> tracks = new ArrayList<Link>();
 
         for (Disc disc : this.discs)
         {

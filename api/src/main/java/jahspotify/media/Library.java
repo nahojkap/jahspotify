@@ -43,7 +43,7 @@ public class Library
 
     public String toString()
     {
-        return String.format("[RootFolder: %s, %d]", this.owner);
+        return String.format("[RootFolder: %s, %d]", this.owner,0);
     }
 
     public static class Entry
@@ -54,9 +54,9 @@ public class Library
         private String type;
         private List<Entry> subEntries = new ArrayList<Entry>();
 
-        public static final String FOLDER_ENTRY_TYPE="folder";
-        public static final String PLAYLIST_ENTRY_TYPE="playlist";
-        public static final String TRACK_ENTRY_TYPE="track";
+        public static final String FOLDER_ENTRY_TYPE="FOLDER";
+        public static final String PLAYLIST_ENTRY_TYPE="PLAYLIST";
+        public static final String TRACK_ENTRY_TYPE="TRACK";
 
         public Entry(final String parentID, final String id, final String name, final String type)
         {

@@ -1,11 +1,13 @@
 package jahspotify.web;
 
 import java.io.*;
+import java.util.*;
 import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 import jahspotify.media.*;
 import jahspotify.media.Album;
+import jahspotify.media.Disc;
 import jahspotify.media.Link;
 import jahspotify.service.*;
 import jahspotify.web.media.*;
@@ -31,11 +33,13 @@ public class AlbumController extends BaseController
             final Link link = retrieveLink(httpServletRequest);
             Album album = _jahSpotifyService.getJahSpotify().readAlbum(link);
 
+            if (album == null)
+            {
+                super.writeMediaNotReadable(httpServletResponse);
+                return;
+            }
             jahspotify.web.media.Album webAlbum = convertToWebAlbum(album);
-
-            _log.debug("Got album: " + album);
             super.writeResponseGeneric(httpServletResponse, webAlbum);
-
         }
         catch (Exception e)
         {
@@ -52,9 +56,29 @@ public class AlbumController extends BaseController
         webAlbum.setId(toWebLink(album.getId()));
         webAlbum.setCover(toWebLink(album.getCover()));
         webAlbum.setArtist(toWebLink(album.getArtist()));
+        webAlbum.setDiscs(toWebDiscs(album.getDiscs()));
+        webAlbum.setType(jahspotify.web.media.AlbumType.valueOf(album.getType().name()));
+        // webAlbum.setRestrictions(toWebRestrictions(album.getRestrictions()));
 
-        BeanUtils.copyProperties(album, webAlbum, new String[]{ "id", "artist", "cover"});
+        BeanUtils.copyProperties(album, webAlbum, new String[]{ "id", "restrictions", "artist", "cover", "type", "discs"  });
         return webAlbum;
+    }
+
+    private List<jahspotify.web.media.Disc> toWebDiscs(final List<Disc> discs)
+    {
+        List<jahspotify.web.media.Disc> webDiscs = new ArrayList<jahspotify.web.media.Disc>();
+        for (Disc disc : discs)
+        {
+            webDiscs.add(toWebDisc(disc));
+        }
+        return null;
+    }
+
+    private jahspotify.web.media.Disc toWebDisc(final Disc disc)
+    {
+        jahspotify.web.media.Disc webDisc = new jahspotify.web.media.Disc();
+        webDisc.setTracks(toWebLinks(disc.getTracks()));
+        return null;
     }
 
 }

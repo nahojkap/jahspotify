@@ -780,46 +780,46 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
                 sp_link_release(albumLink);
 
             }
-
-            int numArtists = sp_track_num_artists(track);
-            if (numArtists > 0)
-            {
-                jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addArtist","(Ljahspotify/media/Link;)V");
-
-                if (jMethod == NULL)
-                {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addArtist(link) on class Track\n");
-                    return NULL;
-                }
-
-                int i = 0;
-                for (i = 0; i < numArtists; i++)
-                {
-                    sp_artist *artist = sp_track_artist(track,i);
-                    if (artist)
-                    {
-                        sp_artist_add_ref(artist);
-
-                        sp_link *artistLink = sp_link_create_from_artist(artist);
-                        if (artistLink)
-                        {
-                            sp_link_add_ref(artistLink);
-
-                            jobject artistJLink = createJLinkInstance(env,artistLink);
-
-                            // set it on the track
-                            (*env)->CallVoidMethod(env,trackInstance,jMethod,artistJLink);
-
-                            sp_link_release(artistLink);
-
-                        }
-                        sp_artist_release(artist);
-                    }
-                }
-            }
-
             sp_album_release(album);
         }
+
+        int numArtists = sp_track_num_artists(track);
+        if (numArtists > 0)
+        {
+            jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addArtist","(Ljahspotify/media/Link;)V");
+
+            if (jMethod == NULL)
+            {
+                fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addArtist(link) on class Track\n");
+                return NULL;
+            }
+
+            int i = 0;
+            for (i = 0; i < numArtists; i++)
+            {
+                sp_artist *artist = sp_track_artist(track,i);
+                if (artist)
+                {
+                    sp_artist_add_ref(artist);
+
+                    sp_link *artistLink = sp_link_create_from_artist(artist);
+                    if (artistLink)
+                    {
+                        sp_link_add_ref(artistLink);
+
+                        jobject artistJLink = createJLinkInstance(env,artistLink);
+
+                        // set it on the track
+                        (*env)->CallVoidMethod(env,trackInstance,jMethod,artistJLink);
+
+                        sp_link_release(artistLink);
+
+                    }
+                    sp_artist_release(artist);
+                }
+            }
+        }
+
         sp_link_release(trackLink);
     }
     return trackInstance;

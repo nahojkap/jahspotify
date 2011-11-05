@@ -5,7 +5,11 @@ import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 import jahspotify.media.*;
+import jahspotify.media.Artist;
+import jahspotify.media.Link;
+import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,15 +31,33 @@ public class ArtistController extends BaseController
             if (artist == null)
             {
                 super.writeMediaNotReadable(httpServletResponse);
+                return;
             }
-            _log.debug("Got artist: " + artist);
-            super.writeResponseGeneric(httpServletResponse,artist);
+
+            jahspotify.web.media.Artist webArtist = convertToWebArtist(artist);
+
+            super.writeResponseGeneric(httpServletResponse,webArtist);
         }
         catch (Exception e)
         {
             _log.error("Error while retrieving artist: " + e.getMessage(), e);
             super.writeErrorResponse(httpServletResponse, e);
         }
+    }
+
+    private jahspotify.web.media.Artist convertToWebArtist(final Artist artist)
+    {
+        jahspotify.web.media.Artist webArtist = new jahspotify.web.media.Artist();
+        webArtist.setAlbums(toWebLinks(artist.getAlbums()));
+        webArtist.setPortraits(toWebLinks(artist.getPortraits()));
+        webArtist.setSimilarArtists(toWebLinks(artist.getSimilarArtists()));
+        webArtist.setId(toWebLink(artist.getId()));
+        // webArtist.setRestrictions(toWebRestrictions(artist.getRestrictions()));
+
+        BeanUtils.copyProperties(artist, webArtist, new String[]{"id", "restrictions", "albums", "similarArtists", "portraits"});
+
+
+        return null;
     }
 
 }
