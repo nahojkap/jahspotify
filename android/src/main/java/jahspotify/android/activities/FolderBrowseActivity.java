@@ -97,12 +97,12 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
                     try
                     {
                         final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
-                        if ("folder".equals(clickedEntry.getType()))
+                        if ("FOLDER".equals(clickedEntry.getType()))
                         {
                             _currentFolder = LibraryRetriever.getEntry(clickedEntry.getId(), 2);
                             _adapter.notifyDataSetInvalidated();
                         }
-                        else if ("playlist".equals(clickedEntry.getType()))
+                        else if ("PLAYLIST".equals(clickedEntry.getType()))
                         {
                             // Display a playlist!
                             Intent intent = new Intent(FolderBrowseActivity.this, PlaylistBrowseActivity.class);
@@ -164,7 +164,7 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
 
         try
         {
-            _currentFolder = LibraryRetriever.getRoot(2);
+            _currentFolder = LibraryRetriever.getRoot(1);
         }
         catch (IOException e)
         {

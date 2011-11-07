@@ -59,6 +59,7 @@ jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
 static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
                            int num_tracks, int position, void *userdata )
 {
+    fprintf(stderr,"jahspotify::tracks_added: %s\n",sp_playlist_name(pl));
 }
 
 /**
@@ -72,6 +73,7 @@ static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
 static void tracks_removed ( sp_playlist *pl, const int *tracks,
                              int num_tracks, void *userdata )
 {
+    fprintf(stderr,"jahspotify::tracks_removed: %s\n",sp_playlist_name(pl));
 }
 
 /**
@@ -86,6 +88,7 @@ static void tracks_removed ( sp_playlist *pl, const int *tracks,
 static void tracks_moved ( sp_playlist *pl, const int *tracks,
                            int num_tracks, int new_position, void *userdata )
 {
+    fprintf(stderr,"jahspotify::tracks_moved: %s\n",sp_playlist_name(pl));
 }
 
 /**
@@ -103,6 +106,8 @@ static void playlist_state_changed ( sp_playlist *pl, void *userdata )
     sp_link *link = sp_link_create_from_playlist(pl);
     char *linkName = malloc(sizeof(char)*100);
 
+    fprintf(stderr,"jahspotify::playlist_state_changed: %s\n",sp_playlist_name(pl));
+    
     if (link)
     {
       sp_link_as_string(link,linkName, 100);
@@ -110,7 +115,7 @@ static void playlist_state_changed ( sp_playlist *pl, void *userdata )
       
       if (sp_playlist_is_loaded(pl))
       {
-	signalPlaylistLoaded(pl,0);
+        signalPlaylistLoaded(pl,0);
       }
       
       sp_link_release(link);
@@ -125,8 +130,8 @@ static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *user
     char *trackLinkStr;
     sp_link *link;
     int trackCounter;
-
-    // fprintf ( stderr,"jahspotify: playlist update in progress: %s (done: %s)\n",name, (done ? "yes" : "no"));
+    
+    fprintf ( stderr,"jahspotify: playlist update in progress: %s (done: %s)\n",name, (done ? "yes" : "no"));
     if (done)
     {
         link = sp_link_create_from_playlist(pl);
@@ -144,7 +149,8 @@ static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *user
 
 static void playlist_metadata_updated ( sp_playlist *pl, void *userdata )
 {
-    signalMetadataUpdated(pl);
+    fprintf(stderr,"jahspotify::playlist_metadata_updated: %s\n",sp_playlist_name(pl));
+    // signalMetadataUpdated(pl);
 }
 
 /**
@@ -307,6 +313,7 @@ static void logged_in ( sp_session *sess, sp_error error )
 
     signalLoggedIn();
 
+    fprintf ( stderr, "jahspotify::logged_in: all done\n");
 }
 
 static void logged_out ( sp_session *sess )
@@ -617,6 +624,8 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
     const char *value = NULL;
     int country = 0;
 
+    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: retrieving user\n" );
+    
     while (!sp_user_is_loaded(user))
     {
         fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: waiting for user to load\n" );
@@ -630,10 +639,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
         return NULL;
     }
 
-    while (!sp_user_is_loaded(user))
-    {
-        sleep(1);
-    }
+    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: retrieving user\n" );
 
     if (sp_user_is_loaded(user))
     {

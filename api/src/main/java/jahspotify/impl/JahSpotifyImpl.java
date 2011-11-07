@@ -26,12 +26,10 @@ public class JahSpotifyImpl implements JahSpotify
 
     private List<SearchListener> _searchListeners = new ArrayList<SearchListener>();
     private Map<Integer, SearchListener> _prioritySearchListeners = new HashMap<Integer, SearchListener>();
-
     private List<PlaylistListener> _playlistListeners = new ArrayList<PlaylistListener>();
-    private PlaylistFolderNode _rootNode = new PlaylistFolderNode(null,"ROOT_NODE", "ROOT_NODE");
-    private Stack<PlaylistFolderNode> _nodeStack = new Stack<PlaylistFolderNode>();
 
-    private PlaylistFolderNode _currentPlaylistFolderNode = _rootNode;
+    private Stack<Library.Entry> _nodeStack = new Stack<Library.Entry>();
+    private Library.Entry _currentLibraryEntry = new Library.Entry(null, "jahspotify:folder:ROOT", "ROOT", Link.Type.FOLDER.name());
 
     private Thread _jahSpotifyThread;
     private static JahSpotifyImpl _jahSpotify;
@@ -47,33 +45,33 @@ public class JahSpotifyImpl implements JahSpotify
         registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
         {
             @Override
-            public void track(final int token,final Link link)
+            public void track(final int token, final Link link)
             {
-                _log.debug(String.format("Track loaded: token=%d link=%s", token, link));
+                _log.trace(String.format("Track loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void playlist(final int token, final Link link)
             {
-                _log.debug(String.format("Playlist loaded: token=%d link=%s", token, link));
+                _log.trace(String.format("Playlist loaded: token=%d link=%s", token, link));
             }
 
             @Override
-            public void album(final int token,final Link link)
+            public void album(final int token, final Link link)
             {
-                _log.debug(String.format("Album loaded: token=%d link=%s", token, link));
+                _log.trace(String.format("Album loaded: token=%d link=%s", token, link));
             }
 
             @Override
             public void image(final int token, final Link link)
             {
-                _log.debug(String.format("Image loaded: token=%d link=%s", token, link));
+                _log.trace(String.format("Image loaded: token=%d link=%s", token, link));
             }
 
             @Override
-            public void artist(final int token,final Link link)
+            public void artist(final int token, final Link link)
             {
-                _log.debug(String.format("Artist loaded: token=%d link=%s", token, link));
+                _log.trace(String.format("Artist loaded: token=%d link=%s", token, link));
             }
         });
 
@@ -152,7 +150,10 @@ public class JahSpotifyImpl implements JahSpotify
                     _log.warn("Node stack is not empty, yet we received synch completed");
                 }
 
-                debugPrintNodes(_rootNode, 0);
+                _library = new Library();
+                _library.addEntry(_currentLibraryEntry);
+
+                debugPrintNodes(_currentLibraryEntry, 0);
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -160,9 +161,8 @@ public class JahSpotifyImpl implements JahSpotify
                 }
 
                 // FIXME: Spawn off thread which populates the nodes kept in-memory now
-
                 _synching = false;
-
+                _log.debug("Library ready");
             }
 
             @Override
@@ -170,10 +170,8 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 _log.debug("Synch started: " + numPlaylists);
                 _synching = true;
-                _rootNode.clear();
                 _nodeStack.clear();
                 _library = null;
-                _currentPlaylistFolderNode = _rootNode;
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -191,8 +189,6 @@ public class JahSpotifyImpl implements JahSpotify
                     return;
                 }
 
-                _library = null;
-
                 // Should trawl the tree, from the root node down and update:
                 // - folders
                 // - playlists
@@ -209,10 +205,9 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void startFolder(final String folderName, final long folderID)
             {
-                _nodeStack.push(_currentPlaylistFolderNode);
+                _nodeStack.push(_currentLibraryEntry);
                 final Link folderLink = Link.createFolderLink(folderID);
-                _currentPlaylistFolderNode = new PlaylistFolderNode(_currentPlaylistFolderNode.getID(),folderLink.getId(), folderName);
-
+                _currentLibraryEntry = new Library.Entry(_currentLibraryEntry.getId(), folderLink.getId(), folderName, Link.Type.FOLDER.name());
                 for (PlaylistListener listener : _playlistListeners)
                 {
                     listener.startFolder(folderLink, folderName);
@@ -222,13 +217,13 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void endFolder()
             {
-                PlaylistFolderNode playlistFolderNode = _nodeStack.pop();
-                playlistFolderNode.addChild(_currentPlaylistFolderNode);
-                _currentPlaylistFolderNode = playlistFolderNode;
+                final Library.Entry entry = _nodeStack.pop();
+                entry.addSubEntry(_currentLibraryEntry);
+                _currentLibraryEntry = entry;
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.endFolder(Link.create(playlistFolderNode.getID()));
+                    listener.endFolder(Link.create(entry.getId()));
                 }
             }
 
@@ -237,15 +232,12 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 if (_synching)
                 {
-                    _currentPlaylistFolderNode.addChild(new PlaylistNode(_currentPlaylistFolderNode.getID(),link, name));
+                    _currentLibraryEntry.addSubEntry(new Library.Entry(_currentLibraryEntry.getId(), link, name, Link.Type.PLAYLIST.name()));
                 }
-                else
-                {
-                    _library = null;
-                }
+
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.playlist(Link.create(link),name);
+                    listener.playlist(Link.create(link), name);
                 }
             }
         });
@@ -264,6 +256,9 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void disconnected()
             {
+                _log.debug("Disconnected");
+                _connected = false;
+                _loggedIn = false;
             }
 
             @Override
@@ -271,6 +266,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 _log.debug("Logged in");
                 _loggedIn = true;
+                _connected = true;
                 for (ConnectionListener listener : _connectionListeners)
                 {
                     listener.loggedIn();
@@ -280,11 +276,13 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void loggedOut()
             {
+                _log.debug("Logged out");
+                _loggedIn = false;
             }
         });
     }
 
-    private void debugPrintNodes(final Node node, int indentation)
+    private void debugPrintNodes(final Library.Entry entry, int indentation)
     {
         if (_log.isDebugEnabled())
         {
@@ -293,20 +291,22 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 msg = msg + " ";
             }
-            if (node instanceof PlaylistFolderNode)
+            Link.Type type = Link.Type.valueOf(entry.getType());
+            switch (type)
             {
-                msg = msg + "-" + node._name + "(" + node._id + ")";
-                _log.debug(msg);
-                List<Node> children = ((PlaylistFolderNode) node).getChildren();
-                for (Node child : children)
-                {
-                    debugPrintNodes(child, indentation + 2);
-                }
-            }
-            else if (node instanceof PlaylistNode)
-            {
-                msg = msg + "* " + node._name + "(" + node._id + ")";
-                _log.debug(msg);
+                case FOLDER:
+                    msg = msg + "-" + entry.getName() + "(" + entry.getId() + ")";
+                    _log.debug(msg);
+                    List<Library.Entry> children = entry.getSubEntries();
+                    for (Library.Entry child : children)
+                    {
+                        debugPrintNodes(child, indentation + 2);
+                    }
+                    break;
+                case PLAYLIST:
+                    msg = msg + "* " + entry.getName() + "(" + entry.getId() + ")";
+                    _log.debug(msg);
+                    break;
             }
         }
     }
@@ -346,22 +346,9 @@ public class JahSpotifyImpl implements JahSpotify
         }
     }
 
-    private native boolean registerNativeMediaLoadedListener(final NativeMediaLoadedListener nativeMediaLoadedListener);
-
-    private native int readImage(String uri, OutputStream outputStream);
-
-    private native User retrieveUser();
-
-    private native Album retrieveAlbum(String uri);
-
-    private native Artist retrieveArtist(String uri);
-
-    private native Track retrieveTrack(String uri);
-
-    private native Playlist retrievePlaylist(String uri);
-
     public Album readAlbum(final Link uri)
     {
+        ensureLoggedIn();
         _libSpotifyLock.lock();
         try
         {
@@ -376,6 +363,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Artist readArtist(final Link uri)
     {
+        ensureLoggedIn();
         try
         {
             _libSpotifyLock.lock();
@@ -391,6 +379,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Track readTrack(Link uri)
     {
+        ensureLoggedIn();
         try
         {
             _libSpotifyLock.lock();
@@ -405,6 +394,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Image readImage(Link uri)
     {
+        ensureLoggedIn();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         _libSpotifyLock.lock();
         int len = -1;
@@ -432,6 +422,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Playlist readPlaylist(Link uri)
     {
+        ensureLoggedIn();
         _libSpotifyLock.lock();
         try
         {
@@ -446,6 +437,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void pause()
     {
+        ensureLoggedIn();
         nativePause();
     }
 
@@ -454,6 +446,7 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void resume()
     {
+        ensureLoggedIn();
         nativeResume();
     }
 
@@ -462,30 +455,22 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void play(Link link)
     {
+        ensureLoggedIn();
         nativePlayTrack(link.asString());
     }
 
-    private native int nativePlayTrack(String uri);
-
-    private native boolean registerNativeConnectionListener(final NativeConnectionListener nativeConnectionListener);
-
-    private native boolean registerNativeSearchCompleteListener(final NativeSearchCompleteListener nativeSearchCompleteListener);
-
-    private native boolean registerNativeLibraryListener(NativeLibraryListener nativeLibraryListener);
-
-    private native boolean registerNativePlaybackListener(NativePlaybackListener nativePlaybackListener);
-
-    private native boolean shutdown();
-
-    private native void nativeInitiateSearch(final int i, NativeSearchParameters token);
+    private void ensureLoggedIn()
+    {
+        if (!_loggedIn)
+        {
+            throw new IllegalStateException("Not logged in");
+        }
+    }
 
     @Override
     public User getUser()
     {
-        if (!_loggedIn)
-        {
-            throw new IllegalStateException("Not Logged In");
-        }
+        ensureLoggedIn();
 
         if (_user != null)
         {
@@ -530,6 +515,8 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public Library.Entry readFolder(final Link uri, final int level)
     {
+        ensureLoggedIn();
+
         Library library = retrieveLibrary();
         if (library == null)
         {
@@ -538,20 +525,60 @@ public class JahSpotifyImpl implements JahSpotify
 
         if (uri.getFolderId() == 0)
         {
-            Library.Entry rootEntry = new Library.Entry(null,"jahspotify:folder:ROOT","ROOT",Library.Entry.FOLDER_ENTRY_TYPE);
-            rootEntry.setSubEntries(library.getEntries());
-            return trimToLevel(rootEntry,1,level);
+            final Library.Entry entry = trimToLevel(_currentLibraryEntry, 1, level);
+            populateEmptyEntries(entry);
+            return entry;
         }
 
         for (Library.Entry entry : library.getEntries())
         {
-            Library.Entry folderEntry = findFolder(entry, uri);
+            final Library.Entry folderEntry = findFolder(entry, uri);
             if (folderEntry != null)
             {
-                return trimToLevel(folderEntry,1,level);
+                final Library.Entry trimmedEntry = trimToLevel(folderEntry, 1, level);
+                populateEmptyEntries(trimmedEntry);
+                return trimmedEntry;
             }
         }
         return null;
+    }
+
+    private void populateEmptyEntries(final Library.Entry entry)
+    {
+        Link.Type type = Link.Type.valueOf(entry.getType());
+        _log.debug("Populating entry: " + entry.getId());
+
+        switch (type)
+        {
+            case PLAYLIST:
+                if (entry.getSubEntries() == null || entry.getSubEntries().isEmpty())
+                {
+                    _log.debug("Loading tracks for playlist " + entry.getId());
+                    // load the playlist!
+                    Playlist playlist = readPlaylist(Link.create(entry.getId()));
+                    if (playlist != null)
+                    {
+                        _log.debug("Playlist loaded, adding " + playlist.getTracks().size() + " track(s)");
+                        for (Link trackLink : playlist.getTracks())
+                        {
+                            final Track track = readTrack(trackLink);
+                            if (track != null)
+                            {
+                                entry.addSubEntry(new Library.Entry(entry.getId(), trackLink.getId(), track.getTitle(), Link.Type.TRACK.name()));
+                            }
+                        }
+                    }
+                }
+
+            default:
+                for (Library.Entry subEntry : entry.getSubEntries())
+                {
+                    populateEmptyEntries(subEntry);
+                }
+                break;
+        }
+
+
     }
 
     private Library.Entry trimToLevel(final Library.Entry folderEntry, final int currentLevel, final int level)
@@ -567,18 +594,18 @@ public class JahSpotifyImpl implements JahSpotify
             // Remove all children of any sub-entries now
             for (Library.Entry entry : folderEntry.getSubEntries())
             {
-                strippedSubEntries.add(new Library.Entry(folderEntry.getParentID(),entry.getId(),entry.getName(), entry.getType()));
+                strippedSubEntries.add(new Library.Entry(folderEntry.getParentID(), entry.getId(), entry.getName(), entry.getType()));
             }
         }
         else
         {
             for (Library.Entry entry : folderEntry.getSubEntries())
             {
-                strippedSubEntries.add(trimToLevel(entry,currentLevel+1,level));
+                strippedSubEntries.add(trimToLevel(entry, currentLevel + 1, level));
             }
         }
 
-        final Library.Entry entry = new Library.Entry(folderEntry.getParentID(),folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        final Library.Entry entry = new Library.Entry(folderEntry.getParentID(), folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
         entry.setSubEntries(strippedSubEntries);
         return entry;
     }
@@ -591,7 +618,7 @@ public class JahSpotifyImpl implements JahSpotify
         }
         for (Library.Entry entry : rootEntry.getSubEntries())
         {
-            Library.Entry foundEntry = findFolder(entry,uri);
+            Library.Entry foundEntry = findFolder(entry, uri);
             if (foundEntry != null)
             {
                 return foundEntry;
@@ -614,103 +641,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     public Library retrieveLibrary()
     {
-        while (_synching)
-        {
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        if (_library == null)
-        {
-            Library library = new Library();
-            if (getUser() != null)
-            {
-                library.setOwner(getUser().getDisplayName());
-            }
-
-            for (Node node : _rootNode.getChildren())
-            {
-                Library.Entry entry = null;
-                if (node instanceof PlaylistNode)
-                {
-                    entry = createPlaylistFromNode((PlaylistNode) node);
-                }
-                else if (node instanceof PlaylistFolderNode)
-                {
-                    entry = createFolderFromNode((PlaylistFolderNode) node);
-                }
-
-                if (entry != null)
-                {
-                    library.addEntry(entry);
-                }
-            }
-            _library = library;
-
-
-        }
-
         return _library;
-    }
-
-    private Library.Entry createFolderFromNode(final PlaylistFolderNode playlistFolderNode)
-    {
-        Library.Entry folder = Library.Entry.createFolderEntry(playlistFolderNode.getParent(),playlistFolderNode.getID(), playlistFolderNode.getName());
-
-        for (Node node : playlistFolderNode.getChildren())
-        {
-            if (node instanceof PlaylistNode)
-            {
-                Library.Entry playlist = createPlaylistFromNode((PlaylistNode) node);
-                folder.addSubEntry(playlist);
-            }
-            else if (node instanceof PlaylistFolderNode)
-            {
-                final Library.Entry folderFromNode = createFolderFromNode((PlaylistFolderNode) node);
-                folder.addSubEntry(folderFromNode);
-            }
-        }
-
-        return folder;
-    }
-
-    private Library.Entry createPlaylistFromNode(final PlaylistNode playlistNode)
-    {
-        final Library.Entry playlistEntry = Library.Entry.createPlaylistEntry(playlistNode.getParent(),playlistNode.getID(), playlistNode.getName());
-        Playlist playlist = playlistNode.getPlaylist();
-        if (playlist == null)
-        {
-            playlist = retrievePlaylist(playlistNode.getID());
-
-            if (playlist != null)
-            {
-                playlistNode.setPlaylist(playlist);
-                for (Link trackLink : playlist.getTracks())
-                {
-                    Track track = readTrack(trackLink);
-                    TrackNode trackNode = new TrackNode(playlistNode.getID(), track.getId().toString(), track.getTitle());
-                    trackNode.setTrack(track);
-                    playlistNode.addTrackNode(trackNode);
-                    playlistEntry.addSubEntry(Library.Entry.createTrackEntry(playlistNode.getID(),track.getId().toString(), track.getTitle()));
-                }
-            }
-            else
-            {
-                _log.debug("Could not load playlist for: " + playlistNode.getID());
-            }
-        }
-        else
-        {
-            // If it is already loaded that is ...
-        }
-
-        return playlistEntry;
     }
 
     @Override
@@ -722,17 +653,21 @@ public class JahSpotifyImpl implements JahSpotify
     @Override
     public void stop()
     {
+        ensureLoggedIn();
+
         shutdown();
     }
 
     public void initiateSearch(final Search search)
     {
+        ensureLoggedIn();
+
         _libSpotifyLock.lock();
         try
         {
             NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
             // TODO: Register the lister for the specified token
-            nativeInitiateSearch(0,nativeSearchParameters);
+            nativeInitiateSearch(0, nativeSearchParameters);
         }
         finally
         {
@@ -742,12 +677,14 @@ public class JahSpotifyImpl implements JahSpotify
 
     public void initiateSearch(final Search search, final SearchListener searchListener)
     {
+        ensureLoggedIn();
+
         _libSpotifyLock.lock();
         try
         {
             int token = _globalToken.getAndIncrement();
             NativeSearchParameters nativeSearchParameters = initializeFromSearch(search);
-            _prioritySearchListeners.put(token,searchListener);
+            _prioritySearchListeners.put(token, searchListener);
             nativeInitiateSearch(token, nativeSearchParameters);
         }
         finally
@@ -781,159 +718,34 @@ public class JahSpotifyImpl implements JahSpotify
 
         int artistOffset = 0;
         int numArtists = 255;
-
-
     }
 
-    private static class Node
-    {
-        private Node(final String parent, final String id, final String name)
-        {
-            _parent = parent;
-            _id = id;
-            _name = name;
-        }
+    private native boolean registerNativeMediaLoadedListener(final NativeMediaLoadedListener nativeMediaLoadedListener);
 
-        String _parent;
-        String _name;
-        String _id;
+    private native int readImage(String uri, OutputStream outputStream);
 
-        public String getParent()
-        {
-            return _parent;
-        }
+    private native User retrieveUser();
 
-        public String getID()
-        {
-            return _id;
-        }
+    private native Album retrieveAlbum(String uri);
 
-        public String getName()
-        {
-            return _name;
-        }
+    private native Artist retrieveArtist(String uri);
 
-        @Override
-        public String toString()
-        {
-            return "Node{" +
-                    "_id='" + _id + '\'' +
-                    ", _parent='" + _parent + '\'' +
-                    ", _name='" + _name + '\'' +
-                    '}';
-        }
-    }
+    private native Track retrieveTrack(String uri);
 
-    private static class PlaylistFolderNode extends Node
-    {
-        private PlaylistFolderNode(String parent, String id, String name)
-        {
-            super(parent, id, name);
-        }
+    private native Playlist retrievePlaylist(String uri);
 
-        List<Node> _children = new ArrayList<Node>();
+    private native int nativePlayTrack(String uri);
 
-        public void addChild(Node node)
-        {
-            if (node instanceof PlaylistNode || node instanceof PlaylistFolderNode)
-            {
-                _children.add(node);
-            }
-            else
-            {
-                throw new IllegalArgumentException("Only PlaylistNode or PlaylistFolderNode nodes are allowed");
-            }
-        }
+    private native boolean registerNativeConnectionListener(final NativeConnectionListener nativeConnectionListener);
 
-        public List<Node> getChildren()
-        {
-            return _children;
-        }
+    private native boolean registerNativeSearchCompleteListener(final NativeSearchCompleteListener nativeSearchCompleteListener);
 
-        public void clear()
-        {
-            _children.clear();
-        }
+    private native boolean registerNativeLibraryListener(NativeLibraryListener nativeLibraryListener);
 
-        @Override
-        public String toString()
-        {
-            return "PlaylistFolderNode{" +
-                    "_children=" + _children +
-                    "} " + super.toString();
-        }
-    }
+    private native boolean registerNativePlaybackListener(NativePlaybackListener nativePlaybackListener);
 
-    private static class PlaylistNode extends Node
-    {
-        private PlaylistNode(String parent, String id, String name)
-        {
-            super(parent, id, name);
-        }
+    private native boolean shutdown();
 
-        Playlist _playlist;
-        List<TrackNode> _tracks = new ArrayList<TrackNode>();
+    private native void nativeInitiateSearch(final int i, NativeSearchParameters token);
 
-        public Playlist getPlaylist()
-        {
-            return _playlist;
-        }
-
-        public void setPlaylist(final Playlist playlist)
-        {
-            _playlist = playlist;
-        }
-
-        public List<TrackNode> getTracks()
-        {
-            return _tracks;
-        }
-
-        public void addTrackNode(TrackNode track)
-        {
-            _tracks.add(track);
-
-        }
-
-        public void setTracks(final List<TrackNode> tracks)
-        {
-            _tracks = tracks;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "PlaylistNode{" +
-                    "_playlist=" + _playlist +
-                    "} " + super.toString();
-        }
-    }
-
-    private static class TrackNode extends Node
-    {
-        Track _track;
-
-        private TrackNode(final String parent, final String id, final String name)
-        {
-            super(parent, id, name);
-        }
-
-        public Track getTrack()
-        {
-            return _track;
-        }
-
-        public void setTrack(final Track track)
-        {
-            _track = track;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "TrackNode{" +
-                    "_track=" + _track +
-                    "} " + super.toString();
-        }
-    }
 }

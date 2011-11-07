@@ -1,7 +1,7 @@
 package jahspotify.android.data;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import jahspotify.client.JahSpotifyClient;
 import jahspotify.web.media.*;

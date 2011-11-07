@@ -25,7 +25,7 @@ int placeInThread(void *threadFunction, void *threadParams)
     }
     else
     {
-      fprintf(stderr,"jahspotify::placeInThread: thread started: id: %d\n", thread_id);
+        fprintf(stderr,"jahspotify::placeInThread: thread started: id: %llu\n", (long long unsigned int)thread_id);
       return 0;
     }
     
