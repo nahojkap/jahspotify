@@ -59,12 +59,17 @@
                         </source>
                     </sources>
 
-                    <linkerStartOptions>
-                        <linkerStartOption>-shared</linkerStartOption>
-                        <linkerStartOption> -lc</linkerStartOption>
+                    <linkerEndOptions>
+                        <linkerEndOption>-lspotify</linkerEndOption>
+                        <linkerStartOption>-lc</linkerStartOption>
                         <linkerStartOption>-lopenal</linkerStartOption>
                         <linkerStartOption>-ldl</linkerStartOption>
-                        <linkerStartOption>-lspotify</linkerStartOption>
+                        <linkerStartOption>-lpthread</linkerStartOption>
+                        <linkerStartOption>-lrt</linkerStartOption>
+                    </linkerEndOptions>
+                    <linkerStartOptions>
+                        <linkerStartOption>-shared</linkerStartOption>
+                        <linkerStartOption>-z defs</linkerStartOption>
                     </linkerStartOptions>
 
                 </configuration>
