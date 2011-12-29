@@ -63,6 +63,14 @@ public class EchoNestSpotifyBridge
             {
                 _log.debug("Queue empty, will retrieve next dynamic track");
                 // FIXME: Retrieve next track and add it to the queue
+                if ("EchoNest".equals(lastTrackPlayed.getMetadata().get(QueueTrack.QUEUED_TRACK_SOURCE)))
+                {
+                    // Have already a EchoNest sourced track - use the session id for getting the next one!
+                }
+                else
+                {
+                    // Based on the last track, create a new dynamic playlist, adding that to the queue when done
+                }
             }
         });
     }
