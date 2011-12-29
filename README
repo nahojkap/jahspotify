@@ -34,7 +34,8 @@ git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
 mvn clean install
 
-NOTE: You need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
+NOTE: You will have to manually download and install the jEN java APIs from http://jen-api.googlecode.com/ to build the code
+NOTE: You may need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
 
 ---- Modules -----
 
