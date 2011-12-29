@@ -1,16 +1,17 @@
 package jahspotify.service;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 
 import jahspotify.media.Link;
 
 /**
  * @author Johan Lindquist
  */
-public class CurrentQueue
+public class Queue
 {
     private QueueTrack _currentlyPlaying;
-    private List<QueueTrack> _queuedTracks;
+    private BlockingDeque<QueueTrack> _queuedTracks = new LinkedBlockingDeque<QueueTrack>();
 
     private boolean _shuffle;
     private boolean _repeatCurrentQueue;
@@ -18,10 +19,17 @@ public class CurrentQueue
 
     private Link _id;
 
-    public CurrentQueue(final QueueTrack currentlyPlaying, final List<QueueTrack> queuedTracks)
+    private QueueStatistics _queueStatistics;
+    private QueueConfiguration _queueConfiguration;
+
+    public QueueStatistics getQueueStatistics()
     {
-        _currentlyPlaying = currentlyPlaying;
-        _queuedTracks = queuedTracks;
+        return _queueStatistics;
+    }
+
+    public void setQueueStatistics(final QueueStatistics queueStatistics)
+    {
+        _queueStatistics = queueStatistics;
     }
 
     public QueueTrack getCurrentlyPlaying()
@@ -34,12 +42,12 @@ public class CurrentQueue
         _currentlyPlaying = currentlyPlaying;
     }
 
-    public List<QueueTrack> getQueuedTracks()
+    public BlockingDeque<QueueTrack> getQueuedTracks()
     {
         return _queuedTracks;
     }
 
-    public void setQueuedTracks(final List<QueueTrack> queuedTracks)
+    public void setQueuedTracks(final BlockingDeque<QueueTrack> queuedTracks)
     {
         _queuedTracks = queuedTracks;
     }
@@ -82,5 +90,20 @@ public class CurrentQueue
     public void setId(final Link id)
     {
         _id = id;
+    }
+
+    public void clearCurrentlyPlaying()
+    {
+        _currentlyPlaying = null;
+    }
+
+    public QueueConfiguration getQueueConfiguration()
+    {
+        return _queueConfiguration;
+    }
+
+    public void setQueueConfiguration(final QueueConfiguration queueConfiguration)
+    {
+        _queueConfiguration = queueConfiguration;
     }
 }

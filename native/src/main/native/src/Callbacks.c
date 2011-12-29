@@ -925,7 +925,7 @@ exit:
 void startPlaybackSignalled()
 {
   // Not threaded since we would have to 'post' this into the event loop for processing
-  threaded_signalLoggedIn(NULL);
+  // threaded_startPlaybackSignalled(NULL);
 /*  if (placeInThread(threaded_startPlaybackSignalled,0) != 0)
   {
     fprintf ( stderr, "jahspotify::startPlaybackSignalled: error placing onto thread\n");

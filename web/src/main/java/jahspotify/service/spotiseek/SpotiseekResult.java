@@ -1,4 +1,4 @@
-package jahspotify.service;
+package jahspotify.service.spotiseek;
 
 import java.util.List;
 

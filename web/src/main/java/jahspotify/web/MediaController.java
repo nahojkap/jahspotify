@@ -36,7 +36,7 @@ public class MediaController extends BaseController
                 case TRACK:
                     return "forward:/track/" + uri.asString() + (httpServletRequest.getQueryString() != null ? "?" + httpServletRequest.getQueryString() : "");
                 default:
-                    writeResponseGeneric(httpServletResponse,"NOT HANDLED");
+                    writeResponseGeneric(httpServletResponse,"URI_NOT_HANDLED");
             }
         }
         catch (Exception e)

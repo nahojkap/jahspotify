@@ -31,7 +31,7 @@ public class SimpleStatusResponse
         return detail;
     }
 
-    private void setDetail(final String detail)
+    public void setDetail(final String detail)
     {
         this.detail = detail;
     }

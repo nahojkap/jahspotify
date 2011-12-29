@@ -21,7 +21,7 @@ public class MediaPlayer
     private Log _log = LogFactory.getLog(MediaPlayer.class);
     private BlockingQueue<Integer> _commandQueue = new ArrayBlockingQueue<Integer>(1, true);
     private QueueTrack _currentTrack;
-    private Set<MediaPlayerListener> _mediaPlayerListeners = new TreeSet<MediaPlayerListener>();
+    private Set<MediaPlayerListener> _mediaPlayerListeners = new HashSet<MediaPlayerListener>();
 
     public static final int QUEUE_NEXT = 0;
     public static final int QUEUE_QUIT = 1;
@@ -59,21 +59,15 @@ public class MediaPlayer
     @PostConstruct
     public void initialize()
     {
-        _queueManager.addQueueListener(new QueueListener()
+        _queueManager.addQueueListener(new AbstractQueueListener()
         {
             @Override
-            public void tracksAdded(final QueueTrack... queueTracks)
+            public void tracksAdded(final Link queue, final QueueTrack... queueTracks)
             {
                 if (_autoPlay && _currentTrack == null)
                 {
                     nextTrack();
                 }
-            }
-
-            @Override
-            public void tracksRemoved(final QueueTrack... queueTracks)
-            {
-
             }
         });
         _jahSpotify = _jahSpotifyService.getJahSpotify();
@@ -135,17 +129,45 @@ public class MediaPlayer
             @Override
             public Link nextTrackToPreload()
             {
+                // Query all media play listeners - since there are many of them, they
+                // all assign a weight to the next track to be played.  Highest weight
+                // will win.  This allows the current queue to override any 'dynamic' and 'similar'
+                // tracks from being played until the queue is empty (for example)
+
+                _log.debug("Evaluating next track to pre-load");
+
+                final List<QueueNextTrack> nextTracks = new ArrayList<QueueNextTrack>();
                 for (MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
                 {
-                    QueueTrack queueTrack = mediaPlayerListener.nextTrackToQueue();
-                    if (queueTrack != null)
+                    QueueNextTrack queueNextTrack = mediaPlayerListener.nextTrackToQueue();
+                    if (queueNextTrack != null)
                     {
-                        if (!queueTrack.equals(_currentTrack))
-                        {
-                            return queueTrack.getTrackUri();
-                        }
+                        nextTracks.add(queueNextTrack);
                     }
                 }
+
+                if (!nextTracks.isEmpty())
+                {
+                    _log.info("Received " + nextTracks.size() + " track(s) for next track");
+
+                    // Sort the tracks according to their weight
+                    Collections.sort(nextTracks);
+
+                    _log.info("Next tracks sorted according to weight: " + nextTracks);
+
+                    // Take the next track in the collection no matter what - sorting would
+                    // have prepared the list correctly in any case
+                    QueueNextTrack queueTrack = nextTracks.get(0);
+
+                    // We never repeat the current track - use repeat function instead
+                    if (!queueTrack.equals(_currentTrack))
+                    {
+                        _log.info("Next track selected: " + queueTrack);
+                        return queueTrack.getTrackUri();
+                    }
+
+                }
+                _log.debug("No tracks to pre-load found");
                 return null;
             }
         });
@@ -256,6 +278,7 @@ public class MediaPlayer
 
     public void skip()
     {
+        // FIXME: Should also signal track skip with the mediaplayerlistener
         switch (_mediaPlayerState)
         {
             case PLAYING:

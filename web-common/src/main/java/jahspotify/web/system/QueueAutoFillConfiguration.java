@@ -1,4 +1,4 @@
-package jahspotify.service;
+package jahspotify.web.system;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,29 +19,11 @@ package jahspotify.service;
  *        under the License.
  */
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
-
 /**
  * @author Johan Lindquist
  */
-public class SpotiseekResultContentHandler extends DefaultHandler
+public class QueueAutoFillConfiguration
 {
-    private enum TAG
-    {
-        TRACKS, TRACK, ARTIST, ALBUM
-    }
-
-    private TAG _currentTag;
-
-    @Override
-    public void startDocument() throws SAXException
-    {
-        super.startDocument();
-    }
-
-    @Override
-    public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
-    {
-    }
+    private StyleConfiguration styleConfiguration;
+    private MoodConfiguration moodConfiguration;
 }

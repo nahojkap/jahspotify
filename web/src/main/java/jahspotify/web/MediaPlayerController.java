@@ -22,6 +22,7 @@ public class MediaPlayerController extends BaseController
         _mediaPlayer.pause();
         SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        simpleStatusResponse.setDetail("PLAY_PAUSED");
         writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
@@ -31,6 +32,7 @@ public class MediaPlayerController extends BaseController
         _mediaPlayer.play();
         SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        simpleStatusResponse.setDetail("PLAY_RESUMED");
         writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
@@ -40,6 +42,7 @@ public class MediaPlayerController extends BaseController
         _mediaPlayer.play();
         SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        simpleStatusResponse.setDetail("PLAY_STARTED");
         writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
@@ -49,6 +52,7 @@ public class MediaPlayerController extends BaseController
         _mediaPlayer.skip();
         SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+        simpleStatusResponse.setDetail("TRACK_SKIPPED");
         writeResponse(httpServletResponse, simpleStatusResponse);
     }
 

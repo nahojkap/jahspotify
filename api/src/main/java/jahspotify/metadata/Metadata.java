@@ -1,8 +1,10 @@
 package jahspotify.metadata;
 
 import java.io.*;
+import java.net.*;
 
 import com.google.gson.*;
+import jahspotify.Query;
 import jahspotify.media.Link;
 import jahspotify.metadata.lookup.*;
 import jahspotify.metadata.search.*;
@@ -64,12 +66,12 @@ public class Metadata
           }
 
 
-    public TrackSearchResult searchTracks(String query)
+    public TrackSearchResult searchTracks(Query query)
        {
            try
            {
                // http://ws.spotify.com/search/1/album?q=foo&page=2
-               final TrackSearchResult trackSearchResult = getData(searchBaseURL + "track.json?q=" + encodeQuery(query), TrackSearchResult.class);
+               final TrackSearchResult trackSearchResult = getData(searchBaseURL + "track.json?q=" + encodeQuery(query.serialize()), TrackSearchResult.class);
                return trackSearchResult;
            }
            catch (IOException e)
@@ -111,9 +113,9 @@ public class Metadata
         }
     }
 
-    private String encodeQuery(final String query)
+    private String encodeQuery(final String query) throws UnsupportedEncodingException
     {
-        return query.replaceAll(" ","\\+");
+        return URLEncoder.encode(query, "UTF-8");
     }
 
     private static <T> T getData(final String url, final Class<T> classOfT) throws IOException

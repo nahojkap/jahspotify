@@ -1,13 +1,11 @@
 package jahspotify.service;
 
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
 import javax.annotation.PostConstruct;
 
 import jahspotify.*;
-import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.*;
@@ -23,53 +21,39 @@ public class QueueManager
 {
     private Log _log = LogFactory.getLog(QueueManager.class);
 
-    private int _maxQueueSize;
-    private int _numTracksPlayed;
-    private int _numTracksSkipped;
-    private int _numTrackCompleted;
-    private int _totalPlayTime;
-
-    private long _currentTrackStart;
-
-    private BlockingDeque<QueueTrack> _uriQueue = new LinkedBlockingDeque<QueueTrack>();
-
-
-    private boolean _repeatCurrentQueue;
-    private boolean _repeatCurrentTrack;
-    private boolean _shuffle;
-
     private Lock _queueLock = new ReentrantLock();
 
-    // Holder for our 'shuffle' information - this is reset whenever the status of the 'shuffle' flag is changed
-    private Map<Link, Integer> _shuffleTracker = new HashMap<Link, Integer>();
+    public static final Link DEFAULT_QUEUE_LINK = Link.create("jahspotify:queue:default");
 
-    private QueueTrack _currentTrack = null;
-    private JahSpotify _jahSpotify;
+    private Set<QueueListener> _queueListeners = new HashSet<QueueListener>();
 
-    private static final Link DEFAULT_QUEUE_LINK = Link.create("jahspotify:queue:default");
-
-    private Set<QueueListener> _queueListeners = new TreeSet<QueueListener>();
+    private Queue _currentQueue;
 
     @Autowired
     private MediaPlayer _mediaPlayer;
 
     @Autowired
     private JahSpotifyService _jahSpotifyService;
+    private JahSpotify _jahSpotify;
 
     @PostConstruct
     public void initialize()
     {
         _jahSpotify = _jahSpotifyService.getJahSpotify();
 
-        _mediaPlayer.addMediaPlayerListener(new MediaPlayerListener()
+        _currentQueue = new Queue();
+        _currentQueue.setQueueConfiguration(new QueueConfiguration());
+        _currentQueue.setQueueStatistics(new QueueStatistics());
+
+        _mediaPlayer.addMediaPlayerListener(new AbstractMediaPlayerListener()
         {
             @Override
             public void trackStart(final QueueTrack queueTrack)
             {
                 _log.debug("Track start signalled: " + queueTrack);
-                _currentTrackStart = System.currentTimeMillis();
-                _currentTrack = queueTrack;
-                _numTracksPlayed++;
+                _currentQueue.getQueueStatistics().setCurrentTrackStart(System.currentTimeMillis());
+                _currentQueue.getQueueStatistics().setNumTracksPlayed(_currentQueue.getQueueStatistics().getNumTracksPlayed() + 1);
+                _currentQueue.setCurrentlyPlaying(queueTrack);
             }
 
             @Override
@@ -79,46 +63,47 @@ public class QueueManager
                 {
                     final Link trackEnded = queueTrack.getTrackUri();
 
-                    _totalPlayTime += ((System.currentTimeMillis() - _currentTrackStart) / 1000);
+                    _currentQueue.getQueueStatistics().incrementTotalPlayTime(((System.currentTimeMillis() - _currentQueue.getQueueStatistics().getCurrentTrackStart()) / 1000));
                     if (forcedEnd)
                     {
-                        _numTracksSkipped++;
+                        _currentQueue.getQueueStatistics().incrementTracksSkipped();
                     }
                     else
                     {
-                        _numTrackCompleted++;
+                        _currentQueue.getQueueStatistics().incrementTracksCompleted();
                     }
 
                     _log.debug("End of track: " + trackEnded + (forcedEnd ? " (forced)" : ""));
                     if (!forcedEnd)
                     {
-                        if (_currentTrack == null)
+                        final QueueTrack currentTrack = _currentQueue.getCurrentlyPlaying();
+                        if (currentTrack == null)
                         {
                             // Hmm
                             _log.debug("Current track is already null!");
                             return;
                         }
 
-                        if (!trackEnded.equals(_currentTrack.getTrackUri()))
+                        if (!trackEnded.equals(currentTrack.getTrackUri()))
                         {
-                            _log.debug("Current track don't match what is ending: " + trackEnded + " != " + _currentTrack.getTrackUri());
+                            _log.debug("Current track don't match what is ending: " + trackEnded + " != " + currentTrack.getTrackUri());
                             return;
                         }
 
                         // Push the current track back onto the uri queue if we are repeating it
-                        if (_repeatCurrentTrack)
+                        if (_currentQueue.isRepeatCurrentTrack())
                         {
-                            _log.debug("Current track is being repeated, placing at the front of the queue: " + _currentTrack);
-                            _uriQueue.putFirst(_currentTrack);
+                            _log.debug("Current track is being repeated, placing at the front of the queue: " + currentTrack);
+                            _currentQueue.getQueuedTracks().putFirst(currentTrack);
                         }
                         // If we are repeating the whole queue simply dump it back onto the back of the queue
-                        else if (_repeatCurrentQueue)
+                        else if (_currentQueue.isRepeatCurrentQueue())
                         {
-                            _log.debug("Current queue is being repeated, placing at the back of the queue: " + _currentTrack);
-                            _uriQueue.add(_currentTrack);
+                            _log.debug("Current queue is being repeated, placing at the back of the queue: " + currentTrack);
+                            _currentQueue.getQueuedTracks().add(currentTrack);
                         }
 
-                        _currentTrack = null;
+                        _currentQueue.clearCurrentlyPlaying();
 
                     }
                 }
@@ -128,17 +113,17 @@ public class QueueManager
                 }
             }
 
-            public QueueTrack nextTrackToQueue()
+            public QueueNextTrack nextTrackToQueue()
             {
-                if (_repeatCurrentTrack)
+                if (_currentQueue.isRepeatCurrentTrack())
                 {
                     return null;
                 }
 
-                final QueueTrack peek = _uriQueue.peek();
+                final QueueTrack peek = _currentQueue.getQueuedTracks().peek();
                 if (peek != null)
                 {
-                    return peek;
+                    return new QueueNextTrack(peek.getId(),peek.getTrackUri(),1000);
                 }
                 return null;
             }
@@ -146,29 +131,42 @@ public class QueueManager
             @Override
             public void paused(final QueueTrack currentTrack)
             {
+                _log.debug("Track pause signalled: " + currentTrack);
+                _currentQueue.getQueueStatistics().incrementTotalPlayTime((System.currentTimeMillis() - _currentQueue.getQueueStatistics().getCurrentTrackStart()) / 1000);
             }
 
             @Override
             public void resume(final QueueTrack currentTrack)
             {
+                _log.debug("Track resume signalled: " + currentTrack);
+                _currentQueue.getQueueStatistics().setCurrentTrackStart(System.currentTimeMillis());
             }
 
             @Override
             public void skip(final QueueTrack currentTrack, final QueueTrack nextTrack)
             {
+                _log.debug("Track skip signalled: " + currentTrack);
+                _currentQueue.getQueueStatistics().incrementTotalPlayTime((System.currentTimeMillis() - _currentQueue.getQueueStatistics().getCurrentTrackStart()) / 1000);
             }
 
         });
 
     }
 
-    /**
+    /** Adds the specified links (playlists, folders, track, etc) to the specified queue.  If the queue does not yet
+     * exists, it will be created.
      *
+     * @param queue
      * @param uris
      * @return
      */
-    public CurrentQueue addToQueue(List<Link> uris)
+    public Queue addToQueue(final Link queue, final List<Link> uris)
     {
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+
         final List<Link> allURIs = new ArrayList<Link>();
 
         for (final Link uri : uris)
@@ -221,7 +219,7 @@ public class QueueManager
             _log.debug("Queueing tracks: " + allURIs);
         }
 
-        final CurrentQueue currentQueue = addTracksToQueue(allURIs);
+        final Queue currentQueue = addTracksToQueue(allURIs);
 
         if (_log.isDebugEnabled())
         {
@@ -231,12 +229,42 @@ public class QueueManager
         return currentQueue;
     }
 
-    public CurrentQueue addToQueue(Link... uris)
+    /**
+     *
+     * @param queue
+     * @param uris
+     * @return
+     */
+    public Queue addToQueue(final Link queue, Link... uris)
     {
-        return addToQueue(Arrays.asList(uris));
+        return addToQueue(queue, Arrays.asList(uris));
     }
 
-    private CurrentQueue addTracksToQueue(final List<Link> trackURIs)
+    public List<Link> retrieveQueues()
+    {
+        return Arrays.asList(DEFAULT_QUEUE_LINK);
+    }
+
+    public void deleteQueue(final Link queue)
+    {
+
+    }
+
+    /**
+     *
+     * @param queue
+     * @return
+     */
+    public Queue setCurrentQueue(final Link queue)
+    {
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+        return this.getCurrentQueue(0);
+    }
+
+    private Queue addTracksToQueue(final List<Link> trackURIs)
     {
         _queueLock.lock();
         try
@@ -246,27 +274,25 @@ public class QueueManager
             for (Link trackURI : trackURIs)
             {
                 QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI);
+                queuedTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "JahSpotify");
                 queuedTracks.add(queuedTrack);
-                _uriQueue.add(queuedTrack);
+                _currentQueue.getQueuedTracks().add(queuedTrack);
             }
 
             final QueueTrack[] queueTracks = new QueueTrack[queuedTracks.size()];
             queuedTracks.toArray(queueTracks);
 
             // Update the maximum queue size seen if the queue size is now the biggest ever seen
-            if (_uriQueue.size() > _maxQueueSize)
-            {
-                _maxQueueSize = _uriQueue.size();
-            }
+            _currentQueue.getQueueStatistics().updateMaxQueueSize(_currentQueue.getQueuedTracks().size());
 
-            CurrentQueue currentQueue = getCurrentQueue(0);
+            Queue queue = getCurrentQueue(0);
 
             for (final QueueListener queueListener : _queueListeners)
             {
-                queueListener.tracksAdded(queueTracks);
+                queueListener.tracksAdded(DEFAULT_QUEUE_LINK, queueTracks);
             }
 
-            return currentQueue;
+            return queue;
         }
         finally
         {
@@ -274,15 +300,25 @@ public class QueueManager
         }
     }
 
-    public int clearCurrentQueue()
+    public int clearQueue(final Link queue)
     {
-        final int size = _uriQueue.size();
-        _uriQueue.clear();
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+
+        final int size = _currentQueue.getQueuedTracks().size();
+        _currentQueue.getQueuedTracks().clear();
         return size;
     }
 
-    public int deleteQueuedTrack(Link uri)
+    public int deleteQueuedTrack(final Link queue, final Link uri)
     {
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+
         // uris are in the form of:
         // spotify:track:...
         // jahspotify:queue:<quename>:<uuid>
@@ -292,26 +328,26 @@ public class QueueManager
 
         if (uri.isTrackLink())
         {
-            for (QueueTrack queuedTrack : _uriQueue)
+            for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
             {
                 if (queuedTrack.getTrackUri().equals(uri))
                 {
                     removedTracks.add(queuedTrack);
-                    _uriQueue.remove(queuedTrack);
+                    _currentQueue.getQueuedTracks().remove(queuedTrack);
                     count++;
                 }
             }
         }
         else if (uri.isQueueLink())
         {
-           for (QueueTrack queuedTrack : _uriQueue)
+           for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
             {
                 // Extract the ID from the URI
                 String queueId = uri.getQueueId();
                 if (queuedTrack.getId().equals(queueId))
                 {
                     removedTracks.add(queuedTrack);
-                    _uriQueue.remove(queuedTrack);
+                    _currentQueue.getQueuedTracks().remove(queuedTrack);
                     count++;
                 }
             }
@@ -321,7 +357,7 @@ public class QueueManager
         {
             for (QueueListener queueListener : _queueListeners)
             {
-                queueListener.tracksRemoved(removedTracks.toArray(new QueueTrack[removedTracks.size()]));
+                queueListener.tracksRemoved(DEFAULT_QUEUE_LINK, removedTracks.toArray(new QueueTrack[removedTracks.size()]));
             }
         }
 
@@ -332,51 +368,54 @@ public class QueueManager
     {
         final QueueStatus queueStatus = new QueueStatus();
         queueStatus.setMediaPlayerState(_mediaPlayer.getMediaPlayerState());
-        queueStatus.setTotalTracksPlayed(_numTracksPlayed);
-        queueStatus.setTotalTracksCompleted(_numTrackCompleted);
-        queueStatus.setTotalTracksSkipped(_numTracksSkipped);
-        queueStatus.setTotalPlaytime(_totalPlayTime + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - _currentTrackStart) / 1000 : 0));
-        queueStatus.setCurrentQueueSize(_uriQueue.size());
-        queueStatus.setMaxQueueSize(_maxQueueSize);
+        final QueueStatistics queueStatistics = _currentQueue.getQueueStatistics();
+        queueStatus.setTotalTracksPlayed(queueStatistics.getNumTracksPlayed());
+        queueStatus.setTotalTracksCompleted(queueStatistics.getNumTracksCompleted());
+        queueStatus.setTotalTracksSkipped(queueStatistics.getNumTracksSkipped());
+        queueStatus.setTotalPlaytime(queueStatistics.getTotalPlayTime() + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - queueStatistics.getCurrentTrackStart() ) / 1000 : 0));
+        queueStatus.setCurrentQueueSize(_currentQueue.getQueuedTracks().size());
+        queueStatus.setMaxQueueSize(queueStatistics.getMaxQueueSize());
 
         return queueStatus;
     }
 
-    public QueueConfiguration getQueueConfiguration(Link uri)
+    public QueueConfiguration getQueueConfiguration(Link queue)
     {
-        if (!uri.equals(DEFAULT_QUEUE_LINK))
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
         {
             throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
         }
 
-        return new QueueConfiguration(_repeatCurrentQueue, _repeatCurrentTrack, _shuffle);
+        return _currentQueue.getQueueConfiguration();
     }
 
-    public void setQueueConfiguration(Link uri, QueueConfiguration queueConfiguration)
+    public void setQueueConfiguration(Link queue, QueueConfiguration queueConfiguration)
     {
-        if (!uri.equals(DEFAULT_QUEUE_LINK))
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
         {
             throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
         }
 
-        _repeatCurrentQueue = queueConfiguration.isRepeatCurrentQueue();
-        _repeatCurrentTrack = queueConfiguration.isRepeatCurrentTrack();
-        _shuffle = queueConfiguration.isShuffle();
+        _currentQueue.getQueueConfiguration().setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
+        _currentQueue.getQueueConfiguration().setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
+        _currentQueue.getQueueConfiguration().setShuffle(queueConfiguration.isShuffle());
     }
 
-    public CurrentQueue getCurrentQueue(final int count)
+    public Queue getQueue(final Link queue)
+    {
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+        return null;
+    }
+
+    public Queue getCurrentQueue(final int count)
     {
         _queueLock.lock();
         try
         {
-            final ArrayList<QueueTrack> queueTracks = new ArrayList<QueueTrack>(_uriQueue);
-            // final int toIndex = count == 0 ? queueTracks.size() - 1 : count - 1;
-            final CurrentQueue currentQueue = new CurrentQueue(_currentTrack, queueTracks);
-            currentQueue.setRepeatCurrentTrack(_repeatCurrentTrack);
-            currentQueue.setRepeatCurrentQueue(_repeatCurrentQueue);
-            currentQueue.setShuffle(_shuffle);
-            currentQueue.setId(DEFAULT_QUEUE_LINK);
-            return currentQueue;
+            return _currentQueue;
         }
         finally
         {
@@ -389,15 +428,15 @@ public class QueueManager
 
     }*/
 
-    public CurrentQueue shuffle(final Link uri)
+    public Queue shuffle(final Link uri)
     {
         _queueLock.lock();
         try
         {
-            final List<QueueTrack> queuedTracks = new ArrayList<QueueTrack>(_uriQueue);
-            _uriQueue.clear();
+            final List<QueueTrack> queuedTracks = new ArrayList<QueueTrack>(_currentQueue.getQueuedTracks());
+            _currentQueue.getQueuedTracks().clear();
             Collections.shuffle(queuedTracks);
-            _uriQueue.addAll(queuedTracks);
+            _currentQueue.getQueuedTracks().addAll(queuedTracks);
             return getCurrentQueue(0);
         }
         finally
@@ -411,10 +450,33 @@ public class QueueManager
         _queueListeners.add(queueListener);
     }
 
+    /** Retrieves the next track in queue.  This will return null if no tracks are queued
+     *
+     * @return
+     */
     public QueueTrack getNextQueueTrack()
     {
-        final QueueTrack nextTrack = _uriQueue.poll();
-        _log.debug("Retrieved next track: " + nextTrack);
+        boolean empty = _currentQueue.getQueuedTracks().isEmpty();
+        final QueueTrack nextTrack = _currentQueue.getQueuedTracks().poll();
+
+        if (nextTrack != null)
+        {
+            _log.debug("Retrieved next track: " + nextTrack);
+            for (QueueListener queueListener : _queueListeners)
+            {
+                queueListener.newTrackAtFront(DEFAULT_QUEUE_LINK, nextTrack);
+            }
+        }
+
+        if (!empty && _currentQueue.getQueuedTracks().isEmpty())
+        {
+            _log.debug("Retrieved last track in queue, signalling empty queue");
+            for (QueueListener queueListener : _queueListeners)
+            {
+                queueListener.queueEmpty(DEFAULT_QUEUE_LINK, nextTrack);
+            }
+        }
+
         return nextTrack;
 
     }

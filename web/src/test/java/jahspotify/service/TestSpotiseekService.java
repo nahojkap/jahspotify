@@ -1,5 +1,6 @@
 package jahspotify.service;
 
+import jahspotify.service.spotiseek.*;
 import junit.framework.TestCase;
 
 /**

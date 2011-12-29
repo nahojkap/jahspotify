@@ -1,14 +1,14 @@
 package jahspotify.web;
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
 import javax.servlet.http.*;
 
 import jahspotify.media.Link;
 import jahspotify.service.*;
+import jahspotify.service.Queue;
 import jahspotify.service.QueueConfiguration;
 import jahspotify.web.queue.*;
-import jahspotify.web.queue.QueueStatus;
-import jahspotify.web.system.SystemStatus;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,10 +41,11 @@ public class QueueController extends BaseController
             final QueueTracksRequest queueTracksRequest = readRequest(httpServletRequest, QueueTracksRequest.class);
 
             final List<Link> uriQueue = convertToLinkList(queueTracksRequest.getURIQueue());
-            _queueManager.addToQueue(uriQueue);
+            _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,uriQueue);
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("TRACKS_ADDED");
 
             writeResponse(httpServletResponse, simpleStatusResponse);
 
@@ -73,10 +74,11 @@ public class QueueController extends BaseController
         try
         {
             Link uri = retrieveLink(httpServletRequest);
-            _queueManager.addToQueue(uri);
+            _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,uri);
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("TRACKS_ADDED");
 
             writeResponse(httpServletResponse, simpleStatusResponse);
         }
@@ -98,9 +100,10 @@ public class QueueController extends BaseController
         try
         {
             Link uri = retrieveLink(httpServletRequest);
-            _queueManager.deleteQueuedTrack(uri);
+            _queueManager.deleteQueuedTrack(QueueManager.DEFAULT_QUEUE_LINK, uri);
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("QUEUED_TRACK_DELETED");
         }
         catch (Exception e)
         {
@@ -115,8 +118,8 @@ public class QueueController extends BaseController
         try
         {
             Link uri = retrieveLink(httpServletRequest);
-            jahspotify.service.CurrentQueue currentQueue = _queueManager.shuffle(uri);
-            writeCurrentQueue(httpServletResponse, currentQueue);
+            Queue queue = _queueManager.shuffle(uri);
+            writeCurrentQueue(httpServletResponse, queue);
         }
         catch (Exception e)
         {
@@ -151,31 +154,31 @@ public class QueueController extends BaseController
             }
         }
 
-        final jahspotify.service.CurrentQueue currentQueue = _queueManager.getCurrentQueue(count);
-        writeCurrentQueue(httpServletResponse, currentQueue);
+        final Queue queue = _queueManager.getCurrentQueue(count);
+        writeCurrentQueue(httpServletResponse, queue);
     }
 
-    private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final jahspotify.service.CurrentQueue currentQueue)
+    private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final Queue queue)
     {
         final jahspotify.web.queue.CurrentQueue currentCurrentQueue = new jahspotify.web.queue.CurrentQueue();
 
-        currentCurrentQueue.setQueueState(convertToQueueStatus(_queueManager.getQueueStatus().getMediaPlayerState()));
-        currentCurrentQueue.setId(currentQueue.getId().getId());
-        currentCurrentQueue.setRepeatCurrentQueue(currentQueue.isRepeatCurrentQueue());
-        currentCurrentQueue.setRepeatCurrentTrack(currentQueue.isRepeatCurrentTrack());
-        currentCurrentQueue.setShuffle(currentQueue.isShuffle());
+        currentCurrentQueue.setQueueState(QueueWebHelper.convertToQueueStatus(_queueManager.getQueueStatus().getMediaPlayerState()));
+        currentCurrentQueue.setId(queue.getId().getId());
+        currentCurrentQueue.setRepeatCurrentQueue(queue.isRepeatCurrentQueue());
+        currentCurrentQueue.setRepeatCurrentTrack(queue.isRepeatCurrentTrack());
+        currentCurrentQueue.setShuffle(queue.isShuffle());
 
-        final QueueTrack currentlyPlaying = currentQueue.getCurrentlyPlaying();
+        final QueueTrack currentlyPlaying = queue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
         {
             currentCurrentQueue.setCurrentlyPlaying(new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString()));
         }
 
-        currentCurrentQueue.setQueuedTracks(convertToWeb(currentQueue.getQueuedTracks()));
+        currentCurrentQueue.setQueuedTracks(convertToWeb(queue.getQueuedTracks()));
         writeResponseGeneric(httpServletResponse, currentCurrentQueue);
     }
 
-    private List<QueuedTrack> convertToWeb(final List<QueueTrack> queuedTracks)
+    private List<QueuedTrack> convertToWeb(final BlockingDeque<QueueTrack> queuedTracks)
     {
         if (queuedTracks.isEmpty())
         {
@@ -190,29 +193,6 @@ public class QueueController extends BaseController
 
         return queuedWebTracks;
     }
-
-    @RequestMapping(value = "/system/status", method = RequestMethod.GET)
-    public void status(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _log.debug("Request for the system status");
-
-        final jahspotify.service.QueueStatus queueStatus = _queueManager.getQueueStatus();
-
-        SystemStatus systemStatus = new SystemStatus();
-        systemStatus.setQueueStatus(convertToWeb(queueStatus));
-
-        systemStatus.setUpSince(_upSince);
-
-        systemStatus.setTotalMemory(Runtime.getRuntime().totalMemory());
-        systemStatus.setMaxMemory(Runtime.getRuntime().maxMemory());
-        systemStatus.setFreeMemory(Runtime.getRuntime().freeMemory());
-
-        systemStatus.setNumberProcessors(Runtime.getRuntime().availableProcessors());
-
-        writeResponseGeneric(httpServletResponse, systemStatus);
-
-    }
-
 
     @RequestMapping(value = "/queue/configuration", method = RequestMethod.GET)
     public void readQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
@@ -272,45 +252,6 @@ public class QueueController extends BaseController
         webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
         webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
         writeResponseGeneric(httpServletResponse, webQueueConfiguration);
-    }
-
-    private QueueStatus convertToWeb(final jahspotify.service.QueueStatus queueStatus)
-    {
-        QueueStatus webQueueStatus = new QueueStatus();
-
-        webQueueStatus.setQueueState(convertToQueueStatus(queueStatus.getMediaPlayerState()));
-        webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
-        webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
-        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getMediaPlayerState().name()));
-        webQueueStatus.setTotalPlaytime(queueStatus.getTotalPlaytime());
-        webQueueStatus.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
-        webQueueStatus.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
-        webQueueStatus.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
-
-        return webQueueStatus;
-    }
-
-    private QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
-    {
-        switch (mediaPlayerState)
-        {
-            case PAUSED:
-                return QueueState.PAUSED;
-            case PLAYING:
-                return QueueState.PLAYING;
-            case STOPPED:
-                return QueueState.STOPPED;
-            default:
-                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
-        }
-    }
-
-    @RequestMapping(value = "/system/intialize", method = RequestMethod.POST)
-    public void initialize(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-        simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
-        writeResponse(httpServletResponse, simpleStatusResponse);
     }
 
 }

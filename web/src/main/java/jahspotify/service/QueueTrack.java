@@ -1,14 +1,20 @@
 package jahspotify.service;
 
+import java.util.*;
+
 import jahspotify.media.Link;
 
-/**
+/** Representation of a queued track within the system.  Contains the necessary information to
+ * play the track as well as identifying the track in the queue.  Also adds some meta-data
+ * storage for storing random meta-data with the track
  * @author Johan Lindquist
  */
 public class QueueTrack
 {
-    String _id;
-    Link _trackID;
+    private String _id;
+    private Link _trackID;
+    private Map<String, String> _metadata = new HashMap<String, String>();
+    public static final String QUEUED_TRACK_SOURCE = "QUEUED_TRACK_SOURCE";
 
     public QueueTrack(final String id, final Link trackUri)
     {
@@ -21,28 +27,14 @@ public class QueueTrack
         return _id;
     }
 
-    public void setId(final String id)
-    {
-        _id = id;
-    }
-
     public Link getTrackUri()
     {
         return _trackID;
     }
 
-    public void setTrackUri(final Link trackUri)
+    public Map<String, String> getMetadata()
     {
-        _trackID = trackUri;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "QueuedTrack{" +
-                "_id='" + _id + '\'' +
-                ", _trackID='" + _trackID + '\'' +
-                '}';
+        return _metadata;
     }
 
     @Override
@@ -63,6 +55,10 @@ public class QueueTrack
         {
             return false;
         }
+        if (_metadata != null ? !_metadata.equals(that._metadata) : that._metadata != null)
+        {
+            return false;
+        }
         if (_trackID != null ? !_trackID.equals(that._trackID) : that._trackID != null)
         {
             return false;
@@ -76,6 +72,17 @@ public class QueueTrack
     {
         int result = _id != null ? _id.hashCode() : 0;
         result = 31 * result + (_trackID != null ? _trackID.hashCode() : 0);
+        result = 31 * result + (_metadata != null ? _metadata.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "QueueTrack{" +
+                "_id='" + _id + '\'' +
+                ", _trackID=" + _trackID +
+                ", _metadata=" + _metadata +
+                '}';
     }
 }

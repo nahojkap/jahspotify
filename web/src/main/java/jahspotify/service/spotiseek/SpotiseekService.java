@@ -1,17 +1,11 @@
-package jahspotify.service;
-
-import java.io.*;
-import java.util.List;
+package jahspotify.service.spotiseek;
 
 import javax.xml.parsers.*;
-import javax.xml.xpath.*;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * @author Johan Lindquist

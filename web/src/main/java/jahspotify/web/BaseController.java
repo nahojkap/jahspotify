@@ -55,7 +55,7 @@ public class BaseController
             httpServletResponse.setContentType("application/json; charset=utf-8");
             _log.debug("Serializing: " + simpleStatusResponse);
             final PrintWriter writer = httpServletResponse.getWriter();
-            gson.toJson(simpleStatusResponse.getResponseStatus(), writer);
+            gson.toJson(simpleStatusResponse, writer);
             writer.flush();
             writer.close();
         }
