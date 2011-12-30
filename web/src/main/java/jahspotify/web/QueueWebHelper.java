@@ -19,8 +19,15 @@ package jahspotify.web;
  *        under the License.
  */
 
-import jahspotify.services.MediaPlayerState;
-import jahspotify.web.queue.QueueState;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
+
+import jahspotify.services.*;
+import jahspotify.services.Queue;
+import jahspotify.services.QueueStatus;
+import jahspotify.web.queue.*;
+import jahspotify.web.queue.QueueConfiguration;
 
 /**
  * @author Johan Lindquist
@@ -44,5 +51,76 @@ public class QueueWebHelper
     }
 
 
+    public static QueueConfiguration convertToWebQueueConfiguration(final jahspotify.services.QueueConfiguration queueConfiguration)
+    {
+        jahspotify.web.queue.QueueConfiguration currentQueueConfiguration = new jahspotify.web.queue.QueueConfiguration();
+        currentQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
+        currentQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
+        currentQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+        currentQueueConfiguration.setAutoRefill(queueConfiguration.isAutoRefill());
+        currentQueueConfiguration.setReportEmptyQueue(queueConfiguration.isReportEmptyQueue());
+        currentQueueConfiguration.setReportTrackChanges(queueConfiguration.isReportTrackChanges());
+        currentQueueConfiguration.setCallbackURL(queueConfiguration.getCallbackURL() == null ? null : queueConfiguration.getCallbackURL().toString());
+        return currentQueueConfiguration;
+    }
 
+    public static jahspotify.services.QueueConfiguration mergeConfigurations(final QueueConfiguration webQueueConfiguration, final jahspotify.services.QueueConfiguration currentQueueConfiguration) throws Exception
+    {
+        final jahspotify.services.QueueConfiguration queueConfiguration = new jahspotify.services.QueueConfiguration();
+        queueConfiguration.setRepeatCurrentQueue(webQueueConfiguration.isRepeatCurrentQueue());
+        queueConfiguration.setRepeatCurrentTrack(webQueueConfiguration.isRepeatCurrentTrack());
+        queueConfiguration.setShuffle(webQueueConfiguration.isShuffle());
+        queueConfiguration.setAutoRefill(webQueueConfiguration.isAutoRefill());
+        queueConfiguration.setReportEmptyQueue(webQueueConfiguration.isReportEmptyQueue());
+        queueConfiguration.setReportTrackChanges(webQueueConfiguration.isReportTrackChanges());
+        queueConfiguration.setCallbackURL(webQueueConfiguration.getCallbackURL() == null ? null : new URL(webQueueConfiguration.getCallbackURL()));
+        return queueConfiguration;
+    }
+
+    public static jahspotify.web.queue.QueueStatus convertToWebQueueStatus(final QueueStatus queueStatus)
+    {
+        jahspotify.web.queue.QueueStatus webQueueStatus = new jahspotify.web.queue.QueueStatus();
+
+        webQueueStatus.setQueueState(QueueWebHelper.convertToQueueStatus(queueStatus.getMediaPlayerState()));
+        webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
+        webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
+        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getMediaPlayerState().name()));
+        webQueueStatus.setTotalPlaytime(queueStatus.getTotalPlaytime());
+        webQueueStatus.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
+        webQueueStatus.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
+        webQueueStatus.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
+
+        return webQueueStatus;
+    }
+
+    public static List<QueuedTrack> convertToWebQueuedTracks(final BlockingDeque<QueueTrack> queuedTracks)
+    {
+        if (queuedTracks.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        final List<QueuedTrack> queuedWebTracks = new ArrayList<QueuedTrack>();
+        for (QueueTrack queuedTrack : queuedTracks)
+        {
+            queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().asString()));
+        }
+
+        return queuedWebTracks;
+    }
+
+    public static CurrentQueue convertToWebQueue(final Queue queue, final MediaPlayerState mediaPlayerState)
+    {
+        final jahspotify.web.queue.CurrentQueue currentCurrentQueue = new jahspotify.web.queue.CurrentQueue();
+        currentCurrentQueue.setQueueState(QueueWebHelper.convertToQueueStatus(mediaPlayerState));
+        currentCurrentQueue.setId(queue.getId().getId());
+        currentCurrentQueue.setQueueConfiguration(QueueWebHelper.convertToWebQueueConfiguration(queue.getQueueConfiguration()));
+
+        final QueueTrack currentlyPlaying = queue.getCurrentlyPlaying();
+        if (currentlyPlaying != null)
+        {
+            currentCurrentQueue.setCurrentlyPlaying(new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString()));
+        }
+        currentCurrentQueue.setQueuedTracks(QueueWebHelper.convertToWebQueuedTracks(queue.getQueuedTracks()));
+        return currentCurrentQueue;
+    }
 }

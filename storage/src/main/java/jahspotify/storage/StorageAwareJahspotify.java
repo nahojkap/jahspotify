@@ -15,17 +15,16 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
 
     private static JahSpotify _jahSpotify;
 
+    private MediaStorage _mediaStorage;
+
     protected StorageAwareJahspotify()
     {
     }
-
-    private MediaStorage _mediaStorage;
 
     public void setMediaStorage(final MediaStorage mediaStorage)
     {
         _mediaStorage = mediaStorage;
     }
-
 
     public static JahSpotify getInstanceStorageBasedInstance()
     {
@@ -96,7 +95,7 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
         }
 
         image = super.readImage(uri);
-        if (_mediaStorage != null)
+        if (image != null && _mediaStorage != null)
         {
             _mediaStorage.store(image);
         }

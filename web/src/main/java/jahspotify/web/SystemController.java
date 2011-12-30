@@ -22,7 +22,6 @@ package jahspotify.web;
 import javax.servlet.http.*;
 
 import jahspotify.services.QueueManager;
-import jahspotify.web.queue.*;
 import jahspotify.web.system.SystemStatus;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ import org.springframework.web.bind.annotation.*;
 public class SystemController extends BaseController
 {
     @Autowired
-        QueueManager _queueManager;
+    private QueueManager _queueManager;
 
     private Log _log = LogFactory.getLog(SystemController.class);
 
@@ -50,7 +49,10 @@ public class SystemController extends BaseController
         final jahspotify.services.QueueStatus queueStatus = _queueManager.getQueueStatus();
 
         SystemStatus systemStatus = new SystemStatus();
-        systemStatus.setQueueStatus(convertToWeb(queueStatus));
+        systemStatus.setQueueStatus(QueueWebHelper.convertToWebQueueStatus(queueStatus));
+
+        systemStatus.setQueueConfiguration(QueueWebHelper.convertToWebQueueConfiguration(_queueManager.getQueueConfiguration(QueueManager.DEFAULT_QUEUE_LINK)));
+        systemStatus.setCurrentQueue(_queueManager.getCurrentQueue(1).getId().asString());
 
         systemStatus.setUpSince(_upSince);
 
@@ -63,23 +65,5 @@ public class SystemController extends BaseController
         writeResponseGeneric(httpServletResponse, systemStatus);
 
     }
-
-    private QueueStatus convertToWeb(final jahspotify.services.QueueStatus queueStatus)
-    {
-        QueueStatus webQueueStatus = new QueueStatus();
-
-        webQueueStatus.setQueueState(QueueWebHelper.convertToQueueStatus(queueStatus.getMediaPlayerState()));
-        webQueueStatus.setCurrentQueueSize(queueStatus.getCurrentQueueSize());
-        webQueueStatus.setMaxQueueSize(queueStatus.getMaxQueueSize());
-        webQueueStatus.setQueueState(QueueState.valueOf(queueStatus.getMediaPlayerState().name()));
-        webQueueStatus.setTotalPlaytime(queueStatus.getTotalPlaytime());
-        webQueueStatus.setTotalTracksCompleted(queueStatus.getTotalTracksCompleted());
-        webQueueStatus.setTotalTracksPlayed(queueStatus.getTotalTracksPlayed());
-        webQueueStatus.setTotalTracksSkipped(queueStatus.getTotalTracksSkipped());
-
-        return webQueueStatus;
-    }
-
-
 
 }
