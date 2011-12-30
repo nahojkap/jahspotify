@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.servlet.http.*;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
 import jahspotify.media.Link;
-import jahspotify.service.JahSpotifyService;
+import jahspotify.services.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.*;
 

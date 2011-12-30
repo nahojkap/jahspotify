@@ -10,7 +10,9 @@
         >
 
     <context:component-scan base-package="jahspotify.storage"/>
-    <context:component-scan base-package="jahspotify.service"/>
+    <context:component-scan base-package="jahspotify.services"/>
+    <context:component-scan base-package="jahspotify.services.echonest"/>
+    <context:component-scan base-package="jahspotify.services.nuances"/>
     <context:component-scan base-package="jahspotify.web"/>
 
     <import resource="spring-servlet.xml"/>

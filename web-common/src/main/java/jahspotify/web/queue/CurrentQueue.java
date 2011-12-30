@@ -13,9 +13,17 @@ public class CurrentQueue
     private List<QueuedTrack> queuedTracks;
     private QueueState queueState;
 
-    private boolean shuffle;
-    private boolean repeatCurrentQueue;
-    private boolean repeatCurrentTrack;
+    private QueueConfiguration queueConfiguration;
+
+    public QueueConfiguration getQueueConfiguration()
+    {
+        return queueConfiguration;
+    }
+
+    public void setQueueConfiguration(final QueueConfiguration queueConfiguration)
+    {
+        this.queueConfiguration = queueConfiguration;
+    }
 
     public String getId()
     {
@@ -35,36 +43,6 @@ public class CurrentQueue
     public void setQueueState(final QueueState queueState)
     {
         this.queueState = queueState;
-    }
-
-    public boolean isRepeatCurrentQueue()
-    {
-        return repeatCurrentQueue;
-    }
-
-    public void setRepeatCurrentQueue(final boolean repeatCurrentQueue)
-    {
-        this.repeatCurrentQueue = repeatCurrentQueue;
-    }
-
-    public boolean isRepeatCurrentTrack()
-    {
-        return repeatCurrentTrack;
-    }
-
-    public void setRepeatCurrentTrack(final boolean repeatCurrentTrack)
-    {
-        this.repeatCurrentTrack = repeatCurrentTrack;
-    }
-
-    public boolean isShuffle()
-    {
-        return shuffle;
-    }
-
-    public void setShuffle(final boolean shuffle)
-    {
-        this.shuffle = shuffle;
     }
 
     public CurrentTrack getCurrentlyPlaying()
@@ -101,19 +79,15 @@ public class CurrentQueue
 
         final CurrentQueue that = (CurrentQueue) o;
 
-        if (repeatCurrentQueue != that.repeatCurrentQueue)
-        {
-            return false;
-        }
-        if (repeatCurrentTrack != that.repeatCurrentTrack)
-        {
-            return false;
-        }
-        if (shuffle != that.shuffle)
-        {
-            return false;
-        }
         if (currentlyPlaying != null ? !currentlyPlaying.equals(that.currentlyPlaying) : that.currentlyPlaying != null)
+        {
+            return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null)
+        {
+            return false;
+        }
+        if (queueConfiguration != null ? !queueConfiguration.equals(that.queueConfiguration) : that.queueConfiguration != null)
         {
             return false;
         }
@@ -132,12 +106,11 @@ public class CurrentQueue
     @Override
     public int hashCode()
     {
-        int result = currentlyPlaying != null ? currentlyPlaying.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (currentlyPlaying != null ? currentlyPlaying.hashCode() : 0);
         result = 31 * result + (queuedTracks != null ? queuedTracks.hashCode() : 0);
         result = 31 * result + (queueState != null ? queueState.hashCode() : 0);
-        result = 31 * result + (shuffle ? 1 : 0);
-        result = 31 * result + (repeatCurrentQueue ? 1 : 0);
-        result = 31 * result + (repeatCurrentTrack ? 1 : 0);
+        result = 31 * result + (queueConfiguration != null ? queueConfiguration.hashCode() : 0);
         return result;
     }
 
@@ -146,11 +119,10 @@ public class CurrentQueue
     {
         return "CurrentQueue{" +
                 "currentlyPlaying=" + currentlyPlaying +
+                ", id='" + id + '\'' +
                 ", queuedTracks=" + queuedTracks +
                 ", queueState=" + queueState +
-                ", shuffle=" + shuffle +
-                ", repeatCurrentQueue=" + repeatCurrentQueue +
-                ", repeatCurrentTrack=" + repeatCurrentTrack +
+                ", queueConfiguration=" + queueConfiguration +
                 '}';
     }
 }

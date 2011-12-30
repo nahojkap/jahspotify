@@ -21,7 +21,7 @@ package jahspotify.web;
 
 import javax.servlet.http.*;
 
-import jahspotify.service.QueueManager;
+import jahspotify.services.QueueManager;
 import jahspotify.web.queue.*;
 import jahspotify.web.system.SystemStatus;
 import org.apache.commons.logging.*;
@@ -47,7 +47,7 @@ public class SystemController extends BaseController
     {
         _log.debug("Request for the system status");
 
-        final jahspotify.service.QueueStatus queueStatus = _queueManager.getQueueStatus();
+        final jahspotify.services.QueueStatus queueStatus = _queueManager.getQueueStatus();
 
         SystemStatus systemStatus = new SystemStatus();
         systemStatus.setQueueStatus(convertToWeb(queueStatus));
@@ -64,7 +64,7 @@ public class SystemController extends BaseController
 
     }
 
-    private QueueStatus convertToWeb(final jahspotify.service.QueueStatus queueStatus)
+    private QueueStatus convertToWeb(final jahspotify.services.QueueStatus queueStatus)
     {
         QueueStatus webQueueStatus = new QueueStatus();
 

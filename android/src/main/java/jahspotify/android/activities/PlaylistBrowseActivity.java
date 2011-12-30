@@ -4,12 +4,14 @@ import java.io.IOException;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import jahspotify.android.R;
 import jahspotify.android.data.LibraryRetriever;
+import jahspotify.client.JahSpotifyClient;
 import jahspotify.web.media.*;
 
 /**
@@ -78,19 +80,20 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
          */
         public View getView(final int position, View convertView, ViewGroup parent)
         {
-            TextView text;
+            View listItem;
 
             if (convertView == null)
             {
-                text = (TextView) mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                listItem = mInflater.inflate(R.layout.list_entry,parent, false);
             }
             else
             {
-                text = (TextView) convertView;
+                listItem  = convertView;
             }
 
-            text.setClickable(true);
-            text.setOnClickListener(new View.OnClickListener()
+            listItem.setClickable(true);
+            listItem.setVisibility(View.VISIBLE);
+            listItem.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(final View view)
@@ -112,24 +115,25 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 try
                 {
                     final Link trackLink = _currentPlaylist.getTracks().get(position);
-                    Track track = LibraryRetriever.getTrack(trackLink);
-                    text.setText(track.getTitle());
+                    updateListItem(listItem, trackLink);
                 }
                 catch (IOException e)
                 {
                     e.printStackTrace();
                 }
                 // Null tag means the view has the correct data
-                text.setTag(null);
             }
             else
             {
+                TextView text = (TextView) listItem.findViewById(R.id.result_name);
                 text.setText("Loading...");
+                text = (TextView) listItem.findViewById(R.id.result_second_line);
+                text.setVisibility(View.GONE);
                 // Non-null tag means the view still needs to load it's data
-                text.setTag(this);
+                listItem.setTag(this);
             }
 
-            return text;
+            return listItem;
         }
     }
 
@@ -178,15 +182,14 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 int count = view.getChildCount();
                 for (int i = 0; i < count; i++)
                 {
-                    TextView t = (TextView) view.getChildAt(i);
+                    View t = view.getChildAt(i);
                     if (t.getTag() != null)
                     {
                         final Link trackLink = _currentPlaylist.getTracks().get(first + i);
 
                         try
                         {
-                            Track track = LibraryRetriever.getTrack(trackLink);
-                            t.setText(track.getTitle());
+                            updateListItem(t, trackLink);
                         }
                         catch (IOException e)
                         {
@@ -208,6 +211,25 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 mStatus.setText("Fling");
                 break;
         }
+    }
+
+    private void updateListItem(final View listItem, final Link trackLink) throws IOException
+    {
+        Track track = LibraryRetriever.getTrack(trackLink);
+        ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
+        Link albumLink = track.getAlbum();
+        Album album = LibraryRetriever.getAlbum(albumLink);
+        image.setImageDrawable(Drawable.createFromStream(LibraryRetriever.getImage(album.getCover()), "JahSpotify"));
+
+        TextView text = (TextView) listItem.findViewById(R.id.result_name);
+        text.setText(track.getTitle());
+
+        text = (TextView) listItem.findViewById(R.id.result_second_line);
+        text.setText(album.getName());
+        text.setVisibility(View.VISIBLE);
+
+        listItem.setTag(null);
+
     }
 
     private Playlist _currentPlaylist;

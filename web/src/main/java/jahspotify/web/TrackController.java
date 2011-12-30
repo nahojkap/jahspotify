@@ -2,9 +2,8 @@ package jahspotify.web;
 
 import javax.servlet.http.*;
 
-import jahspotify.media.Link;
-import jahspotify.media.Track;
-import jahspotify.service.*;
+import jahspotify.media.*;
+import jahspotify.services.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;

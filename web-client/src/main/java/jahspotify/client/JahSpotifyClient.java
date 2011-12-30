@@ -28,6 +28,9 @@ public class JahSpotifyClient
     {
         JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://localhost:8080/jahspotify/");
 
+        final QueueConfiguration queueConfiguration = new QueueConfiguration();
+        queueConfiguration.setAutoRefill(true);
+        jahSpotifyClient.setQueueConfiguration(queueConfiguration);
         // addTrack(Arrays.asList("spotify:track:6UaRii9AH6Zss9xNMEQ2M9", "spotify:track:34q1KaLX8h73xE06xPBmNB", "spotify:track:52JyHLUiugFECIYBWM2qdh"));
 
         // command line:
@@ -208,5 +211,11 @@ public class JahSpotifyClient
         }
 
         return  null;
+    }
+
+    public Album readAlbum(final String albumLink) throws IOException
+    {
+        String s = getData(_baseURL  + "media/" + albumLink);
+        return deserialize(s,Album.class);
     }
 }

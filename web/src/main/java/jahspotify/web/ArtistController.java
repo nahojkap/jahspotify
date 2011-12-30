@@ -1,13 +1,8 @@
 package jahspotify.web;
 
-import java.io.*;
 import javax.servlet.http.*;
 
-import com.google.gson.Gson;
 import jahspotify.media.*;
-import jahspotify.media.Artist;
-import jahspotify.media.Link;
-import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;

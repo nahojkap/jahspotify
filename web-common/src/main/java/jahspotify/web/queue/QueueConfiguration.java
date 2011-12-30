@@ -96,7 +96,56 @@ public class QueueConfiguration
     }
 
     @Override
-    public String toString()
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof QueueConfiguration))
+        {
+            return false;
+        }
+
+        final QueueConfiguration that = (QueueConfiguration) o;
+
+        if (autoRefill != that.autoRefill)
+        {
+            return false;
+        }
+        if (repeatCurrentQueue != that.repeatCurrentQueue)
+        {
+            return false;
+        }
+        if (repeatCurrentTrack != that.repeatCurrentTrack)
+        {
+            return false;
+        }
+        if (reportEmptyQueue != that.reportEmptyQueue)
+        {
+            return false;
+        }
+        if (reportTrackChanges != that.reportTrackChanges)
+        {
+            return false;
+        }
+        if (shuffle != that.shuffle)
+        {
+            return false;
+        }
+        if (callbackURL != null ? !callbackURL.equals(that.callbackURL) : that.callbackURL != null)
+        {
+            return false;
+        }
+        if (remoteQueueName != null ? !remoteQueueName.equals(that.remoteQueueName) : that.remoteQueueName != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+     public String toString()
     {
         return "QueueConfiguration{" +
                 "autoRefill=" + autoRefill +
@@ -109,4 +158,5 @@ public class QueueConfiguration
                 ", shuffle=" + shuffle +
                 '}';
     }
+
 }

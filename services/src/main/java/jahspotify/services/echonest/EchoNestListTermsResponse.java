@@ -1,4 +1,4 @@
-package jahspotify.web;
+package jahspotify.services.echonest;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,30 +19,22 @@ package jahspotify.web;
  *        under the License.
  */
 
-import jahspotify.services.MediaPlayerState;
-import jahspotify.web.queue.QueueState;
+import java.util.List;
 
 /**
  * @author Johan Lindquist
  */
-public class QueueWebHelper
+public class EchoNestListTermsResponse extends EchoNestResponse
 {
+    String type;
+    List<EchoNestListTerm> terms;
 
-    public static QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    @Override
+    public String toString()
     {
-        switch (mediaPlayerState)
-        {
-            case PAUSED:
-                return QueueState.PAUSED;
-            case PLAYING:
-                return QueueState.PLAYING;
-            case STOPPED:
-                return QueueState.STOPPED;
-            default:
-                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
-        }
+        return "EchoNestListTermsResponse{" +
+                "terms=" + terms +
+                ", type='" + type + '\'' +
+                "} " + super.toString();
     }
-
-
-
 }

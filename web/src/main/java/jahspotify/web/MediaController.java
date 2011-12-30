@@ -2,7 +2,7 @@ package jahspotify.web;
 
 import javax.servlet.http.*;
 
-import jahspotify.media.*;
+import jahspotify.media.Link;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 

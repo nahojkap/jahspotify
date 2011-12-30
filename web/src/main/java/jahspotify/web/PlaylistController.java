@@ -3,10 +3,8 @@ package jahspotify.web;
 import java.util.*;
 import javax.servlet.http.*;
 
-import jahspotify.media.Library;
-import jahspotify.media.Link;
-import jahspotify.media.Playlist;
-import jahspotify.service.*;
+import jahspotify.media.*;
+import jahspotify.services.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

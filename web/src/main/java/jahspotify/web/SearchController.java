@@ -4,7 +4,7 @@ import javax.servlet.http.*;
 
 import jahspotify.*;
 import jahspotify.query.TokenQuery;
-import jahspotify.service.SearchEngine;
+import jahspotify.services.SearchEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

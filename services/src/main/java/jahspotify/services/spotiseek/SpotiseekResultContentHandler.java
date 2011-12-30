@@ -1,4 +1,4 @@
-package jahspotify.web;
+package jahspotify.services.spotiseek;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,30 +19,29 @@ package jahspotify.web;
  *        under the License.
  */
 
-import jahspotify.services.MediaPlayerState;
-import jahspotify.web.queue.QueueState;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * @author Johan Lindquist
  */
-public class QueueWebHelper
+public class SpotiseekResultContentHandler extends DefaultHandler
 {
-
-    public static QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    private enum TAG
     {
-        switch (mediaPlayerState)
-        {
-            case PAUSED:
-                return QueueState.PAUSED;
-            case PLAYING:
-                return QueueState.PLAYING;
-            case STOPPED:
-                return QueueState.STOPPED;
-            default:
-                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
-        }
+        TRACKS, TRACK, ARTIST, ALBUM
     }
 
+    private TAG _currentTag;
 
+    @Override
+    public void startDocument() throws SAXException
+    {
+        super.startDocument();
+    }
 
+    @Override
+    public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException
+    {
+    }
 }

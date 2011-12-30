@@ -17,6 +17,7 @@
         <module>native</module>
         <module>api</module>
         <module>storage</module>
+        <module>services</module>
         <module>web-client</module>
         <module>web-common</module>
         <module>executable-war</module>
@@ -39,6 +40,12 @@
             <dependency>
                 <groupId>jahspotify</groupId>
                 <artifactId>jahspotify-api</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jahspotify</groupId>
+                <artifactId>jahspotify-services</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 

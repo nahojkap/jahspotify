@@ -1,4 +1,4 @@
-package jahspotify.web;
+package jahspotify.services.nuances;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,30 +19,31 @@ package jahspotify.web;
  *        under the License.
  */
 
-import jahspotify.services.MediaPlayerState;
-import jahspotify.web.queue.QueueState;
-
 /**
  * @author Johan Lindquist
  */
-public class QueueWebHelper
+public class Mood
 {
+    String _mood;
+    float _weight;
 
-    public static QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    public Mood(final String mood, final float weight)
     {
-        switch (mediaPlayerState)
-        {
-            case PAUSED:
-                return QueueState.PAUSED;
-            case PLAYING:
-                return QueueState.PLAYING;
-            case STOPPED:
-                return QueueState.STOPPED;
-            default:
-                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
-        }
+        _mood = mood;
+        _weight = weight;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Mood{" +
+                "_mood='" + _mood + '\'' +
+                ", _weight=" + _weight +
+                '}';
+    }
 
-
+    public String echoNestStyle()
+    {
+        return _mood + "^" + _weight;
+    }
 }

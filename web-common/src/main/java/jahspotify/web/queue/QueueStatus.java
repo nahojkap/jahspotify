@@ -85,4 +85,76 @@ public class QueueStatus
         return queueState;
     }
 
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof QueueStatus))
+        {
+            return false;
+        }
+
+        final QueueStatus that = (QueueStatus) o;
+
+        if (currentQueueSize != that.currentQueueSize)
+        {
+            return false;
+        }
+        if (maxQueueSize != that.maxQueueSize)
+        {
+            return false;
+        }
+        if (totalPlaytime != that.totalPlaytime)
+        {
+            return false;
+        }
+        if (totalTracksCompleted != that.totalTracksCompleted)
+        {
+            return false;
+        }
+        if (totalTracksPlayed != that.totalTracksPlayed)
+        {
+            return false;
+        }
+        if (totalTracksSkipped != that.totalTracksSkipped)
+        {
+            return false;
+        }
+        if (queueState != that.queueState)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = totalTracksPlayed;
+        result = 31 * result + totalTracksCompleted;
+        result = 31 * result + totalTracksSkipped;
+        result = 31 * result + (int) (totalPlaytime ^ (totalPlaytime >>> 32));
+        result = 31 * result + maxQueueSize;
+        result = 31 * result + currentQueueSize;
+        result = 31 * result + (queueState != null ? queueState.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "QueueStatus{" +
+                "currentQueueSize=" + currentQueueSize +
+                ", totalTracksPlayed=" + totalTracksPlayed +
+                ", totalTracksCompleted=" + totalTracksCompleted +
+                ", totalTracksSkipped=" + totalTracksSkipped +
+                ", totalPlaytime=" + totalPlaytime +
+                ", maxQueueSize=" + maxQueueSize +
+                ", queueState=" + queueState +
+                '}';
+    }
 }

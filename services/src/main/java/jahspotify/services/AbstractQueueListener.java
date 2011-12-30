@@ -1,4 +1,4 @@
-package jahspotify.web;
+package jahspotify.services;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,30 +19,30 @@ package jahspotify.web;
  *        under the License.
  */
 
-import jahspotify.services.MediaPlayerState;
-import jahspotify.web.queue.QueueState;
+import jahspotify.media.Link;
 
 /**
  * @author Johan Lindquist
  */
-public class QueueWebHelper
+public abstract class AbstractQueueListener implements QueueListener
 {
-
-    public static QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    @Override
+    public void newTrackAtFront(final Link queue, final QueueTrack queueTrack)
     {
-        switch (mediaPlayerState)
-        {
-            case PAUSED:
-                return QueueState.PAUSED;
-            case PLAYING:
-                return QueueState.PLAYING;
-            case STOPPED:
-                return QueueState.STOPPED;
-            default:
-                throw new IllegalStateException("Unhandled media player state: " + mediaPlayerState);
-        }
     }
 
+    @Override
+    public void tracksAdded(final Link queue, final QueueTrack... queueTracks)
+    {
+    }
 
+    @Override
+    public void tracksRemoved(final Link queue, final QueueTrack... queueTracks)
+    {
+    }
 
+    @Override
+    public void queueEmpty(final Link queue, final QueueTrack lastTrackPlayed)
+    {
+    }
 }

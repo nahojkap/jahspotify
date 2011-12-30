@@ -1,13 +1,14 @@
 package jahspotify.web;
 
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import javax.servlet.http.*;
 
 import jahspotify.media.Link;
-import jahspotify.service.*;
-import jahspotify.service.Queue;
-import jahspotify.service.QueueConfiguration;
+import jahspotify.services.*;
+import jahspotify.services.Queue;
+import jahspotify.services.QueueConfiguration;
 import jahspotify.web.queue.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,9 +165,12 @@ public class QueueController extends BaseController
 
         currentCurrentQueue.setQueueState(QueueWebHelper.convertToQueueStatus(_queueManager.getQueueStatus().getMediaPlayerState()));
         currentCurrentQueue.setId(queue.getId().getId());
-        currentCurrentQueue.setRepeatCurrentQueue(queue.isRepeatCurrentQueue());
-        currentCurrentQueue.setRepeatCurrentTrack(queue.isRepeatCurrentTrack());
-        currentCurrentQueue.setShuffle(queue.isShuffle());
+        jahspotify.web.queue.QueueConfiguration currentQueueConfiguration = new jahspotify.web.queue.QueueConfiguration();
+        currentQueueConfiguration.setRepeatCurrentQueue(queue.getQueueConfiguration().isRepeatCurrentQueue());
+        currentQueueConfiguration.setRepeatCurrentTrack(queue.getQueueConfiguration().isRepeatCurrentTrack());
+        currentQueueConfiguration.setShuffle(queue.getQueueConfiguration().isShuffle());
+        currentQueueConfiguration.setAutoRefill(queue.getQueueConfiguration().isAutoRefill());
+        currentCurrentQueue.setQueueConfiguration(currentQueueConfiguration);
 
         final QueueTrack currentlyPlaying = queue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
@@ -202,6 +206,12 @@ public class QueueController extends BaseController
         webQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
         webQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
         webQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+        webQueueConfiguration.setAutoRefill(queueConfiguration.isAutoRefill());
+
+        webQueueConfiguration.setCallbackURL(queueConfiguration.getCallbackURL() == null ? null : queueConfiguration.getCallbackURL().toString());
+        webQueueConfiguration.setReportEmptyQueue(queueConfiguration.isReportEmptyQueue());
+        webQueueConfiguration.setReportTrackChanges(queueConfiguration.isReportTrackChanges());
+
         writeResponseGeneric(httpServletResponse, webQueueConfiguration);
 
     }
@@ -222,6 +232,11 @@ public class QueueController extends BaseController
             newWebQueueConfiguration.setRepeatCurrentTrack(queueConfiguration.isRepeatCurrentTrack());
             newWebQueueConfiguration.setRepeatCurrentQueue(queueConfiguration.isRepeatCurrentQueue());
             newWebQueueConfiguration.setShuffle(queueConfiguration.isShuffle());
+            newWebQueueConfiguration.setAutoRefill(queueConfiguration.isAutoRefill());
+            newWebQueueConfiguration.setReportEmptyQueue(queueConfiguration.isReportEmptyQueue());
+            newWebQueueConfiguration.setReportTrackChanges(queueConfiguration.isReportTrackChanges());
+            newWebQueueConfiguration.setCallbackURL(queueConfiguration.getCallbackURL() == null ? null : queueConfiguration.getCallbackURL().toString());
+
             writeResponseGeneric(httpServletResponse, newWebQueueConfiguration);
 
 
@@ -233,12 +248,16 @@ public class QueueController extends BaseController
         }
     }
 
-    private QueueConfiguration mergeConfigurations(final jahspotify.web.queue.QueueConfiguration webQueueConfiguration, final QueueConfiguration currentQueueConfiguration)
+    private QueueConfiguration mergeConfigurations(final jahspotify.web.queue.QueueConfiguration webQueueConfiguration, final QueueConfiguration currentQueueConfiguration) throws MalformedURLException
     {
         final QueueConfiguration queueConfiguration = new QueueConfiguration();
         queueConfiguration.setRepeatCurrentQueue(webQueueConfiguration.isRepeatCurrentQueue());
         queueConfiguration.setRepeatCurrentTrack(webQueueConfiguration.isRepeatCurrentTrack());
         queueConfiguration.setShuffle(webQueueConfiguration.isShuffle());
+        queueConfiguration.setAutoRefill(webQueueConfiguration.isAutoRefill());
+        queueConfiguration.setReportEmptyQueue(webQueueConfiguration.isReportEmptyQueue());
+        queueConfiguration.setReportTrackChanges(webQueueConfiguration.isReportTrackChanges());
+        queueConfiguration.setCallbackURL(webQueueConfiguration.getCallbackURL() == null ? null : new URL(webQueueConfiguration.getCallbackURL()));
         return queueConfiguration;
     }
 
