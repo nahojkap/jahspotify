@@ -56,6 +56,7 @@ public class Library
         private String name;
         private String type;
         private List<Entry> subEntries;
+        private Integer numSubEntries;
 
         public static final String FOLDER_ENTRY_TYPE="folder";
         public static final String PLAYLIST_ENTRY_TYPE="playlist";
@@ -145,15 +146,29 @@ public class Library
             return parentID;
         }
 
+        public void setNumSubEntries(final int numSubEntries)
+        {
+            if (numSubEntries != 0)
+            {
+                this.numSubEntries = numSubEntries;
+            }
+        }
+
+        public int getNumSubEntries()
+        {
+            return numSubEntries;
+        }
+
         @Override
         public String toString()
         {
             return "Entry{" +
-                    "id='" + id + '\'' +
+                    "id=" + id +
                     ", name='" + name + '\'' +
                     ", type='" + type + '\'' +
                     ", subEntries=" + subEntries +
-                    ", parentID=" + parentID +
+                    ", numSubEntries=" + numSubEntries +
+                    ", parentID='" + parentID + '\'' +
                     '}';
         }
 
@@ -171,6 +186,10 @@ public class Library
 
             final Entry entry = (Entry) o;
 
+            if (numSubEntries != entry.numSubEntries)
+            {
+                return false;
+            }
             if (id != null ? !id.equals(entry.id) : entry.id != null)
             {
                 return false;
@@ -202,6 +221,7 @@ public class Library
             result = 31 * result + (name != null ? name.hashCode() : 0);
             result = 31 * result + (type != null ? type.hashCode() : 0);
             result = 31 * result + (subEntries != null ? subEntries.hashCode() : 0);
+            result = 31 * result + numSubEntries;
             result = 31 * result + (parentID != null ? parentID.hashCode() : 0);
             return result;
         }

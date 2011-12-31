@@ -1,7 +1,5 @@
 package jahspotify;
 
-import java.util.List;
-
 import jahspotify.media.*;
 
 /** Main interface into the Spotify system.  This provides the API's required to login and interact with the Spotify
@@ -50,10 +48,14 @@ public interface JahSpotify
 
     /** Read the information for the specified playlist.
      *
+     *
+     *
      * @param link The link for the playlist in question
-     * @return The read playlist or null if it could not be read
+     * @param index Index to start from
+     * @param numEntries The number of entries of the playlist to retrieve  @return The read playlist or null if it could not be read
+     * @return The processed playlist
      */
-    public Playlist readPlaylist(Link link);
+    public Playlist readPlaylist(Link link, final int index, final int numEntries);
 
     /** Retrieves the library for the currently logged in user.  This will retrieve all playlists and playlist folders
      * for the user.

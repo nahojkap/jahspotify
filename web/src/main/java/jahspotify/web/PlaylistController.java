@@ -27,7 +27,9 @@ public class PlaylistController extends BaseController
         try
         {
             final Link uri = retrieveLink(httpServletRequest);
-            Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri);
+            int numEntries = (httpServletRequest.getParameter("entries") == null ? 0 : Integer.parseInt(httpServletRequest.getParameter("entries")));
+            int index = (httpServletRequest.getParameter("index") == null ? 0 : Integer.parseInt(httpServletRequest.getParameter("index")));
+            Playlist playlist = _jahSpotifyService.getJahSpotify().readPlaylist(uri, index, numEntries);
             jahspotify.web.media.Playlist webPlaylist = concvertToWebPlaylist(playlist);
             writeResponseGeneric(httpServletResponse, webPlaylist);
         }
@@ -48,6 +50,8 @@ public class PlaylistController extends BaseController
         webPlaylist.setPicture((playlist.getPicture() != null ? playlist.getPicture().asString() : null));
         webPlaylist.setName(playlist.getName());
         webPlaylist.setTracks(toWebLinks(playlist.getTracks()));
+        webPlaylist.setNumTracks(playlist.getNumTracks());
+        webPlaylist.setIndex(playlist.getIndex());
         return webPlaylist;
     }
 
@@ -73,6 +77,7 @@ public class PlaylistController extends BaseController
     {
         final jahspotify.web.media.Library.Entry webFolderEntry = new jahspotify.web.media.Library.Entry(new jahspotify.web.media.Link(folderEntry.getId(), jahspotify.web.media.Link.Type.valueOf(folderEntry.getType())), folderEntry.getName(), folderEntry.getType());
         webFolderEntry.setParentID(folderEntry.getParentID());
+        webFolderEntry.setNumSubEntries(folderEntry.getNumEntries());
         for (Library.Entry subEntry : folderEntry.getSubEntries())
         {
             webFolderEntry.addSubEntry(convertToWebEntry(subEntry));

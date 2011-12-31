@@ -115,9 +115,9 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 try
                 {
                     final Link trackLink = _currentPlaylist.getTracks().get(position);
-                    updateListItem(listItem, trackLink);
+                    ListItemLoader.loadListItem( trackLink, listItem);
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     e.printStackTrace();
                 }
@@ -125,6 +125,9 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
             }
             else
             {
+                ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
+                image.setVisibility(View.INVISIBLE);
+
                 TextView text = (TextView) listItem.findViewById(R.id.result_name);
                 text.setText("Loading...");
                 text = (TextView) listItem.findViewById(R.id.result_second_line);
@@ -189,14 +192,13 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
 
                         try
                         {
-                            updateListItem(t, trackLink);
+                            ListItemLoader.loadListItem( trackLink, t);
                         }
-                        catch (IOException e)
+                        catch (Exception e)
                         {
                             e.printStackTrace();
                         }
 
-                        t.setTag(null);
                     }
                 }
 
@@ -211,25 +213,6 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 mStatus.setText("Fling");
                 break;
         }
-    }
-
-    private void updateListItem(final View listItem, final Link trackLink) throws IOException
-    {
-        Track track = LibraryRetriever.getTrack(trackLink);
-        ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
-        Link albumLink = track.getAlbum();
-        Album album = LibraryRetriever.getAlbum(albumLink);
-        image.setImageDrawable(Drawable.createFromStream(LibraryRetriever.getImage(album.getCover()), "JahSpotify"));
-
-        TextView text = (TextView) listItem.findViewById(R.id.result_name);
-        text.setText(track.getTitle());
-
-        text = (TextView) listItem.findViewById(R.id.result_second_line);
-        text.setText(album.getName());
-        text.setVisibility(View.VISIBLE);
-
-        listItem.setTag(null);
-
     }
 
     private Playlist _currentPlaylist;

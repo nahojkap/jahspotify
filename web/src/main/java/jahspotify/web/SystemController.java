@@ -66,4 +66,14 @@ public class SystemController extends BaseController
 
     }
 
+    @RequestMapping(value = "/system/cache/info", method = RequestMethod.GET)
+    public void listCaches(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+    }
+
+    @RequestMapping(value = "/system/cache/purge", method = RequestMethod.GET)
+    public void purgeCaches(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+    }
+
 }

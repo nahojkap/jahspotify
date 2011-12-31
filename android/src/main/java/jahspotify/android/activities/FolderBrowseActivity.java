@@ -94,25 +94,20 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
                 @Override
                 public void onClick(final View view)
                 {
-                    try
+                    final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
+                    if ("FOLDER".equals(clickedEntry.getType()))
                     {
-                        final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
-                        if ("FOLDER".equals(clickedEntry.getType()))
-                        {
-                            _currentFolder = LibraryRetriever.getEntry(clickedEntry.getId(), 2);
-                            _adapter.notifyDataSetInvalidated();
-                        }
-                        else if ("PLAYLIST".equals(clickedEntry.getType()))
-                        {
-                            // Display a playlist!
-                            Intent intent = new Intent(FolderBrowseActivity.this, PlaylistBrowseActivity.class);
-                            intent.putExtra("URI",clickedEntry.getId().getId());
-                            startActivity(intent);
-                        }
+                        // Display a playlist!
+                        Intent intent = new Intent(FolderBrowseActivity.this, FolderBrowseActivity.class);
+                        intent.putExtra("URI", clickedEntry.getId().getId());
+                        startActivity(intent);
                     }
-                    catch (IOException e)
+                    else if ("PLAYLIST".equals(clickedEntry.getType()))
                     {
-                        e.printStackTrace();
+                        // Display a playlist!
+                        Intent intent = new Intent(FolderBrowseActivity.this, PlaylistBrowseActivity.class);
+                        intent.putExtra("URI", clickedEntry.getId().getId());
+                        startActivity(intent);
                     }
                 }
             });
@@ -162,13 +157,30 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
         mStatus = (TextView) findViewById(R.id.status);
         mStatus.setText("Idle");
 
-        try
+        final String uri = getIntent().getStringExtra("URI");
+        if (uri != null)
         {
-            _currentFolder = LibraryRetriever.getRoot(1);
+            try
+            {
+                _currentFolder = LibraryRetriever.getEntry(new Link(uri, Link.Type.PLAYLIST), 1);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
         }
-        catch (IOException e)
+        else
         {
-            e.printStackTrace();
+
+            try
+            {
+                _currentFolder = LibraryRetriever.getRoot(1);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         // Use an existing ListAdapter that will map an array

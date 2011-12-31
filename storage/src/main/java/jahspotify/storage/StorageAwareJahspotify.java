@@ -103,10 +103,10 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
     }
 
     @Override
-    public Playlist readPlaylist(final Link uri)
+    public Playlist readPlaylist(final Link uri, final int index, final int numEntries)
     {
         Playlist playlist;
-        if (_mediaStorage != null)
+        if (index == 0 && numEntries == 0 && _mediaStorage != null)
         {
             playlist = _mediaStorage.readPlaylist(uri);
             if (playlist != null)
@@ -116,9 +116,9 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
             }
         }
 
-        playlist = super.readPlaylist(uri);
+        playlist = super.readPlaylist(uri, index, numEntries);
 
-        if (_mediaStorage != null && playlist != null)
+        if (index == 0 && numEntries == 0 && _mediaStorage != null && playlist != null)
         {
             _mediaStorage.store(playlist);
         }

@@ -1290,6 +1290,8 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
     }
 
     int numTracks = sp_playlist_num_tracks(playlist);
+    setObjectIntField(env, playlistInstance, "numTracks", numTracks);
+    
     int trackCounter = 0;
     for (trackCounter = 0 ; trackCounter < numTracks; trackCounter++)
     {

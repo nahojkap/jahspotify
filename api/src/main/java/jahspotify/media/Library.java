@@ -52,6 +52,7 @@ public class Library
         private String id;
         private String name;
         private String type;
+        private int numEntries;
         private List<Entry> subEntries = new ArrayList<Entry>();
 
         public static final String FOLDER_ENTRY_TYPE="FOLDER";
@@ -64,6 +65,16 @@ public class Library
             this.id = id;
             this.type = type;
             this.name = name;
+        }
+
+        public int getNumEntries()
+        {
+            return numEntries;
+        }
+
+        public void setNumEntries(final int numEntries)
+        {
+            this.numEntries = numEntries;
         }
 
         public String getParentID()
@@ -137,6 +148,7 @@ public class Library
             {
                 subEntries = new ArrayList<Entry>();
             }
+            numEntries++;
             subEntries.add(entry);
         }
     }

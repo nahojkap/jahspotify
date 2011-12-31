@@ -420,18 +420,42 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public Playlist readPlaylist(Link uri)
+    public Playlist readPlaylist(Link uri, final int index, final int numEntries)
     {
         ensureLoggedIn();
         _libSpotifyLock.lock();
         try
         {
-            return retrievePlaylist(uri.asString());
+            final Playlist playlist = retrievePlaylist(uri.asString());
+            if ((index == 0 && numEntries == 0) || playlist == null)
+            {
+                return playlist;
+            }
+
+            // Trim the playlist accordingly now
+            return trimPlaylist(playlist, index, numEntries);
+
         }
         finally
         {
             _libSpotifyLock.unlock();
         }
+    }
+
+    private Playlist trimPlaylist(final Playlist playlist, final int index, final int numEntries)
+    {
+        Playlist trimmedPlaylist = new Playlist();
+        trimmedPlaylist.setAuthor(playlist.getAuthor());
+        trimmedPlaylist.setCollaborative(playlist.isCollaborative());
+        trimmedPlaylist.setDescription(playlist.getDescription());
+        trimmedPlaylist.setId(playlist.getId());
+        trimmedPlaylist.setName(playlist.getName());
+        trimmedPlaylist.setPicture(playlist.getPicture());
+        trimmedPlaylist.setNumTracks(numEntries == 0 ? playlist.getNumTracks() : numEntries);
+        trimmedPlaylist.setIndex(index);
+        // FIXME: Trim this list
+        trimmedPlaylist.setTracks(playlist.getTracks().subList(index, numEntries));
+        return null;
     }
 
     @Override
@@ -525,8 +549,8 @@ public class JahSpotifyImpl implements JahSpotify
 
         if (uri.getFolderId() == 0)
         {
-            final Library.Entry entry = trimToLevel(_currentLibraryEntry, 1, level);
-            populateEmptyEntries(entry);
+            final Library.Entry entry = trimToLevel(_currentLibraryEntry, 0, level);
+            populateEmptyEntries(entry,0,level);
             return entry;
         }
 
@@ -535,18 +559,20 @@ public class JahSpotifyImpl implements JahSpotify
             final Library.Entry folderEntry = findFolder(entry, uri);
             if (folderEntry != null)
             {
-                final Library.Entry trimmedEntry = trimToLevel(folderEntry, 1, level);
-                populateEmptyEntries(trimmedEntry);
+                final Library.Entry trimmedEntry = trimToLevel(folderEntry, 0, level);
+                populateEmptyEntries(trimmedEntry,0,level);
                 return trimmedEntry;
             }
         }
         return null;
     }
 
-    private void populateEmptyEntries(final Library.Entry entry)
+    private void populateEmptyEntries(final Library.Entry entry, int currentLevel, int requiredLevel)
     {
-        Link.Type type = Link.Type.valueOf(entry.getType());
+        final Link.Type type = Link.Type.valueOf(entry.getType());
         _log.debug("Populating entry: " + entry.getId());
+        _log.debug("Current level: " + currentLevel);
+        _log.debug("Required level: " + requiredLevel);
 
         switch (type)
         {
@@ -555,9 +581,19 @@ public class JahSpotifyImpl implements JahSpotify
                 {
                     _log.debug("Loading tracks for playlist " + entry.getId());
                     // load the playlist!
-                    Playlist playlist = readPlaylist(Link.create(entry.getId()));
+                    Playlist playlist = readPlaylist(Link.create(entry.getId()), 0, 0);
                     if (playlist != null)
                     {
+                        // Always add the number of tracks/entries to the playlist
+                        entry.setNumEntries(playlist.getNumTracks());
+
+                        // However, if the required level is reached in terms of trimmin' simply return
+                        if (currentLevel == requiredLevel)
+                        {
+                            _log.debug("Required level reached");
+                            return;
+                        }
+
                         _log.debug("Playlist loaded, adding " + playlist.getTracks().size() + " track(s)");
                         for (Link trackLink : playlist.getTracks())
                         {
@@ -570,10 +606,24 @@ public class JahSpotifyImpl implements JahSpotify
                     }
                 }
 
+            case FOLDER:
             default:
-                for (Library.Entry subEntry : entry.getSubEntries())
+                // However, if the required level is reached in terms of trimmin' simply return
+                if (currentLevel == requiredLevel)
                 {
-                    populateEmptyEntries(subEntry);
+                    _log.debug("Required level reached");
+                    for (Library.Entry subEntry : entry.getSubEntries())
+                    {
+                        populateEmptyEntries(subEntry, 0, 0);
+                    }
+                    return;
+                }
+                else
+                {
+                    for (Library.Entry subEntry : entry.getSubEntries())
+                    {
+                        populateEmptyEntries(subEntry, currentLevel + 1, requiredLevel);
+                    }
                 }
                 break;
         }
@@ -594,7 +644,9 @@ public class JahSpotifyImpl implements JahSpotify
             // Remove all children of any sub-entries now
             for (Library.Entry entry : folderEntry.getSubEntries())
             {
-                strippedSubEntries.add(new Library.Entry(folderEntry.getParentID(), entry.getId(), entry.getName(), entry.getType()));
+                final Library.Entry e = new Library.Entry(folderEntry.getId(), entry.getId(), entry.getName(), entry.getType());
+                e.setNumEntries(entry.getNumEntries());
+                strippedSubEntries.add(e);
             }
         }
         else
@@ -607,6 +659,7 @@ public class JahSpotifyImpl implements JahSpotify
 
         final Library.Entry entry = new Library.Entry(folderEntry.getParentID(), folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
         entry.setSubEntries(strippedSubEntries);
+        entry.setNumEntries(folderEntry.getNumEntries());
         return entry;
     }
 

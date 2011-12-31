@@ -19,11 +19,65 @@ package jahspotify.android.activities;
  *        under the License.
  */
 
+import java.io.*;
+
+import android.app.Activity;
+import android.graphics.drawable.Drawable;
+import android.view.View;
+import android.widget.*;
+import jahspotify.android.R;
+import jahspotify.android.data.LibraryRetriever;
+import jahspotify.web.media.*;
+
 /**
  * @author Johan Lindquist
  */
 public class ListItemLoader
 {
 
+    public static void loadListItem(final Link trackLink, final View listItem) throws Exception
+    {
+        Thread t = new Thread()
+
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    final Track track = LibraryRetriever.getTrack(trackLink);
+                    final Link albumLink = track.getAlbum();
+                    final Album album = LibraryRetriever.getAlbum(albumLink);
+                    final InputStream image1 = LibraryRetriever.getImage(album.getCover());
+                    final Activity a = (Activity) listItem.getContext();
+                    final Drawable jahSpotify = Drawable.createFromStream(image1, "JahSpotify");
+                    a.runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
+                            image.setImageDrawable(jahSpotify);
+
+                            TextView text = (TextView) listItem.findViewById(R.id.result_name);
+                            text.setText(track.getTitle());
+
+                            text = (TextView) listItem.findViewById(R.id.result_second_line);
+                            text.setText(album.getName());
+                            text.setVisibility(View.VISIBLE);
+
+                            listItem.setTag(null);
+                        }
+                    });
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        };
+        t.start();
+
+    }
 
 }
