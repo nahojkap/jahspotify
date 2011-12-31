@@ -27,7 +27,7 @@ public class SimpleStatisticalStorage implements HistoricalStorage
         _log.debug("Start time: " + startTime);
         _log.debug("Seconds played: " + secondsPlayed);
         _log.debug("Completed: " + (completeTrackPlayed ? "yes" : "no"));
-        _trackHistory.add(new TrackHistory(trackLink, completeTrackPlayed, secondsPlayed, startTime));
+        _trackHistory.add(0,new TrackHistory(trackLink, completeTrackPlayed, secondsPlayed, startTime));
 
     }
     public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)
