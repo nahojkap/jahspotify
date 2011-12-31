@@ -97,6 +97,12 @@ public interface JahSpotify
      */
     public void stop();
 
+    /** Seeks to the specied offset in the currently playing track
+     *
+     * @param offset The offset to seek to, in seconds
+     */
+    public void seek(int offset);
+
     /** Initiates a search for the specified query.  Results are returned asynchronously via the {@link SearchListener} API.
      *
      * @param search The search to execute towards the Spotify APIs.  This bundles both the query and result parameters.
@@ -129,4 +135,8 @@ public interface JahSpotify
     public void addSearchListener(SearchListener searchListener);
 
     public Library.Entry readFolder(Link uri, final int level);
+
+    /** Shuts down the JahSpotify instance.
+     */
+    public void shutdown();
 }

@@ -47,8 +47,9 @@ public class JahSpotifyService
     {
         if (_jahSpotify != null)
         {
-            _jahSpotify.pause();
+            // Stop playback and then shutdown the instance
             _jahSpotify.stop();
+            _jahSpotify.shutdown();
         }
     }
 

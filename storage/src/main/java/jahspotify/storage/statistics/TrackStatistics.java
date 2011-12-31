@@ -6,17 +6,63 @@ package jahspotify.storage.statistics;
 public class TrackStatistics
 {
     private long totalPlaytime;
-    private boolean skipped;
+    private int numTimesSkipped;
     private long startTime;
+    private int numTimesCompleted;
 
-    public boolean isSkipped()
+
+    @Override
+    public boolean equals(final Object o)
     {
-        return skipped;
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof TrackStatistics))
+        {
+            return false;
+        }
+
+        final TrackStatistics that = (TrackStatistics) o;
+
+        if (numTimesCompleted != that.numTimesCompleted)
+        {
+            return false;
+        }
+        if (numTimesSkipped != that.numTimesSkipped)
+        {
+            return false;
+        }
+        if (startTime != that.startTime)
+        {
+            return false;
+        }
+        if (totalPlaytime != that.totalPlaytime)
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    public void setSkipped(final boolean skipped)
+    @Override
+    public int hashCode()
     {
-        this.skipped = skipped;
+        int result = (int) (totalPlaytime ^ (totalPlaytime >>> 32));
+        result = 31 * result + numTimesSkipped;
+        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
+        result = 31 * result + numTimesCompleted;
+        return result;
+    }
+
+    public int getNumTimesSkipped()
+    {
+        return numTimesSkipped;
+    }
+
+    public void setNumTimesSkipped(final int numTimesSkipped)
+    {
+        this.numTimesSkipped = numTimesSkipped;
     }
 
     public long getStartTime()
@@ -39,51 +85,23 @@ public class TrackStatistics
         this.totalPlaytime = totalPlaytime;
     }
 
-    @Override
-    public boolean equals(final Object o)
+    public int getNumTimesCompleted()
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (!(o instanceof TrackStatistics))
-        {
-            return false;
-        }
-
-        final TrackStatistics that = (TrackStatistics) o;
-
-        if (skipped != that.skipped)
-        {
-            return false;
-        }
-        if (startTime != that.startTime)
-        {
-            return false;
-        }
-        if (totalPlaytime != that.totalPlaytime)
-        {
-            return false;
-        }
-
-        return true;
+        return numTimesCompleted;
     }
 
-    @Override
-    public int hashCode()
+    public void setNumTimesCompleted(final int numTimesCompleted)
     {
-        int result = (int) (totalPlaytime ^ (totalPlaytime >>> 32));
-        result = 31 * result + (skipped ? 1 : 0);
-        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
-        return result;
+        this.numTimesCompleted = numTimesCompleted;
     }
 
     @Override
     public String toString()
     {
         return "TrackStatistics{" +
-                "skipped=" + skipped +
+                "numTimesCompleted=" + numTimesCompleted +
                 ", totalPlaytime=" + totalPlaytime +
+                ", numTimesSkipped=" + numTimesSkipped +
                 ", startTime=" + startTime +
                 '}';
     }

@@ -1,4 +1,4 @@
-package jahspotify.services;
+package jahspotify.storage.statistics;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,46 +22,6 @@ package jahspotify.services;
 /**
  * @author Johan Lindquist
  */
-public abstract class AbstractMediaPlayerListener implements MediaPlayerListener
+public enum HistoryCriteria
 {
-    @Override
-    public void trackStart(final QueueTrack queueTrack)
-    {
-    }
-
-    @Override
-    public void trackEnd(final QueueTrack queueTrack, final boolean forcedEnd)
-    {
-    }
-
-    @Override
-    public void paused(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void resume(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void skip(final QueueTrack currentTrack, final QueueTrack nextTrack)
-    {
-    }
-
-    @Override
-    public QueueNextTrack nextTrackToQueue()
-    {
-        return null;
-    }
-
-    @Override
-    public void stopped(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void seek(final QueueTrack currentTrack, final int offset)
-    {
-    }
 }

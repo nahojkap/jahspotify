@@ -22,8 +22,9 @@ public class MediaPlayer
     private QueueTrack _currentTrack;
     private Set<MediaPlayerListener> _mediaPlayerListeners = new HashSet<MediaPlayerListener>();
 
-    public static final int QUEUE_NEXT = 0;
-    public static final int QUEUE_QUIT = 1;
+    public static final int SKIP = 0;
+    public static final int QUIT = 1;
+    public static final int STOP_PLAY = 2;
 
     @Autowired
     private QueueManager _queueManager;
@@ -43,7 +44,7 @@ public class MediaPlayer
         try
         {
             // Issue the shutdown token
-            if (!_commandQueue.offer(QUEUE_QUIT, 1000, TimeUnit.MILLISECONDS))
+            if (!_commandQueue.offer(QUIT, 1000, TimeUnit.MILLISECONDS))
             {
                 // If not accepted, simply report so
                 _log.debug("Command to quit not accepted");
@@ -115,7 +116,7 @@ public class MediaPlayer
 
                         _mediaPlayerState = MediaPlayerState.STOPPED;
                         _currentTrack = null;
-                        _commandQueue.add(QUEUE_NEXT);
+                        _commandQueue.add(SKIP);
                     }
 
                 }
@@ -189,7 +190,7 @@ public class MediaPlayer
                         }
                         switch (command)
                         {
-                            case QUEUE_NEXT:
+                            case SKIP:
                                 final QueueTrack dequeuedTrack = _queueManager.getNextQueueTrack();
 
                                 if (dequeuedTrack != null)
@@ -202,11 +203,16 @@ public class MediaPlayer
                                 {
                                     // FIXME: This should handle the case where the last command was 'skip' and
                                     // the queue was empty.  Play should stop
-                                    _log.debug("Queue is empty, will have wait ...");
+                                    _log.debug("Queue is empty, will stop play");
+                                    _jahSpotify.stop();
+                                    _currentTrack = null;
                                 }
                                 break;
-                            case QUEUE_QUIT:
+                            case QUIT:
                                 keepRunning = false;
+                                break;
+                            case STOP_PLAY:
+                                _jahSpotify.stop();
                                 break;
                             default:
                                 _log.debug("Unrecognised command: " + command);
@@ -225,6 +231,8 @@ public class MediaPlayer
 
     }
 
+
+
     public void pause()
     {
         switch (_mediaPlayerState)
@@ -235,6 +243,40 @@ public class MediaPlayer
                 for (MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
                 {
                     mediaPlayerListener.paused(_currentTrack);
+                }
+                break;
+            default:
+                // FIXME: Should really do something
+        }
+    }
+
+    public void seek(int offset)
+    {
+        switch (_mediaPlayerState)
+        {
+            case PLAYING:
+                _jahSpotify.seek(offset);
+                for (MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
+                {
+                    mediaPlayerListener.seek(_currentTrack, offset);
+                }
+                break;
+            default:
+                // FIXME: Should really do something
+        }
+    }
+
+    public void stop()
+    {
+        switch (_mediaPlayerState)
+        {
+            case PLAYING:
+            case PAUSED:
+                _jahSpotify.stop();
+                _mediaPlayerState = MediaPlayerState.STOPPED;
+                for (MediaPlayerListener mediaPlayerListener : _mediaPlayerListeners)
+                {
+                    mediaPlayerListener.stopped(_currentTrack);
                 }
                 break;
             default:
@@ -255,7 +297,11 @@ public class MediaPlayer
                 }
                 break;
             case STOPPED:
-                // FIXME: Should this evaluate the queue?
+                // If the current track is not null, we stopped play in the middle of the track
+                if (_currentTrack != null)
+                {
+                    _jahSpotify.play(_currentTrack.getTrackUri());
+                }
                 //nextTrack();
                 break;
             default:
@@ -267,7 +313,7 @@ public class MediaPlayer
     {
         try
         {
-            _commandQueue.put(QUEUE_NEXT);
+            _commandQueue.put(SKIP);
         }
         catch (InterruptedException e)
         {
@@ -282,6 +328,7 @@ public class MediaPlayer
         {
             case PLAYING:
             case PAUSED:
+            case STOPPED:
                 nextTrack();
                 break;
             default:

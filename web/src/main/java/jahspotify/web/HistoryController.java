@@ -1,4 +1,4 @@
-package jahspotify.services;
+package jahspotify.web;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,49 +19,31 @@ package jahspotify.services;
  *        under the License.
  */
 
+import javax.servlet.http.*;
+
+import jahspotify.storage.statistics.HistoricalStorage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
 /**
  * @author Johan Lindquist
  */
-public abstract class AbstractMediaPlayerListener implements MediaPlayerListener
+@Controller
+public class HistoryController extends BaseController
 {
-    @Override
-    public void trackStart(final QueueTrack queueTrack)
+    @Autowired
+    private HistoricalStorage _historicalStorage;
+
+    @RequestMapping(value = "/history", method = RequestMethod.GET)
+    public void getHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(0,0,null));
+    }
+
+    @RequestMapping(value = "/history/", method = RequestMethod.GET)
+    public void getHistoryRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
     }
 
-    @Override
-    public void trackEnd(final QueueTrack queueTrack, final boolean forcedEnd)
-    {
-    }
-
-    @Override
-    public void paused(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void resume(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void skip(final QueueTrack currentTrack, final QueueTrack nextTrack)
-    {
-    }
-
-    @Override
-    public QueueNextTrack nextTrackToQueue()
-    {
-        return null;
-    }
-
-    @Override
-    public void stopped(final QueueTrack currentTrack)
-    {
-    }
-
-    @Override
-    public void seek(final QueueTrack currentTrack, final int offset)
-    {
-    }
 }

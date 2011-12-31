@@ -567,6 +567,20 @@ public class JahSpotifyImpl implements JahSpotify
         return null;
     }
 
+    @Override
+    public void seek(final int offset)
+    {
+        ensureLoggedIn();
+        nativeTrackSeek(offset);
+    }
+
+    @Override
+    public void shutdown()
+    {
+        ensureLoggedIn();
+        nativeShutdown();
+    }
+
     private void populateEmptyEntries(final Library.Entry entry, int currentLevel, int requiredLevel)
     {
         final Link.Type type = Link.Type.valueOf(entry.getType());
@@ -707,8 +721,7 @@ public class JahSpotifyImpl implements JahSpotify
     public void stop()
     {
         ensureLoggedIn();
-
-        shutdown();
+        nativeStopTrack();
     }
 
     public void initiateSearch(final Search search)
@@ -789,6 +802,10 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native int nativePlayTrack(String uri);
 
+    private native void nativeStopTrack();
+
+    private native void nativeTrackSeek(int offset);
+
     private native boolean registerNativeConnectionListener(final NativeConnectionListener nativeConnectionListener);
 
     private native boolean registerNativeSearchCompleteListener(final NativeSearchCompleteListener nativeSearchCompleteListener);
@@ -797,7 +814,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native boolean registerNativePlaybackListener(NativePlaybackListener nativePlaybackListener);
 
-    private native boolean shutdown();
+    private native boolean nativeShutdown();
 
     private native void nativeInitiateSearch(final int i, NativeSearchParameters token);
 

@@ -1,29 +1,40 @@
 package jahspotify.storage.statistics;
 
-import java.util.List;
+import java.util.*;
 
-import jahspotify.media.Link;
-import jahspotify.storage.statistics.*;
+import jahspotify.media.*;
+import org.apache.commons.logging.*;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Johan Lindquist
  */
-public class SimpleStatisticalStorage implements StatisticalStorage
+@Service
+public class SimpleStatisticalStorage implements HistoricalStorage
 {
-    @Override
-    public void addTrackPlayed(final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
-    {
+    private Log _log = LogFactory.getLog(HistoricalStorage.class);
 
+    private List<TrackHistory> _trackHistory = new ArrayList<TrackHistory>();
+    @Override
+    public List<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    {
+        return _trackHistory;
     }
 
-    @Override
+    public void addTrackPlayed(final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
+    {
+        _log.debug("Adding track played: " + trackLink);
+        _log.debug("Start time: " + startTime);
+        _log.debug("Seconds played: " + secondsPlayed);
+        _log.debug("Completed: " + (completeTrackPlayed ? "yes" : "no"));
+        _trackHistory.add(new TrackHistory(trackLink, completeTrackPlayed, secondsPlayed, startTime));
+
+    }
     public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)
     {
         return null;
     }
-
-    @Override
-    public List<TrackStatistics> trackStatistics(final Link trackLink, final int startFrom, final int count)
+    public List<TrackStatistics> trackStatistics(final Link trackLink, int startFrom, int count)
     {
         return null;
     }

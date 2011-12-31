@@ -48,4 +48,8 @@ public interface MediaPlayerListener
      * @return
      */
     public QueueNextTrack nextTrackToQueue();
+
+    public void stopped(QueueTrack currentTrack);
+
+    public void seek(QueueTrack currentTrack, int offset);
 }
