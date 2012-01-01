@@ -14,9 +14,12 @@ Currently supports:
 - retrieve an album
 - retrieve a track
 - retrieve an image
-- add tracks to a queue
+- add tracks to a queue (single queue currently supported)
 - play tracks
 - pause/skip functions
+- dynamic playlist using echonest apis
+- basic historical track list view
+- very basic android app for remote control
 
 All the above functions are accessible over a JSON based RESTful API.
 
@@ -39,9 +42,12 @@ NOTE: You may need to add the SpringSource Enterprise Bundle Repository to your 
 
 ---- Modules -----
 
+- android: provides a simple app for browsing playlists and queueing tracks
 - api: provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
 - native: contains all native & JNI code interacting with libspotify
+- services: provides all Jah'Spotify Spring services
 - web: provides the RESTful API (json based)
+- executable-war: provides a single, executable Jah'Spotify war file
 - web-client: provides java client for interacting with the RESTful API
 - web-common: provides the java beans which are serialized over the RESTful API
 - storage: provides basic storage implementations for caching media objects (tracks/images/etc)
@@ -52,15 +58,15 @@ To run up the Jah'Spotify RESTful API
 
 mvn jetty:run -Dspotify.username=<your username> -Dspotify.password=<your password>
 
-NOTE: The username and password can also be specified in your settings.xml
+NOTE: The username and password can also be specified in your Maven settings.xml
 
-http://localhost:8080/jahspotify/status.html
+http://localhost:8080/jahspotify/system/status
 
 All media can be retrieved using the Media Controller URL
 
 http://localhost:8080/jahspotify/media/<URI>
 
-Where the URI is any of the URIs specified below, in the more specialized controllers
+Where the URI is any of the URIs specified below, in the more specialized controllers:
 
 Library retrieval: http://localhost:8080/jahspotify/library/
 Folder retrieval: http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
@@ -78,6 +84,8 @@ While playing:
 Skip to next track in queue: http://localhost:8080/jahspotify/player/skip
 Pause playback: http://localhost:8080/jahspotify/player/pause
 Resume play: http://localhost:8080/jahspotify/player/play
+Stop play: http://localhost:8080/jahspotify/player/stop
+Play: http://localhost:8080/jahspotify/player/play
 
 There are other URLs - please examine the web module for them.
 
@@ -85,7 +93,7 @@ NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & li
 
 Discussions and other:
 
-For now, there is nothing concrete setup but try the issues page on github, contacting me on github.  Also found at times
+For now, there is nothing concrete setup but try the issues page on github, contacting us on github.  Also found at times
 on freenode - #jahspotify.
 
 Licensing
