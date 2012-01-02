@@ -30,13 +30,25 @@ public class TrackHistory
     private boolean _completeTrackPlayed;
     private int _secondsPlayed;
     private long _startTime;
+    private Link _queue;
 
-    public TrackHistory(final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
+    public TrackHistory(final Link queue, final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
     {
+        _queue = queue;
         _trackLink = trackLink;
         _completeTrackPlayed = completeTrackPlayed;
         _secondsPlayed = secondsPlayed;
         _startTime = startTime;
+    }
+
+    public Link getQueue()
+    {
+        return _queue;
+    }
+
+    public void setQueue(final Link queue)
+    {
+        _queue = queue;
     }
 
     public boolean isCompleteTrackPlayed()
@@ -105,6 +117,10 @@ public class TrackHistory
         {
             return false;
         }
+        if (_queue != null ? !_queue.equals(that._queue) : that._queue != null)
+        {
+            return false;
+        }
         if (_trackLink != null ? !_trackLink.equals(that._trackLink) : that._trackLink != null)
         {
             return false;
@@ -120,6 +136,7 @@ public class TrackHistory
         result = 31 * result + (_completeTrackPlayed ? 1 : 0);
         result = 31 * result + _secondsPlayed;
         result = 31 * result + (int) (_startTime ^ (_startTime >>> 32));
+        result = 31 * result + (_queue != null ? _queue.hashCode() : 0);
         return result;
     }
 
@@ -131,6 +148,7 @@ public class TrackHistory
                 ", _trackLink=" + _trackLink +
                 ", _secondsPlayed=" + _secondsPlayed +
                 ", _startTime=" + _startTime +
+                ", _queue=" + _queue +
                 '}';
     }
 }

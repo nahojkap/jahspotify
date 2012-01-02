@@ -145,7 +145,7 @@ public class QueueManager
                 final QueueTrack peek = _currentQueue.getQueuedTracks().peek();
                 if (peek != null)
                 {
-                    return new QueueNextTrack(peek.getId(),peek.getTrackUri(),1000);
+                    return new QueueNextTrack(peek.getId(),peek.getTrackUri(),1000, peek.getQueue());
                 }
                 return null;
             }
@@ -295,7 +295,7 @@ public class QueueManager
             // Add all elements to the array
             for (Link trackURI : trackURIs)
             {
-                QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI);
+                QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI, QueueManager.DEFAULT_QUEUE_LINK);
                 queuedTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "JahSpotify");
                 queuedTracks.add(queuedTrack);
                 _currentQueue.getQueuedTracks().add(queuedTrack);

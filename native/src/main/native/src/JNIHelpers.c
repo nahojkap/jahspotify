@@ -4,6 +4,7 @@
 #include <libspotify/api.h>
 
 #include "JNIHelpers.h"
+#include "Logging.h"
 
 JavaVM* g_vm = NULL;
 
@@ -14,6 +15,7 @@ jclass g_searchCompleteListenerClass;
 jclass g_mediaLoadedListenerClass;
 jclass g_linkClass;
 jclass g_nativeSearchResultClass;
+jclass g_loggerClass;
 
 jint checkException(JNIEnv *env)
 {
@@ -88,8 +90,8 @@ jobject createInstance(JNIEnv *env, char *className)
   jclass jClass = (*env)->FindClass(env, className);
   if (jClass == NULL)
   {
-    fprintf(stderr,"jahspotify::createInstance: could not load class: %s\n",className);
-    return NULL;
+      log_error("jahspotify","createInstance","Could not load class: %s", className);
+      return NULL;
   }
   
   return createInstanceFromJClass(env, jClass);
@@ -108,8 +110,8 @@ jobject createInstanceFromJClass(JNIEnv *env, jclass jClass)
   
   if (instance == NULL)
   {
-    fprintf(stderr,"jahspotify::createInstance: could not create instance\n");
-    return NULL;
+      log_error("jahspotify","createInstance","Could not create instance");
+      return NULL;
   }
   return instance;
 }
@@ -331,37 +333,45 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     jint result = -1;
     jclass aClass;
 
-    fprintf(stderr,"jahspotify::JNI_OnLoad: Entering JNI_OnLoad\n");
-
+    g_vm = vm;
+    
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_4) != JNI_OK)
     {
         fprintf(stderr,"jahspotify::JNI_OnLoad: GetEnv for JNI_OnLoad failed\n");
         goto error;
     }
 
-    fprintf(stderr,"jahspotify::JNI_OnLoad: env: 0x%x\n",(int)env);
-    g_vm = vm;
+    aClass = (*env)->FindClass(env, "jahspotify/impl/NativeLogger");
+    if (aClass == NULL)
+    {
+        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeLogger\n");
+        goto error;
+    }
+    g_loggerClass = (*env)->NewGlobalRef(env,aClass);
 
-    fprintf(stderr,"jahspotify::JNI_OnLoad: vm: 0x%x\n", (int)g_vm);
+    log_debug("jnihelpers","JNI_OnLoad","vm: 0x%x env: 0x%x",(int)g_vm,(int)env); 
 
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativePlaybackListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativePlaybackListener\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahnotify.impl.NativePlaybackListener");
+        goto error;
     }
     g_playbackListenerClass = (*env)->NewGlobalRef(env,aClass);
     
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativeLibraryListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeLibraryListener\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahnotify.impl.NativeLibraryListener");
+        goto error;
     }
     g_libraryListenerClass = (*env)->NewGlobalRef(env,aClass);
 
     aClass = (*env)->FindClass(env, "jahspotify/SearchResult");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahspotify.SearchResult\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahspotify.SearchResult");
+        goto error;
     }
     g_nativeSearchResultClass = (*env)->NewGlobalRef(env,aClass);
     
@@ -369,37 +379,42 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativeConnectionListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeConnectionListener\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahspotify.NativeConnectionListener");
+        goto error;
     }
     g_connectionListenerClass = (*env)->NewGlobalRef(env,aClass);
     
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativeMediaLoadedListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeMediaLoadedListener\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahspotify.NativeMediaLoadedListener");
+        goto error;
     }
     g_mediaLoadedListenerClass = (*env)->NewGlobalRef(env,aClass);
     
     aClass = (*env)->FindClass(env, "jahspotify/impl/NativeSearchCompleteListener");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahnotify.impl.NativeSearchCompleteListener\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahnotify.impl.NativeSearchCompleteListener");
+        goto error;
     }
     g_searchCompleteListenerClass = (*env)->NewGlobalRef(env,aClass);
 
     aClass = (*env)->FindClass(env, "jahspotify/media/Link");
     if (aClass == NULL)
     {
-        fprintf(stderr,"jahspotify::JNI_OnLoad: could not load jahspotify.media.Link\n");
+        log_error("jahspotify","JNI_OnLoad","Could not load jahspotify.media.Link");
+        goto error;
     }
     g_linkClass = (*env)->NewGlobalRef(env,aClass);
 
-    
     /* success -- return valid version number */
     result = JNI_VERSION_1_4;
     goto exit;
 
 error:
+    result = 0;
+    log_error("jahspotify","JNI_OnLoad","Error occured during initialization");
 exit:
     fprintf(stderr,"jahspotify::JNI_OnLoad: exiting (result=0x%x)\n", result);
     return result;

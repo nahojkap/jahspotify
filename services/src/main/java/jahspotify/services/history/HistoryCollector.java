@@ -78,7 +78,7 @@ public class HistoryCollector
             public void trackEnd(final QueueTrack queueTrack, final boolean forcedEnd)
             {
                 _trackPlayTime = _trackPlayTime + ((System.currentTimeMillis() - _trackTimePointer) / 1000);
-                _historicalStorage.addTrackPlayed(queueTrack.getTrackUri(), !forcedEnd, (int)_trackPlayTime, _trackStartTime);
+                _historicalStorage.addTrackPlayed(queueTrack.getQueue(), queueTrack.getTrackUri(), !forcedEnd, (int)_trackPlayTime, _trackStartTime);
             }
         });
     }

@@ -95,7 +95,7 @@ public class EchoNestSpotifyBridge
                                 Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
                                 if (spotLink != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink);
+                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue);
                                     queueTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "EchoNest");
                                     queueTrack.getMetadata().put("ECHONEST_SESSION_ID", echoNestPlaylist.getSession());
                                     _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
@@ -113,7 +113,7 @@ public class EchoNestSpotifyBridge
                                 Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
                                 if (spotLink != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink);
+                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue);
                                     queueTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "EchoNest");
                                     queueTrack.getMetadata().put("ECHONEST_SESSION_ID", echoNestPlaylist.getSession());
                                     _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);

@@ -11,15 +11,17 @@ import jahspotify.media.Link;
  */
 public class QueueTrack
 {
+    private Link _queue;
     private String _id;
     private Link _trackID;
     private Map<String, String> _metadata = new HashMap<String, String>();
     public static final String QUEUED_TRACK_SOURCE = "QUEUED_TRACK_SOURCE";
 
-    public QueueTrack(final String id, final Link trackUri)
+    public QueueTrack(final String id, final Link trackUri, final Link queue)
     {
         _id = id;
         _trackID = trackUri;
+        _queue = queue;
     }
 
     public String getId()
@@ -30,6 +32,11 @@ public class QueueTrack
     public Link getTrackUri()
     {
         return _trackID;
+    }
+
+    public Link getQueue()
+    {
+        return _queue;
     }
 
     public Map<String, String> getMetadata()
@@ -59,6 +66,10 @@ public class QueueTrack
         {
             return false;
         }
+        if (_queue != null ? !_queue.equals(that._queue) : that._queue != null)
+        {
+            return false;
+        }
         if (_trackID != null ? !_trackID.equals(that._trackID) : that._trackID != null)
         {
             return false;
@@ -70,7 +81,8 @@ public class QueueTrack
     @Override
     public int hashCode()
     {
-        int result = _id != null ? _id.hashCode() : 0;
+        int result = _queue != null ? _queue.hashCode() : 0;
+        result = 31 * result + (_id != null ? _id.hashCode() : 0);
         result = 31 * result + (_trackID != null ? _trackID.hashCode() : 0);
         result = 31 * result + (_metadata != null ? _metadata.hashCode() : 0);
         return result;
@@ -81,6 +93,7 @@ public class QueueTrack
     {
         return "QueueTrack{" +
                 "_id='" + _id + '\'' +
+                ", _queue=" + _queue +
                 ", _trackID=" + _trackID +
                 ", _metadata=" + _metadata +
                 '}';

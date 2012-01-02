@@ -28,9 +28,9 @@ public class QueueNextTrack extends QueueTrack implements Comparable<QueueNextTr
 {
     int _weight;
 
-    public QueueNextTrack(final String id, final Link trackUri, final int weight)
+    public QueueNextTrack(final String id, final Link trackUri, final int weight, final Link queue)
     {
-        super(id,trackUri);
+        super(id,trackUri, queue);
         _weight = weight;
     }
 
