@@ -108,10 +108,10 @@ public class QueueWebHelper
         return queuedWebTracks;
     }
 
-    public static CurrentQueue convertToWebQueue(final Queue queue, final MediaPlayerState mediaPlayerState)
+    public static CurrentQueue convertToWebQueue(final Queue queue, final jahspotify.services.QueueStatus queueStatus)
     {
         final jahspotify.web.queue.CurrentQueue currentCurrentQueue = new jahspotify.web.queue.CurrentQueue();
-        currentCurrentQueue.setQueueState(QueueWebHelper.convertToQueueStatus(mediaPlayerState));
+        currentCurrentQueue.setQueueStatus(QueueWebHelper.convertToWebQueueStatus(queueStatus));
         currentCurrentQueue.setId(queue.getId().getId());
         currentCurrentQueue.setQueueConfiguration(QueueWebHelper.convertToWebQueueConfiguration(queue.getQueueConfiguration()));
 

@@ -7,6 +7,7 @@ import jahspotify.media.Link;
 import jahspotify.services.*;
 import jahspotify.services.Queue;
 import jahspotify.services.QueueConfiguration;
+import jahspotify.services.QueueStatus;
 import jahspotify.web.queue.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,7 +158,7 @@ public class QueueController extends BaseController
 
     private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final Queue queue)
     {
-        final CurrentQueue currentQueue = QueueWebHelper.convertToWebQueue(queue, _queueManager.getQueueStatus().getMediaPlayerState());
+        final CurrentQueue currentQueue = QueueWebHelper.convertToWebQueue(queue, _queueManager.getQueueStatus());
         writeResponseGeneric(httpServletResponse, currentQueue);
     }
 
@@ -165,6 +166,14 @@ public class QueueController extends BaseController
     public void readQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
+    }
+
+    @RequestMapping(value = "/queue/configuration/*", method = RequestMethod.GET)
+    public void readQueueConfiguration(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        Link uri = retrieveLink(httpServletRequest);
+        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(uri);
         writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
     }
 
@@ -186,12 +195,11 @@ public class QueueController extends BaseController
         }
     }
 
-    @RequestMapping(value = "/queue/configuration/*", method = RequestMethod.GET)
-    public void readQueueConfiguration(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/queue/status", method = RequestMethod.GET)
+    public void readQueueStatus(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        Link uri = retrieveLink(httpServletRequest);
-        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(uri);
-        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
+        final QueueStatus queueStatus = _queueManager.getQueueStatus();
+        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueStatus(queueStatus));
     }
 
 }

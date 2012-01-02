@@ -19,6 +19,8 @@ package jahspotify.web.system;
  *        under the License.
  */
 
+import java.util.List;
+
 import jahspotify.web.queue.*;
 
 /**
@@ -36,6 +38,7 @@ public class SystemStatus
 
     private QueueConfiguration queueConfiguration;
     private String currentQueue;
+    private List<String> availableQueues;
     private QueueStatus queueStatus;
 
     public String getCurrentQueue()
@@ -152,6 +155,10 @@ public class SystemStatus
         {
             return false;
         }
+        if (availableQueues != null ? !availableQueues.equals(that.availableQueues) : that.availableQueues != null)
+        {
+            return false;
+        }
         if (currentQueue != null ? !currentQueue.equals(that.currentQueue) : that.currentQueue != null)
         {
             return false;
@@ -178,6 +185,7 @@ public class SystemStatus
         result = 31 * result + numberProcessors;
         result = 31 * result + (queueConfiguration != null ? queueConfiguration.hashCode() : 0);
         result = 31 * result + (currentQueue != null ? currentQueue.hashCode() : 0);
+        result = 31 * result + (availableQueues != null ? availableQueues.hashCode() : 0);
         result = 31 * result + (queueStatus != null ? queueStatus.hashCode() : 0);
         return result;
     }
@@ -186,13 +194,14 @@ public class SystemStatus
     public String toString()
     {
         return "SystemStatus{" +
-                "currentQueue='" + currentQueue + '\'' +
+                "availableQueues=" + availableQueues +
                 ", upSince=" + upSince +
                 ", freeMemory=" + freeMemory +
                 ", totalMemory=" + totalMemory +
                 ", maxMemory=" + maxMemory +
                 ", numberProcessors=" + numberProcessors +
                 ", queueConfiguration=" + queueConfiguration +
+                ", currentQueue='" + currentQueue + '\'' +
                 ", queueStatus=" + queueStatus +
                 '}';
     }

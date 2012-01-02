@@ -1394,7 +1394,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JN
     return albumInstance;
 }
 
-JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_shutdown ( JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeShutdown ( JNIEnv *env, jobject obj)
 {
   sp_session_logout(g_sess);
 }

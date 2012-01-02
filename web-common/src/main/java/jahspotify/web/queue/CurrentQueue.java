@@ -11,9 +11,18 @@ public class CurrentQueue
 
     private CurrentTrack currentlyPlaying;
     private List<QueuedTrack> queuedTracks;
-    private QueueState queueState;
-
+    private QueueStatus queueStatus;
     private QueueConfiguration queueConfiguration;
+
+    public QueueStatus getQueueStatus()
+    {
+        return queueStatus;
+    }
+
+    public void setQueueStatus(final QueueStatus queueStatus)
+    {
+        this.queueStatus = queueStatus;
+    }
 
     public QueueConfiguration getQueueConfiguration()
     {
@@ -33,16 +42,6 @@ public class CurrentQueue
     public void setId(final String id)
     {
         this.id = id;
-    }
-
-    public QueueState getQueueState()
-    {
-        return queueState;
-    }
-
-    public void setQueueState(final QueueState queueState)
-    {
-        this.queueState = queueState;
     }
 
     public CurrentTrack getCurrentlyPlaying()
@@ -91,7 +90,7 @@ public class CurrentQueue
         {
             return false;
         }
-        if (queueState != that.queueState)
+        if (queueStatus != null ? !queueStatus.equals(that.queueStatus) : that.queueStatus != null)
         {
             return false;
         }
@@ -109,7 +108,7 @@ public class CurrentQueue
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (currentlyPlaying != null ? currentlyPlaying.hashCode() : 0);
         result = 31 * result + (queuedTracks != null ? queuedTracks.hashCode() : 0);
-        result = 31 * result + (queueState != null ? queueState.hashCode() : 0);
+        result = 31 * result + (queueStatus != null ? queueStatus.hashCode() : 0);
         result = 31 * result + (queueConfiguration != null ? queueConfiguration.hashCode() : 0);
         return result;
     }
@@ -121,7 +120,7 @@ public class CurrentQueue
                 "currentlyPlaying=" + currentlyPlaying +
                 ", id='" + id + '\'' +
                 ", queuedTracks=" + queuedTracks +
-                ", queueState=" + queueState +
+                ", queueStatus=" + queueStatus +
                 ", queueConfiguration=" + queueConfiguration +
                 '}';
     }

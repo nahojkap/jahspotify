@@ -29,14 +29,14 @@ public class JahSpotifyClient
         JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://localhost:8080/jahspotify/");
 
         final QueueConfiguration queueConfiguration = new QueueConfiguration();
-        queueConfiguration.setAutoRefill(false);
+        queueConfiguration.setAutoRefill(true);
         jahSpotifyClient.setQueueConfiguration(queueConfiguration);
         // addTrack(Arrays.asList("spotify:track:6UaRii9AH6Zss9xNMEQ2M9", "spotify:track:34q1KaLX8h73xE06xPBmNB", "spotify:track:52JyHLUiugFECIYBWM2qdh"));
 
         // command line:
 
         // jahspotify -u <url> --url=<url> queue <-l --list> <-a <track-id> --add=<track-id>> <-d <track-id> --del=<track-id>
-        // jahspotify -u <url> --url=<url> ctrl <-s --skip> <-p --pause> <-r --resume>
+        // jahspotify -u <url> --url=<url> player <-s --skip> <-p --pause> <-r --resume>
         // jahspotify -u <url> --url=<url> track <track-id>
         // jahspotify -u <url> --url=<url> album <album-id>
         // jahspotify -u <url> --url=<url> artist <artist-id>
