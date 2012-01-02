@@ -117,4 +117,83 @@ public class SystemStatus
     {
         return queueStatus;
     }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof SystemStatus))
+        {
+            return false;
+        }
+
+        final SystemStatus that = (SystemStatus) o;
+
+        if (freeMemory != that.freeMemory)
+        {
+            return false;
+        }
+        if (maxMemory != that.maxMemory)
+        {
+            return false;
+        }
+        if (numberProcessors != that.numberProcessors)
+        {
+            return false;
+        }
+        if (totalMemory != that.totalMemory)
+        {
+            return false;
+        }
+        if (upSince != that.upSince)
+        {
+            return false;
+        }
+        if (currentQueue != null ? !currentQueue.equals(that.currentQueue) : that.currentQueue != null)
+        {
+            return false;
+        }
+        if (queueConfiguration != null ? !queueConfiguration.equals(that.queueConfiguration) : that.queueConfiguration != null)
+        {
+            return false;
+        }
+        if (queueStatus != null ? !queueStatus.equals(that.queueStatus) : that.queueStatus != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = (int) (upSince ^ (upSince >>> 32));
+        result = 31 * result + (int) (freeMemory ^ (freeMemory >>> 32));
+        result = 31 * result + (int) (totalMemory ^ (totalMemory >>> 32));
+        result = 31 * result + (int) (maxMemory ^ (maxMemory >>> 32));
+        result = 31 * result + numberProcessors;
+        result = 31 * result + (queueConfiguration != null ? queueConfiguration.hashCode() : 0);
+        result = 31 * result + (currentQueue != null ? currentQueue.hashCode() : 0);
+        result = 31 * result + (queueStatus != null ? queueStatus.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SystemStatus{" +
+                "currentQueue='" + currentQueue + '\'' +
+                ", upSince=" + upSince +
+                ", freeMemory=" + freeMemory +
+                ", totalMemory=" + totalMemory +
+                ", maxMemory=" + maxMemory +
+                ", numberProcessors=" + numberProcessors +
+                ", queueConfiguration=" + queueConfiguration +
+                ", queueStatus=" + queueStatus +
+                '}';
+    }
 }
