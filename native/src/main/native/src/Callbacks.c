@@ -9,6 +9,7 @@
 #include "JahSpotify.h"
 #include "JNIHelpers.h"
 #include "ThreadHelpers.h"
+#include "Logging.h"
 
 extern jobject createJLinkInstance(JNIEnv *env, sp_link *link);
 
@@ -109,13 +110,11 @@ void* threaded_signalTrackLoaded(void *threadarg)
   JNIEnv* env = NULL;
   jmethodID method;
 
-  fprintf(stderr,"jahspotify::threaded_signalTrackLoaded: Track loaded\n");
-
   struct threaded_signalTrackLoaded_Parameters *threaded_signalTrackLoaded_Params = (struct threaded_signalTrackLoaded_Parameters*)threadarg;
   
   sp_track *track = threaded_signalTrackLoaded_Params->track;
-  fprintf(stderr,"jahspotify::threaded_signalTrackLoaded: Track loaded: token: %d\n",threaded_signalTrackLoaded_Params->token);
-  
+
+  log_debug("callbacks","threaded_signalTrackLoaded","Track loaded: token: %d",threaded_signalTrackLoaded_Params->token);
   
   if (!retrieveEnv((JNIEnv*)&env))
   {
@@ -126,14 +125,14 @@ void* threaded_signalTrackLoaded(void *threadarg)
 
   if (method == NULL)
   {
-      fprintf(stderr,"jahspotify::threaded_signalTrackLoaded: could not load callback method searchCompleted() on class SearchListener\n");
+      log_error("callbacks","threaded_signalTrackLoaded","Could not load callback method track(Link) on class NativeMediaLoadedListener");
       goto fail;
   }
   
   sp_link *link = sp_link_create_from_track(track,0);
   
   sp_link_add_ref(link);
-
+  
   jobject jLink = createJLinkInstance(env,link);
   
   sp_link_release(link);
@@ -141,10 +140,12 @@ void* threaded_signalTrackLoaded(void *threadarg)
   (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,threaded_signalTrackLoaded_Params->token,jLink);
   if (checkException(env) != 0)
   {
-    fprintf(stderr,"jahspotify::threaded_signalTrackLoaded: exception while calling listener\n");
+      log_error("callbacks","threaded_signalTrackLoaded","Exception while calling listener");
+      goto fail;
   }
 
-  fprintf(stderr,"jahspotify::threaded_signalTrackLoaded: callback invokved\n");
+  log_debug("callbacks","threaded_signalTrackLoaded","Callback invokved");
+  goto exit;
 
 fail:
 
@@ -160,8 +161,8 @@ void* threaded_signalImageLoaded(void *threadarg)
   struct threaded_signalImageLoaded_Parameters *threaded_signalImageLoaded_Params = (struct threaded_signalImageLoaded_Parameters*)threadarg;
   sp_image *image = threaded_signalImageLoaded_Params->image;
 
-  fprintf(stderr,"jahspotify::threaded_signalImageLoaded: Image loaded: token: %d\n",threaded_signalImageLoaded_Params->token);
-
+  log_debug("callbacks","threaded_signalImageLoaded","Image loaded: token: %d\n",threaded_signalImageLoaded_Params->token);
+  
   if (!retrieveEnv((JNIEnv*)&env))
   {
     goto fail;
@@ -171,7 +172,7 @@ void* threaded_signalImageLoaded(void *threadarg)
 
   if (method == NULL)
   {
-      fprintf(stderr,"jahspotify::threaded_signalImageLoaded: could not load callback method image() on class NativeMediaLoadedListener\n");
+      log_error("callbacks","threaded_signalImageLoaded","Could not load callback method image(Link) on class NativeMediaLoadedListener");
       goto fail;
   }
   
@@ -186,8 +187,13 @@ void* threaded_signalImageLoaded(void *threadarg)
   (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,threaded_signalImageLoaded_Params->token,jLink);
   if (checkException(env) != 0)
   {
-    fprintf(stderr,"jahspotify::threaded_signalImageLoaded: exception while calling listener\n");
+      log_error("callbacks","threaded_signalImageLoaded","Exception while calling listener");
+      goto fail;
   }
+  
+  log_debug("callbacks","threaded_signalImageLoaded","Callback invokved");
+  
+  goto exit;
 
 fail:
 
@@ -212,7 +218,7 @@ void* threaded_signalPlaylistLoaded(void *threadarg)
 
   sp_playlist *playlist = threaded_signalPlaylistLoaded_Params->playlist;
 
-  // fprintf(stderr,"jahspotify::threaded_signalPlaylistLoaded: Playlist loaded: token: %d\n",threaded_signalPlaylistLoaded_Params->token);
+  log_debug("jahspotify","threaded_signalPlaylistLoaded","Playlist loaded: token: %d",threaded_signalPlaylistLoaded_Params->token);
 
   if (!retrieveEnv((JNIEnv*)&env))
   {
@@ -223,7 +229,7 @@ void* threaded_signalPlaylistLoaded(void *threadarg)
 
   if (method == NULL)
   {
-      fprintf(stderr,"jahspotify::threaded_signalPlaylistLoaded: could not load callback method playlist(link) on class NativeMediaLoadedListener\n");
+      log_error("callbacks","threaded_signalPlaylistLoaded","Could not load callback method playlist(Link) on class NativeMediaLoadedListener");
       goto fail;
   }
   
@@ -238,8 +244,13 @@ void* threaded_signalPlaylistLoaded(void *threadarg)
   (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,threaded_signalPlaylistLoaded_Params->token,jLink);
   if (checkException(env) != 0)
   {
-    fprintf(stderr,"jahspotify::threaded_signalPlaylistLoaded: exception while calling listener\n");
+      log_error("callbacks","threaded_signalPlaylistLoaded","exception while calling listener");
+      goto fail;
   }
+  
+  log_debug("callbacks","threaded_signalPlaylistLoaded","Callback invokved");
+  
+  goto exit;
 
 fail:
 
@@ -268,7 +279,7 @@ jint addObjectToCollection(JNIEnv *env, jobject collection, jobject object)
     jboolean result = (*env)->CallBooleanMethod(env,collection,methodID,object);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::addObjectToCollection: exception while adding \n");
+        log_error("callbacks","addObjectToCollection","Exception while adding object to collection");
     }
 
 
@@ -288,7 +299,7 @@ void* threaded_signalSearchComplete(void *threadarg)
     int numResultsFound = 0;
     int index = 0;
     
-    // fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Search complete\n");
+    log_debug("jahspotify","threaded_signalSearchComplete", "Search complete: token: %d",threaded_signalSearchComplete_Params->token);
 
     if (!retrieveEnv((JNIEnv*)&env))
     {
@@ -324,7 +335,7 @@ void* threaded_signalSearchComplete(void *threadarg)
 	}
 	else
 	{
-	  fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Track not loaded\n");
+	  log_error("jahspotify","threaded_signalSearchComplete" , "Track not loaded");
 	}
 	
 	sp_track_release(track);
@@ -356,7 +367,7 @@ void* threaded_signalSearchComplete(void *threadarg)
 	}
 	else
 	{
-	  fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Album not loaded\n");
+        log_error("jahspotify","threaded_signalSearchComplete" , "Album not loaded");
 	}
 	
 	sp_album_release(album);
@@ -389,7 +400,7 @@ void* threaded_signalSearchComplete(void *threadarg)
 	}
 	else
 	{
-	  fprintf(stderr,"jahspotify::threaded_signalSearchComplete: Artist not loaded\n");
+        log_error("jahspotify","threaded_signalSearchComplete" , "Artist not loaded");
 	}
 	
 	sp_artist_release(artist);
@@ -413,15 +424,18 @@ void* threaded_signalSearchComplete(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalSearchComplete: could not load callback method searchCompleted() on class SearchListener\n");
+        log_error("jahspotify","threaded_signalSearchComplete" , "Could not load callback method searchCompleted() on class SearchListener");
         goto fail;
     }
     
     (*env)->CallVoidMethod(env,g_searchCompleteListener,method,threaded_signalSearchComplete_Params->token,nativeSearchResult);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalSearchComplete: exception while calling search complete listener\n");
+        log_error("jahspotify","threaded_signalSearchComplete" , "Exception while calling search complete listener");
+        goto fail;
     }
+    
+    goto exit;
 
 fail:
     
@@ -449,7 +463,7 @@ void* threaded_startPlaybackSignalled(void* threadargs)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: could not load callback method string nextTrackToPreload() on class PlaybackListener\n");
+        log_error("callbacks","threaded_startPlaybackSignalled","Could not load callback method string nextTrackToPreload() on class PlaybackListener");
         goto fail;
     }
 
@@ -458,27 +472,28 @@ void* threaded_startPlaybackSignalled(void* threadargs)
 
     if (nextUriStr)
     {
-      nextUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, nextUriStr, NULL );
-
-      sp_link *link = sp_link_create_from_string(nextUri);
-      if (link)
-      {
-	sp_track *track = sp_link_as_track(link);
-	sp_link_release(link);
-	sp_error error = sp_session_player_prefetch(g_sess,track);
-	sp_track_release(track);
-	if (error != SP_ERROR_OK)
-	{
-	  fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error prefetch: %s\n",sp_error_message(error));
-	  goto fail;
-	}
-      }
+        nextUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, nextUriStr, NULL );
+        
+        sp_link *link = sp_link_create_from_string(nextUri);
+        
+        if (link)
+        {
+            sp_track *track = sp_link_as_track(link);
+            sp_link_release(link);
+            sp_error error = sp_session_player_prefetch(g_sess,track);
+            sp_track_release(track);
+            if (error != SP_ERROR_OK)
+            {
+                log_error("callbacks","threaded_startPlaybackSignalled","Error prefetch: %s",sp_error_message(error));
+                goto fail;
+            }
+        }
     }
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_startPlaybackSignalled: error during callback\n");
+    log_error("callbacks","threaded_startPlaybackSignalled","Error during callback");
 
 exit:
 
@@ -510,7 +525,7 @@ void* threaded_signalPlaylistSeen(void *threadarg)
 
     if (aMethod == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: could not load callback method playlistSeen(string) on class NativeLibraryListener\n");
+        log_error("callbacks","threaded_signalPlaylistSeen","Could not load callback method playlistSeen(string) on class NativeLibraryListener");
         goto fail;
     }
 
@@ -519,7 +534,7 @@ void* threaded_signalPlaylistSeen(void *threadarg)
         linkNameStr = (*env)->NewStringUTF(env, params->linkName);
         if (linkNameStr == NULL)
         {
-            fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: error creating java string\n");
+            log_error("callbacks","threaded_signalPlaylistSeen","Error creating java string");
             goto fail;
         }
     }
@@ -529,7 +544,7 @@ void* threaded_signalPlaylistSeen(void *threadarg)
         playListStr = (*env)->NewStringUTF(env, params->playlistName);
         if (playListStr == NULL)
         {
-            fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: error creating java string\n");
+            log_error("callbacks","threaded_signalPlaylistSeen","Error creating java string");
             goto fail;
         }
     }
@@ -537,7 +552,8 @@ void* threaded_signalPlaylistSeen(void *threadarg)
     (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr,linkNameStr);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: exception while calling callback\n");
+        log_error("callbacks","threaded_signalPlaylistSeen","Exception while calling callback");
+        goto fail;
     }
 
     
@@ -545,8 +561,7 @@ void* threaded_signalPlaylistSeen(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalPlaylistSeen: error during callback\n");
-
+    log_error("callbacks","threaded_signalPlaylistSeen","Error during callback");
 
 exit:
     if (params) free(params);
@@ -576,7 +591,7 @@ void* threaded_signalTrackEnded(void *threadarg)
         uriStr = (*env)->NewStringUTF(env, threaded_signalTrackEnded_Params->uri);
         if (uriStr == NULL)
         {
-            fprintf(stderr,"jahspotify::threaded_signalTrackEnded: error creating java string\n");
+            log_error("callbacks","threaded_signalTrackEnded","Error creating java string");
             goto fail;
         }
     }
@@ -585,21 +600,21 @@ void* threaded_signalTrackEnded(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalTrackEnded: could not load callback method trackEnded(string) on class jahnotify.PlaybackListener\n");
+        log_error("callbacks","threaded_signalTrackEnded","Could not load callback method trackEnded(string) on class jahnotify.PlaybackListener");
         goto fail;
     }
 
-    fprintf(stderr,"jahspotify::threaded_signalTrackEnded: calling callback\n");
     (*env)->CallVoidMethod(env, g_playbackListener, method,uriStr,threaded_signalTrackEnded_Params->forcedTrackEnd);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalTrackEnded: exception while calling callback\n");
+        log_error("callbacks","threaded_signalTrackEnded","Exception while calling callback");
+        goto fail;
     }
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalLoggedIn: error during callback\n");
+    log_error("callbacks","threaded_signalTrackEnded","Error during callback\n");
 
 exit:
     if (uriStr) (*env)->DeleteLocalRef(env, uriStr);
@@ -630,7 +645,7 @@ void* threaded_signalTrackStarted(void *threadarg)
         uriStr = (*env)->NewStringUTF(env,uri);
         if (uriStr == NULL)
         {
-            fprintf(stderr,"jahspotify::threaded_signalTrackStarted: error creating java string\n");
+            log_error("callbacks","threaded_signalTrackStarted","Error creating java string");
             goto fail;
         }
     }
@@ -639,7 +654,7 @@ void* threaded_signalTrackStarted(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalTrackStarted: could not load callback method trackStarted(string) on class jahnotify.PlaybackListener\n");
+        log_error("callbacks","threaded_signalTrackStarted","Could not load callback method trackStarted(string) on class jahnotify.PlaybackListener");
         goto fail;
     }
 
@@ -649,7 +664,7 @@ void* threaded_signalTrackStarted(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalTrackStarted: error during callback\n");
+log_error("callbacks","threaded_signalTrackStarted","Error during callback");
 
 exit:
     if (uriStr) (*env)->DeleteLocalRef(env, uriStr);
@@ -679,7 +694,7 @@ void* threaded_signalStartFolderSeen(void *threadarg)
         folderNameStr = (*env)->NewStringUTF(env, threaded_signalFolderSeen_Params->folderName);
         if (folderNameStr == NULL)
         {
-            fprintf(stderr,"jahspotify::threaded_signalStartFolderSeen: error creating java string\n");
+            log_error("callbacks","threaded_signalStartFolderSeen","Error creating java string");
             goto fail;
         }
     }
@@ -688,20 +703,21 @@ void* threaded_signalStartFolderSeen(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalStartFolderSeen: could not load callback method startFolder(string) on class jahnotify.PlaylistListener\n");
+        log_error("callbacks","threaded_signalStartFolderSeen","Could not load callback method startFolder(string) on class jahnotify.PlaylistListener");
         goto fail;
     }
 
     (*env)->CallVoidMethod(env, g_libraryListener, method,folderNameStr,threaded_signalFolderSeen_Params->folderId);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalStartFolderSeen: exception while calling callback\n");
+        log_error("callbacks","threaded_signalStartFolderSeen","Exception while calling callback");
+      goto fail;
     }
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalLoggedIn: error during callback\n");
+    log_error("callbacks","threaded_signalStartFolderSeen","Error during callback");
 
 exit:
     if (folderNameStr) (*env)->DeleteLocalRef(env, folderNameStr);
@@ -727,21 +743,21 @@ void* threaded_signalMetadataUpdated(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: could not load callback method metadataUpdated() on class NativeLibraryListener\n");
+        log_error("callbacks","threaded_signalMetadataUpdated","Could not load callback method metadataUpdated() on class NativeLibraryListener");
         goto fail;
     }
 
     (*env)->CallVoidMethod(env, g_libraryListener, method);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: exception while calling callback\n");
+        log_error("callbacks","threaded_signalMetadataUpdated","Exception while calling callback");
     }
 
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalMetadataUpdated: error during callback\n");
+    log_error("callbacks","threaded_signalMetadataUpdated","Error during callback");
 
 exit:
 
@@ -766,7 +782,7 @@ void* threaded_signalSynchCompleted(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalSynchCompleted: could not load callback method synchCompleted() on class jahnotify.PlaylistListener\n");
+        log_error("callbacks","threaded_signalSynchCompleted","Could not load callback method synchCompleted() on class jahnotify.PlaylistListener");
         goto fail;
     }
 
@@ -776,8 +792,9 @@ void* threaded_signalSynchCompleted(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalSynchCompleted: error during callback\n");
-
+    
+    log_error("callbacks","threaded_signalSynchCompleted","Error during callback");
+    
 exit:
 
     result = detachThread();
@@ -802,7 +819,7 @@ void* threaded_signalSynchStarting(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalSynchStarting: could not load callback method synchStarted(int) on class jahnotify.PlaylistListener\n");
+        log_error("callbacks","threaded_signalSynchStarting","Could not load callback method synchStarted(int) on class jahnotify.PlaylistListener");
         goto fail;
     }
 
@@ -812,8 +829,8 @@ void* threaded_signalSynchStarting(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalSynchStarting: error during callback\n");
-
+    log_error("callbacks","threaded_signalSynchStarting","Error during callback");
+    
 exit:
 
     result = detachThread();
@@ -837,7 +854,7 @@ void* threaded_signalEndFolderSeen(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalEndFolderSeen: could not load callback method endFolder() on class jahnotify.PlaylistListener\n");
+        log_error("callbacks","threaded_signalEndFolderSeen","Could not load callback method endFolder() on class jahnotify.PlaylistListener");
         goto fail;
     }
 
@@ -847,7 +864,7 @@ void* threaded_signalEndFolderSeen(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalEndFolderSeen: error during callback\n");
+    log_error("callbacks","threaded_signalEndFolderSeen","Error during callback");
 
 exit:
 
@@ -871,7 +888,7 @@ void* threaded_signalConnected(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalConnected: could not load callback method connected() on class ConnectionListener\n");
+        log_error("callbacks","threaded_signalConnected","Could not load callback method connected() on class ConnectionListener");
         goto fail;
     }
 
@@ -881,7 +898,8 @@ void* threaded_signalConnected(void *threadarg)
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalConnected: error during callback\n");
+    log_error("callbacks","threaded_signalConnected","Error during callback");
+
 exit:
     detachThread();
 }
@@ -902,20 +920,21 @@ void* threaded_signalLoggedIn(void *threadarg)
 
     if (method == NULL)
     {
-        fprintf(stderr,"jahspotify::threaded_signalLoggedIn: could not load callback method loggedIn() on class ConnectionListener\n");
+        log_error("callbacks","threaded_signalLoggedIn","Could not load callback method loggedIn() on class ConnectionListener");
         goto fail;
     }
 
     (*env)->CallVoidMethod(env, g_connectionListener, method);
     if (checkException(env) != 0)
     {
-      fprintf(stderr,"jahspotify::threaded_signalLoggedIn: exception while calling listener\n");
+        log_error("callbacks","threaded_signalLoggedIn","Exception while calling listener");
+      goto fail;
     }
 
     goto exit;
 
 fail:
-    fprintf(stderr,"jahspotify::threaded_signalLoggedIn: error during callback\n");
+    log_error("callbacks","threaded_signalConnected","Error during callback");
 
 exit:
     detachThread();
@@ -928,7 +947,7 @@ void startPlaybackSignalled()
   // threaded_startPlaybackSignalled(NULL);
 /*  if (placeInThread(threaded_startPlaybackSignalled,0) != 0)
   {
-    fprintf ( stderr, "jahspotify::startPlaybackSignalled: error placing onto thread\n");
+    log_error("jahspotify","startPlaybackSignalled: error placing onto thread\n");
   }*/
 }
 
@@ -936,14 +955,14 @@ int signalConnected()
 {
   if (!g_connectionListener)
   {
-    fprintf ( stderr, "jahspotify::signalLoggedIn: no connection listener registered\n");
+    log_error("jahspotify","signalLoggedIn","No connection listener registered");
     return 1;
   }
 
   //    threaded_signalLoggedIn(NULL);
   if (placeInThread(threaded_signalConnected,NULL) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalLoggedIn: error placing onto thread\n");
+    log_error("jahspotify","signalLoggedIn","Error placing onto thread");
   }
 
   return 0;
@@ -961,14 +980,14 @@ int signalLoggedIn()
 {
     if (!g_connectionListener)
     {
-        fprintf ( stderr, "jahspotify::signalLoggedIn: no connection listener registered\n");
+        log_error("jahspotify","signalLoggedIn","No connection listener registered");
         return 1;
     }
 
     //    threaded_signalLoggedIn(NULL);
     if (placeInThread(threaded_signalLoggedIn,NULL) != 0)
     {
-      fprintf ( stderr, "jahspotify::signalLoggedIn: error placing onto thread\n");
+      log_error("jahspotify","signalLoggedIn","Error placing onto thread");
     }
 
     return 0;
@@ -981,7 +1000,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
     
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalStartFolderSeen: no playlist listener registered\n");
+        log_error("jahspotify","signalStartFolderSeen","No playlist listener registered");
         return 1;
     }
 
@@ -994,7 +1013,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
     threaded_signalStartFolderSeen(threaded_signalFolderSeen_Params);
     // if (placeInThread(threaded_signalStartFolderSeen,folderNameCopy) != 0)
     // {
-    //   fprintf ( stderr, "jahspotify::signalStartFolderSeen: error placing onto thread\n");
+    //   log_error("jahspotify","signalStartFolderSeen: error placing onto thread\n");
     // }
 
     return 0;
@@ -1005,7 +1024,7 @@ int signalSynchStarting(int numPlaylists)
   int numPlayLists = numPlaylists;
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalSynchStarting: no playlist listener registered\n");
+        log_error("jahspotify","signalSynchStarting","No playlist listener registered");
         return 1;
     }
     
@@ -1013,7 +1032,7 @@ int signalSynchStarting(int numPlaylists)
     
     // if (placeInThread(threaded_signalSynchStarting,&numPlaylists) != 0)
     // {
-    //  fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
+    //  log_error("jahspotify","signalSynchStarting: error placing onto thread\n");
     // }
 
     return 0;
@@ -1023,13 +1042,13 @@ int signalSynchCompleted()
 {
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalSynchCompleted: no playlist listener registered\n");
+        log_error("jahspotify","signalSynchCompleted","No playlist listener registered");
         return 1;
     }
     // threaded_signalSynchCompleted(NULL);
     if (placeInThread(threaded_signalSynchCompleted,NULL) != 0)
     {
-      fprintf ( stderr, "jahspotify::signalSynchStarting: error placing onto thread\n");
+      log_error("jahspotify","signalSynchStarting","Error placing onto thread");
     }
 
     return 0;
@@ -1039,13 +1058,13 @@ int signalMetadataUpdated(sp_playlist *playlist)
 {
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalMetadataUpdated: no playlist listener registered\n");
+        log_error("jahspotify","signalMetadataUpdated","No playlist listener registered");
         return 1;
     }
     threaded_signalMetadataUpdated(NULL);
 //     if (placeInThread(threaded_signalMetadataUpdated,NULL) != 0)
 //     {
-//       fprintf ( stderr, "jahspotify::signalMetadataUpdated: error placing onto thread\n");
+//       log_error("jahspotify","signalMetadataUpdated: error placing onto thread\n");
 //     }
 
     return 0;
@@ -1056,14 +1075,14 @@ int signalEndFolderSeen()
 {
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalEndFolderSeen: no playlist listener registered\n");
+        log_error("jahspotify","signalEndFolderSeen","No playlist listener registered");
         return 1;
     }
    
    threaded_signalEndFolderSeen(NULL);
     // if (placeInThread(threaded_signalEndFolderSeen,1) != 0)
     //{
-    // fprintf ( stderr, "jahspotify::signalEndFolderSeen: error placing onto thread\n");
+    // log_error("jahspotify","signalEndFolderSeen: error placing onto thread\n");
     // }
     
     return 0;
@@ -1075,7 +1094,7 @@ int signalTrackEnded(char *uri, bool forcedTrackEnd)
 
   if (!g_playbackListener)
   {
-    fprintf ( stderr, "jahspotify::signalTrackEnded: no playback listener\n"); 
+    log_error("jahspotify","signalTrackEnded","No playback listener"); 
     return 1;
   }
   
@@ -1086,7 +1105,7 @@ int signalTrackEnded(char *uri, bool forcedTrackEnd)
   
   if (placeInThread(threaded_signalTrackEnded,threaded_signalTrackEnded_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalTrackEnded: error placing onto thread\n");
+    log_error("jahspotify","signalTrackEnded","Error placing onto thread");
   }
 
 }
@@ -1095,19 +1114,19 @@ int signalTrackStarted(char *uri)
 {
   char *uriCopy;
 
-  fprintf ( stderr, "jahspotify::signalTrackStarted: uri: %s\n", uri); 
+  log_debug("callbacks","signalTrackStarted","URI: %s",uri);
   if (!g_playbackListener)
   {
-    fprintf ( stderr, "jahspotify::signalTrackStarted: no playback listener\n"); 
+      log_error("callbacks","signalTrackStarted","No playback listener"); 
     return 1;
   }
   
   uriCopy = strdup(uri);
 
-  fprintf ( stderr, "jahspotify::signalTrackStarted: placing in thread\n", uriCopy); 
+  log_trace("jahspotify","signalTrackStarted","Placing in thread", uriCopy); 
   if (placeInThread(threaded_signalTrackStarted,uriCopy) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalTrackStarted: error placing onto thread\n");
+    log_error("jahspotify","signalTrackStarted","Error placing onto thread");
   }
   
 }
@@ -1118,13 +1137,13 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
     char *playlistNameCopy;
     struct threaded_signalPlaylistSeen_Parameters *threaded_signalPlaylistSeen_Params;
 
+    log_debug("callbacks","signalPlaylistSeen","Playlist seen: name: %s link: %s",playlistName,linkName);
+
     if (!g_libraryListener)
     {
-        fprintf ( stderr, "jahspotify::signalPlaylistSeen: no playlist listener registered\n");
+        log_error("jahspotify","signalPlaylistSeen","No playlist listener registered");
         return 1;
     }
-
-    // fprintf(stderr,"jahspotify::signalPlaylistSeen: playlistName: %s linkName: %s \n",playlistName,linkName);
 
     linkNameCopy = malloc(sizeof(char) * (strlen(linkName)+1));
     strcpy(linkNameCopy,linkName);
@@ -1151,7 +1170,7 @@ int signalImageLoaded(sp_image *image, int32_t token)
   
   if (!g_mediaLoadedListener)
   {
-      fprintf ( stderr, "jahspotify::signalImageLoaded: no playlist media loaded listener registered\n");
+      log_error("jahspotify","signalImageLoaded","No playlist media loaded listener registered");
       return 1;
   }
 
@@ -1162,7 +1181,7 @@ int signalImageLoaded(sp_image *image, int32_t token)
 
   if (placeInThread(threaded_signalImageLoaded,threaded_signalImageLoaded_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalImageLoaded: error placing onto thread\n");
+    log_error("jahspotify","signalImageLoaded","Error placing onto thread");
   }    
 }
 
@@ -1170,7 +1189,7 @@ int signalPlaylistLoaded(sp_playlist *playlist, int32_t token)
 {
     if (!g_mediaLoadedListener)
     {
-        fprintf ( stderr, "jahspotify::signalPlaylistLoaded: no playlist media loaded listener registered\n");
+        log_error("jahspotify","signalPlaylistLoaded","No playlist media loaded listener registered");
         return 1;
     }
 
@@ -1183,7 +1202,7 @@ int signalPlaylistLoaded(sp_playlist *playlist, int32_t token)
 
 /*  if (placeInThread(threaded_signalPlaylistLoaded,threaded_signalPlaylistLoaded_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalPlaylistLoaded: error placing onto thread\n");
+    log_error("jahspotify","signalPlaylistLoaded: error placing onto thread\n");
   }*/
   threaded_signalPlaylistLoaded(threaded_signalPlaylistLoaded_Params);
 
@@ -1193,7 +1212,7 @@ int signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)
 {
    if (!g_mediaLoadedListener)
     {
-        fprintf ( stderr, "jahspotify::signalAlbumBrowseLoaded: no playlist media loaded listener registered\n");
+        log_error("jahspotify","signalAlbumBrowseLoaded","No playlist media loaded listener registered");
         return 1;
     }
   
@@ -1206,7 +1225,7 @@ int signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)
 
   if (placeInThread(threaded_signalAlbumBrowseLoaded,threaded_signalAlbumBrowseLoaded_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalImageLoaded: error placing onto thread\n");
+    log_error("jahspotify","signalImageLoaded","Error placing onto thread");
   }
 }
 
@@ -1214,7 +1233,7 @@ int signalTrackLoaded(sp_track *track, int32_t token)
 {
     if (!g_mediaLoadedListener)
     {
-        fprintf ( stderr, "jahspotify::signalTrackLoaded: no playlist media loaded listener registered\n");
+        log_error("jahspotify","signalTrackLoaded","No playlist media loaded listener registered");
         return 1;
     }
   sp_track_add_ref(track);
@@ -1225,7 +1244,7 @@ int signalTrackLoaded(sp_track *track, int32_t token)
 
   if (placeInThread(threaded_signalTrackLoaded,threaded_signalTrackLoaded_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalTrackLoaded: error placing onto thread\n");
+    log_error("jahspotify","signalTrackLoaded","Error placing onto thread");
   }
 }
 
@@ -1233,7 +1252,7 @@ int signalSearchComplete(sp_search *search, int32_t token)
 {
    if (!g_searchCompleteListener)
     {
-        fprintf ( stderr, "jahspotify::signalSearchComplete: no playlist media loaded listener registered\n");
+        log_error("jahspotify","signalSearchComplete","No playlist media loaded listener registered");
         return 1;
     }
   sp_search_add_ref(search);
@@ -1244,7 +1263,7 @@ int signalSearchComplete(sp_search *search, int32_t token)
 
   if (placeInThread(threaded_signalSearchComplete,threaded_signalSearchComplete_Params) != 0)
   {
-    fprintf ( stderr, "jahspotify::signalSearchComplete: error placing onto thread\n");
+    log_error("jahspotify","signalSearchComplete","Error placing onto thread");
   }
 
 }

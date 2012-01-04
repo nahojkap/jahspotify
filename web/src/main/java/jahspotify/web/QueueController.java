@@ -25,12 +25,6 @@ public class QueueController extends BaseController
 
     private Log _log = LogFactory.getLog(QueueController.class);
 
-    private long _upSince = System.currentTimeMillis();
-
-    public QueueController()
-    {
-    }
-
     @RequestMapping(value = "/queue/", method = RequestMethod.POST)
     public void addEntry(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {

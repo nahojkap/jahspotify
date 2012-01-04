@@ -21,7 +21,6 @@ jint checkException(JNIEnv *env)
 {
   if ((*env)->ExceptionCheck(env) == JNI_TRUE)
   {
-    // fprintf(stderr,"jahspotify::checkException: exception detected!\n");
     (*env)->ExceptionDescribe(env);
     // Handle the xception as well
     (*env)->ExceptionClear(env);
@@ -293,21 +292,15 @@ int retrieveEnv(JNIEnv* env)
     int result;
     if (!g_vm)
     {
-        fprintf ( stderr, "jahspotify::retrieveEnv: no vm available\n");
+        fprintf(stderr, "jahspotify::retrieveEnv: no vm available\n");
         goto fail;
     }
 
-    // fprintf ( stderr, "jahspotify::retrieveEnv: g_vm: 0x%x\n", g_vm);
-    // fprintf ( stderr, "jahspotify::retrieveEnv: retrieving environment\n");
-
     result = (*g_vm)->GetEnv(g_vm,(void**)&myEnv, JNI_VERSION_1_4);
-    // fprintf ( stderr, "jahspotify::retrieveEnv: environment retrieved env: 0x%x\n",myEnv);
 
     if (result == JNI_EDETACHED)
     {
-        // fprintf(stderr,"jahspotify::retrieveEnv: detected thread not attached, attempting to attach it\n");
         result = (*g_vm)->AttachCurrentThread(g_vm,(void**)&myEnv, NULL);
-        // fprintf(stderr,"jahspotify::retrieveEnv: attach completed: result: %d env: 0x%x\n",result,myEnv);
     }
 
     if (result != JNI_OK)
@@ -316,7 +309,6 @@ int retrieveEnv(JNIEnv* env)
         goto fail;
     }
 
-    //fprintf(stderr,"jahspotify::retrieveEnv: retrieved environment: env: 0x%x already attached: %d\n",myEnv,alreadyAttachedToThread);
     *env = (JNIEnv)myEnv;
 
     return JNI_TRUE;
@@ -416,6 +408,6 @@ error:
     result = 0;
     log_error("jahspotify","JNI_OnLoad","Error occured during initialization");
 exit:
-    fprintf(stderr,"jahspotify::JNI_OnLoad: exiting (result=0x%x)\n", result);
+    log_debug("jahspotify","JNI_OnLoad","Exiting (result=0x%x)", result);
     return result;
 }

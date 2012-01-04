@@ -78,7 +78,7 @@ jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
 static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
                            int num_tracks, int position, void *userdata )
 {
-    fprintf(stderr,"jahspotify::tracks_added: %s\n",sp_playlist_name(pl));
+    log_debug("jahspotify","tracks_added","Tracks added: playlist: %s numtracks: %d position: %d",sp_playlist_name(pl),num_tracks,position);
 }
 
 /**
@@ -92,7 +92,7 @@ static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
 static void tracks_removed ( sp_playlist *pl, const int *tracks,
                              int num_tracks, void *userdata )
 {
-    fprintf(stderr,"jahspotify::tracks_removed: %s\n",sp_playlist_name(pl));
+    log_debug("jahspotify","tracks_removed","Tracks removed: playlist: %s numtracks: %d",sp_playlist_name(pl), num_tracks);
 }
 
 /**
@@ -107,7 +107,7 @@ static void tracks_removed ( sp_playlist *pl, const int *tracks,
 static void tracks_moved ( sp_playlist *pl, const int *tracks,
                            int num_tracks, int new_position, void *userdata )
 {
-    fprintf(stderr,"jahspotify::tracks_moved: %s\n",sp_playlist_name(pl));
+    log_debug("jahspotify","tracks_moved","Tracks moved: playlist: %s numtracks: %d",sp_playlist_name(pl), num_tracks);
 }
 
 /**
@@ -118,6 +118,7 @@ static void tracks_moved ( sp_playlist *pl, const int *tracks,
  */
 static void playlist_renamed ( sp_playlist *pl, void *userdata )
 {
+    log_debug("jahspotify","tracks_renamed","Tracks renamed: playlist: %s",sp_playlist_name(pl));
 }
 
 static void playlist_state_changed ( sp_playlist *pl, void *userdata )
@@ -130,7 +131,7 @@ static void playlist_state_changed ( sp_playlist *pl, void *userdata )
     if (link)
     {
       sp_link_as_string(link,linkName, 100);
-      // fprintf ( stderr,"jahspotify: playlist state changed: %s link: %s (loaded: %s)\n",sp_playlist_name ( pl ), linkName, (sp_playlist_is_loaded(pl) ? "yes" : "no"));
+      log_debug("jahspotify","playlist_state_changed", "Playlist state changed: %s link: %s (loaded: %s)",sp_playlist_name ( pl ), linkName, (sp_playlist_is_loaded(pl) ? "yes" : "no"));
       
       if (sp_playlist_is_loaded(pl))
       {
@@ -203,7 +204,7 @@ static sp_playlist_callbacks pl_callbacks =
 static void playlist_added ( sp_playlistcontainer *pc, sp_playlist *pl,
                              int position, void *userdata )
 {
-    // fprintf(stderr,"jahspotify: playlist added: %s (loaded: %s)\n ",sp_playlist_name(pl),sp_playlist_is_loaded(pl) ? "Yes" : "No");
+    log_debug("jahspotify","playlist_added","Playlist added: %s (loaded: %s)",sp_playlist_name(pl),sp_playlist_is_loaded(pl) ? "Yes" : "No");
     // sp_playlist_add_callbacks ( pl, &pl_callbacks, NULL );
 }
 
@@ -221,7 +222,7 @@ static void playlist_removed ( sp_playlistcontainer *pc, sp_playlist *pl,
                                int position, void *userdata )
 {
     const char *name = sp_playlist_name(pl);
-    // fprintf(stderr,"jahspotify: playlist removed: %s\n ",name);
+    log_debug("jahspotify","playlist_removed","Playlist removed: %s",name);
     sp_playlist_remove_callbacks ( pl, &pl_callbacks, NULL );
 }
 
@@ -240,11 +241,11 @@ static void container_loaded ( sp_playlistcontainer *pc, void *userdata )
 
     if ( folderName == NULL )
     {
-        fprintf ( stderr, "jahspotify: Could not allocate folder name variable)\n" );
+        log_error("jahspotify","container_loaded","Could not allocate folder name variable" );
         return;
     }
 
-    // fprintf ( stderr, "jahspotify: Rootlist synchronized (%d playlists)\n",sp_playlistcontainer_num_playlists ( pc ) );
+    // log_error("jahspotify: Rootlist synchronized (%d playlists)\n",sp_playlistcontainer_num_playlists ( pc ) );
     signalSynchStarting(sp_playlistcontainer_num_playlists (pc));
 
     for ( i = 0; i < sp_playlistcontainer_num_playlists ( pc ); ++i )
@@ -279,7 +280,10 @@ static void container_loaded ( sp_playlistcontainer *pc, void *userdata )
             signalEndFolderSeen();
             break;
           case SP_PLAYLIST_TYPE_PLACEHOLDER:
-            fprintf ( stderr,"jahspotify: placeholder\n");
+              log_debug("jahspotify","container_loaded","Placeholder");
+              break;
+          default:
+              log_warn("jahspotify","container_loaded","Unhandled playlist type: %d", sp_playlistcontainer_playlist_type ( pc,i ));
         }
 
         if (link)
@@ -440,7 +444,7 @@ static void metadata_updated ( sp_session *sess )
  */
 static void play_token_lost ( sp_session *sess )
 {
-    fprintf ( stderr, "jahspotify: play token lost\n" );
+    log_error("jahspotify","play_token_lost","Play token lost" );
     if ( g_currenttrack != NULL )
     {
         sp_session_player_unload ( g_sess );
@@ -450,7 +454,7 @@ static void play_token_lost ( sp_session *sess )
 
 static void userinfo_updated (sp_session *sess)
 {
-    printf("jahspotify::userinfo_updated: user information updated\n");
+    log_debug("jahspotify","userinfo_updated","User information updated");
 }
 
 static void log_message(sp_session *session, const char *data)
@@ -644,26 +648,24 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
     const char *value = NULL;
     int country = 0;
 
-    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: retrieving user\n" );
+    log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Retrieving user" );
     
     while (!sp_user_is_loaded(user))
     {
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: waiting for user to load\n" );
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Waiting for user to load\n" );
         sleep(1);
     }
 
     jobject userInstance = createInstance(env,"jahspotify/media/User");
     if (!userInstance)
     {
-        fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: could not create instance of jahspotify.media.User\n");
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Could not create instance of jahspotify.media.User");
         return NULL;
     }
 
-    fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: retrieving user\n" );
-
     if (sp_user_is_loaded(user))
     {
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveUser: user is loaded\n" );
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","User is loaded" );
         value = sp_user_display_name(user);
         if (value)
         {
@@ -735,7 +737,7 @@ jobject createJLinkInstance(JNIEnv *env, sp_link *link)
 
     if (!linkInstance)
     {
-        fprintf(stderr,"jahspotify::createJLinkInstance: could not create instance of jahspotify.media.Link\n");
+        log_error("jahspotify","createJLinkInstance","Could not create instance of jahspotify.media.Link");
         goto exit;
     }
 
@@ -757,14 +759,14 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
     jClass = (*env)->FindClass(env, "jahspotify/media/Track");
     if (jClass == NULL)
     {
-        fprintf(stderr,"jahspotify::createJTrackInstance: could not load jahnotify.media.Track\n");
+        log_error("jahspotify","createJTrackInstance","Could not load jahnotify.media.Track");
         return NULL;
     }
     
     trackInstance = createInstanceFromJClass(env,jClass);
     if (!trackInstance)
     {
-        fprintf(stderr,"jahspotify::createJTrackInstance: could not create instance of jahspotify.media.Track\n");
+        log_error("jahspotify","createJTrackInstance","Could not create instance of jahspotify.media.Track");
         return NULL;
     }
 
@@ -796,7 +798,7 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method setAlbum(link) on class Track\n");
+                    log_error("jahspotify","createJTrackInstance","Could not load method setAlbum(link) on class Track");
                     return NULL;
                 }
 
@@ -816,7 +818,7 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
             if (jMethod == NULL)
             {
-                fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addArtist(link) on class Track\n");
+                log_error("jahspotify","createJTrackInstance","Could not load method addArtist(link) on class Track");
                 return NULL;
             }
 
@@ -930,14 +932,14 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
     albumJClass = (*env)->FindClass(env, "jahspotify/media/Album");
     if (albumJClass == NULL)
     {
-        fprintf(stderr,"jahspotify::createJAlbumInstance: could not load jahnotify.media.Album\n");
+        log_error("jahspotify","createJAlbumInstance","Could not load jahnotify.media.Album");
         return NULL;
     }
     
     albumInstance = createInstanceFromJClass(env,albumJClass);
     if (!albumInstance)
     {
-        fprintf(stderr,"jahspotify::createJAlbumInstance: could not create instance of jahspotify.media.Album\n");
+        log_error("jahspotify","createJAlbumInstance","Could not create instance of jahspotify.media.Album");
         return NULL;
     }
 
@@ -951,7 +953,8 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
       
       while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 5)
       {
-	fprintf(stderr,"jahspotify::createJAlbumInstance: waiting for album browse load to complete\n");
+
+          log_trace("jahspotify","createJAlbumInstance","Waiting for album browse load to complete");
 	sleep(1);
 	count++;
       }
@@ -1089,7 +1092,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
     jClass = (*env)->FindClass(env, "jahspotify/media/Artist");
     if (jClass == NULL)
     {
-        fprintf(stderr,"jahspotify::createJArtistInstance: could not load jahnotify.media.Artist\n");
+        log_error("jahspotify","createJArtistInstance","Could not load jahnotify.media.Artist");
         return NULL;
     }
     
@@ -1128,7 +1131,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addSimilarArtist(link) on class Artist\n");
+                    log_error("jahspotify","createJTrackInstance","Could not load method addSimilarArtist(link) on class Artist");
                     return NULL;
                 }
 
@@ -1168,7 +1171,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addAlbum(link) on class Artist\n");
+                    log_error("jahspotify","createJTrackInstance","Could not load method addAlbum(link) on class Artist");
                     return NULL;
                 }
 
@@ -1224,7 +1227,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::createJTrackInstance: could not load method addAlbum(link) on class Artist\n");
+                    log_error("jahspotify","createJTrackInstance","Could not load method addAlbum(link) on class Artist");
                     return NULL;
                 }
                 
@@ -1272,14 +1275,14 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
     jClass = (*env)->FindClass(env, "jahspotify/media/Playlist");
     if (jClass == NULL)
     {
-        fprintf(stderr,"jahspotify::createJPlaylist: could not load jahnotify.media.Playlist\n");
+        log_error("jahspotify","createJPlaylist","Could not load jahnotify.media.Playlist");
         return NULL;
     }
 
     playlistInstance = createInstanceFromJClass(env, jClass);
     if (!playlistInstance)
     {
-        fprintf(stderr,"jahspotify::createJPlaylist: could not create instance of jahspotify.media.Playlistt\n");
+        log_error("jahspotify","createJPlaylist","Could not create instance of jahspotify.media.Playlist");
         return NULL;
     }
 
@@ -1305,7 +1308,7 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
 
     if (jMethod == NULL)
     {
-        fprintf(stderr,"jahspotify::createJPlaylist: could not load method addTrack(track) on class Playlist\n");
+        log_error("jahspotify","createJPlaylist","Could not load method addTrack(track) on class Playlist");
         return NULL;
     }
 
@@ -1411,7 +1414,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     if (!link)
     {
         // hmm
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack: Could not create link!\n" );
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Could not create link!" );
         return JNI_FALSE;
     }
 
@@ -1419,7 +1422,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
         
     while (!sp_track_is_loaded(track))
     {
-        fprintf ( stderr, "jahspotify::Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack: Waiting for track to be loaded ...\n" );
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Waiting for track to be loaded ..." );
         sleep(1);
     }
 
@@ -1534,7 +1537,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
 
                 if (jMethod == NULL)
                 {
-                    fprintf(stderr,"jahspotify::Java_jahspotify_impl_JahSpotifyImpl_readImage: could not load method write(int) on class java.io.OutputStream\n");
+                    log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_readImage","Could not load method write(int) on class java.io.OutputStream");
                     goto fail;
                 }
 
@@ -1743,7 +1746,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
 
     if ( !username || !password )
     {
-        fprintf ( stderr, "Username or password not specified\n" );
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize","Username or password not specified" );
         return 1;
     }
 
@@ -1753,23 +1756,23 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
 
     if ( SP_ERROR_OK != err )
     {
-        fprintf ( stderr, "Unable to create session: %s\n",sp_error_message ( err ) );
+        log_error("jahspotify", "Java_jahspotify_impl_JahSpotifyImpl_initialize","Unable to create session: %s\n",sp_error_message ( err ) );
         return 1;
     }
 
-    log_debug("jahspotify", "initialize","Session created 0x%x", sp);
+    log_debug("jahspotify", "Java_jahspotify_impl_JahSpotifyImpl_initialize","Session created 0x%x", sp);
 
     nativeUsername = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, username, NULL );
     nativePassword = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, password, NULL );
 
-    log_debug("jahspotify", "initialize","Locking");
+    log_debug("jahspotify", "Java_jahspotify_impl_JahSpotifyImpl_initialize","Locking");
     
     g_sess = sp;
 
     pthread_mutex_init ( &g_notify_mutex, NULL );
     pthread_cond_init ( &g_notify_cond, NULL );
 
-    log_debug("jahspotify","initialize","Initiating login: %s", nativeUsername );
+    log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize","Initiating login: %s", nativeUsername );
 
     sp_session_login ( sp, nativeUsername, nativePassword,0);
 
@@ -1816,7 +1819,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
         case SP_CONNECTION_STATE_LOGGED_IN:
             break;
         case SP_CONNECTION_STATE_DISCONNECTED:
-            log_warn ("jahspotify","initialize", "Disconnected!");
+            log_warn ("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize", "Disconnected!");
 	    signalDisconnected();
             break;
         }
