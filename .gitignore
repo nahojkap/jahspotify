@@ -2,3 +2,5 @@ target/
 *.iml
 *.ipr
 *.iws
+.kdev*
+*.kdev4
