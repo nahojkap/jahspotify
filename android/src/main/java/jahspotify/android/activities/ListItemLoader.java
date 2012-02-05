@@ -45,7 +45,7 @@ public class ListItemLoader
             {
                 try
                 {
-                    final Track track = LibraryRetriever.getTrack(trackLink);
+                    final FullTrack track = LibraryRetriever.getFullTrack(trackLink);
                     final Activity a = (Activity) listItem.getContext();
                     a.runOnUiThread(new Runnable()
                     {
@@ -54,22 +54,13 @@ public class ListItemLoader
                         {
                             TextView text = (TextView) listItem.findViewById(R.id.result_name);
                             text.setText(track.getTitle());
-                        }
-                    });
-                    final Link albumLink = track.getAlbum();
-                    final Album album = LibraryRetriever.getAlbum(albumLink);
-                    a.runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            TextView text = (TextView) listItem.findViewById(R.id.result_second_line);
-                            text.setText(album.getName());
+                            text = (TextView) listItem.findViewById(R.id.result_second_line);
+                            text.setText(track.getAlbumName());
                             text.setVisibility(View.VISIBLE);
                         }
                     });
 
-                    final InputStream image1 = LibraryRetriever.getImage(album.getCover());
+                    final InputStream image1 = LibraryRetriever.getImage(track.getAlbumCoverLink());
                     final Drawable jahSpotify = Drawable.createFromStream(image1, "JahSpotify");
                     a.runOnUiThread(new Runnable()
                     {
@@ -78,6 +69,7 @@ public class ListItemLoader
                         {
                             ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
                             image.setImageDrawable(jahSpotify);
+                            image.setVisibility(View.VISIBLE);
                             listItem.setTag(null);
                         }
                     });

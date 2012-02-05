@@ -346,4 +346,14 @@ public class MediaPlayer
     {
         _mediaPlayerListeners.add(mediaPlayerListener);
     }
+
+    public float getCurrentGain()
+    {
+        return _jahSpotify.getCurrentGain();
+    }
+
+    public void setCurrentGain(final float currentGain)
+    {
+        _jahSpotify.setCurrentGain(currentGain);
+    }
 }

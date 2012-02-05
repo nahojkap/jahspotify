@@ -72,13 +72,16 @@ public class HistoryCollector
             {
                 _trackStartTime = System.currentTimeMillis();
                 _trackTimePointer = _trackStartTime;
+                _trackPlayTime = 0;
             }
 
             @Override
             public void trackEnd(final QueueTrack queueTrack, final boolean forcedEnd)
             {
                 _trackPlayTime = _trackPlayTime + ((System.currentTimeMillis() - _trackTimePointer) / 1000);
-                _historicalStorage.addTrackPlayed(queueTrack.getQueue(), queueTrack.getTrackUri(), !forcedEnd, (int)_trackPlayTime, _trackStartTime);
+                _historicalStorage.addTrackPlayed(queueTrack.getQueue(), queueTrack.getSource(),queueTrack.getTrackUri(), !forcedEnd, (int)_trackPlayTime, _trackStartTime);
+                _trackPlayTime = 0;
+                _trackTimePointer = 0;
             }
         });
     }

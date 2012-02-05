@@ -1,9 +1,13 @@
 package jahspotify.web;
 
+import java.util.*;
 import javax.servlet.http.*;
 
-import jahspotify.media.*;
+import jahspotify.media.Artist;
+import jahspotify.media.Image;
 import jahspotify.services.JahSpotifyService;
+import jahspotify.web.media.*;
+import jahspotify.web.media.Track;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
@@ -29,8 +33,9 @@ public class TrackController extends BaseController
     {
         try
         {
-            final Link uri = retrieveLink(httpServletRequest);
-            final Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
+            boolean shipFullTrack = Boolean.parseBoolean(httpServletRequest.getParameter("full"));
+            final jahspotify.media.Link uri = retrieveLink(httpServletRequest);
+            final jahspotify.media.Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
 
             if (track == null)
             {
@@ -38,9 +43,16 @@ public class TrackController extends BaseController
                 return;
             }
 
-            jahspotify.web.media.Track webTrack = convertToWebTrack(track);
-
-            writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, webTrack);
+            if (shipFullTrack)
+            {
+                FullTrack fullWebTrack = createFullTrack(track);
+                writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, fullWebTrack);
+            }
+            else
+            {
+                jahspotify.web.media.Track webTrack = convertToWebTrack(track);
+                writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, webTrack);
+            }
         }
         catch (Exception e)
         {
@@ -50,7 +62,47 @@ public class TrackController extends BaseController
         }
     }
 
-    private jahspotify.web.media.Track convertToWebTrack(final Track track)
+    private FullTrack createFullTrack(final jahspotify.media.Track track)
+    {
+        FullTrack fullTrack = new FullTrack();
+        fullTrack.setId(toWebLink(track.getId()));
+        fullTrack.setTitle(track.getTitle());
+        fullTrack.setLength(track.getLength());
+        fullTrack.setTrackNumber(track.getTrackNumber());
+        fullTrack.setExplicit(track.isExplicit());
+
+        final List<jahspotify.media.Link> artists = track.getArtists();
+        final List<jahspotify.web.media.Link> webArtistLinks = new ArrayList<jahspotify.web.media.Link>();
+
+        final List<String> webArtistNames = new ArrayList<String>();
+        fullTrack.setArtistLinks(webArtistLinks);
+        fullTrack.setArtistNames(webArtistNames);
+
+        for (jahspotify.media.Link artistLink : artists)
+        {
+            Artist artist = _jahSpotifyService.getJahSpotify().readArtist(artistLink);
+            if (artist != null)
+            {
+                webArtistLinks.add(toWebLink(artistLink));
+                webArtistNames.add(artist.getName());
+            }
+        }
+
+        final jahspotify.media.Album album = _jahSpotifyService.getJahSpotify().readAlbum(track.getAlbum());
+        if (album != null)
+        {
+            fullTrack.setAlbumName(album.getName());
+            fullTrack.setAlbumLink(toWebLink(album.getId()));
+            fullTrack.setAlbumCoverLink(toWebLink(album.getCover()));
+        }
+
+
+
+
+        return fullTrack;
+    }
+
+    private Track convertToWebTrack(final jahspotify.media.Track track)
     {
         jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
 

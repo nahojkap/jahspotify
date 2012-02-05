@@ -52,7 +52,7 @@ public class ArtistController extends BaseController
         BeanUtils.copyProperties(artist, webArtist, new String[]{"id", "restrictions", "albums", "similarArtists", "portraits"});
 
 
-        return null;
+        return webArtist;
     }
 
 }

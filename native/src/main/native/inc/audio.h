@@ -55,5 +55,7 @@ extern void audio_fifo_flush(audio_fifo_t *af);
 audio_fifo_data_t* audio_get(audio_fifo_t *af);
 
 extern void audio_close();
+extern float get_audio_gain();
+extern void set_audio_gain(float gain);
 
 #endif /* _JUKEBOX_AUDIO_H_ */

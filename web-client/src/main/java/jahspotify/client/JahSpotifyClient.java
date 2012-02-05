@@ -26,7 +26,7 @@ public class JahSpotifyClient
 
     public static void main(String[] args) throws Exception
     {
-        JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://localhost:8080/jahspotify/");
+        JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://192.168.0.11:8080/jahspotify/");
 
         final QueueConfiguration queueConfiguration = new QueueConfiguration();
         queueConfiguration.setAutoRefill(true);
@@ -217,5 +217,11 @@ public class JahSpotifyClient
     {
         String s = getData(_baseURL  + "media/" + albumLink);
         return deserialize(s,Album.class);
+    }
+
+    public FullTrack readFullTrack(final String id) throws IOException
+    {
+        String s = getData(_baseURL  + "media/" + id + "?full=true");
+        return deserialize(s,FullTrack.class);
     }
 }

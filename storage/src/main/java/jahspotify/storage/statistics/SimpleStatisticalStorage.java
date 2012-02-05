@@ -21,13 +21,15 @@ public class SimpleStatisticalStorage implements HistoricalStorage
         return _trackHistory;
     }
 
-    public void addTrackPlayed(final Link queue, final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
+    public void addTrackPlayed(final Link queue, final String source, final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
     {
         _log.debug("Adding track played: " + trackLink);
+        _log.debug("Queue: " + queue);
+        _log.debug("Source: " + source);
         _log.debug("Start time: " + startTime);
         _log.debug("Seconds played: " + secondsPlayed);
         _log.debug("Completed: " + (completeTrackPlayed ? "yes" : "no"));
-        _trackHistory.add(0,new TrackHistory(queue, trackLink, completeTrackPlayed, secondsPlayed, startTime));
+        _trackHistory.add(0,new TrackHistory(queue, trackLink, source, completeTrackPlayed, secondsPlayed, startTime));
 
     }
     public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)

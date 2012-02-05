@@ -7,11 +7,33 @@ public class CurrentTrack
 {
     private String id;
     private String trackID;
+    private int length;
+    private int offset;
 
     public CurrentTrack(final String id, final String trackID)
     {
         this.id = id;
         this.trackID = trackID;
+    }
+
+    public int getLength()
+    {
+        return length;
+    }
+
+    public void setLength(final int length)
+    {
+        this.length = length;
+    }
+
+    public int getOffset()
+    {
+        return offset;
+    }
+
+    public void setOffset(final int offset)
+    {
+        this.offset = offset;
     }
 
     public String getId()

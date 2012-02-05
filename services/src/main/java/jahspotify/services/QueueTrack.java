@@ -14,14 +14,38 @@ public class QueueTrack
     private Link _queue;
     private String _id;
     private Link _trackID;
-    private Map<String, String> _metadata = new HashMap<String, String>();
-    public static final String QUEUED_TRACK_SOURCE = "QUEUED_TRACK_SOURCE";
+    private String _source;
+    private int _length;
+    private int _offset = -1;
 
-    public QueueTrack(final String id, final Link trackUri, final Link queue)
+    private Map<String, String> _metadata = new HashMap<String, String>();
+
+    public QueueTrack(final String id, final Link trackUri, final Link queue, final String source)
     {
         _id = id;
         _trackID = trackUri;
+        _source = source;
         _queue = queue;
+    }
+
+    public int getOffset()
+    {
+        return _offset;
+    }
+
+    public void setOffset(final int offset)
+    {
+        _offset = offset;
+    }
+
+    public void setLength(final int length)
+    {
+        _length = length;
+    }
+
+    public int getLength()
+    {
+        return _length;
     }
 
     public String getId()
@@ -42,6 +66,11 @@ public class QueueTrack
     public Map<String, String> getMetadata()
     {
         return _metadata;
+    }
+
+    public String getSource()
+    {
+        return _source;
     }
 
     @Override

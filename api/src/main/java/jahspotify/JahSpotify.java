@@ -139,4 +139,7 @@ public interface JahSpotify
     /** Shuts down the JahSpotify instance.
      */
     public void shutdown();
+
+    float getCurrentGain();
+    void setCurrentGain(float gain);
 }

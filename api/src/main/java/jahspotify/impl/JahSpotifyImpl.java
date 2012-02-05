@@ -581,6 +581,18 @@ public class JahSpotifyImpl implements JahSpotify
         nativeShutdown();
     }
 
+    @Override
+    public void setCurrentGain(final float gain)
+    {
+        setAudioGain(gain);
+    }
+
+    @Override
+    public float getCurrentGain()
+    {
+        return getAudioGain();
+    }
+
     private void populateEmptyEntries(final Library.Entry entry, int currentLevel, int requiredLevel)
     {
         final Link.Type type = Link.Type.valueOf(entry.getType());
@@ -818,4 +830,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native void nativeInitiateSearch(final int i, NativeSearchParameters token);
 
+    private native void setAudioGain(float gain);
+
+    private native float getAudioGain();
 }

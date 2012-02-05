@@ -56,6 +56,9 @@ public class EchoNestSpotifyBridge
     private JahSpotifyService _jahSpotifyService;
     private JahSpotify _jahSpotify;
 
+    public static final String ECHO_NEST_SOURCE_ID = "EchoNest";
+    public static final String ECHONEST_SESSION_ID = "ECHONEST_SESSION_ID";
+
     @PostConstruct
     private void initialize()
     {
@@ -88,16 +91,15 @@ public class EchoNestSpotifyBridge
                             Thread.sleep(3000);
                             _log.debug("Queue empty, will retrieve next dynamic track");
                             // FIXME: Retrieve next track and add it to the queue
-                            if ("EchoNest".equals(lastTrackPlayed.getMetadata().get(QueueTrack.QUEUED_TRACK_SOURCE)))
+                            if (ECHO_NEST_SOURCE_ID.equals(lastTrackPlayed.getSource()))
                             {
                                 // Have already a EchoNest sourced track - use the session id for getting the next one!
-                                Playlist echoNestPlaylist = retrieveNextDynamicTrack(lastTrackPlayed.getMetadata().get("ECHONEST_SESSION_ID"));
+                                Playlist echoNestPlaylist = retrieveNextDynamicTrack(lastTrackPlayed.getMetadata().get(ECHONEST_SESSION_ID));
                                 Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
                                 if (spotLink != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue);
-                                    queueTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "EchoNest");
-                                    queueTrack.getMetadata().put("ECHONEST_SESSION_ID", echoNestPlaylist.getSession());
+                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue, ECHO_NEST_SOURCE_ID);
+                                    queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
                                     _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
                                 }
                                 else
@@ -113,9 +115,8 @@ public class EchoNestSpotifyBridge
                                 Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
                                 if (spotLink != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue);
-                                    queueTrack.getMetadata().put(QueueTrack.QUEUED_TRACK_SOURCE, "EchoNest");
-                                    queueTrack.getMetadata().put("ECHONEST_SESSION_ID", echoNestPlaylist.getSession());
+                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue,ECHO_NEST_SOURCE_ID);
+                                    queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
                                     _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
                                 }
                                 else

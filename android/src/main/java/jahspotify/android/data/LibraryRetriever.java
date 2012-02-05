@@ -3,6 +3,7 @@ package jahspotify.android.data;
 import java.io.*;
 import java.util.*;
 
+import android.util.Log;
 import jahspotify.client.JahSpotifyClient;
 import jahspotify.web.media.*;
 import org.apache.http.HttpResponse;
@@ -17,7 +18,7 @@ import org.json.*;
 public class LibraryRetriever
 {
     // private static String baseURL = "http://10.40.42.41:8080/jahspotify/";
-    private static String baseURL = "http://192.168.0.173:8080/jahspotify/";
+    private static String baseURL = "http://192.168.0.11:8080/jahspotify/";
     private static JahSpotifyClient jahSpotifyClient = new JahSpotifyClient(baseURL);
 
     public static Library.Entry getRoot(int levels) throws IOException
@@ -27,6 +28,7 @@ public class LibraryRetriever
 
     public static InputStream getImage(final Link link) throws IOException
     {
+        Log.d("LibraryRetriever","Retrieving image: " + link);
         final Image image = jahSpotifyClient.readImage(link.getId(), true);
         return image.getInputStream();
     }
@@ -54,5 +56,10 @@ public class LibraryRetriever
     public static Album getAlbum(final Link albumLink) throws IOException
     {
         return jahSpotifyClient.readAlbum(albumLink.getId());
+    }
+
+    public static FullTrack getFullTrack(final Link trackLink) throws IOException
+    {
+        return jahSpotifyClient.readFullTrack(trackLink.getId());
     }
 }

@@ -46,7 +46,7 @@ public class Media
     {
         this.id = null;
         this.redirects = null;
-        this.popularity = -1;
+        this.popularity = null;
         this.restrictions = null;
         this.externalIds = null;
     }

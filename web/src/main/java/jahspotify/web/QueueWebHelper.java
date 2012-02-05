@@ -35,7 +35,7 @@ import jahspotify.web.queue.QueueConfiguration;
 public class QueueWebHelper
 {
 
-    public static QueueState convertToQueueStatus(final MediaPlayerState mediaPlayerState)
+    public static QueueState convertToQueueStatus(final jahspotify.services.MediaPlayerState mediaPlayerState)
     {
         switch (mediaPlayerState)
         {
@@ -118,7 +118,10 @@ public class QueueWebHelper
         final QueueTrack currentlyPlaying = queue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
         {
-            currentCurrentQueue.setCurrentlyPlaying(new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString()));
+            final CurrentTrack webCurrentlyPlaying = new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString());
+            webCurrentlyPlaying.setLength(currentlyPlaying.getLength());
+            webCurrentlyPlaying.setOffset(currentlyPlaying.getOffset());
+            currentCurrentQueue.setCurrentlyPlaying(webCurrentlyPlaying);
         }
         currentCurrentQueue.setQueuedTracks(QueueWebHelper.convertToWebQueuedTracks(queue.getQueuedTracks()));
         return currentCurrentQueue;

@@ -31,14 +31,26 @@ public class TrackHistory
     private int _secondsPlayed;
     private long _startTime;
     private Link _queue;
+    private String _source;
 
-    public TrackHistory(final Link queue, final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
+    public TrackHistory(final Link queue, final Link trackLink, final String source, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
     {
         _queue = queue;
         _trackLink = trackLink;
         _completeTrackPlayed = completeTrackPlayed;
         _secondsPlayed = secondsPlayed;
         _startTime = startTime;
+        _source = source;
+    }
+
+    public String getSource()
+    {
+        return _source;
+    }
+
+    public void setSource(final String source)
+    {
+        _source = source;
     }
 
     public Link getQueue()

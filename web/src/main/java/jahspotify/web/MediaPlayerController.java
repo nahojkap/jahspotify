@@ -21,7 +21,7 @@ package jahspotify.web;
 
 import javax.servlet.http.*;
 
-import jahspotify.services.MediaPlayer;
+import jahspotify.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +34,31 @@ public class MediaPlayerController extends BaseController
 {
     @Autowired
     private MediaPlayer _mediaPlayer;
+    @Autowired
+    private QueueManager _queueManager;
+
+    @RequestMapping(value = "/player/status", method = RequestMethod.GET)
+    public void status(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        // Should return:
+        // - current track
+        // - current track duration
+        MediaPlayerStatus mediaPlayerStatus = new MediaPlayerStatus();
+        mediaPlayerStatus.setCurrentGain(_mediaPlayer.getCurrentGain());
+        final jahspotify.services.MediaPlayerState mediaPlayerState = _mediaPlayer.getMediaPlayerState();
+        mediaPlayerStatus.setMediaPlayerState(MediaPlayerState.valueOf(mediaPlayerState.name()));
+
+        final Queue currentQueue = _queueManager.getCurrentQueue(1);
+        if (currentQueue.getCurrentlyPlaying() != null)
+        {
+            mediaPlayerStatus.setLength(currentQueue.getCurrentlyPlaying().getLength());
+            mediaPlayerStatus.setOffset(currentQueue.getCurrentlyPlaying().getOffset());
+            mediaPlayerStatus.setCurrentTrack(toWebLink(currentQueue.getCurrentlyPlaying().getTrackUri()));
+        }
+
+
+        super.writeResponseGeneric(httpServletResponse,mediaPlayerStatus);
+    }
 
     @RequestMapping(value = "/player/stop", method = RequestMethod.GET)
     public void stop(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
@@ -54,6 +79,60 @@ public class MediaPlayerController extends BaseController
         simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
         simpleStatusResponse.setDetail("SEEK_COMPLETED");
         writeResponse(httpServletResponse, simpleStatusResponse);
+    }
+
+    @RequestMapping(value = "/player/volume-up", method = RequestMethod.GET)
+    public void increaseGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        float currentGain = _mediaPlayer.getCurrentGain();
+        if (currentGain + 0.05f != 1.0f)
+        {
+            currentGain += 0.05f;
+            _mediaPlayer.setCurrentGain(currentGain);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("VOLUME_UP_COMPLETED");
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+        else
+        {
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("MAX_VOLUME_REACHED");
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+    }
+
+    @RequestMapping(value = "/player/volume-down", method = RequestMethod.GET)
+    public void decreaseGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        float currentGain = _mediaPlayer.getCurrentGain();
+        if (currentGain - 0.05f != 0.0f)
+        {
+            currentGain -= 0.05f;
+            _mediaPlayer.setCurrentGain(currentGain);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("VOLUME_DOWN_COMPLETED");
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+        else
+        {
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("MIN_VOLUME_REACHED");
+            writeResponse(httpServletResponse, simpleStatusResponse);
+        }
+    }
+
+    public void getCurrentGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+
+    }
+
+    public void setCurrentGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+
     }
 
     @RequestMapping(value = "/player/pause", method = RequestMethod.GET)

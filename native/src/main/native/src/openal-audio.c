@@ -67,7 +67,7 @@ void audio_close()
 
 }
 
-float getAudioGain()
+float get_audio_gain()
 {
     // FIXME: should check for NULL source (not initialized)
     ALfloat currentGain;
@@ -75,7 +75,7 @@ float getAudioGain()
     return currentGain;
 }
 
-void setAudioGain(float gain)
+void set_audio_gain(float gain)
 {
     // FIXME: should check for NULL source (not initialized)
     alSourcef(source, AL_GAIN, gain);

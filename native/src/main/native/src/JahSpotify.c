@@ -1694,7 +1694,16 @@ exit:
     
 }
 
+JNIEXPORT jfloat JNICALL Java_jahspotify_impl_JahSpotifyImpl_getAudioGain( JNIEnv *env, jobject obj )
+{
+    float gain = get_audio_gain();
+    return gain;
+}
 
+JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_setAudioGain( JNIEnv *env, jobject obj, jfloat gain)
+{
+    set_audio_gain(gain);
+}
 
 
 /**
