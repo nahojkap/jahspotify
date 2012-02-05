@@ -80,9 +80,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.echonest</groupId>
-            <artifactId>echonest-jne-api</artifactId>
-            <version>4</version>
+            <groupId>com.googlecode.jen-api</groupId>
+            <artifactId>jen-api</artifactId>
+            <version>4.x.p</version>
         </dependency>
 
     </dependencies>
