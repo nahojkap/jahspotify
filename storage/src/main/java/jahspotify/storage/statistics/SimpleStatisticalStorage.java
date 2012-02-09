@@ -16,9 +16,9 @@ public class SimpleStatisticalStorage implements HistoricalStorage
 
     private List<TrackHistory> _trackHistory = new ArrayList<TrackHistory>();
     @Override
-    public List<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    public List<TrackHistory> getHistory(final long index, final long count, final HistoryCriteria... historyCriterias)
     {
-        return _trackHistory;
+        return _trackHistory.subList((int)index,(int)index+(int)count);
     }
 
     public void addTrackPlayed(final Link queue, final String source, final Link trackLink, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)

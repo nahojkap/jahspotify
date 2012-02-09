@@ -22,7 +22,7 @@ package jahspotify.web;
 import javax.servlet.http.*;
 
 import jahspotify.storage.statistics.HistoricalStorage;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,10 +35,15 @@ public class HistoryController extends BaseController
     @Autowired
     private HistoricalStorage _historicalStorage;
 
+    @Value(value="${jahspotify.history.default-count}")
+    private long _defaultCount = 100;
+
     @RequestMapping(value = "/history", method = RequestMethod.GET)
     public void getHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(0,0,null));
+        long index = Long.parseLong(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
+        long count = Long.parseLong(httpServletRequest.getParameter("index") == null ? Long.toString(_defaultCount) : httpServletRequest.getParameter("count"));
+        writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(index,count,null));
     }
 
     @RequestMapping(value = "/history/", method = RequestMethod.GET)
