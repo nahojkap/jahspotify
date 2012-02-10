@@ -22,8 +22,8 @@ package jahspotify.services.history;
 import javax.annotation.PostConstruct;
 
 import jahspotify.services.*;
-import jahspotify.storage.statistics.HistoricalStorage;
-import org.springframework.beans.factory.annotation.Autowired;
+import jahspotify.storage.statistics.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +38,7 @@ public class HistoryCollector
     private MediaPlayer _mediaPlayer;
 
     @Autowired
+    @Qualifier(value = "in-memory")
     private HistoricalStorage _historicalStorage;
 
     private long _trackStartTime;
@@ -79,7 +80,7 @@ public class HistoryCollector
             public void trackEnd(final QueueTrack queueTrack, final boolean forcedEnd)
             {
                 _trackPlayTime = _trackPlayTime + ((System.currentTimeMillis() - _trackTimePointer) / 1000);
-                _historicalStorage.addTrackPlayed(queueTrack.getQueue(), queueTrack.getSource(),queueTrack.getTrackUri(), !forcedEnd, (int)_trackPlayTime, _trackStartTime);
+                _historicalStorage.addHistory(new TrackHistory(queueTrack.getQueue(), queueTrack.getTrackUri(), queueTrack.getSource(), queueTrack.getId(), !forcedEnd, (int) _trackPlayTime, _trackStartTime));
                 _trackPlayTime = 0;
                 _trackTimePointer = 0;
             }

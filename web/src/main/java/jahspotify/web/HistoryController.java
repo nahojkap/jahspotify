@@ -33,16 +33,17 @@ import org.springframework.web.bind.annotation.*;
 public class HistoryController extends BaseController
 {
     @Autowired
+    @Qualifier(value ="in-memory")
     private HistoricalStorage _historicalStorage;
 
     @Value(value="${jahspotify.history.default-count}")
-    private long _defaultCount = 100;
+    private int _defaultCount = 100;
 
     @RequestMapping(value = "/history", method = RequestMethod.GET)
     public void getHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        long index = Long.parseLong(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
-        long count = Long.parseLong(httpServletRequest.getParameter("index") == null ? Long.toString(_defaultCount) : httpServletRequest.getParameter("count"));
+        int index = Integer.parseInt(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
+        int count = Integer.parseInt(httpServletRequest.getParameter("index") == null ? Integer.toString(_defaultCount) : httpServletRequest.getParameter("count"));
         writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(index,count,null));
     }
 

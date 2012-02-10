@@ -27,20 +27,27 @@ import jahspotify.media.Link;
 public class TrackHistory
 {
     private Link _trackLink;
+    private String _id;
     private boolean _completeTrackPlayed;
     private int _secondsPlayed;
     private long _startTime;
     private Link _queue;
     private String _source;
 
-    public TrackHistory(final Link queue, final Link trackLink, final String source, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
+    public TrackHistory(final Link queue, final Link trackLink, final String source, final String id, final boolean completeTrackPlayed, final int secondsPlayed, final long startTime)
     {
         _queue = queue;
         _trackLink = trackLink;
+        _id = id;
         _completeTrackPlayed = completeTrackPlayed;
         _secondsPlayed = secondsPlayed;
         _startTime = startTime;
         _source = source;
+    }
+
+    public String getId()
+    {
+        return _id;
     }
 
     public String getSource()
@@ -104,6 +111,20 @@ public class TrackHistory
     }
 
     @Override
+    public String toString()
+    {
+        return "TrackHistory{" +
+                "_completeTrackPlayed=" + _completeTrackPlayed +
+                ", _trackLink=" + _trackLink +
+                ", _id='" + _id + '\'' +
+                ", _secondsPlayed=" + _secondsPlayed +
+                ", _startTime=" + _startTime +
+                ", _queue=" + _queue +
+                ", _source='" + _source + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -129,7 +150,15 @@ public class TrackHistory
         {
             return false;
         }
+        if (_id != null ? !_id.equals(that._id) : that._id != null)
+        {
+            return false;
+        }
         if (_queue != null ? !_queue.equals(that._queue) : that._queue != null)
+        {
+            return false;
+        }
+        if (_source != null ? !_source.equals(that._source) : that._source != null)
         {
             return false;
         }
@@ -145,22 +174,12 @@ public class TrackHistory
     public int hashCode()
     {
         int result = _trackLink != null ? _trackLink.hashCode() : 0;
+        result = 31 * result + (_id != null ? _id.hashCode() : 0);
         result = 31 * result + (_completeTrackPlayed ? 1 : 0);
         result = 31 * result + _secondsPlayed;
         result = 31 * result + (int) (_startTime ^ (_startTime >>> 32));
         result = 31 * result + (_queue != null ? _queue.hashCode() : 0);
+        result = 31 * result + (_source != null ? _source.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "TrackHistory{" +
-                "_completeTrackPlayed=" + _completeTrackPlayed +
-                ", _trackLink=" + _trackLink +
-                ", _secondsPlayed=" + _secondsPlayed +
-                ", _startTime=" + _startTime +
-                ", _queue=" + _queue +
-                '}';
     }
 }

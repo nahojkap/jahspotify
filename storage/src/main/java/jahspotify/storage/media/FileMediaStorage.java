@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
  * @author Johan Lindquist
  */
 @Service
-@Qualifier(value = "simple-file")
-public class SimpleFileMediaStorage implements MediaStorage
+@Qualifier(value = "file")
+public class FileMediaStorage implements MediaStorage
 {
     @Value(value="${jahspotify.storage.simple-file-based.directory}")
     private String _baseDirectoryStr = "/var/lib/jahspotify/simple-file-storage/";
@@ -26,7 +26,7 @@ public class SimpleFileMediaStorage implements MediaStorage
     private File _imageBaseDirectory;
     private File _playlistBaseDirectory;
 
-    private Log _log = LogFactory.getLog(SimpleFileMediaStorage.class);
+    private Log _log = LogFactory.getLog(FileMediaStorage.class);
 
     @PostConstruct
     public void initialize()

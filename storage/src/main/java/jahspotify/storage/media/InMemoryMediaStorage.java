@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Qualifier(value = "in-memory")
-public class InMemoryMediaStorage extends SimpleFileMediaStorage implements MediaStorage
+public class InMemoryMediaStorage extends FileMediaStorage implements MediaStorage
 {
     private Map<Link,Image> _imageStore = new ConcurrentHashMap<Link, Image>();
     private Map<Link,Track> _trackStore = new ConcurrentHashMap<Link, Track>();

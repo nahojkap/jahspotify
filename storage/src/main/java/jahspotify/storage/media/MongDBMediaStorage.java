@@ -20,11 +20,11 @@ public class MongDBMediaStorage implements MediaStorage
 {
     private Log _log = LogFactory.getLog(MongDBMediaStorage.class);
 
-    @Value(value="${jahspotify.storage.mongodb.host")
+    @Value(value="${jahspotify.storage.mongodb.host}")
     private String _dbHost = "localhost";
-    @Value(value="${jahspotify.storage.mongodb.port")
+    @Value(value="${jahspotify.storage.mongodb.port}")
     private int _dbPort = 27017;
-    @Value(value="${jahspotify.storage.mongodb.db-name")
+    @Value(value="${jahspotify.storage.mongodb.db-name}")
     private String _dbName = "JahSpotify";
 
     private Mongo _mongoDBInstance;
@@ -67,7 +67,7 @@ public class MongDBMediaStorage implements MediaStorage
     {
         final DBCollection tracks = _db.getCollection("tracks");
 
-        BasicDBObject query = new BasicDBObject();
+        final BasicDBObject query = new BasicDBObject();
         query.put("_id", uri.getId());
 
         final DBObject one = tracks.findOne(query);
@@ -92,44 +92,105 @@ public class MongDBMediaStorage implements MediaStorage
     @Override
     public void store(final Artist artist)
     {
+        final DBCollection tracks = _db.getCollection("artists");
+        final BasicDBObject basicDBObject = (BasicDBObject) JSON.parse(new Gson().toJson(artist));
+        basicDBObject.put("_id",artist.getId().getId());
+        final WriteResult insert = tracks.insert(basicDBObject);
     }
 
     @Override
     public Artist readArtist(final Link uri)
     {
+        final DBCollection tracks = _db.getCollection("artists");
+
+        final BasicDBObject query = new BasicDBObject();
+        query.put("_id", uri.getId());
+
+        final DBObject one = tracks.findOne(query);
+
+        if (one != null)
+        {
+            return new Gson().fromJson(JSON.serialize(one),Artist.class);
+        }
+
         return null;
     }
 
     @Override
     public void store(final Album album)
     {
+        final DBCollection tracks = _db.getCollection("albums");
+        final BasicDBObject basicDBObject = (BasicDBObject) JSON.parse(new Gson().toJson(album));
+        basicDBObject.put("_id",album.getId().getId());
+        final WriteResult insert = tracks.insert(basicDBObject);
     }
 
     @Override
     public Album readAlbum(final Link uri)
     {
+        final DBCollection tracks = _db.getCollection("albums");
+
+        final BasicDBObject query = new BasicDBObject();
+        query.put("_id", uri.getId());
+
+        final DBObject one = tracks.findOne(query);
+
+        if (one != null)
+        {
+            return new Gson().fromJson(JSON.serialize(one),Album.class);
+        }
         return null;
     }
 
     @Override
     public void store(final Playlist playlist)
     {
+        final DBCollection tracks = _db.getCollection("playlists");
+        final BasicDBObject basicDBObject = (BasicDBObject) JSON.parse(new Gson().toJson(playlist));
+        basicDBObject.put("_id",playlist.getId().getId());
+        final WriteResult insert = tracks.insert(basicDBObject);
     }
 
     @Override
     public Playlist readPlaylist(final Link uri)
     {
+        final DBCollection tracks = _db.getCollection("playlists");
+
+        final BasicDBObject query = new BasicDBObject();
+        query.put("_id", uri.getId());
+
+        final DBObject one = tracks.findOne(query);
+
+        if (one != null)
+        {
+            return new Gson().fromJson(JSON.serialize(one),Playlist.class);
+        }
         return null;
     }
 
     @Override
     public void store(final Image image)
     {
+        final DBCollection tracks = _db.getCollection("images");
+        final BasicDBObject basicDBObject = (BasicDBObject) JSON.parse(new Gson().toJson(image));
+        basicDBObject.put("_id",image.getId().getId());
+        final WriteResult insert = tracks.insert(basicDBObject);
     }
 
     @Override
     public Image readImage(final Link uri)
     {
+        final DBCollection tracks = _db.getCollection("images");
+
+        final BasicDBObject query = new BasicDBObject();
+        query.put("_id", uri.getId());
+
+        final DBObject one = tracks.findOne(query);
+
+        if (one != null)
+        {
+            return new Gson().fromJson(JSON.serialize(one),Image.class);
+        }
         return null;
     }
 }
