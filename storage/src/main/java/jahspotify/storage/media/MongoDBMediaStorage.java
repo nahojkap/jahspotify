@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Qualifier(value = "mongodb")
-public class MongDBMediaStorage implements MediaStorage
+public class MongoDBMediaStorage implements MediaStorage
 {
-    private Log _log = LogFactory.getLog(MongDBMediaStorage.class);
+    private Log _log = LogFactory.getLog(MongoDBMediaStorage.class);
 
     @Value(value="${jahspotify.storage.mongodb.host}")
     private String _dbHost = "localhost";
@@ -42,15 +42,6 @@ public class MongDBMediaStorage implements MediaStorage
         {
 
         }
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        MongDBMediaStorage mongDBMediaStorage = new MongDBMediaStorage();
-        mongDBMediaStorage.initialize();
-        Track track = new Gson().fromJson(new FileReader("/var/lib/jahspotify/simple-file-storage/tracks/3ZE8LPdngaax7rboeT7vtl"),Track.class );
-        mongDBMediaStorage.store(track);
-        Track readTrack = mongDBMediaStorage.readTrack(Link.create("spotify:track:3ZE8LPdngaax7rboeT7vtl"));
     }
 
     @Override

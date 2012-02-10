@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 import com.mongodb.*;
 import com.mongodb.util.JSON;
 import jahspotify.media.Link;
-import jahspotify.storage.media.MongDBMediaStorage;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
@@ -64,13 +63,6 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
 
         }
     }
-
-    public static void main(String[] args) throws Exception
-    {
-        MongDBMediaStorage mongDBMediaStorage = new MongDBMediaStorage();
-        mongDBMediaStorage.initialize();
-    }
-
 
     @Override
     public List<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
