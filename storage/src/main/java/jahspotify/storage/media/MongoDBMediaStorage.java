@@ -1,6 +1,5 @@
 package jahspotify.storage.media;
 
-import java.io.FileReader;
 import javax.annotation.PostConstruct;
 
 import com.google.gson.Gson;

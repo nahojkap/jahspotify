@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class HistoryController extends BaseController
 {
     @Autowired
-    @Qualifier(value ="in-memory")
+    @Qualifier(value ="mongodb")
     private HistoricalStorage _historicalStorage;
 
     @Value(value="${jahspotify.history.default-count}")

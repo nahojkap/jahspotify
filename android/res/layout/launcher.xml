@@ -4,15 +4,14 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-              android:background="#ffffff"
+              android:background="#000000"
         >
 
     <ImageView
             android:id="@+id/launcher"
-            android:layout_width="300dip"
-            android:layout_height="150dip"
-            android:paddingTop="20px"
-            android:scaleType="center"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="fitCenter"
             android:src="@drawable/jahspotify_logo"
             android:layout_gravity="center_horizontal"
             />

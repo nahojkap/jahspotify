@@ -73,7 +73,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
         dbObjects.skip(index);
         dbObjects.limit(count);
         final BasicDBObject orderBy = new BasicDBObject();
-        orderBy.put("_startTime",1);
+        orderBy.put("_startTime",-1);
         dbObjects.sort(orderBy);
 
         List<TrackHistory> trackHistories = new ArrayList<TrackHistory>();
