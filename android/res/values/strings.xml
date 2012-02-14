@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="jahspotify_app_name">Jah\'Spotify</string>
+    <string name="jahspotify_dialog_title">Jah\'Spotify</string>
+
 </resources>

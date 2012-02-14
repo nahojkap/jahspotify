@@ -17,9 +17,15 @@ import org.json.*;
  */
 public class LibraryRetriever
 {
-    // private static String baseURL = "http://10.40.42.41:8080/jahspotify/";
-    private static String baseURL = "http://192.168.0.11:8080/jahspotify/";
-    private static JahSpotifyClient jahSpotifyClient = new JahSpotifyClient(baseURL);
+    public static String baseURL = "http://192.168.0.11:8080/jahspotify/";
+
+    private static JahSpotifyClient jahSpotifyClient;
+
+    public static void initialize(String host, int port)
+    {
+        baseURL = "http://" + host + ":" + port + "/jahspotify/";
+        jahSpotifyClient = new JahSpotifyClient(baseURL);
+    }
 
     public static Library.Entry getRoot(int levels) throws IOException
     {

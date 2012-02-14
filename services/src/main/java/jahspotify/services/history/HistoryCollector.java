@@ -38,7 +38,7 @@ public class HistoryCollector
     private MediaPlayer _mediaPlayer;
 
     @Autowired
-    @Qualifier(value = "in-memory")
+    @Qualifier(value = "mongodb")
     private HistoricalStorage _historicalStorage;
 
     private long _trackStartTime;

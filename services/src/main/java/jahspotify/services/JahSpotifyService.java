@@ -18,7 +18,7 @@ public class JahSpotifyService
     private JahSpotify _jahSpotify;
 
     @Autowired(required = false)
-    @Qualifier(value ="in-memory")
+    @Qualifier(value ="mongodb")
     private MediaStorage _mediaStorage;
 
     @PostConstruct

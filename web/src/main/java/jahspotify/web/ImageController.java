@@ -72,6 +72,13 @@ public class ImageController extends BaseController
                 outputStream.flush();
                 outputStream.close();
             }
+            else
+            {
+                final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+                simpleStatusResponse.setResponseStatus(ResponseStatus.RESOURCE_NOT_FOUND);
+                writeResponse(httpServletResponse, simpleStatusResponse);
+                return;
+            }
 
         }
         catch (Exception e)
