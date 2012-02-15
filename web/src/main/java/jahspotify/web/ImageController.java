@@ -112,7 +112,15 @@ public class ImageController extends BaseController
                 }
                 _log.debug("Image size in cache: " + baos.toByteArray().length);
 
-                return new Image(uri,baos.toByteArray());
+                if (baos.toByteArray().length > 0)
+                {
+                    return new Image(uri,baos.toByteArray());
+                }
+                else
+                {
+                    _log.debug("Image found in cache, but size == 0");
+                    f.delete();
+                }
             }
             catch (Exception e)
             {

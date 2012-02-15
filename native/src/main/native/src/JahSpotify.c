@@ -994,12 +994,12 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 	      jobject albumCoverJLink = createJLinkInstance(env, albumCoverLink);
 	      setObjectObjectField(env,albumInstance,"cover","Ljahspotify/media/Link;",albumCoverJLink);
 
-	      sp_image *albumCoverImage = sp_image_create_from_link(g_sess,albumCoverLink);
-	      if (albumCoverImage)
-	      {
-		sp_image_add_ref(albumCoverImage);
-		sp_image_add_load_callback(albumCoverImage,imageLoadedCallback,NULL);
-	      }
+	      // sp_image *albumCoverImage = sp_image_create_from_link(g_sess,albumCoverLink);
+	      // if (albumCoverImage)
+	      // {
+		// sp_image_add_ref(albumCoverImage);
+		// sp_image_add_load_callback(albumCoverImage,imageLoadedCallback,NULL);
+	      // }
 	      
 	      sp_link_release(albumCoverLink);
 
@@ -1195,12 +1195,12 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
                         sp_link *portraitLink = sp_link_create_from_string(dest);
                         if (portraitLink)
                         {
-                            sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
-                            if (portrait)
-                            {
-                                sp_image_add_ref(portrait);
-                                sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
-                            }
+                            // sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
+                            // if (portrait)
+                            // {
+                                // sp_image_add_ref(portrait);
+                                // sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
+                            //}
                             
                             sp_link_add_ref(portraitLink);
 

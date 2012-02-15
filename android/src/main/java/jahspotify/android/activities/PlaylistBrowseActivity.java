@@ -1,6 +1,7 @@
 package jahspotify.android.activities;
 
 import java.io.IOException;
+import java.util.*;
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -115,7 +116,11 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 try
                 {
                     final Link trackLink = _currentPlaylist.getTracks().get(position);
-                    ListItemLoader.loadListItem( trackLink, listItem);
+                    final ListItemLoader.ListItemToLoad listItemToLoad = new ListItemLoader.ListItemToLoad();
+                    listItemToLoad.mListItem = listItem;
+                    listItemToLoad.mTrackLink = trackLink;
+                    List<ListItemLoader.ListItemToLoad> list = Arrays.asList(listItemToLoad);
+                    ListItemLoader.loadListItem( list );
                 }
                 catch (Exception e)
                 {
@@ -183,23 +188,28 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
 
                 int first = view.getFirstVisiblePosition();
                 int count = view.getChildCount();
+                List<ListItemLoader.ListItemToLoad> itemsToLoad = new ArrayList<ListItemLoader.ListItemToLoad>();
                 for (int i = 0; i < count; i++)
                 {
                     View t = view.getChildAt(i);
                     if (t.getTag() != null)
                     {
                         final Link trackLink = _currentPlaylist.getTracks().get(first + i);
-
-                        try
-                        {
-                            ListItemLoader.loadListItem( trackLink, t);
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                        final ListItemLoader.ListItemToLoad listItemToLoad = new ListItemLoader.ListItemToLoad();
+                        listItemToLoad.mListItem = t;
+                        listItemToLoad.mTrackLink = trackLink;
+                        itemsToLoad.add(listItemToLoad);
 
                     }
+                }
+
+                try
+                {
+                    ListItemLoader.loadListItem( itemsToLoad );
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
 
                 mStatus.setText("Idle");

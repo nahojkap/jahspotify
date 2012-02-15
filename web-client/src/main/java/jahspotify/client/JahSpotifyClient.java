@@ -74,17 +74,25 @@ public class JahSpotifyClient
         return deserialize(s, Library.class);
     }
 
-    public Image readImage(final String uri, boolean streamable) throws IOException
+    public Image readImage(final String uri, boolean streamable) throws Exception
     {
-        if (streamable)
+        try
         {
-            InputStream inputStream = getDataAsStream(_baseURL + "media/" + uri);
-            return new Image(uri,inputStream);
+            if (streamable)
+            {
+                InputStream inputStream = getDataAsStream(_baseURL + "media/" + uri);
+                return new Image(uri,inputStream);
+            }
+            else
+            {
+                final byte[] dataAsBytes = getDataAsBytes(_baseURL + "media/" + uri);
+                return new Image(uri,dataAsBytes);
+            }
         }
-        else
+        catch (Exception e)
         {
-            final byte[] dataAsBytes = getDataAsBytes(_baseURL + "media/" + uri);
-            return new Image(uri,dataAsBytes);
+            e.printStackTrace();
+            throw e;
         }
     }
 

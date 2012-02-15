@@ -17,9 +17,10 @@ import org.json.*;
  */
 public class LibraryRetriever
 {
-    public static String baseURL = "http://192.168.0.11:8080/jahspotify/";
+    public static String baseURL;
 
     private static JahSpotifyClient jahSpotifyClient;
+    private static final String TAG = "LibraryRetriever";
 
     public static void initialize(String host, int port)
     {
@@ -32,11 +33,20 @@ public class LibraryRetriever
         return getEntry(new Link("jahspotify:folder:ROOT", Link.Type.FOLDER), levels);
     }
 
-    public static InputStream getImage(final Link link) throws IOException
+    public static InputStream getImage(final Link link) throws Exception
     {
-        Log.d("LibraryRetriever","Retrieving image: " + link);
-        final Image image = jahSpotifyClient.readImage(link.getId(), true);
-        return image.getInputStream();
+        try
+        {
+            Log.d("LibraryRetriever","Retrieving image: " + link);
+            final Image image = jahSpotifyClient.readImage(link.getId(), true);
+            return image.getInputStream();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            Log.d(TAG,"Error retrieving image for link: " + link,e);
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     public static Library.Entry getEntry(final Link link, int levels) throws IOException

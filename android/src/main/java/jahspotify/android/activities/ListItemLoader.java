@@ -20,9 +20,11 @@ package jahspotify.android.activities;
  */
 
 import java.io.*;
+import java.util.List;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import jahspotify.android.R;
@@ -35,48 +37,62 @@ import jahspotify.web.media.*;
 public class ListItemLoader
 {
 
-    public static void loadListItem(final Link trackLink, final View listItem) throws Exception
-    {
-        Thread t = new Thread()
+    private static final String TAG = "ListItemLoader";
 
+    public static class ListItemToLoad
+    {
+        public Link mTrackLink;
+        public View mListItem;
+    }
+
+    public static void loadListItem(final List<ListItemToLoad> items) throws Exception
+    {
+        final Thread t = new Thread()
         {
             @Override
             public void run()
             {
-                try
+                for (ListItemToLoad item : items)
                 {
-                    final FullTrack track = LibraryRetriever.getFullTrack(trackLink);
-                    final Activity a = (Activity) listItem.getContext();
-                    a.runOnUiThread(new Runnable()
+                    final Link trackLink = item.mTrackLink;
+                    final View listItem = item.mListItem;
+                    try
                     {
-                        @Override
-                        public void run()
+                        final FullTrack track = LibraryRetriever.getFullTrack(trackLink);
+                        final Activity a = (Activity) listItem.getContext();
+                        a.runOnUiThread(new Runnable()
                         {
-                            TextView text = (TextView) listItem.findViewById(R.id.result_name);
-                            text.setText(track.getTitle());
-                            text = (TextView) listItem.findViewById(R.id.result_second_line);
-                            text.setText(track.getAlbumName());
-                            text.setVisibility(View.VISIBLE);
-                        }
-                    });
+                            @Override
+                            public void run()
+                            {
+                                TextView text = (TextView) listItem.findViewById(R.id.result_name);
+                                text.setText(track.getTitle());
+                                text = (TextView) listItem.findViewById(R.id.result_second_line);
+                                text.setText(track.getAlbumName());
+                                text.setVisibility(View.VISIBLE);
+                            }
+                        });
 
-                    final InputStream image1 = LibraryRetriever.getImage(track.getAlbumCoverLink());
-                    final Drawable jahSpotify = Drawable.createFromStream(image1, "JahSpotify");
-                    a.runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
+                        final InputStream image1 = LibraryRetriever.getImage(track.getAlbumCoverLink());
+                        final Drawable jahSpotify = Drawable.createFromStream(image1, "JahSpotify");
+                        a.runOnUiThread(new Runnable()
                         {
-                            ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
-                            image.setImageDrawable(jahSpotify);
-                            image.setVisibility(View.VISIBLE);
-                            listItem.setTag(null);
-                        }
-                    });
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
+                            @Override
+                            public void run()
+                            {
+                                ImageView image = (ImageView) listItem.findViewById(R.id.result_icon);
+                                image.setImageDrawable(jahSpotify);
+                                image.setVisibility(View.VISIBLE);
+                                listItem.setTag(null);
+                            }
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        Log.d(TAG, "Error retrieving image for link: " + trackLink, e);
+
+                        e.printStackTrace();
+                    }
                 }
             }
         };
