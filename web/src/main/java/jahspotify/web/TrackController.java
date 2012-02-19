@@ -4,7 +4,6 @@ import java.util.*;
 import javax.servlet.http.*;
 
 import jahspotify.media.Artist;
-import jahspotify.media.Image;
 import jahspotify.services.JahSpotifyService;
 import jahspotify.web.media.*;
 import jahspotify.web.media.Track;
@@ -80,11 +79,17 @@ public class TrackController extends BaseController
 
         for (jahspotify.media.Link artistLink : artists)
         {
-            Artist artist = _jahSpotifyService.getJahSpotify().readArtist(artistLink);
+            final Artist artist = _jahSpotifyService.getJahSpotify().readArtist(artistLink);
+
             if (artist != null)
             {
                 webArtistLinks.add(toWebLink(artistLink));
                 webArtistNames.add(artist.getName());
+            }
+            else
+            {
+                // at least one artist has not loaded yet - let the client know
+                fullTrack.setComplete(false);
             }
         }
 
@@ -94,6 +99,10 @@ public class TrackController extends BaseController
             fullTrack.setAlbumName(album.getName());
             fullTrack.setAlbumLink(toWebLink(album.getId()));
             fullTrack.setAlbumCoverLink(toWebLink(album.getCover()));
+        }
+        else
+        {
+            fullTrack.setComplete(false);
         }
 
 

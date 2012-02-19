@@ -20,7 +20,7 @@ package jahspotify.android.activities;
  */
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -52,27 +52,98 @@ public class ListItemLoader
             @Override
             public void run()
             {
-                for (ListItemToLoad item : items)
+                final List<ListItemToLoad> failedToLoad = new ArrayList<ListItemToLoad>();
+
+                while (!items.isEmpty())
                 {
+                    final ListItemToLoad item = items.remove(0);
+
                     final Link trackLink = item.mTrackLink;
                     final View listItem = item.mListItem;
+                    final Activity a = (Activity) listItem.getContext();
+
+                    loadIt(failedToLoad, item, trackLink, listItem, a);
+                }
+
+                while (!failedToLoad.isEmpty())
+                {
+                    final ListItemToLoad item = failedToLoad.remove(0);
+                    final Link trackLink = item.mTrackLink;
+                    final View listItem = item.mListItem;
+                    final Activity a = (Activity) listItem.getContext();
+                    loadIt(failedToLoad, item, trackLink, listItem, a);
+
                     try
                     {
-                        final FullTrack track = LibraryRetriever.getFullTrack(trackLink);
-                        final Activity a = (Activity) listItem.getContext();
-                        a.runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                TextView text = (TextView) listItem.findViewById(R.id.result_name);
-                                text.setText(track.getTitle());
-                                text = (TextView) listItem.findViewById(R.id.result_second_line);
-                                text.setText(track.getAlbumName());
-                                text.setVisibility(View.VISIBLE);
-                            }
-                        });
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
 
+            }
+        };
+        t.start();
+
+    }
+
+    private static void loadIt(final List<ListItemToLoad> failedToLoad, final ListItemToLoad item, final Link trackLink, final View listItem, final Activity a)
+    {
+        try
+        {
+
+            a.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (listItem.getTag() != null)
+                    {
+                        ImageView image = (ImageView) listItem.findViewById(R.id.result_icon);
+                        image.setVisibility(View.INVISIBLE);
+
+                        TextView text = (TextView) listItem.findViewById(R.id.result_name);
+                        text.setText("Loading...");
+                        text = (TextView) listItem.findViewById(R.id.result_second_line);
+                        text.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+
+            final FullTrack track = LibraryRetriever.getFullTrack(trackLink);
+            if (track != null)
+            {
+                a.runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        TextView text = (TextView) listItem.findViewById(R.id.result_name);
+                        listItem.setTag(null);
+                        text.setText(track.getTitle());
+
+                        text = (TextView) listItem.findViewById(R.id.result_second_line);
+                        if (track.getAlbumName() != null)
+                        {
+                            text.setText(track.getAlbumName());
+                            text.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            failedToLoad.add(item);
+                        }
+                    }
+
+                });
+
+                final ImageView image = (ImageView) listItem.findViewById(R.id.result_icon);
+                if (image.getVisibility() != View.VISIBLE)
+                {
+                    if (track.getAlbumCoverLink() != null)
+                    {
                         final InputStream image1 = LibraryRetriever.getImage(track.getAlbumCoverLink());
                         final Drawable jahSpotify = Drawable.createFromStream(image1, "JahSpotify");
                         a.runOnUiThread(new Runnable()
@@ -80,24 +151,23 @@ public class ListItemLoader
                             @Override
                             public void run()
                             {
-                                ImageView image = (ImageView) listItem.findViewById(R.id.result_icon);
                                 image.setImageDrawable(jahSpotify);
                                 image.setVisibility(View.VISIBLE);
-                                listItem.setTag(null);
                             }
                         });
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Log.d(TAG, "Error retrieving image for link: " + trackLink, e);
-
-                        e.printStackTrace();
+                        failedToLoad.add(item);
                     }
                 }
             }
-        };
-        t.start();
-
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "Error retrieving image for link: " + trackLink, e);
+            failedToLoad.add(item);
+        }
     }
 
 }

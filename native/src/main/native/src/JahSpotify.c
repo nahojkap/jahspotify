@@ -490,12 +490,12 @@ static void start_playback(sp_session *session)
 
 static void stop_playback(sp_session *session)
 {
-    log_debug("jahspotify","stop_playback","Playback should stop");
+  log_debug("jahspotify","stop_playback","Playback should stop");
 }
 
 static void message_to_user(sp_session *session, const char *data)
 {
-    log_debug("jahspotify","stop_playback","Message to user: ", data);
+  log_debug("jahspotify","message_to_user","Message to user: ", data);
 }
 
 
@@ -516,7 +516,7 @@ static sp_session_callbacks session_callbacks =
     .userinfo_updated = &userinfo_updated,
     .connection_error = &connection_error,
     .streaming_error = &streaming_error,
-    .start_playback = &start_playback,
+    .start_playback = &start_playback
 };
 
 
@@ -547,8 +547,8 @@ static void searchCompleteCallback(sp_search *result, void *userdata)
 }
 
 JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeInitiateSearch(JNIEnv *env, jobject obj,
-										jint javaToken,
-										jobject javaNativeSearchParameters)
+                    jint javaToken,
+                    jobject javaNativeSearchParameters)
 {
   char *nativeQuery;
   int32_t *token = calloc(1, sizeof(int32_t));
@@ -650,10 +650,18 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
 
     log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Retrieving user" );
     
-    while (!sp_user_is_loaded(user))
+    int count = 0;
+    while (!sp_user_is_loaded(user) && count < 20)
     {
         log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Waiting for user to load\n" );
-        sleep(1);
+        usleep(250);
+        count ++;
+    }
+    
+    if (count == 20)
+    {
+        log_warn("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Timeout while waiting for user to load" );
+        return NULL;
     }
 
     jobject userInstance = createInstance(env,"jahspotify/media/User");
@@ -951,18 +959,18 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
       
       int count = 0;
       
-      while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 5)
+      while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 20)
       {
 
           log_trace("jahspotify","createJAlbumInstance","Waiting for album browse load to complete");
-	sleep(1);
-	count++;
+          usleep(250);
+          count++;
       }
       
-      if (count == 5)
+      if (count == 20)
       {
-	sp_albumbrowse_release(albumBrowse);
-	return NULL;
+          sp_albumbrowse_release(albumBrowse);
+          return NULL;
       }
   
   
@@ -971,105 +979,105 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
       if (albumLink)
       {
-	  sp_link_add_ref(albumLink);
+        sp_link_add_ref(albumLink);
 
-	  jobject albumJLink = createJLinkInstance(env, albumLink);
-	  setObjectObjectField(env,albumInstance,"id","Ljahspotify/media/Link;",albumJLink);
+        jobject albumJLink = createJLinkInstance(env, albumLink);
+        setObjectObjectField(env,albumInstance,"id","Ljahspotify/media/Link;",albumJLink);
 
-	  setObjectStringField(env,albumInstance,"name",sp_album_name(album));
-	  setObjectIntField(env,albumInstance,"year",sp_album_year(album));
+        setObjectStringField(env,albumInstance,"name",sp_album_name(album));
+        setObjectIntField(env,albumInstance,"year",sp_album_year(album));
 
-	  sp_albumtype albumType = sp_album_type(album);
+        sp_albumtype albumType = sp_album_type(album);
 
-	  jclass albumTypeJClass = (*env)->FindClass(env, "jahspotify/media/AlbumType");
-	  jmethodID jMethod = (*env)->GetStaticMethodID(env,albumTypeJClass,"fromOrdinal","(I)Ljahspotify/media/AlbumType;");
-	  jobject albumTypeEnum = (jobjectArray)(*env)->CallStaticObjectMethod(env, albumTypeJClass, jMethod,(int)albumType);
-	  setObjectObjectField(env,albumInstance,"type","Ljahspotify/media/AlbumType;",albumTypeEnum);
+        jclass albumTypeJClass = (*env)->FindClass(env, "jahspotify/media/AlbumType");
+        jmethodID jMethod = (*env)->GetStaticMethodID(env,albumTypeJClass,"fromOrdinal","(I)Ljahspotify/media/AlbumType;");
+        jobject albumTypeEnum = (jobjectArray)(*env)->CallStaticObjectMethod(env, albumTypeJClass, jMethod,(int)albumType);
+        setObjectObjectField(env,albumInstance,"type","Ljahspotify/media/AlbumType;",albumTypeEnum);
 
-	  sp_link *albumCoverLink = sp_link_create_from_album_cover(album);
-	  if (albumCoverLink)
-	  {
-	      sp_link_add_ref(albumCoverLink);
+        sp_link *albumCoverLink = sp_link_create_from_album_cover(album);
+        if (albumCoverLink)
+        {
+            sp_link_add_ref(albumCoverLink);
 
-	      jobject albumCoverJLink = createJLinkInstance(env, albumCoverLink);
-	      setObjectObjectField(env,albumInstance,"cover","Ljahspotify/media/Link;",albumCoverJLink);
+            jobject albumCoverJLink = createJLinkInstance(env, albumCoverLink);
+            setObjectObjectField(env,albumInstance,"cover","Ljahspotify/media/Link;",albumCoverJLink);
 
-	      // sp_image *albumCoverImage = sp_image_create_from_link(g_sess,albumCoverLink);
-	      // if (albumCoverImage)
-	      // {
-		// sp_image_add_ref(albumCoverImage);
-		// sp_image_add_load_callback(albumCoverImage,imageLoadedCallback,NULL);
-	      // }
-	      
-	      sp_link_release(albumCoverLink);
+            sp_image *albumCoverImage = sp_image_create_from_link(g_sess,albumCoverLink);
+            if (albumCoverImage)
+            {
+              sp_image_add_ref(albumCoverImage);
+              sp_image_add_load_callback(albumCoverImage,imageLoadedCallback,NULL);
+            }
+            
+            sp_link_release(albumCoverLink);
 
-	  }
+        }
 
-	  sp_artist *artist = sp_album_artist(album);
-	  if (artist)
-	  {
-	      sp_artist_add_ref(artist);
+        sp_artist *artist = sp_album_artist(album);
+        if (artist)
+        {
+            sp_artist_add_ref(artist);
 
-	      sp_link *artistLink = sp_link_create_from_artist(artist);
-	      
-	      if (artistLink)
-	      {
-		sp_link_add_ref(artistLink);
-		
-	        jobject artistJLink = createJLinkInstance(env,artistLink);
-		
-		setObjectObjectField(env,albumInstance,"artist","Ljahspotify/media/Link;",artistJLink);
+            sp_link *artistLink = sp_link_create_from_artist(artist);
+            
+            if (artistLink)
+            {
+              sp_link_add_ref(artistLink);
+        
+              jobject artistJLink = createJLinkInstance(env,artistLink);
+        
+              setObjectObjectField(env,albumInstance,"artist","Ljahspotify/media/Link;",artistJLink);
 
-		sp_link_release(artistLink);
-	      }
+              sp_link_release(artistLink);
+            }
 
-	      sp_artist_release(artist);
-	  }
-	  
-	  sp_link_release(albumLink);
+            sp_artist_release(artist);
+        }
+    
+        sp_link_release(albumLink);
       }
       
       int numTracks = sp_albumbrowse_num_tracks(albumBrowse);
       if (numTracks > 0)
       {
-	// Add each track to the album - also pass in the disk as need be
-	jmethodID addTrackJMethodID = (*env)->GetMethodID(env,albumJClass,"addTrack","(ILjahspotify/media/Link;)V");
- 	int i = 0;
-	for (i = 0; i < numTracks; i++)
-	{
-	  sp_track *track = sp_albumbrowse_track(albumBrowse,i);
-	  
-	  if (track)
-	  {
-	    sp_track_add_ref(track);
-	  
-	    sp_link *trackLink = sp_link_create_from_track(track,0);
-	    if (trackLink)
-	    {
-	      sp_link_add_ref(trackLink);
-	      jobject trackJLink = createJLinkInstance(env,trackLink);
-	      (*env)->CallVoidMethod(env, albumInstance, addTrackJMethodID,sp_track_disc(track),trackJLink);
-	      sp_link_release(trackLink);
-	    }
-	  }
-	}
+        // Add each track to the album - also pass in the disk as need be
+        jmethodID addTrackJMethodID = (*env)->GetMethodID(env,albumJClass,"addTrack","(ILjahspotify/media/Link;)V");
+        int i = 0;
+        for (i = 0; i < numTracks; i++)
+        {
+          sp_track *track = sp_albumbrowse_track(albumBrowse,i);
+          
+          if (track)
+          {
+            sp_track_add_ref(track);
+          
+            sp_link *trackLink = sp_link_create_from_track(track,0);
+            if (trackLink)
+            {
+              sp_link_add_ref(trackLink);
+              jobject trackJLink = createJLinkInstance(env,trackLink);
+              (*env)->CallVoidMethod(env, albumInstance, addTrackJMethodID,sp_track_disc(track),trackJLink);
+              sp_link_release(trackLink);
+            }
+          }
+        }
       }
       
       int numCopyrights = sp_albumbrowse_num_copyrights(albumBrowse);
       if (numCopyrights > 0)
       {
-	// Add copyrights to album
-	jmethodID addCopyrightMethodID = (*env)->GetMethodID(env,albumJClass,"addCopyright","(Ljava/lang/String;)V");
-	int i = 0;
-	for (i = 0; i < numCopyrights; i++)
-	{
-	  const char *copyright = sp_albumbrowse_copyright(albumBrowse,i);
-	  if (copyright)
-	  {
-	    jstring str = (*env)->NewStringUTF(env, copyright);
-	    (*env)->CallVoidMethod(env, albumInstance, addCopyrightMethodID,str);
-	  }
-	}
+        // Add copyrights to album
+        jmethodID addCopyrightMethodID = (*env)->GetMethodID(env,albumJClass,"addCopyright","(Ljava/lang/String;)V");
+        int i = 0;
+        for (i = 0; i < numCopyrights; i++)
+        {
+          const char *copyright = sp_albumbrowse_copyright(albumBrowse,i);
+          if (copyright)
+          {
+            jstring str = (*env)->NewStringUTF(env, copyright);
+            (*env)->CallVoidMethod(env, albumInstance, addCopyrightMethodID,str);
+          }
+        }
       }
 
       const char *review = sp_albumbrowse_review(albumBrowse);
@@ -1111,16 +1119,24 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
         sp_link_release(artistLink);
 
         setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
-	
+  
         sp_artistbrowse *artistBrowse = sp_artistbrowse_create(g_sess,artist,SP_ARTISTBROWSE_FULL,artistBrowseCompleteCallback,NULL);
 
         if (artistBrowse)
         {
             sp_artistbrowse_add_ref(artistBrowse);
 
-            while (!sp_artistbrowse_is_loaded(artistBrowse))
+            int count = 0;
+            while (!sp_artistbrowse_is_loaded(artistBrowse) && count < 20)
             {
-                usleep(100);
+                usleep(250);
+                count++;
+            }
+            
+            if (count == 20)
+            {
+              sp_artistbrowse_release(artistBrowse);
+              return NULL;
             }
 
             int numSimilarArtists = sp_artistbrowse_num_similar_artists(artistBrowse);
@@ -1221,42 +1237,43 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
             }
 
             int numAlbums = sp_artistbrowse_num_albums(artistBrowse);
-	    if (numAlbums > 0)
-	    {
-                jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addAlbum","(Ljahspotify/media/Link;)V");
+            if (numAlbums > 0)
+            {
+                      jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addAlbum","(Ljahspotify/media/Link;)V");
 
-                if (jMethod == NULL)
-                {
-                    log_error("jahspotify","createJTrackInstance","Could not load method addAlbum(link) on class Artist");
-                    return NULL;
-                }
-                
-                int count = 0;
-                for (count = 0; count < numAlbums; count++)
-                {
-                    sp_album *album = sp_artistbrowse_album(artistBrowse,count);
-                    if (album)
-                    {
-                        sp_album_add_ref(album);
-                        sp_link *albumLink = sp_link_create_from_album(album);
-                        if (albumLink)
-                        {
-                            sp_link_add_ref(albumLink);
-                            jobject albumJLink = createJLinkInstance(env,albumLink);
-                            // set it on the track
-                            (*env)->CallVoidMethod(env,artistInstance,jMethod,albumJLink);
-                            sp_link_release(albumLink);
-                        }
-                        sp_album_release(album);
-                    }
-                }
-	    }
+                      if (jMethod == NULL)
+                      {
+                          log_error("jahspotify","createJTrackInstance","Could not load method addAlbum(link) on class Artist");
+                          return NULL;
+                      }
+                      
+                      int count = 0;
+                      for (count = 0; count < numAlbums; count++)
+                      {
+                          sp_album *album = sp_artistbrowse_album(artistBrowse,count);
+                          if (album)
+                          {
+                              sp_album_add_ref(album);
+                              sp_link *albumLink = sp_link_create_from_album(album);
+                              if (albumLink)
+                              {
+                                  sp_link_add_ref(albumLink);
+                                  jobject albumJLink = createJLinkInstance(env,albumLink);
+                                  // set it on the track
+                                  (*env)->CallVoidMethod(env,artistInstance,jMethod,albumJLink);
+                                  sp_link_release(albumLink);
+                              }
+                              sp_album_release(album);
+                          }
+                      }
+            }
 
             const char *bios = sp_artistbrowse_biography(artistBrowse);
-	    if (bios)
-	    {
-	      setObjectStringField(env,artistInstance,"bios",bios);
-	    }
+
+            if (bios)
+            {
+              setObjectStringField(env,artistInstance,"bios",bios);
+            }
 
             sp_artistbrowse_release(artistBrowse);
         }
@@ -1354,9 +1371,9 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist ( J
 
       if (artist)
       {
-	sp_artist_add_ref(artist);
-	artistInstance = createJArtistInstance(env, artist);
-	sp_artist_release(artist);
+  sp_artist_add_ref(artist);
+  artistInstance = createJArtistInstance(env, artist);
+  sp_artist_release(artist);
       }
       sp_link_release(link);
     }
@@ -1385,7 +1402,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JN
             sp_album_add_ref(album);
             
             albumInstance = createJAlbumInstance(env, album);
-	    
+      
             sp_album_release(album);
         }
         sp_link_release(link);
@@ -1420,10 +1437,17 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 
     sp_track *track = sp_link_as_track(link);
         
-    while (!sp_track_is_loaded(track))
+    int count = 0;
+    while (!sp_track_is_loaded(track) && count < 20)
     {
         log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Waiting for track to be loaded ..." );
-        sleep(1);
+        usleep(250);
+        count++;
+    }
+    
+    if (count == 20)
+    {
+      return NULL;
     }
 
     trackInstance = createJTrackInstance(env, track);
@@ -1457,10 +1481,17 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
 
     sp_playlist *playlist = sp_playlist_create(g_sess,link);
 
-    while (!sp_playlist_is_loaded(playlist))
+    int count = 0;
+    while (!sp_playlist_is_loaded(playlist) && count < 20)
     {
         log_debug("jahspotify","retrievePlaylist","Waiting for playlist to be loaded ..." );
-        sleep(1);
+        usleep(250);
+    }
+    if (count == 20)
+    {
+      log_warn("jahspotify","retrievePlaylist","Timeout while waiting for playlist to load ..." );
+      
+      return NULL;
     }
 
     playlistInstance = createJPlaylist(env, playlist);
@@ -1518,7 +1549,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
             // Reference is released by the image loaded callback
             sp_image_add_ref(image);
             sp_image_add_load_callback(image, imageLoadedCallback, NULL);
-	    
+      
             if (sp_image_is_loaded(image))
             {
                 byte *data = (byte*)sp_image_data(image,&size);
@@ -1548,7 +1579,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env
                     data++;
                     numBytesWritten++;
                 }
-        }
+            }
         }
         sp_link_release(imageLink);
     }
@@ -1603,12 +1634,19 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEn
             return;
         }
 
-        while (!sp_track_is_loaded(t))
+        int count = 0;
+        while (!sp_track_is_loaded(t) && count < 20)
         {
             log_debug("jahspotify","nativePlayTrack","Waiting for track ...");
-            sleep(1);
+            usleep(250);
+            count ++;
         }
 
+        if (count == 20)
+        {
+          // Hmm timeout loading the track ... what now?
+        }
+        
         if (sp_track_error(t) != SP_ERROR_OK)
         {
             log_debug("jahspotify","nativePlayTrack","Error with track: %s",sp_error_message(sp_track_error(t)));
@@ -1829,7 +1867,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
             break;
         case SP_CONNECTION_STATE_DISCONNECTED:
             log_warn ("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize", "Disconnected!");
-	    signalDisconnected();
+      signalDisconnected();
             break;
         }
 

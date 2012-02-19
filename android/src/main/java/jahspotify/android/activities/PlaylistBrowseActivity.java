@@ -94,6 +94,10 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
 
             listItem.setClickable(true);
             listItem.setVisibility(View.VISIBLE);
+            listItem.setTag(this);
+            final ImageView image = (ImageView) listItem.findViewById(R.id.result_icon);
+            image.setVisibility(View.INVISIBLE);
+            
             listItem.setOnClickListener(new View.OnClickListener()
             {
                 @Override
@@ -111,34 +115,18 @@ public class PlaylistBrowseActivity extends ListActivity implements ListView.OnS
                 }
             });
 
-            if (!mBusy)
+            try
             {
-                try
-                {
-                    final Link trackLink = _currentPlaylist.getTracks().get(position);
-                    final ListItemLoader.ListItemToLoad listItemToLoad = new ListItemLoader.ListItemToLoad();
-                    listItemToLoad.mListItem = listItem;
-                    listItemToLoad.mTrackLink = trackLink;
-                    List<ListItemLoader.ListItemToLoad> list = Arrays.asList(listItemToLoad);
-                    ListItemLoader.loadListItem( list );
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                // Null tag means the view has the correct data
+                final Link trackLink = _currentPlaylist.getTracks().get(position);
+                final ListItemLoader.ListItemToLoad listItemToLoad = new ListItemLoader.ListItemToLoad();
+                listItemToLoad.mListItem = listItem;
+                listItemToLoad.mTrackLink = trackLink;
+                List<ListItemLoader.ListItemToLoad> list = new ArrayList<ListItemLoader.ListItemToLoad>(Arrays.asList(listItemToLoad));
+                ListItemLoader.loadListItem( list );
             }
-            else
+            catch (Exception e)
             {
-                ImageView image = (ImageView)listItem.findViewById(R.id.result_icon);
-                image.setVisibility(View.INVISIBLE);
-
-                TextView text = (TextView) listItem.findViewById(R.id.result_name);
-                text.setText("Loading...");
-                text = (TextView) listItem.findViewById(R.id.result_second_line);
-                text.setVisibility(View.GONE);
-                // Non-null tag means the view still needs to load it's data
-                listItem.setTag(this);
+                e.printStackTrace();
             }
 
             return listItem;

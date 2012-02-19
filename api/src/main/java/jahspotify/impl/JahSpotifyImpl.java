@@ -2,6 +2,7 @@ package jahspotify.impl;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.*;
 import java.util.concurrent.locks.*;
 
@@ -40,6 +41,11 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native int initialize(String username, String password);
 
+    private final Set<Link> _lockedTracks = new CopyOnWriteArraySet<Link>();
+    private final Set<Link> _lockedArtists = new CopyOnWriteArraySet<Link>();
+    private final Set<Link> _lockedAlbums = new CopyOnWriteArraySet<Link>();
+    private final Set<Link> _lockedImages = new CopyOnWriteArraySet<Link>();
+
     protected JahSpotifyImpl()
     {
         registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
@@ -48,6 +54,14 @@ public class JahSpotifyImpl implements JahSpotify
             public void track(final int token, final Link link)
             {
                 _log.trace(String.format("Track loaded: token=%d link=%s", token, link));
+                synchronized (_lockedTracks)
+                {
+                    if (_lockedTracks.contains(link))
+                    {
+                        _lockedTracks.remove(link);
+                        _lockedTracks.notifyAll();
+                    }
+                }
             }
 
             @Override
@@ -60,18 +74,42 @@ public class JahSpotifyImpl implements JahSpotify
             public void album(final int token, final Link link)
             {
                 _log.trace(String.format("Album loaded: token=%d link=%s", token, link));
+                synchronized (_lockedAlbums)
+                {
+                    if (_lockedAlbums.contains(link))
+                    {
+                        _lockedAlbums.remove(link);
+                        _lockedAlbums.notifyAll();
+                    }
+                }
             }
 
             @Override
             public void image(final int token, final Link link)
             {
                 _log.trace(String.format("Image loaded: token=%d link=%s", token, link));
+                synchronized (_lockedImages)
+                {
+                    if (_lockedImages.contains(link))
+                    {
+                        _lockedImages.remove(link);
+                        _lockedImages.notifyAll();
+                    }
+                }
             }
 
             @Override
             public void artist(final int token, final Link link)
             {
                 _log.trace(String.format("Artist loaded: token=%d link=%s", token, link));
+                synchronized (_lockedArtists)
+                {
+                    if (_lockedArtists.contains(link))
+                    {
+                        _lockedArtists.remove(link);
+                        _lockedArtists.notifyAll();
+                    }
+                }
             }
         });
 
@@ -349,6 +387,30 @@ public class JahSpotifyImpl implements JahSpotify
     public Album readAlbum(final Link uri)
     {
         ensureLoggedIn();
+
+        synchronized (_lockedAlbums)
+        {
+            int count = 0;
+            while (_lockedAlbums.contains(uri) && ++count < 5)
+            {
+                try
+                {
+                    _lockedAlbums.wait(1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            if (count == 5)
+            {
+                // This would be quite bad ...
+                return null;
+            }
+
+        }
+
         _libSpotifyLock.lock();
         try
         {
@@ -364,6 +426,29 @@ public class JahSpotifyImpl implements JahSpotify
     public Artist readArtist(final Link uri)
     {
         ensureLoggedIn();
+
+        synchronized (_lockedArtists)
+        {
+            int count = 0;
+            while (_lockedAlbums.contains(uri) && ++count < 5)
+            {
+                try
+                {
+                    _lockedArtists.wait(1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            if (count == 5)
+            {
+                // This would be quite bad ...
+                return null;
+            }
+
+        }
         try
         {
             _libSpotifyLock.lock();
@@ -380,10 +465,45 @@ public class JahSpotifyImpl implements JahSpotify
     public Track readTrack(Link uri)
     {
         ensureLoggedIn();
+        synchronized (_lockedTracks)
+        {
+            int count = 0;
+            while (_lockedTracks.contains(uri) && ++count < 5)
+            {
+                try
+                {
+                    _lockedTracks.wait(1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            if (count == 5)
+            {
+                // This would be quite bad ...
+                return null;
+            }
+
+        }
         try
         {
             _libSpotifyLock.lock();
-            return retrieveTrack(uri.asString());
+            final Track track = retrieveTrack(uri.asString());
+            if (track == null)
+            {
+                _lockedTracks.add(uri);
+            }
+            else
+            {
+                synchronized (_lockedTracks)
+                {
+                    _lockedTracks.remove(uri);
+                    _lockedTracks.notifyAll();
+                }
+            }
+            return track;
         }
         finally
         {
@@ -395,6 +515,32 @@ public class JahSpotifyImpl implements JahSpotify
     public Image readImage(Link uri)
     {
         ensureLoggedIn();
+
+        // Ok, till i figure out a better way of preventing overload on the spotify loading threads
+        // (of multiple requests of the same image) i will have to do with this hack
+        synchronized (_lockedImages)
+        {
+            int count = 0;
+            while (_lockedImages.contains(uri) && ++count < 5)
+            {
+                try
+                {
+                    _lockedImages.wait(1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            if (count == 5)
+            {
+                // This would be quite bad ...
+                return null;
+            }
+
+        }
+
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         _libSpotifyLock.lock();
         int len = -1;
@@ -414,7 +560,17 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 throw new IllegalStateException("Number bytes reported written does not match length of bytes (" + len + " != " + bytes.length + ")");
             }
+
+            synchronized (_lockedImages)
+            {
+                _lockedImages.remove(uri);
+                _lockedImages.notifyAll();
+            }
             return new Image(uri, bytes);
+        }
+        else
+        {
+            _lockedImages.add(uri);
         }
         return null;
     }
@@ -550,7 +706,7 @@ public class JahSpotifyImpl implements JahSpotify
         if (uri.getFolderId() == 0)
         {
             final Library.Entry entry = trimToLevel(_currentLibraryEntry, 0, level);
-            populateEmptyEntries(entry,0,level);
+            populateEmptyEntries(entry, 0, level);
             return entry;
         }
 
@@ -560,7 +716,7 @@ public class JahSpotifyImpl implements JahSpotify
             if (folderEntry != null)
             {
                 final Library.Entry trimmedEntry = trimToLevel(folderEntry, 0, level);
-                populateEmptyEntries(trimmedEntry,0,level);
+                populateEmptyEntries(trimmedEntry, 0, level);
                 return trimmedEntry;
             }
         }

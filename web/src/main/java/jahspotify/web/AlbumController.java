@@ -4,6 +4,10 @@ import java.util.*;
 import javax.servlet.http.*;
 
 import jahspotify.media.*;
+import jahspotify.media.Album;
+import jahspotify.media.Disc;
+import jahspotify.media.Link;
+import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
@@ -17,27 +21,25 @@ public class AlbumController extends BaseController
 {
     private Log _log = LogFactory.getLog(AlbumController.class);
 
-    @RequestMapping(value = "/album/*", method = RequestMethod.GET)
-    public void retrieveAlbum(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/album/{link}", method = RequestMethod.GET, produces = "application/json")
+    public jahspotify.web.media.Album retrieveAlbum(@PathVariable("link") String linkStr)
     {
         try
         {
-            final Link link = retrieveLink(httpServletRequest);
+            final Link link = Link.create(linkStr);
             Album album = _jahSpotifyService.getJahSpotify().readAlbum(link);
 
             if (album == null)
             {
-                super.writeMediaNotReadable(httpServletResponse);
-                return;
+                return null;
             }
-            jahspotify.web.media.Album webAlbum = convertToWebAlbum(album);
-            super.writeResponseGeneric(httpServletResponse, webAlbum);
+            return convertToWebAlbum(album);
         }
         catch (Exception e)
         {
             _log.error("Error while retrieving album: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
         }
+        return null;
     }
 
     private jahspotify.web.media.Album convertToWebAlbum(final Album album)
