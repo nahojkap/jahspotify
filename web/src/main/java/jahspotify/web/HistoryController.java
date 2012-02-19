@@ -33,23 +33,45 @@ import org.springframework.web.bind.annotation.*;
 public class HistoryController extends BaseController
 {
     @Autowired
-    @Qualifier(value ="mongodb")
+    @Qualifier(value = "mongodb")
     private HistoricalStorage _historicalStorage;
 
-    @Value(value="${jahspotify.history.default-count}")
+    @Value(value = "${jahspotify.history.default-count}")
     private int _defaultCount = 100;
+
+    @RequestMapping(value = "/history/count", method = RequestMethod.GET)
+    public void getHistoryCount(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+
+    }
 
     @RequestMapping(value = "/history", method = RequestMethod.GET)
     public void getHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        int index = Integer.parseInt(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
-        int count = Integer.parseInt(httpServletRequest.getParameter("index") == null ? Integer.toString(_defaultCount) : httpServletRequest.getParameter("count"));
-        writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(index,count,null));
+        getHistoryRoot(httpServletRequest, httpServletResponse);
     }
 
     @RequestMapping(value = "/history/", method = RequestMethod.GET)
     public void getHistoryRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
+        int index = Integer.parseInt(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
+        int count = Integer.parseInt(httpServletRequest.getParameter("index") == null ? Integer.toString(_defaultCount) : httpServletRequest.getParameter("count"));
+        writeResponseGeneric(httpServletResponse, _historicalStorage.getHistory(index, count, null).getTrackHistories());
     }
+
+    @RequestMapping(value = "/history", method = RequestMethod.POST)
+    public void postHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        getHistoryRoot(httpServletRequest, httpServletResponse);
+    }
+
+    @RequestMapping(value = "/history/", method = RequestMethod.POST)
+    public void postHistoryRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    {
+        int index = Integer.parseInt(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
+        int count = Integer.parseInt(httpServletRequest.getParameter("index") == null ? Integer.toString(_defaultCount) : httpServletRequest.getParameter("count"));
+        writeResponseGeneric(httpServletResponse, _historicalStorage.getHistory(index, count, null).getTrackHistories());
+    }
+
 
 }

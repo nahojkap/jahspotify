@@ -11,8 +11,8 @@ import org.apache.commons.logging.*;
  */
 public interface HistoricalStorage
 {
-    public List<TrackHistory> getHistory(int index, int count, HistoryCriteria... historyCriterias);
+    public HistoryCursor getHistory(int index, int count, HistoryCriteria... historyCriterias);
     public void addHistory(final TrackHistory trackHistory);
     public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink);
-    public List<TrackStatistics> trackStatistics(final Link trackLink, int startFrom, int count);
+    public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count);
 }

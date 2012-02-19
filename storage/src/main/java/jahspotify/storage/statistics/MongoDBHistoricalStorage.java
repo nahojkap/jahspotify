@@ -65,7 +65,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     }
 
     @Override
-    public List<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    public HistoryCursor getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
         final DBCollection tracks = _db.getCollection("history");
 
@@ -83,7 +83,9 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
             trackHistories.add(new Gson().fromJson(JSON.serialize(dbObjects.next()),TrackHistory.class));
         }
 
-        return trackHistories;
+        final HistoryCursor historyCursor = new HistoryCursor();
+        historyCursor.setTrackHistory(trackHistories);
+        return historyCursor;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     }
 
     @Override
-    public List<TrackStatistics> trackStatistics(final Link trackLink, final int startFrom, final int count)
+    public TrackStatisticsCursor trackStatistics(final Link trackLink, final int startFrom, final int count)
     {
         return null;
     }
