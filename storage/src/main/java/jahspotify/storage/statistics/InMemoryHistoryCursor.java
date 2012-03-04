@@ -19,12 +19,44 @@ package jahspotify.storage.statistics;
  *        under the License.
  */
 
+import java.util.*;
+
 /**
  * @author Johan Lindquist
  */
-public interface HistoryCursor
+public class InMemoryHistoryCursor implements HistoryCursor
 {
-    public abstract int getCount();
-    public abstract boolean hasNext();
-    public TrackHistory next();
+    private List<TrackHistory> _trackHistoryList;
+    private Iterator<TrackHistory> _trackHistoryListIterator;
+
+    public InMemoryHistoryCursor(final List<TrackHistory> trackHistoryList)
+    {
+        _trackHistoryList = trackHistoryList;
+    }
+
+    @Override
+    public int getCount()
+    {
+        return _trackHistoryList.size();
+    }
+
+    @Override
+    public boolean hasNext()
+    {
+        if (_trackHistoryListIterator == null)
+        {
+            _trackHistoryListIterator = _trackHistoryList.iterator();
+        }
+        return _trackHistoryListIterator.hasNext();
+    }
+
+    @Override
+    public TrackHistory next()
+    {
+        if (_trackHistoryListIterator == null)
+        {
+            _trackHistoryListIterator = _trackHistoryList.iterator();
+        }
+        return _trackHistoryListIterator.next();
+    }
 }

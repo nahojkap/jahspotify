@@ -1,4 +1,4 @@
-package jahspotify.storage.statistics;
+package jahspotify.web;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,9 +22,6 @@ package jahspotify.storage.statistics;
 /**
  * @author Johan Lindquist
  */
-public interface HistoryCursor
+public class JahSpotifyWebException extends RuntimeException
 {
-    public abstract int getCount();
-    public abstract boolean hasNext();
-    public TrackHistory next();
 }

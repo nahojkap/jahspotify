@@ -20,9 +20,7 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
     @Override
     public HistoryCursor getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
-        HistoryCursor historyCursor = new HistoryCursor();
-        historyCursor.setTrackHistory(_trackHistory);
-        return historyCursor;
+        return new InMemoryHistoryCursor(_trackHistory);
     }
 
     public void addHistory(final TrackHistory trackHistory)
@@ -38,5 +36,11 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
     public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count)
     {
         return null;
+    }
+
+    @Override
+    public int getHistoryCount(final HistoryCriteria... historyCriterias)
+    {
+        return 0;
     }
 }

@@ -241,11 +241,13 @@ public class Album extends Media
     {
         List<Link> tracks = new ArrayList<Link>();
 
-        for (Disc disc : this.discs)
+        if (this.discs != null)
         {
-            tracks.addAll(disc.getTracks());
+            for (Disc disc : this.discs)
+            {
+                tracks.addAll(disc.getTracks());
+            }
         }
-
         return tracks;
     }
 

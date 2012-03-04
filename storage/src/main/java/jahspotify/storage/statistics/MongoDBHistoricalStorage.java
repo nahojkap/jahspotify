@@ -76,16 +76,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
         orderBy.put("_startTime",-1);
         dbObjects.sort(orderBy);
 
-        List<TrackHistory> trackHistories = new ArrayList<TrackHistory>();
-        
-        while (dbObjects.hasNext())
-        {
-            trackHistories.add(new Gson().fromJson(JSON.serialize(dbObjects.next()),TrackHistory.class));
-        }
-
-        final HistoryCursor historyCursor = new HistoryCursor();
-        historyCursor.setTrackHistory(trackHistories);
-        return historyCursor;
+        return new MongoDBHistoryCursor(dbObjects);
     }
 
     @Override
@@ -106,5 +97,11 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     public TrackStatisticsCursor trackStatistics(final Link trackLink, final int startFrom, final int count)
     {
         return null;
+    }
+
+    @Override
+    public int getHistoryCount(final HistoryCriteria... historyCriterias)
+    {
+        return 0;
     }
 }

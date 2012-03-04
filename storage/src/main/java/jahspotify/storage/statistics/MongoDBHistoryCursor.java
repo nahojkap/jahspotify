@@ -19,12 +19,39 @@ package jahspotify.storage.statistics;
  *        under the License.
  */
 
+import com.google.gson.Gson;
+import com.mongodb.DBCursor;
+import com.mongodb.util.JSON;
+
 /**
  * @author Johan Lindquist
  */
-public interface HistoryCursor
+public class MongoDBHistoryCursor implements HistoryCursor
 {
-    public abstract int getCount();
-    public abstract boolean hasNext();
-    public TrackHistory next();
+
+    private DBCursor _dbObjects;
+    private static Gson _gson = new Gson();
+    
+    MongoDBHistoryCursor(final DBCursor dbObjects)
+    {
+        _dbObjects = dbObjects;
+    }
+
+    @Override
+    public int getCount()
+    {
+        return _dbObjects.count();
+    }
+
+    @Override
+    public boolean hasNext()
+    {
+        return _dbObjects.hasNext();
+    }
+
+    @Override
+    public TrackHistory next()
+    {
+        return _gson.fromJson(JSON.serialize(_dbObjects.next()), TrackHistory.class);
+    }
 }
