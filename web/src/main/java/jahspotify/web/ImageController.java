@@ -19,12 +19,12 @@ public class ImageController extends BaseController
     private Log _log = LogFactory.getLog(ImageController.class);
     private String _cacheLocation = "/var/lib/jahspotify/web/cache/images/";
 
-    @RequestMapping(value = "/image/*", method = RequestMethod.GET)
-    public void retrieveImage(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/image/{link}", method = RequestMethod.GET)
+    public void retrieveImage(@PathVariable(value = "link") String link, final HttpServletResponse httpServletResponse)
     {
         try
         {
-            final Link uri = retrieveLink(httpServletRequest);
+            final Link uri = Link.create(link);
 
             if (uri == null)
             {
@@ -94,7 +94,6 @@ public class ImageController extends BaseController
     {
         final String substring = uri.asString().substring(uri.asString().lastIndexOf(":") + 1);
         File f = new File(_cacheLocation + substring);
-        byte[] bytes;
         if (f.exists())
         {
             _log.debug("Image found in cache: " + uri);

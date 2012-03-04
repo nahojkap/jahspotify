@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
+@RequestMapping(value = "/system", method = RequestMethod.GET)
 public class SystemController extends BaseController
 {
     @Autowired
@@ -41,12 +42,13 @@ public class SystemController extends BaseController
 
     private long _upSince = System.currentTimeMillis();
 
-    @RequestMapping(value = "/system/status", method = RequestMethod.GET)
-    public void status(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/status", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public SystemStatus status()
     {
         _log.debug("Request for the system status");
 
-        final jahspotify.services.QueueStatus queueStatus = _queueManager.getQueueStatus();
+        final jahspotify.services.QueueStatus queueStatus = _queueManager.getQueueStatus(QueueManager.DEFAULT_QUEUE_LINK);
 
         SystemStatus systemStatus = new SystemStatus();
         systemStatus.setQueueStatus(QueueWebHelper.convertToWebQueueStatus(queueStatus));
@@ -62,16 +64,16 @@ public class SystemController extends BaseController
 
         systemStatus.setNumberProcessors(Runtime.getRuntime().availableProcessors());
 
-        writeResponseGeneric(httpServletResponse, systemStatus);
+        return systemStatus;
 
     }
 
-    @RequestMapping(value = "/system/cache/info", method = RequestMethod.GET)
+    @RequestMapping(value = "/cache/info", method = RequestMethod.GET,produces = "application/json")
     public void listCaches(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
     }
 
-    @RequestMapping(value = "/system/cache/purge", method = RequestMethod.GET)
+    @RequestMapping(value = "/cache/purge", method = RequestMethod.GET,produces = "application/json")
     public void purgeCaches(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
     }

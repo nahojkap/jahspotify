@@ -30,18 +30,13 @@ public class AlbumController extends BaseController
         {
             final Link albumLink = Link.create(link);
             Album album = _jahSpotifyService.getJahSpotify().readAlbum(albumLink);
-
-            if (album != null)
-            {
-                return convertToWebAlbum(album);
-            }
-
+            return convertToWebAlbum(album);
         }
         catch (Exception e)
         {
             _log.error("Error while retrieving album: " + e.getMessage(), e);
+            throw new JahSpotifyWebException();
         }
-        return null;
     }
 
     private jahspotify.web.media.Album convertToWebAlbum(final Album album)

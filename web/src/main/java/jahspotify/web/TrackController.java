@@ -1,12 +1,10 @@
 package jahspotify.web;
 
-import java.util.*;
-import javax.servlet.http.*;
 
-import jahspotify.media.Artist;
+import java.util.*;
+
+import jahspotify.media.*;
 import jahspotify.services.JahSpotifyService;
-import jahspotify.web.media.*;
-import jahspotify.web.media.Track;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
+@RequestMapping(value = "/track")
 public class TrackController extends BaseController
 {
     private Log _log = LogFactory.getLog(PlaylistController.class);
@@ -27,50 +26,41 @@ public class TrackController extends BaseController
     @Value(value = "${jahspotify.web.controller.track-expires-duration}")
     private int _trackExpirationTime;
 
-    @RequestMapping(value = "/track/*", method = RequestMethod.GET)
-    public void retrieveTrack(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/{link}", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public jahspotify.web.media.Media retrieveTrack(@PathVariable String link, @RequestParam(value="full", required = false) boolean shipFullTrack)
     {
         try
         {
-            boolean shipFullTrack = Boolean.parseBoolean(httpServletRequest.getParameter("full"));
-            final jahspotify.media.Link uri = retrieveLink(httpServletRequest);
+            final jahspotify.media.Link uri = Link.create(link);
             final jahspotify.media.Track track = _jahSpotifyService.getJahSpotify().readTrack(uri);
-
-            if (track == null)
-            {
-                super.writeMediaNotReadable(httpServletResponse);
-                return;
-            }
 
             if (shipFullTrack)
             {
-                FullTrack fullWebTrack = createFullTrack(track);
-                writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, fullWebTrack);
+                return createFullTrack(track);
             }
             else
             {
-                jahspotify.web.media.Track webTrack = convertToWebTrack(track);
-                writeResponseGenericWithDate(httpServletResponse, track.getLastModified(), _trackExpirationTime, webTrack);
+                return convertToWebTrack(track);
             }
         }
         catch (Exception e)
         {
             _log.error("Error while retrieving track: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
-
+            throw new JahSpotifyWebException();
         }
     }
 
-    private FullTrack createFullTrack(final jahspotify.media.Track track)
+    private jahspotify.web.media.FullTrack createFullTrack(final jahspotify.media.Track track)
     {
-        FullTrack fullTrack = new FullTrack();
+        jahspotify.web.media.FullTrack fullTrack = new jahspotify.web.media.FullTrack();
         fullTrack.setId(toWebLink(track.getId()));
         fullTrack.setTitle(track.getTitle());
         fullTrack.setLength(track.getLength());
         fullTrack.setTrackNumber(track.getTrackNumber());
         fullTrack.setExplicit(track.isExplicit());
 
-        final List<jahspotify.media.Link> artists = track.getArtists();
+        final List<Link> artists = track.getArtists();
         final List<jahspotify.web.media.Link> webArtistLinks = new ArrayList<jahspotify.web.media.Link>();
 
         final List<String> webArtistNames = new ArrayList<String>();
@@ -111,7 +101,7 @@ public class TrackController extends BaseController
         return fullTrack;
     }
 
-    private Track convertToWebTrack(final jahspotify.media.Track track)
+    private jahspotify.web.media.Track convertToWebTrack(final jahspotify.media.Track track)
     {
         jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
 
@@ -120,7 +110,7 @@ public class TrackController extends BaseController
         webTrack.setId(toWebLink(track.getId()));
         // webTrack.setRestrictions(toWebRestrictions(track.getRestrictions()));
 
-        BeanUtils.copyProperties(track, webTrack,new String[] { "id", "restrictions", "album", "artists" });
+        BeanUtils.copyProperties(track, webTrack, new String[]{"id", "restrictions", "album", "artists"});
 
         return webTrack;
 

@@ -390,7 +390,7 @@ public class QueueManager
         return count;
     }
 
-    public QueueStatus getQueueStatus()
+    public QueueStatus getQueueStatus(Link queue)
     {
         final QueueStatus queueStatus = new QueueStatus();
         queueStatus.setMediaPlayerState(_mediaPlayer.getMediaPlayerState());
