@@ -951,18 +951,18 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
       
       int count = 0;
       
-      while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 5)
+      while (!sp_albumbrowse_is_loaded(albumBrowse) && count < 20)
       {
 
-          log_trace("jahspotify","createJAlbumInstance","Waiting for album browse load to complete");
-	sleep(1);
-	count++;
+            log_trace("jahspotify","createJAlbumInstance","Waiting for album browse load to complete");
+            usleep(250);
+            count++;
       }
       
-      if (count == 5)
+      if (count == 20)
       {
-	sp_albumbrowse_release(albumBrowse);
-	return NULL;
+            sp_albumbrowse_release(albumBrowse);
+            return NULL;
       }
   
   
@@ -1118,9 +1118,16 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
         {
             sp_artistbrowse_add_ref(artistBrowse);
 
-            while (!sp_artistbrowse_is_loaded(artistBrowse))
+            int count = 0;
+            while (!sp_artistbrowse_is_loaded(artistBrowse) && count < 20)
             {
-                usleep(100);
+                usleep(250);
+                count++;
+            }
+            
+            if (count == 20)
+            {
+                return NULL;
             }
 
             int numSimilarArtists = sp_artistbrowse_num_similar_artists(artistBrowse);
@@ -1420,10 +1427,17 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 
     sp_track *track = sp_link_as_track(link);
         
-    while (!sp_track_is_loaded(track))
+    int count = 0;
+    while (!sp_track_is_loaded(track) && count < 20)
     {
         log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Waiting for track to be loaded ..." );
-        sleep(1);
+        usleep(250);
+        count ++;
+    }
+    
+    if (count == 20)
+    {
+        return NULL;
     }
 
     trackInstance = createJTrackInstance(env, track);
@@ -1457,10 +1471,17 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
 
     sp_playlist *playlist = sp_playlist_create(g_sess,link);
 
-    while (!sp_playlist_is_loaded(playlist))
+    int count = 0;
+    while (!sp_playlist_is_loaded(playlist) && count < 20)
     {
         log_debug("jahspotify","retrievePlaylist","Waiting for playlist to be loaded ..." );
-        sleep(1);
+        usleep(250);
+        count ++;
+    }
+    
+    if (count == 20)
+    {
+        return JNI_FALSE;
     }
 
     playlistInstance = createJPlaylist(env, playlist);
