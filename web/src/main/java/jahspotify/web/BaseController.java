@@ -10,6 +10,7 @@ import jahspotify.media.Link;
 import jahspotify.services.JahSpotifyService;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  * @author Johan Lindquist
@@ -61,7 +62,7 @@ public class BaseController
         }
         catch (Exception e)
         {
-            _log.error("Error while writing response: " + e.getMessage(),e);
+            _log.error("Error while writing response: " + e.getMessage(), e);
         }
     }
 
@@ -74,13 +75,13 @@ public class BaseController
 
     protected void writeResponseGeneric(final HttpServletResponse httpServletResponse, final Object object)
     {
-        this.writeResponseGenericWithDate(httpServletResponse,null,object);
+        this.writeResponseGenericWithDate(httpServletResponse, null, object);
     }
 
 
     protected void writeResponseGenericWithDate(final HttpServletResponse httpServletResponse, final Date lastModified, final Object object)
     {
-        writeResponseGenericWithDate(httpServletResponse,lastModified, _defaultMediaExpirationTime,object);
+        writeResponseGenericWithDate(httpServletResponse, lastModified, _defaultMediaExpirationTime, object);
 
     }
 
@@ -97,13 +98,13 @@ public class BaseController
             }
             _log.debug("Serializing: " + object);
             final PrintWriter writer = httpServletResponse.getWriter();
-            gson.toJson(object,writer);
+            gson.toJson(object, writer);
             writer.flush();
             writer.close();
         }
         catch (Exception e)
         {
-            _log.error("Error while writing response: " + e.getMessage(),e);
+            _log.error("Error while writing response: " + e.getMessage(), e);
         }
     }
 
@@ -132,7 +133,7 @@ public class BaseController
     {
         final BufferedReader br = new BufferedReader(httpServletRequest.getReader());
         Gson gson = new Gson();
-        return gson.fromJson(br,classOfT);
+        return gson.fromJson(br, classOfT);
     }
 
     public void writeErrorResponse(final HttpServletResponse httpServletResponse, final Exception e)
@@ -141,4 +142,12 @@ public class BaseController
         simpleStatusResponse.setResponseStatus(ResponseStatus.INTERNAL_ERROR);
         writeResponse(httpServletResponse, simpleStatusResponse);
     }
+
+
+    @ExceptionHandler(JahSpotifyWebException.class)
+    public void handleJahSpotifyWebException(JahSpotifyWebException ex, HttpServletRequest request, HttpServletResponse response)
+    {
+        writeErrorResponse(response, ex);
+    }
+
 }

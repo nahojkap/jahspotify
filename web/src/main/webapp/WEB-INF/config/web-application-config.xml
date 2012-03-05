@@ -17,6 +17,16 @@
 
     <import resource="spring-servlet.xml"/>
 
-    <context:property-placeholder system-properties-mode="OVERRIDE" ignore-resource-not-found="true" location="classpath:jahspotify.properties, classpath:jahspotify-override.properties"/>
+    <context:property-placeholder system-properties-mode="OVERRIDE" ignore-resource-not-found="true"
+                                  location="classpath:jahspotify.properties, classpath:jahspotify-override.properties"/>
+
+    <bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="jacksonMessageConverter"/>
+            </list>
+        </property>
+    </bean>
 
 </beans>

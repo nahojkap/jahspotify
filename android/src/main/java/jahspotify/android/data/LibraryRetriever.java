@@ -6,11 +6,6 @@ import java.util.*;
 import android.util.Log;
 import jahspotify.client.JahSpotifyClient;
 import jahspotify.web.media.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.*;
 
 /**
  * @author Johan Lindquist
@@ -22,6 +17,11 @@ public class LibraryRetriever
     private static JahSpotifyClient jahSpotifyClient;
     private static final String TAG = "LibraryRetriever";
 
+    private static Map<Link,FullTrack> _fullTrackCache = new HashMap<Link, FullTrack>();
+    private static Map<Link,Playlist> _playlistCache = new HashMap<Link, Playlist>();
+    private static Map<String,Library.Entry> _folderCache = new HashMap<String, Library.Entry>();
+    private static final Link ROOT_FOLDER = new Link("jahspotify:folder:ROOT", Link.Type.FOLDER);
+
     public static void initialize(String host, int port)
     {
         baseURL = "http://" + host + ":" + port + "/jahspotify/";
@@ -30,28 +30,49 @@ public class LibraryRetriever
 
     public static Library.Entry getRoot(int levels) throws IOException
     {
-        return getEntry(new Link("jahspotify:folder:ROOT", Link.Type.FOLDER), levels);
+        return getEntry(ROOT_FOLDER, levels);
+    }
+
+    private static String makeCacheName(final Link link, final int levels)
+    {
+        return "" + link + "" + levels;
     }
 
     public static InputStream getImage(final Link link) throws Exception
     {
-        try
+        InputStream inputStream = ImageCache.readImage(link);
+        if (inputStream == null)
         {
-            Log.d("LibraryRetriever","Retrieving image: " + link);
-            final Image image = jahSpotifyClient.readImage(link.getId(), true);
-            return image.getInputStream();
+            try
+            {
+                Log.d("LibraryRetriever", "Retrieving image: " + link);
+                final Image image = jahSpotifyClient.readImage(link.getId(), false);
+                ImageCache.storeImage(link,image.getBytes());
+                inputStream = new ByteArrayInputStream(image.getBytes());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                Log.d(TAG, "Error retrieving image for link: " + link, e);
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            Log.d(TAG,"Error retrieving image for link: " + link,e);
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return inputStream;
     }
 
     public static Library.Entry getEntry(final Link link, int levels) throws IOException
     {
-        return jahSpotifyClient.readFolder(link.getId(),levels);
+        final String cacheName = makeCacheName(link,levels);
+        Library.Entry entry = _folderCache.get(cacheName);
+        if (entry == null)
+        {
+            entry = jahSpotifyClient.readFolder(link.getId(),levels);
+            if (entry != null)
+            {
+                _folderCache.put(cacheName, entry);
+            }
+        }
+        return entry;
     }
 
     public static Track getTrack(final Link trackLink) throws IOException
@@ -61,7 +82,16 @@ public class LibraryRetriever
 
     public static Playlist getPlaylist(final Link link) throws IOException
     {
-        return jahSpotifyClient.readPlaylist(link.getId());
+        Playlist playlist = _playlistCache.get(link);
+        if (playlist == null)
+        {
+            playlist = jahSpotifyClient.readPlaylist(link.getId());
+            if (playlist != null)
+            {
+                _playlistCache.put(link,playlist);
+            }
+        }
+        return playlist;
     }
 
     public static void queue(final Link uri) throws IOException
@@ -76,6 +106,15 @@ public class LibraryRetriever
 
     public static FullTrack getFullTrack(final Link trackLink) throws IOException
     {
-        return jahSpotifyClient.readFullTrack(trackLink.getId());
+        FullTrack fullTrack = _fullTrackCache.get(trackLink);
+        if (fullTrack == null)
+        {
+            fullTrack = jahSpotifyClient.readFullTrack(trackLink.getId());
+            if (fullTrack.isComplete())
+            {
+                _fullTrackCache.put(trackLink,fullTrack);
+            }
+        }
+        return fullTrack;
     }
 }

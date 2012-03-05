@@ -19,9 +19,16 @@ package jahspotify.web;
  *        under the License.
  */
 
+import java.io.*;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
-import jahspotify.storage.statistics.HistoricalStorage;
+import com.google.gson.Gson;
+import jahspotify.storage.statistics.*;
+import jahspotify.storage.statistics.TrackHistory;
+import jahspotify.web.media.*;
+import org.codehaus.jackson.map.util.BeanUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -33,22 +40,73 @@ import org.springframework.web.bind.annotation.*;
 public class HistoryController extends BaseController
 {
     @Autowired
-    @Qualifier(value ="mongodb")
+    @Qualifier(value = "mongodb")
     private HistoricalStorage _historicalStorage;
 
-    @Value(value="${jahspotify.history.default-count}")
-    private int _defaultCount = 100;
-
-    @RequestMapping(value = "/history", method = RequestMethod.GET)
-    public void getHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/history/count", method = RequestMethod.GET,produces = "application/json")
+    public void getHistoryCount(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        int index = Integer.parseInt(httpServletRequest.getParameter("index") == null ? "0" : httpServletRequest.getParameter("index"));
-        int count = Integer.parseInt(httpServletRequest.getParameter("index") == null ? Integer.toString(_defaultCount) : httpServletRequest.getParameter("count"));
-        writeResponseGeneric(httpServletResponse,_historicalStorage.getHistory(index,count,null));
+        final int count = _historicalStorage.getHistoryCount(null);
     }
 
-    @RequestMapping(value = "/history/", method = RequestMethod.GET)
-    public void getHistoryRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/history", method = RequestMethod.GET)
+    public void getHistory(final HttpServletResponse httpServletResponse, @RequestParam(value = "index", defaultValue = "0") int index, @RequestParam(value = "count",defaultValue = "${jahspotify.history.default-count}")int count)
+    {
+        final HistoryCursor history = _historicalStorage.getHistory(index, count, null);
+        httpServletResponse.setContentType("application/json");
+        serializeHistoryCursor(history, httpServletResponse);
+    }
+
+    public void serializeHistoryCursor(HistoryCursor historyCursor, HttpServletResponse httpServletResponse)
+    {
+        try
+        {
+            final ServletOutputStream httpOutputStream = httpServletResponse.getOutputStream();
+            final BufferedWriter outputStream = new BufferedWriter(new OutputStreamWriter(httpOutputStream));
+            outputStream.write("{");
+            outputStream.write("\"count\":");
+            outputStream.write("" + historyCursor.getCount());
+
+            if (historyCursor.getCount() > 0)
+            {
+                Gson gson = new Gson();
+
+                outputStream.write(",");
+                outputStream.write("\"tracks\":[");
+                while (historyCursor.hasNext())
+                {
+                    outputStream.write(gson.toJson(toWebTrack(historyCursor.next())));
+                    if (historyCursor.hasNext())
+                    {
+                        outputStream.write(",");
+                    }
+                    outputStream.flush();
+                }
+                outputStream.write("]");
+            }
+            outputStream.write("}");
+            outputStream.flush();
+            outputStream.close();
+            httpOutputStream.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private jahspotify.web.media.TrackHistory toWebTrack(final TrackHistory next)
+    {
+        jahspotify.web.media.TrackHistory trackHistory = new jahspotify.web.media.TrackHistory();
+        trackHistory.setTrackLink(toWebLink(next.getTrackLink()));
+        trackHistory.setQueue(toWebLink(next.getQueue()));
+        BeanUtils.copyProperties(next,trackHistory,new String[] { "trackLink", "queue"});
+        return trackHistory;
+    }
+
+
+    @RequestMapping(value = "/history", method = RequestMethod.POST, produces = "application/json", headers="Accept=application/json")
+    public void postHistory(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
     }
 

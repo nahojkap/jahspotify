@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Johan Lindquist
  */
 @Controller
+@RequestMapping(value = "/queue")
 public class QueueController extends BaseController
 {
     @Autowired
@@ -25,30 +26,26 @@ public class QueueController extends BaseController
 
     private Log _log = LogFactory.getLog(QueueController.class);
 
-    @RequestMapping(value = "/queue/", method = RequestMethod.POST)
-    public void addEntry(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value="/{link}/add", method = RequestMethod.POST, headers = "Accept: application/json")
+    @ResponseBody
+    public SimpleStatusResponse addEntry(@PathVariable String link, @RequestBody QueueTracksRequest queueTracksRequest)
     {
-        // FIXME: Verify content type application/json ??
-
         try
         {
-            final QueueTracksRequest queueTracksRequest = readRequest(httpServletRequest, QueueTracksRequest.class);
-
+            Link qLink = Link.create(link);
             final List<Link> uriQueue = convertToLinkList(queueTracksRequest.getURIQueue());
-            _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,uriQueue);
+            _queueManager.addToQueue(qLink,uriQueue);
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
             simpleStatusResponse.setDetail("TRACKS_ADDED");
 
-            writeResponse(httpServletResponse, simpleStatusResponse);
-
-
+            return simpleStatusResponse;
         }
         catch (Exception e)
         {
             _log.error("Error while adding to queue: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
+            throw new JahSpotifyWebException();
         }
     }
 
@@ -62,30 +59,33 @@ public class QueueController extends BaseController
         return linkList;
     }
 
-    @RequestMapping(value = "/add-to-queue/*", method = RequestMethod.GET)
-    public void addEntryViaGet(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/{link}/add/{trackLink}", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public SimpleStatusResponse addEntryViaGet(@PathVariable String link, @PathVariable String trackLink)
     {
         try
         {
-            Link uri = retrieveLink(httpServletRequest);
-            _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,uri);
+            Link qLink = Link.create(link);
+            Link tLink = Link.create(trackLink);
+            _queueManager.addToQueue(qLink, tLink);
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
             simpleStatusResponse.setDetail("TRACKS_ADDED");
 
-            writeResponse(httpServletResponse, simpleStatusResponse);
+            return simpleStatusResponse;
         }
         catch (Exception e)
         {
             _log.error("Error while adding to queue: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
+            throw new JahSpotifyWebException();
         }
 
     }
 
-    @RequestMapping(value = "/queue/*", method = RequestMethod.DELETE)
-    public void deleteEntry(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value="/{link}/remove/{trackLink}",method = RequestMethod.DELETE,produces = "application/json")
+    @ResponseBody
+    public SimpleStatusResponse deleteEntry(@PathVariable String link,@PathVariable String trackLink)
     {
         // Either:
         // - track (or in fact, all occurences of that track in the queue)
@@ -93,25 +93,75 @@ public class QueueController extends BaseController
 
         try
         {
-            Link uri = retrieveLink(httpServletRequest);
-            _queueManager.deleteQueuedTrack(QueueManager.DEFAULT_QUEUE_LINK, uri);
+            Link qLink = Link.create(link);
+            Link tLink = Link.create(trackLink);
+            _queueManager.deleteQueuedTrack(qLink, tLink);
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
             simpleStatusResponse.setDetail("QUEUED_TRACK_DELETED");
+            return simpleStatusResponse;
         }
         catch (Exception e)
         {
-            _log.error("Error while retrieving queue: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
+            _log.error("Error while deleting track from queue: " + e.getMessage(), e);
+            throw new JahSpotifyWebException();
         }
     }
 
-    @RequestMapping(value = "/queue/shuffle/*", method = RequestMethod.GET)
-    public void shuffle(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value="/{link}",method = RequestMethod.GET,produces = "application/json")
+    public void getQueue(@PathVariable String link, @RequestParam(defaultValue = "0", required = false) int count, final HttpServletResponse httpServletResponse)
+    {
+        _log.debug("Request for the queue");
+        final Queue queue = _queueManager.getCurrentQueue(count);
+        writeCurrentQueue(httpServletResponse, queue);
+    }
+
+    private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final Queue queue)
+    {
+        final CurrentQueue currentQueue = QueueWebHelper.convertToWebQueue(queue, _queueManager.getQueueStatus(queue.getId()));
+        writeResponseGeneric(httpServletResponse, currentQueue);
+    }
+
+    @RequestMapping(value = "/{link}/configuration", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public jahspotify.web.queue.QueueConfiguration readQueueConfigurationDefaultURI(@PathVariable String link)
+    {
+        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create(link));
+        return QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration);
+    }
+
+    @RequestMapping(value = "/{link}/configuration", method = RequestMethod.POST, headers = "Accept: application/json")
+    @ResponseBody
+    public jahspotify.web.queue.QueueConfiguration updateQueueConfigurationDefaultURI(@PathVariable String link, @RequestBody jahspotify.web.queue.QueueConfiguration webQueueConfiguration)
     {
         try
         {
-            Link uri = retrieveLink(httpServletRequest);
+            final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(Link.create(link));
+            _queueManager.setQueueConfiguration(Link.create("jahspotify:queue:default"), QueueWebHelper.mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
+            final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+            return QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration);
+        }
+        catch (Exception e)
+        {
+            _log.error("Error while configuring queue: " + e.getMessage(), e);
+            throw new JahSpotifyWebException();
+        }
+    }
+
+    @RequestMapping(value = "/{link}/status", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public jahspotify.web.queue.QueueStatus readQueueStatus(@PathVariable String link)
+    {
+        final QueueStatus queueStatus = _queueManager.getQueueStatus(Link.create(link));
+        return QueueWebHelper.convertToWebQueueStatus(queueStatus);
+    }
+
+    @RequestMapping(value = "/{link}/shuffle", method = RequestMethod.GET,produces = "application/json")
+    public void shuffleQueue(@PathVariable String link, final HttpServletResponse httpServletResponse)
+    {
+        try
+        {
+            Link uri = Link.create(link);
             Queue queue = _queueManager.shuffle(uri);
             writeCurrentQueue(httpServletResponse, queue);
         }
@@ -122,78 +172,24 @@ public class QueueController extends BaseController
         }
     }
 
-
-    @RequestMapping(value = "/queue/", method = RequestMethod.GET)
-    public void getQueueRoot(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        getQueue(httpServletRequest, httpServletResponse);
-    }
-
-    @RequestMapping(value = "/queue", method = RequestMethod.GET)
-    public void getQueue(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        _log.debug("Request for the queue");
-        int count = 0;
-        final String countStr = httpServletRequest.getParameter("count");
-        if (countStr != null)
-        {
-            try
-            {
-                count = Integer.parseInt(countStr);
-            }
-            catch (NumberFormatException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        final Queue queue = _queueManager.getCurrentQueue(count);
-        writeCurrentQueue(httpServletResponse, queue);
-    }
-
-    private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final Queue queue)
-    {
-        final CurrentQueue currentQueue = QueueWebHelper.convertToWebQueue(queue, _queueManager.getQueueStatus());
-        writeResponseGeneric(httpServletResponse, currentQueue);
-    }
-
-    @RequestMapping(value = "/queue/configuration", method = RequestMethod.GET)
-    public void readQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
-        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
-    }
-
-    @RequestMapping(value = "/queue/configuration/*", method = RequestMethod.GET)
-    public void readQueueConfiguration(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        Link uri = retrieveLink(httpServletRequest);
-        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(uri);
-        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
-    }
-
-    @RequestMapping(value = "/queue/configuration", method = RequestMethod.POST)
-    public void updateQueueConfigurationDefaultURI(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+    @RequestMapping(value = "/{link}/clear", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public SimpleStatusResponse clearQueue(@PathVariable String link, final HttpServletResponse httpServletResponse)
     {
         try
         {
-            final jahspotify.web.queue.QueueConfiguration webQueueConfiguration = readRequest(httpServletRequest, jahspotify.web.queue.QueueConfiguration.class);
-            final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
-            _queueManager.setQueueConfiguration(Link.create("jahspotify:queue:default"), QueueWebHelper.mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
-            final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
-            writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration));
+            Link uri = Link.create(link);
+            int count = _queueManager.clearQueue(uri);
+            SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
+            simpleStatusResponse.setResponseStatus(ResponseStatus.OK);
+            simpleStatusResponse.setDetail("QUEUE_CLEARED");
+
+            return simpleStatusResponse;
         }
         catch (Exception e)
         {
-            _log.error("Error while configuring queue: " + e.getMessage(), e);
-            super.writeErrorResponse(httpServletResponse, e);
+            _log.error("Error clearing queue: " + e.getMessage(), e);
+            throw new JahSpotifyWebException();
         }
     }
-
-    @RequestMapping(value = "/queue/status", method = RequestMethod.GET)
-    public void readQueueStatus(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
-    {
-        final QueueStatus queueStatus = _queueManager.getQueueStatus();
-        writeResponseGeneric(httpServletResponse, QueueWebHelper.convertToWebQueueStatus(queueStatus));
-    }
-
 }

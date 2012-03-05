@@ -4,7 +4,7 @@ Jah'Spotify Project
 
 ---- Introduction -----
 
-Jah'Spotify is a simple Java wrapper built on top of the Spotify native APIs (libspotify)
+Jah'Spotify is a Java wrapper built on top of the Spotify native APIs (libspotify)
 
 Currently supports:
 
@@ -21,7 +21,8 @@ Currently supports:
 - basic historical track list view
 - very basic android app for remote control
 
-All the above functions are accessible over a JSON based RESTful API.
+In addition, all the above functions are accessible over a JSON based RESTful API (provided by the services and web
+modules).
 
 ---- To build -----
 
@@ -36,9 +37,6 @@ Next, to build the sources, check them out from git
 git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
 mvn clean install
-
-NOTE: You will have to manually download and install the jEN java APIs from http://jen-api.googlecode.com/ to build the code
-NOTE: You may need to add the SpringSource Enterprise Bundle Repository to your maven configuration (in your settings XML): http://ebr.springsource.com/repository/app/faq#q8
 
 ---- Modules -----
 

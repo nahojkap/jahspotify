@@ -30,6 +30,7 @@ public class FullTrack extends Media
     
     private List<String> artistNames;
     private List<Link> artistLinks;
+    private boolean complete = true;
     
     private String albumName;
     private Link albumLink;
@@ -139,5 +140,15 @@ public class FullTrack extends Media
     public void setTitle(final String title)
     {
         this.title = title;
+    }
+
+    public boolean isComplete()
+    {
+        return complete;
+    }
+
+    public void setComplete(final boolean complete)
+    {
+        this.complete = complete;
     }
 }

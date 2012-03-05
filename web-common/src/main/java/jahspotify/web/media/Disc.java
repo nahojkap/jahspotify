@@ -68,6 +68,10 @@ public class Disc
      */
     public List<Link> getTracks()
     {
+        if (tracks == null)
+        {
+            tracks = new ArrayList<Link>();
+        }
         return this.tracks;
     }
 

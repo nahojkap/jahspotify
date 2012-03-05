@@ -18,9 +18,9 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
 
     private List<TrackHistory> _trackHistory = new ArrayList<TrackHistory>();
     @Override
-    public List<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    public HistoryCursor getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
-        return _trackHistory;
+        return new InMemoryHistoryCursor(_trackHistory);
     }
 
     public void addHistory(final TrackHistory trackHistory)
@@ -33,8 +33,14 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
     {
         return null;
     }
-    public List<TrackStatistics> trackStatistics(final Link trackLink, int startFrom, int count)
+    public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count)
     {
         return null;
+    }
+
+    @Override
+    public int getHistoryCount(final HistoryCriteria... historyCriterias)
+    {
+        return 0;
     }
 }

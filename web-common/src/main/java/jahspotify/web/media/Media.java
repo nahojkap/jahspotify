@@ -107,9 +107,9 @@ public class Media
     /**
      * Get the media popularity.
      *
-     * @return A decimal value between 0.0 and 1.0 or {@String Float#NaN} if not available.
+     * @return A decimal value between 0 and 100
      */
-    public float getPopularity()
+    public Integer getPopularity()
     {
         return this.popularity;
     }
@@ -117,17 +117,11 @@ public class Media
     /**
      * Set the media popularity.
      *
-     * @param popularity A decimal value between 0.0 and 1.0 or {@String Float#NaN}.
+     * @param popularity A value between 0 and 100
      * @throws IllegalArgumentException If the given popularity value is invalid.
      */
-    public void setPopularity(int popularity)
+    public void setPopularity(Integer popularity)
     {
-        /* Check if popularity value is valid. */
-        if (popularity != -1 && (popularity < 0 || popularity > 100))
-        {
-            throw new IllegalArgumentException("Expecting a value from 0 to 100 or -1");
-        }
-
         this.popularity = popularity;
     }
 

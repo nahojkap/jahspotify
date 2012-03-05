@@ -57,6 +57,13 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.5</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>rome</groupId>
             <artifactId>rome</artifactId>
             <version>0.9</version>
@@ -138,6 +145,17 @@
             <groupId>com.googlecode.jen-api</groupId>
             <artifactId>jen-api</artifactId>
             <version>4.x.p</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.6</version>
         </dependency>
 
     </dependencies>
