@@ -26,6 +26,14 @@ public class QueueController extends BaseController
 
     private Log _log = LogFactory.getLog(QueueController.class);
 
+    @RequestMapping(method = RequestMethod.GET, headers = "Accept: application/json")
+    @ResponseBody
+    public List<jahspotify.web.media.Link> listQueues()
+    {
+        final List<Link> links = _queueManager.retrieveQueues();
+        return toWebLinks(links);
+    }
+
     @RequestMapping(value="/{link}/add", method = RequestMethod.POST, headers = "Accept: application/json")
     @ResponseBody
     public SimpleStatusResponse addEntry(@PathVariable String link, @RequestBody QueueTracksRequest queueTracksRequest)

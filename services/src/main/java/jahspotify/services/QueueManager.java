@@ -32,8 +32,10 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-/** Manages all the queues within Jah'Spotify.  It allows for multiple queues to be maintained - only one is considered
+/**
+ * Manages all the queues within Jah'Spotify.  It allows for multiple queues to be maintained - only one is considered
  * the current queue however.
+ *
  * @author Johan Lindquist
  */
 @Service
@@ -145,7 +147,7 @@ public class QueueManager
                 final QueueTrack peek = _currentQueue.getQueuedTracks().peek();
                 if (peek != null)
                 {
-                    return new QueueNextTrack(peek.getId(),peek.getTrackUri(),1000, peek.getQueue(),peek.getSource());
+                    return new QueueNextTrack(peek.getId(), peek.getTrackUri(), 1000, peek.getQueue(), peek.getSource());
                 }
                 return null;
             }
@@ -175,7 +177,8 @@ public class QueueManager
 
     }
 
-    /** Adds the specified links (playlists, folders, track, etc) to the specified queue.  If the queue does not yet
+    /**
+     * Adds the specified links (playlists, folders, track, etc) to the specified queue.  If the queue does not yet
      * exists, it will be created.
      *
      * @param queue
@@ -252,7 +255,6 @@ public class QueueManager
     }
 
     /**
-     *
      * @param queue
      * @param uris
      * @return
@@ -269,11 +271,10 @@ public class QueueManager
 
     public void deleteQueue(final Link queue)
     {
-
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
-     *
      * @param queue
      * @return
      */
@@ -298,7 +299,7 @@ public class QueueManager
                 final Track track = _jahSpotifyService.getJahSpotify().readTrack(trackURI);
                 if (track != null)
                 {
-                    QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI, QueueManager.DEFAULT_QUEUE_LINK,"JahSpotify");
+                    QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI, QueueManager.DEFAULT_QUEUE_LINK, "JahSpotify");
                     queuedTrack.setLength(track.getLength());
                     queuedTracks.add(queuedTrack);
                     _currentQueue.getQueuedTracks().add(queuedTrack);
@@ -366,7 +367,7 @@ public class QueueManager
         }
         else if (uri.isQueueLink())
         {
-           for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
+            for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
             {
                 // Extract the ID from the URI
                 String queueId = uri.getQueueId();
@@ -392,13 +393,18 @@ public class QueueManager
 
     public QueueStatus getQueueStatus(Link queue)
     {
+        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        {
+            throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
+        }
+
         final QueueStatus queueStatus = new QueueStatus();
         queueStatus.setMediaPlayerState(_mediaPlayer.getMediaPlayerState());
         final QueueStatistics queueStatistics = _currentQueue.getQueueStatistics();
         queueStatus.setTotalTracksPlayed(queueStatistics.getNumTracksPlayed());
         queueStatus.setTotalTracksCompleted(queueStatistics.getNumTracksCompleted());
         queueStatus.setTotalTracksSkipped(queueStatistics.getNumTracksSkipped());
-        queueStatus.setTotalPlaytime(queueStatistics.getTotalPlayTime() + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - queueStatistics.getCurrentTrackStart() ) / 1000 : 0));
+        queueStatus.setTotalPlaytime(queueStatistics.getTotalPlayTime() + (_mediaPlayer.getMediaPlayerState() == MediaPlayerState.PLAYING ? (System.currentTimeMillis() - queueStatistics.getCurrentTrackStart()) / 1000 : 0));
         queueStatus.setCurrentQueueSize(_currentQueue.getQueuedTracks().size());
         queueStatus.setMaxQueueSize(queueStatistics.getMaxQueueSize());
 
@@ -454,11 +460,6 @@ public class QueueManager
         }
     }
 
-    /*public List<QueueTrack> getQueue(QueueCriteria queueCriteria)
-    {
-
-    }*/
-
     public jahspotify.services.Queue shuffle(final Link uri)
     {
         _queueLock.lock();
@@ -481,7 +482,8 @@ public class QueueManager
         _queueListeners.add(queueListener);
     }
 
-    /** Retrieves the next track in queue.  This will return null if no tracks are queued
+    /**
+     * Retrieves the next track in queue.  This will return null if no tracks are queued
      *
      * @return
      */
