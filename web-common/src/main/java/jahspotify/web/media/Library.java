@@ -59,7 +59,7 @@ public class Library
         private String name;
         private String type;
         private List<Entry> subEntries;
-        private Integer numSubEntries;
+        private int numSubEntries;
 
         public static final String FOLDER_ENTRY_TYPE="folder";
         public static final String PLAYLIST_ENTRY_TYPE="playlist";
@@ -151,10 +151,7 @@ public class Library
 
         public void setNumSubEntries(final int numSubEntries)
         {
-            if (numSubEntries != 0)
-            {
-                this.numSubEntries = numSubEntries;
-            }
+            this.numSubEntries = numSubEntries;
         }
 
         public int getNumSubEntries()
