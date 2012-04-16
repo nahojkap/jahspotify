@@ -34,7 +34,7 @@ public class QueueController extends BaseController
         return toWebLinks(links);
     }
 
-    @RequestMapping(value="/{link}/add", method = RequestMethod.POST, headers = "Accept: application/json")
+    @RequestMapping(value="/{link}/add", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public SimpleStatusResponse addEntry(@PathVariable String link, @RequestBody QueueTracksRequest queueTracksRequest)
     {
@@ -138,7 +138,7 @@ public class QueueController extends BaseController
         return QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration);
     }
 
-    @RequestMapping(value = "/{link}/configuration", method = RequestMethod.POST, headers = "Accept: application/json")
+    @RequestMapping(value = "/{link}/configuration", method = RequestMethod.POST)
     @ResponseBody
     public jahspotify.web.queue.QueueConfiguration updateQueueConfigurationDefaultURI(@PathVariable String link, @RequestBody jahspotify.web.queue.QueueConfiguration webQueueConfiguration)
     {

@@ -3,6 +3,7 @@ package jahspotify.web;
 import java.util.*;
 import javax.servlet.http.*;
 
+import com.google.gson.Gson;
 import jahspotify.media.Library;
 import jahspotify.media.Link;
 import jahspotify.media.Playlist;
@@ -23,7 +24,7 @@ public class PlaylistController extends BaseController
     @Autowired
     JahSpotifyService _jahSpotifyService;
 
-    @RequestMapping(value = "/playlist/{link}", method = RequestMethod.GET)
+    @RequestMapping(value = "/playlist/{link}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public jahspotify.web.media.Playlist retrievePlaylist(@PathVariable String link, @RequestParam(defaultValue = "0") int entries, @RequestParam(defaultValue = "0") int index, final HttpServletResponse httpServletResponse)
     {
@@ -55,7 +56,7 @@ public class PlaylistController extends BaseController
         return webPlaylist;
     }
 
-    @RequestMapping(value = "/folder/{link}", method = RequestMethod.GET)
+    @RequestMapping(value = "/folder/{link}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public jahspotify.web.media.Library.Entry retrieveFolder(@PathVariable String link, @RequestParam(defaultValue = "0") int levels)
     {
@@ -63,7 +64,8 @@ public class PlaylistController extends BaseController
         {
             final Link uri = Link.create(link);
             Library.Entry entry = _jahSpotifyService.getJahSpotify().readFolder(uri, levels);
-            return convertToWebEntry(entry);
+            final jahspotify.web.media.Library.Entry entry1 = convertToWebEntry(entry);
+            return entry1;
         }
         catch (Exception e)
         {
@@ -84,7 +86,7 @@ public class PlaylistController extends BaseController
         return webFolderEntry;
     }
 
-    @RequestMapping(value = "/library/", method = RequestMethod.GET)
+    @RequestMapping(value = "/library/", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public jahspotify.web.media.Library retrieveLibrary()
     {

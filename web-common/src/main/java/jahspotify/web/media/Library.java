@@ -2,6 +2,8 @@ package jahspotify.web.media;
 
 import java.util.*;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 
 public class Library
 {
@@ -50,6 +52,7 @@ public class Library
                 '}';
     }
 
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public static class Entry
     {
         private Link id;

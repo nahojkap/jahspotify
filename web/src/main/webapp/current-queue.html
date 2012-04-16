@@ -73,7 +73,7 @@
 
     function reloadCurrentQueue()
     {
-        $.getJSON('queue/', function(data)
+        $.getJSON('queue/jahspotify:queue:default', function(data)
         {
             if (data.currentlyPlaying != null)
             {
