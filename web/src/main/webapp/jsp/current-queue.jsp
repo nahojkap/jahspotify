@@ -25,8 +25,9 @@
 <!-- /header -->
 <div class="mainHeaderPanel"  data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
-    <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
-    <a href="index.html" data-icon="gear" class="ui-btn-right">Options</a>
+    <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+    <c:url var="queueSettingsURL" value="/jsp/queue-settings.jsp"/>
+    <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" class="ui-btn-right">Options</a>
 </div>
 
 

@@ -16,11 +16,10 @@
   ~        specific language governing permissions and limitations
   ~        under the License.
   --%>
-
 <%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<c:url var="homeURL" value="/index.html"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,5 +39,3 @@
 
 </head>
 <body>
-
-<div id="content" data-role="page" class="ot">

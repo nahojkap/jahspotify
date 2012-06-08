@@ -31,18 +31,24 @@
 
 <div data-role="content">
 
-        <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus" data-split-theme="a" data-count-theme="b">
-            <c:forEach items="${entry.subEntries}" var="subEntry">
-                <c:url var="subEntryURL" value="/ui/media/${subEntry.id}"/>
-                <li>
-                    <a href="<c:out value="${subEntryURL}"/>">
-                        <h3><c:out value="${subEntry.name}"/></h3>
-                        <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
-                        <c:url var="queueTrackURL" value="/queue/jahspotify:queue:default/add/${subEntry.id}"/>
-                        <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue <c:choose><c:when test="${subEntry.type == 'FOLDER'}">Folder</c:when><c:otherwise>Playlist</c:otherwise></c:choose></a>
-                    </a>
-                </li>
-            </c:forEach>
-        </ul>
+    <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
+        data-split-theme="a" data-count-theme="b">
+        <c:forEach items="${entry.subEntries}" var="subEntry">
+            <c:url var="subEntryURL" value="/ui/media/${subEntry.id}"/>
+            <li>
+                <a href="<c:out value="${subEntryURL}"/>">
+                    <h3><c:out value="${subEntry.name}"/></h3>
+                    <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
+                    <c:url var="queueTrackURL" value="/queue/jahspotify:queue:default/add/${subEntry.id}"/>
+                    <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue
+                        <c:choose><c:when
+                                test="${subEntry.type == 'FOLDER'}">Folder</c:when><c:otherwise>Playlist</c:otherwise></c:choose></a>
+                </a>
+            </li>
+        </c:forEach>
+    </ul>
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>
+

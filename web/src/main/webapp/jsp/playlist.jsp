@@ -27,7 +27,6 @@
     <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 </div>
 
-
 <div data-role="content">
     <div class="content-primary">
         <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
@@ -38,15 +37,21 @@
                     <a href="<c:out value="${trackURL}"/>">
                         <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                         <img src="<c:out value="${albumCoverURL}"/>"/>
+
                         <h3><c:out value="${track.title}"/></h3>
+
                         <p><strong><c:out value="${track.artistNames}"/></strong></p>
+
                         <p><strong>(<c:out value="${track.length}"/>)</strong></p>
                     </a>
                     <c:url var="queueTrackURL" value="/queue/jahspotify:queue:default/add/${track.id.id}"/>
-                    <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue Track</a>
+                    <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue
+                        Track</a>
                 </li>
             </c:forEach>
         </ul>
     </div>
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>
