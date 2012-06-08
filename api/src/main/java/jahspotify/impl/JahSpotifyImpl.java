@@ -29,8 +29,8 @@ public class JahSpotifyImpl implements JahSpotify
     private Map<Integer, SearchListener> _prioritySearchListeners = new HashMap<Integer, SearchListener>();
     private List<PlaylistListener> _playlistListeners = new ArrayList<PlaylistListener>();
 
-    private Stack<Library.Entry> _nodeStack = new Stack<Library.Entry>();
-    private Library.Entry _currentLibraryEntry = new Library.Entry(null, "jahspotify:folder:ROOT", "ROOT", Link.Type.FOLDER.name());
+    private Stack<LibraryEntry> _nodeStack = new Stack<LibraryEntry>();
+    private LibraryEntry _currentLibraryEntry = new LibraryEntry(null, "jahspotify:folder:ROOT", "ROOT", Link.Type.FOLDER.name());
 
     private Thread _jahSpotifyThread;
     private static JahSpotifyImpl _jahSpotify;
@@ -71,45 +71,21 @@ public class JahSpotifyImpl implements JahSpotify
             }
 
             @Override
-            public void album(final int token, final Link link)
+            public void album(final int token, final Album album)
             {
-                _log.trace(String.format("Album loaded: token=%d link=%s", token, link));
-                synchronized (_lockedAlbums)
-                {
-                    if (_lockedAlbums.contains(link))
-                    {
-                        _lockedAlbums.remove(link);
-                        _lockedAlbums.notifyAll();
-                    }
-                }
+                albumLoadedCallback(token, album);
             }
 
             @Override
-            public void image(final int token, final Link link)
+            public void image(final int token, final Link link, final ImageSize imageSize, final byte[] imageBytes)
             {
-                _log.trace(String.format("Image loaded: token=%d link=%s", token, link));
-                synchronized (_lockedImages)
-                {
-                    if (_lockedImages.contains(link))
-                    {
-                        _lockedImages.remove(link);
-                        _lockedImages.notifyAll();
-                    }
-                }
+                imageLoadedCallback(token, link,imageSize,imageBytes);
             }
 
             @Override
-            public void artist(final int token, final Link link)
+            public void artist(final int token, Artist artist)
             {
-                _log.trace(String.format("Artist loaded: token=%d link=%s", token, link));
-                synchronized (_lockedArtists)
-                {
-                    if (_lockedArtists.contains(link))
-                    {
-                        _lockedArtists.remove(link);
-                        _lockedArtists.notifyAll();
-                    }
-                }
+                artistLoadedCallback(token, artist);
             }
         });
 
@@ -245,7 +221,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 _nodeStack.push(_currentLibraryEntry);
                 final Link folderLink = Link.createFolderLink(folderID);
-                _currentLibraryEntry = new Library.Entry(_currentLibraryEntry.getId(), folderLink.getId(), folderName, Link.Type.FOLDER.name());
+                _currentLibraryEntry = new LibraryEntry(_currentLibraryEntry.getId(), folderLink.getId(), folderName, Link.Type.FOLDER.name());
                 for (PlaylistListener listener : _playlistListeners)
                 {
                     listener.startFolder(folderLink, folderName);
@@ -255,7 +231,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void endFolder()
             {
-                final Library.Entry entry = _nodeStack.pop();
+                final LibraryEntry entry = _nodeStack.pop();
                 entry.addSubEntry(_currentLibraryEntry);
                 _currentLibraryEntry = entry;
 
@@ -270,7 +246,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 if (_synching)
                 {
-                    _currentLibraryEntry.addSubEntry(new Library.Entry(_currentLibraryEntry.getId(), link, name, Link.Type.PLAYLIST.name()));
+                    _currentLibraryEntry.addSubEntry(new LibraryEntry(_currentLibraryEntry.getId(), link, name, Link.Type.PLAYLIST.name()));
                 }
 
                 for (PlaylistListener listener : _playlistListeners)
@@ -320,7 +296,46 @@ public class JahSpotifyImpl implements JahSpotify
         });
     }
 
-    private void debugPrintNodes(final Library.Entry entry, int indentation)
+    protected void albumLoadedCallback(final int token, final Album album)
+    {
+        _log.trace(String.format("Album loaded: token=%d link=%s", token, album.getId()));
+        synchronized (_lockedAlbums)
+        {
+            if (_lockedAlbums.contains(album.getId()))
+            {
+                _lockedAlbums.remove(album.getId());
+                _lockedAlbums.notifyAll();
+            }
+        }
+    }
+
+    protected void imageLoadedCallback(final int token, final Link link, final ImageSize imageSize, final byte[] imageBytes)
+    {
+        _log.trace(String.format("Image loaded: token=%d link=%s", token, link));
+        synchronized (_lockedImages)
+        {
+            if (_lockedImages.contains(link))
+            {
+                _lockedImages.remove(link);
+                _lockedImages.notifyAll();
+            }
+        }
+    }
+
+    protected void artistLoadedCallback(final int token, final Artist artist)
+    {
+        _log.trace(String.format("Artist loaded: token=%d link=%s", token, artist.getId()));
+        synchronized (_lockedArtists)
+        {
+            if (_lockedArtists.contains(artist.getId()))
+            {
+                _lockedArtists.remove(artist.getId());
+                _lockedArtists.notifyAll();
+            }
+        }
+    }
+
+    private void debugPrintNodes(final LibraryEntry entry, int indentation)
     {
         if (_log.isDebugEnabled())
         {
@@ -335,8 +350,8 @@ public class JahSpotifyImpl implements JahSpotify
                 case FOLDER:
                     msg = msg + "-" + entry.getName() + "(" + entry.getId() + ")";
                     _log.debug(msg);
-                    List<Library.Entry> children = entry.getSubEntries();
-                    for (Library.Entry child : children)
+                    List<LibraryEntry> children = entry.getSubEntries();
+                    for (LibraryEntry child : children)
                     {
                         debugPrintNodes(child, indentation + 2);
                     }
@@ -395,7 +410,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 try
                 {
-                    _lockedAlbums.wait(1000);
+                    _lockedAlbums.wait(2500);
                 }
                 catch (InterruptedException e)
                 {
@@ -414,7 +429,22 @@ public class JahSpotifyImpl implements JahSpotify
         _libSpotifyLock.lock();
         try
         {
-            return retrieveAlbum(uri.asString());
+            final Album album = retrieveAlbum(uri.asString());
+
+            if (album == null)
+            {
+                _lockedAlbums.add(uri);
+            }
+            else
+            {
+                synchronized (_lockedAlbums)
+                {
+                    _lockedAlbums.remove(uri);
+                    _lockedAlbums.notifyAll();
+                }
+            }
+
+            return album;
         }
         finally
         {
@@ -430,11 +460,11 @@ public class JahSpotifyImpl implements JahSpotify
         synchronized (_lockedArtists)
         {
             int count = 0;
-            while (_lockedAlbums.contains(uri) && ++count < 5)
+            while (_lockedArtists.contains(uri) && ++count < 5)
             {
                 try
                 {
-                    _lockedArtists.wait(1000);
+                    _lockedArtists.wait(2500);
                 }
                 catch (InterruptedException e)
                 {
@@ -452,7 +482,22 @@ public class JahSpotifyImpl implements JahSpotify
         try
         {
             _libSpotifyLock.lock();
-            return retrieveArtist(uri.asString());
+            final Artist artist = retrieveArtist(uri.asString());
+
+            if (artist == null)
+            {
+                _lockedArtists.add(uri);
+            }
+            else
+            {
+                synchronized (_lockedArtists)
+                {
+                    _lockedArtists.remove(uri);
+                    _lockedArtists.notifyAll();
+                }
+            }
+
+            return artist;
         }
         finally
         {
@@ -472,7 +517,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 try
                 {
-                    _lockedTracks.wait(1000);
+                    _lockedTracks.wait(2500);
                 }
                 catch (InterruptedException e)
                 {
@@ -525,7 +570,7 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 try
                 {
-                    _lockedImages.wait(1000);
+                    _lockedImages.wait(2500);
                 }
                 catch (InterruptedException e)
                 {
@@ -693,9 +738,14 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public Library.Entry readFolder(final Link uri, final int level)
+    public LibraryEntry readFolder(final Link uri, final int level)
     {
         ensureLoggedIn();
+
+        if (!uri.isFolderLink())
+        {
+            throw new IllegalArgumentException("Not a folder link");
+        }
 
         Library library = retrieveLibrary();
         if (library == null)
@@ -705,17 +755,17 @@ public class JahSpotifyImpl implements JahSpotify
 
         if (uri.getFolderId() == 0)
         {
-            final Library.Entry entry = trimToLevel(_currentLibraryEntry, 0, level);
+            final LibraryEntry entry = trimToLevel(_currentLibraryEntry, 0, level);
             populateEmptyEntries(entry, 0, level);
             return entry;
         }
 
-        for (Library.Entry entry : library.getEntries())
+        for (LibraryEntry entry : library.getEntries())
         {
-            final Library.Entry folderEntry = findFolder(entry, uri);
+            final LibraryEntry folderEntry = findFolder(entry, uri);
             if (folderEntry != null)
             {
-                final Library.Entry trimmedEntry = trimToLevel(folderEntry, 0, level);
+                final LibraryEntry trimmedEntry = trimToLevel(folderEntry, 0, level);
                 populateEmptyEntries(trimmedEntry, 0, level);
                 return trimmedEntry;
             }
@@ -749,7 +799,7 @@ public class JahSpotifyImpl implements JahSpotify
         return getAudioGain();
     }
 
-    private void populateEmptyEntries(final Library.Entry entry, int currentLevel, int requiredLevel)
+    private void populateEmptyEntries(final LibraryEntry entry, int currentLevel, int requiredLevel)
     {
         final Link.Type type = Link.Type.valueOf(entry.getType());
         _log.debug("Populating entry: " + entry.getId());
@@ -782,7 +832,7 @@ public class JahSpotifyImpl implements JahSpotify
                             final Track track = readTrack(trackLink);
                             if (track != null)
                             {
-                                entry.addSubEntry(new Library.Entry(entry.getId(), trackLink.getId(), track.getTitle(), Link.Type.TRACK.name()));
+                                entry.addSubEntry(new LibraryEntry(entry.getId(), trackLink.getId(), track.getTitle(), Link.Type.TRACK.name()));
                             }
                         }
                     }
@@ -794,7 +844,7 @@ public class JahSpotifyImpl implements JahSpotify
                 if (currentLevel == requiredLevel)
                 {
                     _log.debug("Required level reached");
-                    for (Library.Entry subEntry : entry.getSubEntries())
+                    for (LibraryEntry subEntry : entry.getSubEntries())
                     {
                         populateEmptyEntries(subEntry, 0, 0);
                     }
@@ -802,7 +852,7 @@ public class JahSpotifyImpl implements JahSpotify
                 }
                 else
                 {
-                    for (Library.Entry subEntry : entry.getSubEntries())
+                    for (LibraryEntry subEntry : entry.getSubEntries())
                     {
                         populateEmptyEntries(subEntry, currentLevel + 1, requiredLevel);
                     }
@@ -813,47 +863,47 @@ public class JahSpotifyImpl implements JahSpotify
 
     }
 
-    private Library.Entry trimToLevel(final Library.Entry folderEntry, final int currentLevel, final int level)
+    private LibraryEntry trimToLevel(final LibraryEntry folderEntry, final int currentLevel, final int level)
     {
         if (level == 0)
         {
             return folderEntry;
         }
 
-        final List<Library.Entry> strippedSubEntries = new ArrayList<Library.Entry>();
+        final List<LibraryEntry> strippedSubEntries = new ArrayList<LibraryEntry>();
         if (level == currentLevel)
         {
             // Remove all children of any sub-entries now
-            for (Library.Entry entry : folderEntry.getSubEntries())
+            for (LibraryEntry entry : folderEntry.getSubEntries())
             {
-                final Library.Entry e = new Library.Entry(folderEntry.getId(), entry.getId(), entry.getName(), entry.getType());
+                final LibraryEntry e = new LibraryEntry(folderEntry.getId(), entry.getId(), entry.getName(), entry.getType());
                 e.setNumEntries(entry.getNumEntries());
                 strippedSubEntries.add(e);
             }
         }
         else
         {
-            for (Library.Entry entry : folderEntry.getSubEntries())
+            for (LibraryEntry entry : folderEntry.getSubEntries())
             {
                 strippedSubEntries.add(trimToLevel(entry, currentLevel + 1, level));
             }
         }
 
-        final Library.Entry entry = new Library.Entry(folderEntry.getParentID(), folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
+        final LibraryEntry entry = new LibraryEntry(folderEntry.getParentID(), folderEntry.getId(), folderEntry.getName(), folderEntry.getType());
         entry.setSubEntries(strippedSubEntries);
         entry.setNumEntries(folderEntry.getNumEntries());
         return entry;
     }
 
-    private Library.Entry findFolder(final Library.Entry rootEntry, final Link uri)
+    private LibraryEntry findFolder(final LibraryEntry rootEntry, final Link uri)
     {
         if (isFolderMatch(rootEntry, uri))
         {
             return rootEntry;
         }
-        for (Library.Entry entry : rootEntry.getSubEntries())
+        for (LibraryEntry entry : rootEntry.getSubEntries())
         {
-            Library.Entry foundEntry = findFolder(entry, uri);
+            LibraryEntry foundEntry = findFolder(entry, uri);
             if (foundEntry != null)
             {
                 return foundEntry;
@@ -862,9 +912,9 @@ public class JahSpotifyImpl implements JahSpotify
         return null;
     }
 
-    private boolean isFolderMatch(final Library.Entry rootEntry, final Link uri)
+    private boolean isFolderMatch(final LibraryEntry rootEntry, final Link uri)
     {
-        if (rootEntry.getType().equals(Library.Entry.FOLDER_ENTRY_TYPE))
+        if (rootEntry.getType().equals(LibraryEntry.FOLDER_ENTRY_TYPE))
         {
             if (rootEntry.getId().equals(uri.getId()))
             {

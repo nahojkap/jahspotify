@@ -7,12 +7,13 @@ import jahspotify.impl.JahSpotifyImpl;
 import jahspotify.storage.media.MediaStorage;
 import jahspotify.storage.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Johan Lindquist
  */
-@Service
+@Configuration
 public class JahSpotifyService
 {
     private JahSpotify _jahSpotify;
@@ -20,6 +21,12 @@ public class JahSpotifyService
     @Autowired(required = false)
     @Qualifier(value ="mongodb")
     private MediaStorage _mediaStorage;
+
+    @Bean(name="JahSpotify")
+    public JahSpotify createJahSpotify()
+    {
+        return _jahSpotify;
+    }
 
     @PostConstruct
     public void initialize()

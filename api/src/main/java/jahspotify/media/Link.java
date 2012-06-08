@@ -581,6 +581,10 @@ public class Link
 
         final Link link = (Link) o;
 
+        if (folderId != null ? !folderId.equals(link.folderId) : link.folderId != null)
+        {
+            return false;
+        }
         if (id != null ? !id.equals(link.id) : link.id != null)
         {
             return false;
@@ -589,7 +593,19 @@ public class Link
         {
             return false;
         }
+        if (queue != null ? !queue.equals(link.queue) : link.queue != null)
+        {
+            return false;
+        }
+        if (queueId != null ? !queueId.equals(link.queueId) : link.queueId != null)
+        {
+            return false;
+        }
         if (type != link.type)
+        {
+            return false;
+        }
+        if (uri != null ? !uri.equals(link.uri) : link.uri != null)
         {
             return false;
         }
@@ -608,6 +624,10 @@ public class Link
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (user != null ? user.hashCode() : 0);
         result = 31 * result + (query != null ? query.hashCode() : 0);
+        result = 31 * result + (queue != null ? queue.hashCode() : 0);
+        result = 31 * result + (queueId != null ? queueId.hashCode() : 0);
+        result = 31 * result + (uri != null ? uri.hashCode() : 0);
+        result = 31 * result + (folderId != null ? folderId.hashCode() : 0);
         return result;
     }
 }

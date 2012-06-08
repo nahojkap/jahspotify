@@ -108,10 +108,10 @@ public class JahSpotifyClient
         }
     }
 
-    public Library.Entry readFolder(final String uri, final int levels) throws IOException
+    public LibraryEntry readFolder(final String uri, final int levels) throws IOException
     {
         String s = getData(_baseURL  + "media/" + uri + "?levels=" + levels);
-        return deserialize(s,Library.Entry.class);
+        return deserialize(s, LibraryEntry.class);
     }
 
     public Playlist readPlaylist(final String uri) throws IOException
