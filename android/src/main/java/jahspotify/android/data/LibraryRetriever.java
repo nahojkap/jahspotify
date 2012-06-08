@@ -19,7 +19,7 @@ public class LibraryRetriever
 
     private static Map<Link,FullTrack> _fullTrackCache = new HashMap<Link, FullTrack>();
     private static Map<Link,Playlist> _playlistCache = new HashMap<Link, Playlist>();
-    private static Map<String,Library.Entry> _folderCache = new HashMap<String, Library.Entry>();
+    private static Map<String, LibraryEntry> _folderCache = new HashMap<String, LibraryEntry>();
     private static final Link ROOT_FOLDER = new Link("jahspotify:folder:ROOT", Link.Type.FOLDER);
 
     public static void initialize(String host, int port)
@@ -28,7 +28,7 @@ public class LibraryRetriever
         jahSpotifyClient = new JahSpotifyClient(baseURL);
     }
 
-    public static Library.Entry getRoot(int levels) throws IOException
+    public static LibraryEntry getRoot(int levels) throws IOException
     {
         return getEntry(ROOT_FOLDER, levels);
     }
@@ -60,10 +60,10 @@ public class LibraryRetriever
         return inputStream;
     }
 
-    public static Library.Entry getEntry(final Link link, int levels) throws IOException
+    public static LibraryEntry getEntry(final Link link, int levels) throws IOException
     {
         final String cacheName = makeCacheName(link,levels);
-        Library.Entry entry = _folderCache.get(cacheName);
+        LibraryEntry entry = _folderCache.get(cacheName);
         if (entry == null)
         {
             entry = jahSpotifyClient.readFolder(link.getId(),levels);

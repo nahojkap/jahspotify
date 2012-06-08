@@ -61,7 +61,7 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
     @Override
     public Artist readArtist(final Link uri)
     {
-          Artist artist;
+        Artist artist;
         if (_mediaStorage != null)
         {
             artist = _mediaStorage.readArtist(uri);
@@ -152,4 +152,39 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
 
     }
 
+    @Override
+    protected void imageLoadedCallback(final int token, final Link link, final ImageSize imageSize, final byte[] imageBytes)
+    {
+        // Store the dang thing
+        if (_mediaStorage != null && imageBytes!= null)
+        {
+            _mediaStorage.store(new Image(link,imageBytes));
+        }
+
+        super.imageLoadedCallback(token,link,imageSize,imageBytes);
+    }
+
+    @Override
+    protected void albumLoadedCallback(final int token, final Album album)
+    {
+        // Store the dang thing
+        if (_mediaStorage != null && album != null)
+        {
+            _mediaStorage.store(album);
+        }
+
+        super.albumLoadedCallback(token, album);
+    }
+
+    @Override
+    protected void artistLoadedCallback(final int token, final Artist artist)
+    {
+        // Store the dang thing
+        if (_mediaStorage != null && artist != null)
+        {
+            _mediaStorage.store(artist);
+        }
+
+        super.artistLoadedCallback(token, artist);
+    }
 }

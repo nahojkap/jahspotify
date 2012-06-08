@@ -94,7 +94,7 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
                 @Override
                 public void onClick(final View view)
                 {
-                    final Library.Entry clickedEntry = _currentFolder.getSubEntries().get(position);
+                    final LibraryEntry clickedEntry = _currentFolder.getSubEntries().get(position);
                     if ("FOLDER".equals(clickedEntry.getType()))
                     {
                         // Display a playlist!
@@ -230,7 +230,7 @@ public class FolderBrowseActivity extends ListActivity implements ListView.OnScr
         }
     }
 
-    private Library.Entry _currentFolder;
+    private LibraryEntry _currentFolder;
 
 
 }

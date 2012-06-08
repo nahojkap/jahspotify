@@ -146,7 +146,14 @@ public class EchoNestSpotifyBridge
             for (final Link trackArtist : trackArtists)
             {
                 final Artist artist = _jahSpotify.readArtist(trackArtist);
-                artists.add(artist.getName());
+                if (artist == null)
+                {
+                    // bad news - means the artist is not loaded yet ... should wait ...
+                }
+                else
+                {
+                    artists.add(artist.getName());
+                }
             }
             return _echoNestService.retrieveDynamicPlaylist(artists, null, null);
         }

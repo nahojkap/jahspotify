@@ -11,7 +11,12 @@
 #include "ThreadHelpers.h"
 #include "Logging.h"
 
+extern void populateJAlbumInstanceFromAlbumBrowse(JNIEnv *env, sp_album *album, sp_albumbrowse *albumBrowse, jobject albumInstance);
+extern void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artistBrowse, jobject artist);
 extern jobject createJLinkInstance(JNIEnv *env, sp_link *link);
+extern jobject createJAlbumInstance(JNIEnv *env, sp_album *album);
+extern jobject createJTrackInstance(JNIEnv *env, sp_track *track);
+extern jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
 
 extern sp_session *g_sess;
 extern sp_track *g_currenttrack;
@@ -611,10 +616,83 @@ exit:
 
 int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
 {
+    JNIEnv* env = NULL;
+    jclass aClass;
+    jmethodID aMethod;
+    
+    sp_link *artistLink = NULL;
+    jobject artistInstance = NULL;
+    jclass jClass;
+    
+    log_debug("jahspotify","signalArtistBrowseLoaded","Artist browse loaded");
+    
+    if (!retrieveEnv((JNIEnv*)&env))
+    {
+      goto fail;
+    }
+    
+    jClass = (*env)->FindClass(env, "jahspotify/media/Artist");
+    if (jClass == NULL)
+    {
+      log_error("jahspotify","createJArtistInstance","Could not load jahnotify.media.Artist");
+      goto fail;
+    }
+    
+    artistInstance = createInstanceFromJClass(env, jClass);
+    
     if (!g_mediaLoadedListener)
     {
         log_error("jahspotify","signalArtistBrowseLoaded","No playlist media loaded listener registered");
-        return 1;
+        goto fail;
+    }
+    
+    aMethod = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "artist", "(ILjahspotify/media/Artist;)V");
+    
+    if (aMethod == NULL)
+    {
+      log_error("callbacks","signalArtistBrowseLoaded","Could not load callback method artist(int,artist) on class NativeMediaLoadedListener");
+      goto fail;
+    }
+    
+    sp_artist *artist = sp_artistbrowse_artist(artistBrowse);
+    
+    sp_artist_add_ref(artist);
+    
+    artistLink = sp_link_create_from_artist(artist);
+    
+    sp_link_add_ref(artistLink);
+      
+    jobject artistJLink = createJLinkInstance(env, artistLink);
+      
+    setObjectObjectField(env,artistInstance,"id","Ljahspotify/media/Link;",artistJLink);
+      
+    sp_link_release(artistLink);
+      
+    setObjectStringField(env,artistInstance,"name",sp_artist_name(artist));
+    
+    sp_artist_release(artist);
+    
+    // Convert the instance to an artist
+    // Pass it up in the callback
+    populateJArtistInstanceFromArtistBrowse(env,artistBrowse,artistInstance);
+    
+    (*env)->CallVoidMethod(env, g_mediaLoadedListener, aMethod, token, artistInstance);
+    if (checkException(env) != 0)
+    {
+      log_error("callbacks","signalArtistBrowseLoaded","Exception while calling callback");
+      goto fail;
+    }
+    
+    
+    goto exit;
+    
+fail:
+   log_error("jahspotify","signalArtistBrowseLoaded","Error occurred while processing callback");
+
+exit:
+    if (artistBrowse)
+    {
+      sp_artistbrowse_release(artistBrowse);
     }
 }
 
@@ -636,8 +714,8 @@ int signalImageLoaded(sp_image *image, int32_t token)
   {
       goto fail;
   }
-  
-  method = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "image", "(ILjahspotify/media/Link;)V");
+    
+  method = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "image", "(ILjahspotify/media/Link;Ljahspotify/media/ImageSize;[B)V");
   
   if (method == NULL)
   {
@@ -653,7 +731,7 @@ int signalImageLoaded(sp_image *image, int32_t token)
   
   sp_link_release(link);
   
-  (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,token,jLink);
+  (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,token,jLink,NULL,NULL);
   if (checkException(env) != 0)
   {
       log_error("callbacks","signalImageLoaded","Exception while calling listener");
@@ -733,65 +811,142 @@ int signalPlaylistLoaded(sp_playlist *playlist, int32_t token)
 
 int signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)
 {
-   if (!g_mediaLoadedListener)
-    {
-        log_error("jahspotify","signalAlbumBrowseLoaded","No playlist media loaded listener registered");
-        return 1;
-    }
-  
-}
-
-int signalTrackLoaded(sp_track *track, int32_t token)
-{
-    if (!g_mediaLoadedListener)
-    {
-        log_error("jahspotify","signalTrackLoaded","No playlist media loaded listener registered");
-        return 1;
-    }
-  sp_track_add_ref(track);
-  
   JNIEnv* env = NULL;
-  jmethodID method;
+  jclass aClass;
+  jmethodID aMethod;
   
-  log_debug("callbacks","signalTrackLoaded","Track loaded: token: %d", token);
+  sp_album *album = NULL;
+  sp_link *albumLink = NULL;
+  jobject albumInstance = NULL;
+  jclass jClass;
+  
+  if (!g_mediaLoadedListener)
+  {
+    log_error("jahspotify","signalAlbumBrowseLoaded","No album media loaded listener registered");
+    goto fail;
+  }
+  
+  log_debug("jahspotify","signalAlbumBrowseLoaded","Albumbrowse loaded");
   
   if (!retrieveEnv((JNIEnv*)&env))
   {
-      goto fail;
+    goto fail;
   }
   
-  method = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "track", "(ILjahspotify/media/Link;)V");
-  
-  if (method == NULL)
+  jClass = (*env)->FindClass(env, "jahspotify/media/Album");
+  if (jClass == NULL)
   {
-      log_error("callbacks","signalTrackLoaded","Could not load callback method track(Link) on class NativeMediaLoadedListener");
-      goto fail;
+    log_error("jahspotify","signalAlbumBrowseLoaded","Could not load jahnotify.media.Album");
+    goto fail;
   }
   
-  sp_link *link = sp_link_create_from_track(track,0);
+  albumInstance = createInstanceFromJClass(env, jClass);
   
-  sp_link_add_ref(link);
+  aMethod = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "album", "(ILjahspotify/media/Album;)V");
   
-  jobject jLink = createJLinkInstance(env,link);
+  if (aMethod == NULL)
+  {
+    log_error("callbacks","signalAlbumBrowseLoaded","Could not load callback method album(int,album) on class NativeMediaLoadedListener");
+    goto fail;
+  }
   
-  sp_link_release(link);
+  album = sp_albumbrowse_album(albumBrowse);
   
-  (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,token,jLink);
+  sp_album_add_ref(album);
+  
+  albumLink = sp_link_create_from_album(album);
+  
+  sp_link_add_ref(albumLink);
+  
+  jobject albumJLink = createJLinkInstance(env, albumLink);
+  
+  setObjectObjectField(env,albumInstance,"id","Ljahspotify/media/Link;",albumJLink);
+  
+  setObjectStringField(env,albumInstance,"name",sp_album_name(album));
+  
+  // Convert the instance to an artist
+  // Pass it up in the callback
+  populateJAlbumInstanceFromAlbumBrowse(env,album, albumBrowse,albumInstance);
+  
+  
+  (*env)->CallVoidMethod(env, g_mediaLoadedListener, aMethod, token, albumInstance);
   if (checkException(env) != 0)
   {
-      log_error("callbacks","signalTrackLoaded","Exception while calling listener");
-      goto fail;
+    log_error("callbacks","signalAlbumBrowseLoaded","Exception while calling callback");
+    goto fail;
+  }
+   
+   goto exit;
+   
+fail:
+   
+   
+exit:   
+  if (albumLink)
+  {
+    sp_link_release(albumLink);
   }
   
-  log_debug("callbacks","signalTrackLoaded","Callback invokved");
-  goto exit;
-  
-  fail:
-  
-  exit:
-  
-  sp_track_release(track);
+  if (album)
+  { 
+    sp_album_release(album);
+  }
+  if (albumBrowse)
+  {
+    sp_albumbrowse_release(albumBrowse);
+  }
 }
+
+// int signalTrackLoaded(sp_track *track, int32_t token)
+// {
+//   if (!g_mediaLoadedListener)
+//   {
+//       log_error("jahspotify","signalTrackLoaded","No playlist media loaded listener registered");
+//       return 1;
+//   }
+//   
+//   JNIEnv* env = NULL;
+//   jmethodID method;
+//   
+//   log_debug("callbacks","signalTrackLoaded","Track loaded: token: %d", token);
+//   
+//   if (!retrieveEnv((JNIEnv*)&env))
+//   {
+//       goto fail;
+//   }
+//   
+//   method = (*env)->GetMethodID(env, g_mediaLoadedListenerClass, "track", "(ILjahspotify/media/Link;)V");
+//   
+//   if (method == NULL)
+//   {
+//       log_error("callbacks","signalTrackLoaded","Could not load callback method track(Link) on class NativeMediaLoadedListener");
+//       goto fail;
+//   }
+//   
+//   sp_link *link = sp_link_create_from_track(track,0);
+//   
+//   sp_link_add_ref(link);
+//   
+//   jobject jLink = createJLinkInstance(env,link);
+//   
+//   sp_link_release(link);
+//   
+//   (*env)->CallVoidMethod(env,g_mediaLoadedListener,method,token,jLink);
+//   if (checkException(env) != 0)
+//   {
+//       log_error("callbacks","signalTrackLoaded","Exception while calling listener");
+//       goto fail;
+//   }
+//   
+//   log_debug("callbacks","signalTrackLoaded","Callback invokved");
+//   goto exit;
+//   
+//   fail:
+//   
+//   exit:
+//   
+//   sp_track_release(track);
+// }
 
 int signalSearchComplete(sp_search *search, int32_t token)
 {

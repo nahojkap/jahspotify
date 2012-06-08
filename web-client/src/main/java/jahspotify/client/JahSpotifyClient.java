@@ -6,6 +6,7 @@ import java.util.*;
 import com.google.gson.Gson;
 import jahspotify.web.media.*;
 import jahspotify.web.queue.*;
+import jahspotify.web.system.ServerIdentity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -26,7 +27,18 @@ public class JahSpotifyClient
 
     public static void main(String[] args) throws Exception
     {
-        JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://192.168.0.11:8080/jahspotify/");
+        final Set<ServerIdentity> serverIdentities = ServerBroadcasterClient.discoverServers("224.0.0.1", 9764, 10000, new ServerBroadcasterClient.ServerFoundListener()
+        {
+            @Override
+            public void serverFound(final ServerIdentity serverIdentity)
+            {
+                System.out.println("serverIdentity = " + serverIdentity);
+            }
+        });
+
+
+
+        JahSpotifyClient jahSpotifyClient = new JahSpotifyClient( "http://" + serverIdentities.iterator().next().getServerWebAddress() +":" + serverIdentities.iterator().next().getWebPort() + "/jahspotify/");
 
         final QueueConfiguration queueConfiguration = new QueueConfiguration();
         queueConfiguration.setAutoRefill(true);
@@ -57,7 +69,7 @@ public class JahSpotifyClient
 
     public QueueConfiguration setQueueConfiguration(QueueConfiguration queueConfiguration) throws IOException
     {
-        final String s = postData(_baseURL + "queue/configuration", queueConfiguration);
+        final String s = postData(_baseURL + "queue/jahspotify:queue:default/configuration", queueConfiguration);
         QueueConfiguration newQueueConfiguration = deserialize(s,QueueConfiguration.class);
         return newQueueConfiguration;
     }
@@ -96,10 +108,10 @@ public class JahSpotifyClient
         }
     }
 
-    public Library.Entry readFolder(final String uri, final int levels) throws IOException
+    public LibraryEntry readFolder(final String uri, final int levels) throws IOException
     {
         String s = getData(_baseURL  + "media/" + uri + "?levels=" + levels);
-        return deserialize(s,Library.Entry.class);
+        return deserialize(s, LibraryEntry.class);
     }
 
     public Playlist readPlaylist(final String uri) throws IOException
@@ -119,7 +131,7 @@ public class JahSpotifyClient
         QueueTracksRequest queueTracksRequest = new QueueTracksRequest();
         queueTracksRequest.setAutoPlay(autoPlay);
         queueTracksRequest.setURIQueue(uris);
-        final String s = postData(_baseURL + "queue/", queueTracksRequest);
+        final String s = postData(_baseURL + "queue/jahspotify:queue:default/add", queueTracksRequest);
     }
 
     private InputStream getDataAsStream(final String url) throws IOException
@@ -197,8 +209,10 @@ public class JahSpotifyClient
         final HttpPost httpPost = new HttpPost(url);
         final BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
         basicHttpEntity.setContentType("application/data");
+        basicHttpEntity.setContentType("application/data");
         basicHttpEntity.setContent(new ByteArrayInputStream(data.getBytes()));
         httpPost.setEntity(basicHttpEntity);
+        httpPost.addHeader("Accept","application/json");
         final HttpResponse execute = httpClient.execute(httpPost);
 
         if (execute.getStatusLine().getStatusCode() == 200)
