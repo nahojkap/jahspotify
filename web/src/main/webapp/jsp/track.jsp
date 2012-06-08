@@ -22,9 +22,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<!-- /header -->
+<div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
+    <h1><c:out value="${pageTitle}"/></h1>
+    <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+</div>
+
+
 <div data-role="content">
 
-        <ul data-role="listview" data-theme="g" data-inset="true">
+        <ul data-role="listview" data-theme="g" data-inset="true" data-split-theme="a">
             <c:forEach items="${tracks}" var="track">
                 <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
                 <li>
