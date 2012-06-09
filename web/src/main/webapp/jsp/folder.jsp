@@ -39,7 +39,7 @@
                 <a href="<c:out value="${subEntryURL}"/>">
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
-                    <c:url var="queueTrackURL" value="/queue/jahspotify:queue:default/add/${subEntry.id}"/>
+                    <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
                     <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue
                         <c:choose><c:when
                                 test="${subEntry.type == 'FOLDER'}">Folder</c:when><c:otherwise>Playlist</c:otherwise></c:choose></a>

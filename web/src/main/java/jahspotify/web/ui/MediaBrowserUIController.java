@@ -23,6 +23,7 @@ import java.util.*;
 
 import jahspotify.JahSpotify;
 import jahspotify.media.*;
+import jahspotify.services.QueueManager;
 import jahspotify.web.api.BaseController;
 import jahspotify.web.media.FullTrack;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class MediaBrowserUIController extends BaseController
 {
     @Autowired
     JahSpotify _jahSpotify;
+
+    @Autowired
+    QueueManager _queueManager;
 
     @RequestMapping(value="/{link}")
     public ModelAndView retrievePlaylistView(@PathVariable(value = "link") String linkStr)

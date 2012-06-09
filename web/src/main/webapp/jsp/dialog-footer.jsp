@@ -22,10 +22,5 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 
-<div data-role="footer" data-theme="f">
-    <p>Jah'Tify</p>
-    <p>Powered by Spotify API</p>
-</div>
-
 </body>
 </html>

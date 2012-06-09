@@ -25,11 +25,10 @@
 <!-- /header -->
 <div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
-    <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 </div>
 
 <div data-role="content">
-    <div class="content-primary">
+    <div class="content-primary" data-theme="a">
 
         <form action="#" method="get">
 

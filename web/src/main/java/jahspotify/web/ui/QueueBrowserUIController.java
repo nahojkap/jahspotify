@@ -21,26 +21,52 @@ package jahspotify.web.ui;
 
 import java.util.*;
 
+import jahspotify.media.Link;
 import jahspotify.services.*;
 import jahspotify.services.Queue;
 import jahspotify.web.api.BaseController;
 import jahspotify.web.media.FullTrack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author Johan Lindquist
  */
 @Controller
-@RequestMapping (value = "/ui/queue")
+@RequestMapping(value = "/ui/queue")
 public class QueueBrowserUIController extends BaseController
 {
     @Autowired
     QueueManager _queueManager;
 
-    @RequestMapping (value = "/current")
+    @RequestMapping(value = "/remove/{link}")
+    public ModelAndView retrieveCurrentQueue(@PathVariable(value = "link") String linkStr)
+    {
+        Link link = Link.create(linkStr);
+        _queueManager.deleteQueuedTrack(QueueManager.DEFAULT_QUEUE_LINK,link);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/jsp/success-dialog.jsp");
+        modelAndView.addObject("successMessage", "Track has been removed!");
+        return modelAndView;
+    }
+
+    @RequestMapping(value="/add/{link}")
+    public ModelAndView queueMedia(@PathVariable(value = "link") String linkStr)
+    {
+        Link link = Link.create(linkStr);
+        _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,link);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/jsp/success-dialog.jsp");
+
+        modelAndView.addObject("successMessage","Media has been queued");
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/current")
     public ModelAndView retrieveCurrentQueue()
     {
         final ModelAndView modelAndView = new ModelAndView("/jsp/current-queue.jsp");
@@ -52,7 +78,7 @@ public class QueueBrowserUIController extends BaseController
         if (currentlyPlaying != null)
         {
             FullTrack fullTrack = createFullTrack(_jahSpotify.readTrack(currentlyPlaying.getTrackUri()));
-            modelAndView.addObject("current-track",fullTrack);
+            modelAndView.addObject("currentTrack", fullTrack);
         }
 
         final List<FullTrack> queuedTracks = new ArrayList<FullTrack>();
@@ -61,7 +87,7 @@ public class QueueBrowserUIController extends BaseController
             queuedTracks.add(createFullTrack(_jahSpotify.readTrack(queueTrack.getTrackUri())));
         }
 
-        modelAndView.addObject("queuedTracks",queuedTracks);
+        modelAndView.addObject("queuedTracks", queuedTracks);
 
         return modelAndView;
 
