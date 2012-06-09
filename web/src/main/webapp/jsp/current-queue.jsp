@@ -21,6 +21,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
 <!-- /header -->
 <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
@@ -37,11 +38,11 @@
         <c:when test="${!empty(currentTrack)}">
 
             <div data-role="content">
-                <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
+                <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
+                <jah:duration var="duration" value="${currentTrack.length}"/>
                 <img src="<c:out value="${albumCoverURL}"/>"/>
-                <c:out value="${currentTrack.title}"/>
-                <p><strong><c:out value="${track.artistNames}"/></strong></p>
-                <p><strong>(<c:out value="${track.length}"/>)</strong></p>
+                <h3><c:out value="${currentTrack.title}"/> [<c:out value="${duration}"/>]</h3>
+                <p><strong><c:out value="${currentTrack.albumName}"/> <c:out value="${currentTrack.artistNames}"/></strong></p>
             </div>
 
             <c:choose>
@@ -53,13 +54,11 @@
                             <li>
                                 <a href="<c:out value="${trackURL}"/>">
                                     <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
+                                    <jah:duration var="duration" value="${track.length}"/>
+
                                     <img src="<c:out value="${albumCoverURL}"/>"/>
-
-                                    <h3><c:out value="${track.title}"/></h3>
-
-                                    <p><strong><c:out value="${track.artistNames}"/></strong></p>
-
-                                    <p><strong>(<c:out value="${track.length}"/>)</strong></p>
+                                    <h3><c:out value="${track.title}"/> [<c:out value="${duration}"/>]</h3>
+                                    <p><strong><c:out value="${track.albumName}"/> <c:out value="${track.artistNames}"/></strong></p>
                                 </a>
                                 <c:url var="queueTrackURL"
                                        value="/ui/queue/remove/${track.id.id}"/>

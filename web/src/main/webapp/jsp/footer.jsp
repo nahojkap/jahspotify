@@ -23,7 +23,8 @@
 
 
 <div data-role="footer" class="footer-docs" data-theme="a">
-    <p>&copy; Jah'Tify - Powered by Spotify's libspotify</p>
+    <p>&copy; 2012 Jah'Spotify</p>
+    <p class="ui-btn-right">Powered by Spotify&trade;</p>
 </div>
 
 </body>

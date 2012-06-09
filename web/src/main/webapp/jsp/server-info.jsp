@@ -16,6 +16,7 @@
   ~        specific language governing permissions and limitations
   ~        under the License.
   --%>
+
 <%@ include file="/jsp/header.jsp" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -25,31 +26,13 @@
 <!-- /header -->
 <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
-    <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+    <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+    <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
+    <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Options</a>
 </div>
 
 
 <div data-role="content">
-    <div class="content-primary">
-        <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-            data-split-theme="a" data-count-theme="b">
-            <c:forEach items="${tracks}" var="track">
-                <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
-                <li>
-                    <a href="<c:out value="${trackURL}"/>">
-                        <jah:duration var="duration" value="${track.length}"/>
-                        <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
-                        <img src="<c:out value="${albumCoverURL}"/>"/>
-                        <h3><c:out value="${track.title}"/> [<c:out value="${duration}"/>]</h3>
-                        <p><strong><c:out value="${track.albumName}"/> <c:out value="${track.artistNames}"/></strong></p>
-                    </a>
-                    <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                    <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue Track</a>
-                </li>
-            </c:forEach>
-        </ul>
-    </div>
-
 </div>
 
 <%@ include file="/jsp/footer.jsp" %>
