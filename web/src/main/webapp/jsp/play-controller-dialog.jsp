@@ -29,51 +29,61 @@
 
 <script>
 
-    function clearQueue()
+    function skip()
     {
         $.mobile.showPageLoadingMsg();
         $.ajax({
-            url:"/jahspotify/queue/jahspotify:queue:default/clear"
+            url:"/jahspotify/player/skip"
         }).done(function ()
                 {
                     $.mobile.hidePageLoadingMsg();
+                    $('.ui-dialog').dialog('close');
                 });
-
-
     }
+
+    function pause()
+    {
+        $.mobile.showPageLoadingMsg();
+        $.ajax({
+            url:"/jahspotify/player/pause"
+        }).done(function ()
+                {
+                    $.mobile.hidePageLoadingMsg();
+                    $('.ui-dialog').dialog('close');
+                });
+    }
+
+    function resume()
+    {
+        $.mobile.showPageLoadingMsg();
+        $.ajax({
+            url:"/jahspotify/player/resume"
+        }).done(function ()
+                {
+                    $.mobile.hidePageLoadingMsg("b", "Resuming Track", false);
+                    $('.ui-dialog').dialog('close');
+                });
+    }
+
 
 </script>
 
 <div data-role="content" data-inset="true" class="ui-body ui-body-a">
-    <div data-theme="a" data-inset="true" class="ui-body ui-body-a">
-
-        <form action="#" method="get">
-
-            <div data-role="fieldcontain">
-                <label for="shuffle">Shuffle</label>
-                <select name="shuffle" id="shuffle" data-role="slider">
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                </select>
-            </div>
-
-            <div data-role="fieldcontain">
-                <label for="repeat">Repeat:</label>
-                <select name="repeat" id="repeat" data-role="slider">
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                </select>
-            </div>
-
-        </form>
-    </div>
 
     <div class="content-primary" data-theme="a" data-inset="true" class="ui-body ui-body-a">
 
 
         <div data-role="fieldcontain">
-            <label for="clearQueue"></label>
-            <a href="#" id="clearQueue" data-role="button" onclick="clearQueue()">Clear Queue</a>
+            <label for="pause"></label>
+            <a href="#" id="pause" data-role="button" onclick="pause()">Pause</a>
+        </div>
+        <div data-role="fieldcontain">
+            <label for="resume"></label>
+            <a href="#" id="resume" data-role="button" onclick="resume()">Resume</a>
+        </div>
+        <div data-role="fieldcontain">
+            <label for="skip"></label>
+            <a href="#" id="skip" data-role="button" onclick="skip()">Skip Track</a>
         </div>
 
 

@@ -65,7 +65,14 @@ public class MediaBrowserUIController extends BaseController
         else if (link.isPlaylistLink())
         {
             final Playlist playlist = _jahSpotify.readPlaylist(link, 0, 0);
-            final List<FullTrack> tracks = new ArrayList<FullTrack>();
+            final Set<FullTrack> tracks = new TreeSet<FullTrack>(new Comparator<FullTrack>()
+            {
+                @Override
+                public int compare(final FullTrack o1, final FullTrack o2)
+                {
+                    return o1.getTitle().compareTo(o2.getTitle());
+                }
+            });
             for (final Link trackLink : playlist.getTracks())
             {
                 FullTrack track = createFullTrack(_jahSpotify.readTrack(trackLink));

@@ -26,6 +26,10 @@
 <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
     <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+
+    <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
+    <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Player</a>
+
 </div>
 
 
@@ -36,7 +40,7 @@
         <c:forEach items="${entry.subEntries}" var="subEntry">
             <c:url var="subEntryURL" value="/ui/media/${subEntry.id}"/>
             <li>
-                <a href="<c:out value="${subEntryURL}"/>">
+                <a href="<c:out value="${subEntryURL}"/>" data-prefetch="true">
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
                     <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>

@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Johan Lindquist
  */
-public class LibraryEntry
+public class LibraryEntry implements Comparable<LibraryEntry>
 {
 
     private String parentID;
@@ -32,7 +32,7 @@ public class LibraryEntry
     private String name;
     private String type;
     private int numEntries;
-    private List<LibraryEntry> subEntries = new ArrayList<LibraryEntry>();
+    private Set<LibraryEntry> subEntries = new TreeSet<LibraryEntry>();
 
     public static final String FOLDER_ENTRY_TYPE="FOLDER";
     public static final String PLAYLIST_ENTRY_TYPE="PLAYLIST";
@@ -96,12 +96,12 @@ public class LibraryEntry
         this.name = name;
     }
 
-    public List<LibraryEntry> getSubEntries()
+    public Set<LibraryEntry> getSubEntries()
     {
         return subEntries;
     }
 
-    public void setSubEntries(final List<LibraryEntry> subEntries)
+    public void setSubEntries(final Set<LibraryEntry> subEntries)
     {
         this.subEntries = subEntries;
     }
@@ -125,9 +125,15 @@ public class LibraryEntry
     {
         if (subEntries == null)
         {
-            subEntries = new ArrayList<LibraryEntry>();
+            subEntries = new TreeSet<LibraryEntry>();
         }
         numEntries++;
         subEntries.add(subEntry);
+    }
+
+    @Override
+    public int compareTo(final LibraryEntry o)
+    {
+        return name.compareTo(o.getName());
     }
 }

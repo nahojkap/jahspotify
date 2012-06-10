@@ -37,12 +37,15 @@
     <c:choose>
         <c:when test="${!empty(currentTrack)}">
 
-            <div data-role="content">
+            <div data-role="content" align="center">
                 <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
                 <jah:duration var="duration" value="${currentTrack.length}"/>
                 <img src="<c:out value="${albumCoverURL}"/>"/>
+
                 <h3><c:out value="${currentTrack.title}"/> [<c:out value="${duration}"/>]</h3>
-                <p><strong><c:out value="${currentTrack.albumName}"/> <c:out value="${currentTrack.artistNames}"/></strong></p>
+
+                <p><strong><c:out value="${currentTrack.albumName}"/> <c:out
+                        value="${currentTrack.artistNames}"/></strong></p>
             </div>
 
             <c:choose>
@@ -51,14 +54,17 @@
                         data-split-theme="a">
                         <c:forEach items="${queuedTracks}" var="track">
                             <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
-                            <li>
+                            <li id="<c:out value="${track.id.id}"/>">
                                 <a href="<c:out value="${trackURL}"/>">
                                     <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                                     <jah:duration var="duration" value="${track.length}"/>
 
                                     <img src="<c:out value="${albumCoverURL}"/>"/>
+
                                     <h3><c:out value="${track.title}"/> [<c:out value="${duration}"/>]</h3>
-                                    <p><strong><c:out value="${track.albumName}"/> <c:out value="${track.artistNames}"/></strong></p>
+
+                                    <p><strong><c:out value="${track.albumName}"/> <c:out
+                                            value="${track.artistNames}"/></strong></p>
                                 </a>
                                 <c:url var="queueTrackURL"
                                        value="/ui/queue/remove/${track.id.id}"/>
@@ -74,6 +80,31 @@
                                     </a>--%>
                             </li>
                         </c:forEach>
+
+                        <script>
+
+                            $("li").bind("tap", function (event)
+                                                       {
+
+                                                           alert("tap" + this.id);
+                                                           return true;
+
+                                                       });
+                            $("li").bind("taphold", function (event)
+                            {
+                                alert("TAPhold" + this.id);
+                                event.stopPropagation();
+                                return true;
+
+                            });
+                            $("li").bind ("swiperight", function (event)
+
+                            {
+                                alert("swiperight" + this.id);
+                            });
+
+                        </script>
+
                     </ul>
                 </c:when>
                 <c:otherwise>

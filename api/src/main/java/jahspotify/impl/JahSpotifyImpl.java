@@ -350,7 +350,7 @@ public class JahSpotifyImpl implements JahSpotify
                 case FOLDER:
                     msg = msg + "-" + entry.getName() + "(" + entry.getId() + ")";
                     _log.debug(msg);
-                    List<LibraryEntry> children = entry.getSubEntries();
+                    Set<LibraryEntry> children = entry.getSubEntries();
                     for (LibraryEntry child : children)
                     {
                         debugPrintNodes(child, indentation + 2);
@@ -870,7 +870,7 @@ public class JahSpotifyImpl implements JahSpotify
             return folderEntry;
         }
 
-        final List<LibraryEntry> strippedSubEntries = new ArrayList<LibraryEntry>();
+        final Set<LibraryEntry> strippedSubEntries = new TreeSet<LibraryEntry>();
         if (level == currentLevel)
         {
             // Remove all children of any sub-entries now
