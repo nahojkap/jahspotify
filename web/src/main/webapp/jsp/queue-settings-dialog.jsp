@@ -37,6 +37,8 @@
         }).done(function ()
                 {
                     $.mobile.hidePageLoadingMsg();
+                    $('.ui-dialog').dialog('close');
+
                 });
 
 

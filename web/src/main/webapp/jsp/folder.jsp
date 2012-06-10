@@ -23,7 +23,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!-- /header -->
-<div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
+<div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
     <h1><c:out value="${pageTitle}"/></h1>
     <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 

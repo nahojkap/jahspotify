@@ -24,7 +24,7 @@
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
 <!-- /header -->
-<div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
+<div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner" data-position="fixed">
     <h1><c:out value="${pageTitle}"/></h1>
     <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
     <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
@@ -81,29 +81,29 @@
                             </li>
                         </c:forEach>
 
-                        <script>
+                        <%--<script>--%>
 
-                            $("li").bind("tap", function (event)
-                                                       {
+                            <%--$("li").bind("tap", function (event)--%>
+                                                       <%--{--%>
 
-                                                           alert("tap" + this.id);
-                                                           return true;
+                                                           <%--alert("tap" + this.id);--%>
+                                                           <%--return true;--%>
 
-                                                       });
-                            $("li").bind("taphold", function (event)
-                            {
-                                alert("TAPhold" + this.id);
-                                event.stopPropagation();
-                                return true;
+                                                       <%--});--%>
+                            <%--$("li").bind("taphold", function (event)--%>
+                            <%--{--%>
+                                <%--alert("TAPhold" + this.id);--%>
+                                <%--event.stopPropagation();--%>
+                                <%--return true;--%>
 
-                            });
-                            $("li").bind ("swiperight", function (event)
+                            <%--});--%>
+                            <%--$("li").bind ("swiperight", function (event)--%>
 
-                            {
-                                alert("swiperight" + this.id);
-                            });
+                            <%--{--%>
+                                <%--alert("swiperight" + this.id);--%>
+                            <%--});--%>
 
-                        </script>
+                        <%--</script>--%>
 
                     </ul>
                 </c:when>

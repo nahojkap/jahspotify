@@ -25,9 +25,15 @@
 <div id="content" data-role="dialog" class="ot">
 
     <!-- /header -->
-    <div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
+    <div class="mainHeaderPanel" data-theme="o" data-position="fixed" data-role="header" role="banner">
         <h1><c:out value="${pageTitle}"/></h1>
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+
+        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
+               <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog"
+                  class="ui-btn-right">Player</a>
+
+
     </div>
 
 

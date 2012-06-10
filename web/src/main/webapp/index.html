@@ -11,7 +11,7 @@
     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile.structure-1.1.0.min.css"/>
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css"/>
 
     <link href="css/jahspotify-main.css" type="text/css" rel="stylesheet">
 
@@ -20,9 +20,20 @@
 
 
 <div id="homePage" data-role="page" data-theme="g" class="homeBody">
-    <div class="mainContentPanel" data-role="content">
 
-        <div id="LblJahSpotify" class="headText">Jah'Spotify</div>
+
+    <!-- /header -->
+    <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
+        <h1>Jah'Spotify</h1>
+        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+
+        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right">Player</a>
+
+
+    </div>
+
+
+    <div class="mainContentPanel" data-role="content">
 
         <div class="ui-grid-a">
             <div class="ui-block-a tileDiv tileBorderRight">
@@ -32,7 +43,8 @@
                 <div id="LblQueueStatus"></div>
             </div>
             <div class="ui-block-b tileDiv">
-                <a class="wrapper" data-prefetch="true" href="ui/media/jahspotify:folder:ROOT" id="Playlists"><span id="PlaylistIcon" class="playlistImg"></span></a>
+                <a class="wrapper" data-prefetch="true" href="ui/media/jahspotify:folder:ROOT" id="Playlists"><span
+                        id="PlaylistIcon" class="playlistImg"></span></a>
 
                 <div id="LblPlaylists" class="tileLabel">Playlists</div>
             </div>
@@ -53,7 +65,16 @@
             </div>
         </div>
     </div>
+
+
+    <div data-role="footer" class="footer-docs" data-theme="a" data-position="fixed">
+        <p>&copy; 2012 Jah'Spotify</p>
+
+        <p class="ui-btn-right">Powered by Spotify&trade;</p>
+    </div>
+
 </div>
+
 
 </body>
 </html>
