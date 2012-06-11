@@ -33,8 +33,6 @@
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
         <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog"
            class="ui-btn-right">Player</a>
-
-
     </div>
 
 
@@ -49,17 +47,12 @@
                             <jah:duration var="duration" value="${track.length}"/>
                             <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                             <img src="<c:out value="${albumCoverURL}"/>"/>
-
                             <h3><c:out value="${track.title}"/> [<c:out value="${duration}"/>]</h3>
-
                             <p>
                                 <strong>
-                                    <c:out value="${track.albumName}"/>
+                                    <c:out value="${track.albumName}"/> &#183;
                                     <c:forEach items="${track.artistNames}" var="artistName">
-
-
                                         <c:url var="artistURL" value="/ui/media/${track.id.id}"/>
-
                                         <c:out value="${artistName}"/>
                                     </c:forEach>
                                 </strong>

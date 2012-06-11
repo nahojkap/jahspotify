@@ -25,10 +25,11 @@
 
 <!-- /header -->
 <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner" data-position="fixed">
-    <h1><c:out value="${pageTitle}"/></h1>
+    <h1>Play Queue</h1>
     <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
     <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
     <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Options</a>
+
 </div>
 
 
@@ -37,15 +38,25 @@
     <c:choose>
         <c:when test="${!empty(currentTrack)}">
 
-            <div data-role="content" align="center">
-                <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
-                <jah:duration var="duration" value="${currentTrack.length}"/>
-                <img src="<c:out value="${albumCoverURL}"/>"/>
+            <div align="center" data-theme="a" data-content-theme="a">
 
-                <h3><c:out value="${currentTrack.title}"/> [<c:out value="${duration}"/>]</h3>
+                <ul data-role="listview" data-theme="a" data-inset="true" data-split-icon="minus" data-split-theme="a">
+                    <li>
+                        <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
+                        <jah:duration var="duration" value="${currentTrack.length}"/>
+                        <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
 
-                <p><strong><c:out value="${currentTrack.albumName}"/> <c:out
-                        value="${currentTrack.artistNames}"/></strong></p>
+                            <fieldset class="ui-grid-a">
+                                <div class="ui-block-a"><img width="33%" src="<c:out value="${albumCoverURL}"/>"/></div>
+                                <div class="ui-block-b"><h3><c:out value="${currentTrack.title}"/> [<c:out
+                                        value="${duration}"/>]</h3>
+                                    <p><strong><c:out value="${currentTrack.albumName}"/></strong></p>
+                                    <p><c:out value="${currentTrack.artistNames}"/></p></div>
+                            </fieldset>
+
+                        </fieldset>
+                    </li>
+                </ul>
             </div>
 
             <c:choose>
@@ -81,29 +92,29 @@
                             </li>
                         </c:forEach>
 
-                        <%--<script>--%>
+                            <%--<script>--%>
 
                             <%--$("li").bind("tap", function (event)--%>
-                                                       <%--{--%>
+                            <%--{--%>
 
-                                                           <%--alert("tap" + this.id);--%>
-                                                           <%--return true;--%>
+                            <%--alert("tap" + this.id);--%>
+                            <%--return true;--%>
 
-                                                       <%--});--%>
+                            <%--});--%>
                             <%--$("li").bind("taphold", function (event)--%>
                             <%--{--%>
-                                <%--alert("TAPhold" + this.id);--%>
-                                <%--event.stopPropagation();--%>
-                                <%--return true;--%>
+                            <%--alert("TAPhold" + this.id);--%>
+                            <%--event.stopPropagation();--%>
+                            <%--return true;--%>
 
                             <%--});--%>
                             <%--$("li").bind ("swiperight", function (event)--%>
 
                             <%--{--%>
-                                <%--alert("swiperight" + this.id);--%>
+                            <%--alert("swiperight" + this.id);--%>
                             <%--});--%>
 
-                        <%--</script>--%>
+                            <%--</script>--%>
 
                     </ul>
                 </c:when>

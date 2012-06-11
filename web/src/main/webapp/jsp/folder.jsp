@@ -40,6 +40,8 @@
         <c:forEach items="${entry.subEntries}" var="subEntry">
             <c:url var="subEntryURL" value="/ui/media/${subEntry.id}"/>
             <li>
+
+
                 <a href="<c:out value="${subEntryURL}"/>" data-prefetch="true">
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>

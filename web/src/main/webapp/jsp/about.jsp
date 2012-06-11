@@ -17,19 +17,36 @@
   ~        under the License.
   --%>
 
-<%@ page session="false" %>
+<%@ include file="/jsp/header.jsp" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<div id="aboutBox" data-role="page" data-theme="g" class="homeBody">
 
-<div data-role="footer" class="footer-docs" data-theme="a">
-    <div style="line-height: 0.1em; padding-left: 5px;">
-        <p style="text-align: left;">&copy; 2012 Jah'Spotify</p>
-        <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core</p>
+    <div data-role="content">
+
+        <!-- /header -->
+        <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
+            <h1>About Jah'Spotify</h1>
+        </div>
+
+
+        <div data-role="content" data-inset="true">
+
+            <div class="content-primary" data-theme="a" data-inset="true" class="ui-body ui-body-a">
+
+                <p>powered by</p>
+
+                <p><img
+                        src="https://d3d188a7ymhk4r.cloudfront.net/i/spotify-core-logo-128x128.png"/><img src="http://the.echonest.com/media/images/logos/EN_P_on_Black.gif"/>
+                </p>
+
+                <p>
+
+                </p>
+            </div>
+
+        </div>
     </div>
-
-    <a class="ui-btn-right" href="/jahspotify/jsp/about.jsp" data-rel="dialog">About</a>
 </div>
-
-</body>
-</html>
