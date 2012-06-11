@@ -24,11 +24,10 @@
 
 <div data-role="footer" class="footer-docs" data-theme="a">
     <div style="line-height: 0.1em; padding-left: 5px;">
-        <p style="text-align: left;">&copy; 2012 Jah'Spotify</p>
+        <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
         <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core</p>
     </div>
 
-    <a class="ui-btn-right" href="/jahspotify/jsp/about.jsp" data-rel="dialog">About</a>
 </div>
 
 </body>
