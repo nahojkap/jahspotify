@@ -77,7 +77,7 @@ jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
  * @param  position    Where the tracks were inserted
  * @param  userdata    The opaque pointer
  */
-static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
+static void SP_CALLCONV tracks_added ( sp_playlist *pl, sp_track * const *tracks,
                            int num_tracks, int position, void *userdata )
 {
     log_debug("jahspotify","tracks_added","Tracks added: playlist: %s numtracks: %d position: %d",sp_playlist_name(pl),num_tracks,position);
@@ -91,7 +91,7 @@ static void tracks_added ( sp_playlist *pl, sp_track * const *tracks,
  * @param  num_tracks  The number of tracks in the \c tracks array
  * @param  userdata    The opaque pointer
  */
-static void tracks_removed ( sp_playlist *pl, const int *tracks,
+static void SP_CALLCONV tracks_removed ( sp_playlist *pl, const int *tracks,
                              int num_tracks, void *userdata )
 {
     log_debug("jahspotify","tracks_removed","Tracks removed: playlist: %s numtracks: %d",sp_playlist_name(pl), num_tracks);
@@ -106,7 +106,7 @@ static void tracks_removed ( sp_playlist *pl, const int *tracks,
  * @param  new_position  To where the tracks were moved
  * @param  userdata      The opaque pointer
  */
-static void tracks_moved ( sp_playlist *pl, const int *tracks,
+static void SP_CALLCONV tracks_moved ( sp_playlist *pl, const int *tracks,
                            int num_tracks, int new_position, void *userdata )
 {
     log_debug("jahspotify","tracks_moved","Tracks moved: playlist: %s numtracks: %d",sp_playlist_name(pl), num_tracks);
@@ -118,12 +118,12 @@ static void tracks_moved ( sp_playlist *pl, const int *tracks,
  * @param  pl            The playlist handle
  * @param  userdata      The opaque pointer
  */
-static void playlist_renamed ( sp_playlist *pl, void *userdata )
+static void SP_CALLCONV playlist_renamed ( sp_playlist *pl, void *userdata )
 {
     log_debug("jahspotify","tracks_renamed","Tracks renamed: playlist: %s",sp_playlist_name(pl));
 }
 
-static void playlist_state_changed ( sp_playlist *pl, void *userdata )
+static void SP_CALLCONV playlist_state_changed ( sp_playlist *pl, void *userdata )
 {
     sp_link *link = sp_link_create_from_playlist(pl);
     char *linkName = malloc(sizeof(char)*100);
@@ -145,7 +145,7 @@ static void playlist_state_changed ( sp_playlist *pl, void *userdata )
     if (linkName) free(linkName);
 }
 
-static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *userdata )
+static void SP_CALLCONV playlist_update_in_progress ( sp_playlist *pl, bool done, void *userdata )
 {
     const char *name = sp_playlist_name ( pl );
     char *playListlinkStr;
@@ -170,7 +170,7 @@ static void playlist_update_in_progress ( sp_playlist *pl, bool done, void *user
 
 }
 
-static void playlist_metadata_updated ( sp_playlist *pl, void *userdata )
+static void SP_CALLCONV playlist_metadata_updated ( sp_playlist *pl, void *userdata )
 {
     log_debug("jahspotify","playlist_metadata_updated","Metadata updated: %s",sp_playlist_name(pl));
     // signalMetadataUpdated(pl);
@@ -203,7 +203,7 @@ static sp_playlist_callbacks pl_callbacks =
  * @param  position      Index of the added playlist
  * @param  userdata      The opaque pointer
  */
-static void playlist_added ( sp_playlistcontainer *pc, sp_playlist *pl,
+static void SP_CALLCONV playlist_added ( sp_playlistcontainer *pc, sp_playlist *pl,
                              int position, void *userdata )
 {
     log_debug("jahspotify","playlist_added","Playlist added: %s (loaded: %s)",sp_playlist_name(pl),sp_playlist_is_loaded(pl) ? "Yes" : "No");
@@ -220,7 +220,7 @@ static void playlist_added ( sp_playlistcontainer *pc, sp_playlist *pl,
  * @param  position      Index of the removed playlist
  * @param  userdata      The opaque pointer
  */
-static void playlist_removed ( sp_playlistcontainer *pc, sp_playlist *pl,
+static void SP_CALLCONV playlist_removed ( sp_playlistcontainer *pc, sp_playlist *pl,
                                int position, void *userdata )
 {
     const char *name = sp_playlist_name(pl);
@@ -235,7 +235,7 @@ static void playlist_removed ( sp_playlistcontainer *pc, sp_playlist *pl,
  * @param  pc            The playlist container handle
  * @param  userdata      The opaque pointer
  */
-static void container_loaded ( sp_playlistcontainer *pc, void *userdata )
+static void SP_CALLCONV container_loaded ( sp_playlistcontainer *pc, void *userdata )
 {
     char *folderName = calloc ( 1, sizeof ( char ) * ( MAX_LENGTH_FOLDER_NAME ) );
     int i;
@@ -315,7 +315,7 @@ static sp_playlistcontainer_callbacks pc_callbacks =
  *
  * @sa sp_session_callbacks#logged_in
  */
-static void logged_in ( sp_session *sess, sp_error error )
+static void SP_CALLCONV logged_in ( sp_session *sess, sp_error error )
 {
     sp_playlistcontainer *pc = sp_session_playlistcontainer ( sess );
     int i;
@@ -342,7 +342,7 @@ static void logged_in ( sp_session *sess, sp_error error )
     log_debug("jahspotify","logged_in","All done");
 }
 
-static void logged_out ( sp_session *sess )
+static void SP_CALLCONV logged_out ( sp_session *sess )
 {
     log_debug("jahspotify","logged_out","Logged out");
     signalLoggedOut();
@@ -357,7 +357,7 @@ static void logged_out ( sp_session *sess )
  *
  * @sa sp_session_callbacks#notify_main_thread
  */
-static void notify_main_thread ( sp_session *sess )
+static void SP_CALLCONV notify_main_thread ( sp_session *sess )
 {
     pthread_mutex_lock ( &g_notify_mutex );
     g_notify_do = 1;
@@ -370,7 +370,7 @@ static void notify_main_thread ( sp_session *sess )
  *
  * @sa sp_session_callbacks#music_delivery
  */
-static int music_delivery ( sp_session *sess, const sp_audioformat *format,
+static int SP_CALLCONV music_delivery ( sp_session *sess, const sp_audioformat *format,
                             const void *frames, int num_frames )
 {
     audio_fifo_t *af = &g_audiofifo;
@@ -416,7 +416,7 @@ static int music_delivery ( sp_session *sess, const sp_audioformat *format,
  *
  * @sa sp_session_callbacks#end_of_track
  */
-static void end_of_track ( sp_session *sess )
+static void SP_CALLCONV end_of_track ( sp_session *sess )
 {
     pthread_mutex_lock ( &g_notify_mutex );
     g_playback_done = 1;
@@ -433,7 +433,7 @@ static void end_of_track ( sp_session *sess )
  *
  * @sa sp_session_callbacks#metadata_updated
  */
-static void metadata_updated ( sp_session *sess )
+static void SP_CALLCONV metadata_updated ( sp_session *sess )
 {
     log_debug("jahspotify","metadata_updated","Metadata updated" );
 }
@@ -444,7 +444,7 @@ static void metadata_updated ( sp_session *sess )
  *
  * @sa sp_session_callbacks#play_token_lost
  */
-static void play_token_lost ( sp_session *sess )
+static void SP_CALLCONV play_token_lost ( sp_session *sess )
 {
     log_error("jahspotify","play_token_lost","Play token lost" );
     if ( g_currenttrack != NULL )
@@ -454,17 +454,17 @@ static void play_token_lost ( sp_session *sess )
     }
 }
 
-static void userinfo_updated (sp_session *sess)
+static void SP_CALLCONV userinfo_updated (sp_session *sess)
 {
     log_debug("jahspotify","userinfo_updated","User information updated");
 }
 
-static void log_message(sp_session *session, const char *data)
+static void SP_CALLCONV log_message(sp_session *session, const char *data)
 {
     log_debug("jahspotify","log_message","Spotify log message: %s",data);
 }
 
-static void connection_error(sp_session *session, sp_error error)
+static void SP_CALLCONV connection_error(sp_session *session, sp_error error)
 {
     log_error("jahspotify","connection_error","Error: %s",sp_error_message(error));
     // FIXME: should propagate this to java land
@@ -478,24 +478,24 @@ static void connection_error(sp_session *session, sp_error error)
     }
 }
 
-static void streaming_error(sp_session *session, sp_error error)
+static void SP_CALLCONV streaming_error(sp_session *session, sp_error error)
 {
     log_error("jahspotify","streaming_error","Streaming error: %s",sp_error_message(error));
     // FIXME: should propagate this to java land
 }
 
-static void start_playback(sp_session *session)
+static void SP_CALLCONV start_playback(sp_session *session)
 {
     log_debug("jahspotify","start_playback","Next playback about to start, initiating pre-load sequence");
     startPlaybackSignalled();
 }
 
-static void stop_playback(sp_session *session)
+static void SP_CALLCONV stop_playback(sp_session *session)
 {
   log_debug("jahspotify","stop_playback","Playback should stop");
 }
 
-static void message_to_user(sp_session *session, const char *data)
+static void SP_CALLCONV message_to_user(sp_session *session, const char *data)
 {
   log_debug("jahspotify","message_to_user","Message to user: ", data);
 }
@@ -534,7 +534,7 @@ static sp_session_config spconfig =
     NULL,
 };
 
-static void searchCompleteCallback(sp_search *result, void *userdata)
+static void SP_CALLCONV searchCompleteCallback(sp_search *result, void *userdata)
 {
     int32_t *token = (int32_t*)userdata;
     
@@ -615,6 +615,10 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeCon
 {
     g_connectionListener = (*env)->NewGlobalRef(env, connectionListener);
     log_debug("jahspotify","registerNativeConnectionListener","Registered connection listener: 0x%x\n", (int)g_connectionListener);
+
+	// TODO: Done here because otherwise it will be done too late.
+	pthread_mutex_init ( &g_notify_mutex, NULL );
+    pthread_cond_init ( &g_notify_cond, NULL );
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_unregisterListeners (JNIEnv *env, jobject obj)
@@ -888,7 +892,7 @@ char* toHexString(byte* bytes)
     return finalHash;
 }
 
-void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
+void SP_CALLCONV artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
 {
   int32_t *token = (int32_t*)userdata;
   if (token == NULL)
@@ -901,7 +905,7 @@ void artistBrowseCompleteCallback(sp_artistbrowse *result, void *userdata)
   }
 }
 
-void imageLoadedCallback(sp_image *image, void *userdata)
+void SP_CALLCONV imageLoadedCallback(sp_image *image, void *userdata)
 {
   int32_t *token = (int32_t*)userdata;
   if (token == NULL)
@@ -921,7 +925,7 @@ void trackLoadedCallback(sp_track *track, void *userdata)
   signalTrackLoaded(track, *token);
 }*/
 
-void albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
+void SP_CALLCONV albumBrowseCompleteCallback(sp_albumbrowse *result, void *userdata)
 {
   int32_t *token = (int32_t*)userdata;
   if (token == NULL)
@@ -1560,7 +1564,7 @@ JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTra
     // For each track, read out the info and populate all of the info in the Track instance
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *env, jobject obj)
 {
     log_debug("jahspotify","nativeResume","Pausing playback");
     if (g_currenttrack)
@@ -1569,7 +1573,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *e
     }
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv *env, jobject obj)
 {
     log_debug("jahspotify","nativeResume","Resuming playback");
     if (g_currenttrack)
@@ -1578,7 +1582,7 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv *
     }
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env, jobject obj, jstring uri, jobject outputStream)
+JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env, jobject obj, jstring uri, jobject outputStream)
 {
     uint8_t *nativeURI = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
     sp_link *imageLink = sp_link_create_from_string(nativeURI);
@@ -1656,7 +1660,7 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeStopTrack (JNIE
 }
 
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEnv *env, jobject obj, jstring uri)
+JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEnv *env, jobject obj, jstring uri)
 {
     uint8_t *nativeURI = NULL;
 
@@ -1831,7 +1835,7 @@ static void track_ended(void)
 
 }
 
-JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *env, jobject obj, jstring username, jstring password )
+JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *env, jobject obj, jstring username, jstring password )
 {
     sp_session *sp;
     sp_error err;
@@ -1864,8 +1868,8 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
     
     g_sess = sp;
 
-    pthread_mutex_init ( &g_notify_mutex, NULL );
-    pthread_cond_init ( &g_notify_cond, NULL );
+//    pthread_mutex_init ( &g_notify_mutex, NULL );
+//    pthread_cond_init ( &g_notify_cond, NULL );
 
     log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize","Initiating login: %s", nativeUsername );
 
@@ -1889,7 +1893,10 @@ JNIEXPORT int JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *e
 #else
             struct timeval tv;
             gettimeofday ( &tv, NULL );
-            TIMEVAL_TO_TIMESPEC ( &tv, &ts );
+			//TIMEVAL_TO_TIMESPEC ( &tv, &ts );
+			(&ts)->tv_sec = (&tv)->tv_sec;
+			(&ts)->tv_nsec = (&tv)->tv_usec * 1000;
+            ///TIMEVAL_TO_TIMESPEC ( &tv, &ts );
 #endif
             ts.tv_sec += next_timeout / 1000;
             ts.tv_nsec += ( next_timeout % 1000 ) * 1000000;
