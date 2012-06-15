@@ -1122,22 +1122,20 @@ void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artis
   log_debug("jahspotify","populateJArtistInstanceFromArtistBrowse","Populating artist browse instance");
   
   sp_artistbrowse_add_ref(artistBrowse);
-  
+
   int numSimilarArtists = sp_artistbrowse_num_similar_artists(artistBrowse);
-  
   jclass jClass = (*env)->FindClass(env, "jahspotify/media/Artist");
-  
   if (numSimilarArtists > 0)
   {
     jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addSimilarArtist","(Ljahspotify/media/Link;)V");
-    
+
     if (jMethod == NULL)
     {
       log_error("jahspotify","populateJArtistInstanceFromArtistBrowse","Could not load method addSimilarArtist(link) on class Artist");
       sp_artistbrowse_release(artistBrowse);
       return;
     }
-    
+
     // Load the artist links
     int count = 0;
     for (count = 0; count < numSimilarArtists; count++)
@@ -1146,39 +1144,39 @@ void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artis
       if (similarArtist)
       {
         sp_artist_add_ref(similarArtist);
-        
+
         sp_link *similarArtistLink = sp_link_create_from_artist(similarArtist);
-        
+
         if (similarArtistLink)
         {
           sp_link_add_ref(similarArtistLink);
-          
+
           jobject similarArtistJLink = createJLinkInstance(env,similarArtistLink);
-          
+
           // set it on the track
           (*env)->CallVoidMethod(env,artistInstance,jMethod,similarArtistJLink);
-          
+
           sp_link_release(similarArtistLink);
         }
-        
+
         sp_artist_release(similarArtist);
       }
     }
   }
-  
+
   int numPortraits = sp_artistbrowse_num_portraits(artistBrowse);
-  
+
   if (numPortraits > 0)
   {
     jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addPortrait","(Ljahspotify/media/Link;)V");
-    
+
     if (jMethod == NULL)
     {
       log_error("jahspotify","populateJArtistInstanceFromArtistBrowse","Could not load method addAlbum(link) on class Artist");
       sp_artistbrowse_release(artistBrowse);
       return;
     }
-    
+
     int count = 0;
     
     for (count = 0; count < numPortraits; count++)
@@ -1505,7 +1503,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     if (link)
         sp_link_release(link);
     if (nativeUri)
-        free(nativeUri);
+        (*env)->ReleaseStringUTFChars(env, uri,nativeUri);
 
     return trackInstance;
 }
@@ -1515,7 +1513,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
     jobject playlistInstance;
     uint8_t *nativeUri = NULL;
 
-    nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
+	nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
 
     log_debug("jahspotify","retrievePlaylist","Retrieving playlist: %s",nativeUri );
     
@@ -1549,7 +1547,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
     if (link)
         sp_link_release(link);
     if (nativeUri)
-        free(nativeUri);
+		( *env )->ReleaseStringUTFChars ( env, uri, nativeUri );
 
     return playlistInstance;
 
