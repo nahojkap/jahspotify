@@ -525,8 +525,13 @@ static sp_session_callbacks session_callbacks =
 static sp_session_config spconfig =
 {
     .api_version = SPOTIFY_API_VERSION,
+#ifdef _WIN32
     .cache_location = "c:/temp/jahspotify/cache",
     .settings_location = "c:/temp/jahspotify/settings",
+#else
+    .cache_location = "/var/lib/jahspotify/cache",
+    .settings_location = "/var/lib/jahspotify/",
+#endif
     .application_key = g_appkey,
     .application_key_size = 0, // Set in main()
     .user_agent = "jahspotify/0.0.1",
