@@ -525,8 +525,8 @@ static sp_session_callbacks session_callbacks =
 static sp_session_config spconfig =
 {
     .api_version = SPOTIFY_API_VERSION,
-    .cache_location = "/var/lib/jahspotify/cache",
-    .settings_location = "/var/lib/jahspotify/",
+    .cache_location = "c:/temp/jahspotify/cache",
+    .settings_location = "c:/temp/jahspotify/settings",
     .application_key = g_appkey,
     .application_key_size = 0, // Set in main()
     .user_agent = "jahspotify/0.0.1",
@@ -615,10 +615,6 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeCon
 {
     g_connectionListener = (*env)->NewGlobalRef(env, connectionListener);
     log_debug("jahspotify","registerNativeConnectionListener","Registered connection listener: 0x%x\n", (int)g_connectionListener);
-
-	// TODO: Done here because otherwise it will be done too late.
-	pthread_mutex_init ( &g_notify_mutex, NULL );
-    pthread_cond_init ( &g_notify_cond, NULL );
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_unregisterListeners (JNIEnv *env, jobject obj)
@@ -1849,6 +1845,9 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
         return 1;
     }
 
+	pthread_mutex_init ( &g_notify_mutex, NULL );
+    pthread_cond_init ( &g_notify_cond, NULL );
+
     /* Create session */
     spconfig.application_key_size = g_appkey_size;
     err = sp_session_create ( &spconfig, &sp );
@@ -1868,8 +1867,6 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
     
     g_sess = sp;
 
-//    pthread_mutex_init ( &g_notify_mutex, NULL );
-//    pthread_cond_init ( &g_notify_cond, NULL );
 
     log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize","Initiating login: %s", nativeUsername );
 
