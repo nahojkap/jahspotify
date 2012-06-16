@@ -873,7 +873,7 @@ char* toHexString(byte* bytes)
     char   ls_hex[3] = "";
     int    i = 0;
     int    j = 0;
-    char hash[40];
+    char hash[60];
     byte *theBytes = bytes;
 
     memset(ls_hex, '\0', 3);
@@ -887,7 +887,7 @@ char* toHexString(byte* bytes)
         hash[j++] = ls_hex[1];
     }
 
-    char *finalHash = calloc(1, sizeof(char)*40);
+    char *finalHash = calloc(1, sizeof(char)*60);
     strcpy(finalHash,hash);
 
     return finalHash;
