@@ -879,7 +879,7 @@ char* toHexString(byte* bytes)
     memset(ls_hex, '\0', 3);
 
     j = 0;
-    for (i=0; i < 20; i++)
+    for (i=0; i < 30; i++)
     {
         sprintf(ls_hex, "%.2X", *theBytes);
         theBytes++;
