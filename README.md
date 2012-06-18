@@ -2,7 +2,7 @@
 Jah'Spotify Project
 ===============================================================================
 
----- Introduction -----
+# Introduction
 
 Jah'Spotify is a Java wrapper built on top of the Spotify native APIs (libspotify)
 
