@@ -24,9 +24,11 @@
 
     <!-- /header -->
     <div class="ui-bar" data-position="inline" data-role="header">
-        <a href="/jahspotify/index.html" data-icon="home" data-direction="reverse">Home</a>
+<!--
+        <a href="/jahspotify/index.html" data-icon="home" data-direction="reverse" data-iconpos="notext">Home</a>
+-->
         <h3>Jah'Spotify</h3>
-        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right">Player</a>
+        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
     </div>
 
 
@@ -49,13 +51,13 @@
 
         <div class="ui-grid-a">
             <div class="ui-block-a tileDiv tileBorderRight tileBorderTop">
-                <a class="wrapper" href="/search" id="Search"><span id="SearchIcon" class="searchImg"></span></a>
+                <a class="wrapper" href="ui/search" id="Search"><span id="SearchIcon" class="searchImg"></span></a>
 
                 <div id="LblSearch" class="tileLabel">Search</div>
                 <div id="LblSearchStatus"></div>
             </div>
             <div class="ui-block-b tileDiv tileBorderTop">
-                <a class="wrapper" href="/serverSettings" id="ServerSettings"><span id="ServerSettingsIcon"
+                <a class="wrapper" href="serverSettings" id="ServerSettings"><span id="ServerSettingsIcon"
                                                                                     class="serverSettingsImg"></span></a>
 
                 <div id="LblLocation" class="tileLabel">Server Info</div>

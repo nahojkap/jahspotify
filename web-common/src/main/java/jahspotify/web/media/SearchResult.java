@@ -2,7 +2,7 @@ package jahspotify.web.media;
 
 import java.util.*;
 
-public class Result
+public class SearchResult
 {
     private String query;
     private String suggestion;
@@ -13,7 +13,7 @@ public class Result
     private List<String> albums;
     private List<String> tracks;
 
-    public Result()
+    public SearchResult()
     {
         this.query = null;
         this.suggestion = null;
@@ -122,9 +122,9 @@ public class Result
 
     public boolean equals(Object o)
     {
-        if (o instanceof Result)
+        if (o instanceof SearchResult)
         {
-            return this.query.equals(((Result) o).query);
+            return this.query.equals(((SearchResult) o).query);
         }
 
         return false;

@@ -84,6 +84,14 @@ public class MediaBrowserUIController extends BaseController
             modelAndView.addObject("pageTitle", playlist.getName());
             modelAndView.setViewName("/jsp/playlist.jsp");
         }
+        else if (link.isTrackLink())
+        {
+            FullTrack fullTrack = createFullTrack(_jahSpotify.readTrack(link));
+            modelAndView.addObject("track",fullTrack);
+            modelAndView.addObject("pageTitle", fullTrack.getTitle());
+            modelAndView.setViewName("/jsp/track.jsp");
+
+        }
         return modelAndView;
     }
 

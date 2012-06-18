@@ -28,7 +28,7 @@
     <h1>Play Queue</h1>
     <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
     <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
-    <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Options</a>
+    <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Options</a>
 
 </div>
 

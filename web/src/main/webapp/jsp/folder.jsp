@@ -28,7 +28,7 @@
     <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 
     <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-    <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Player</a>
+    <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
 
 </div>
 

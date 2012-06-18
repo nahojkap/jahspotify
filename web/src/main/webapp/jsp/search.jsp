@@ -23,17 +23,15 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div id="playList" data-role="page" data-theme="g">
+<div id="playList" data-role="page" data-theme="g" class="homeBody">
 
     <!-- /header -->
-    <div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
+    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
+        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
         <h1><c:out value="${pageTitle}"/></h1>
-        <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
-        <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
-        <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog"
-           class="ui-btn-right">Options</a>
+        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
+        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
     </div>
-
 
     <div data-role="footer">
         <div data-role="navbar">

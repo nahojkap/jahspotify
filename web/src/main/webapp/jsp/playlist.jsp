@@ -27,12 +27,10 @@
 
     <!-- /header -->
     <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
-        <h1><c:out value="${pageTitle}"/></h1>
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
-
+        <h1><c:out value="${pageTitle}"/></h1>
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog"
-           class="ui-btn-right">Player</a>
+        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
     </div>
 
 
