@@ -16,12 +16,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.FolderBrowseActivity" android:label="@string/jahspotify_app_name"/>
 
-        <activity android:name=".activities.PlaylistBrowseActivity" android:label="@string/jahspotify_app_name"/>
-
-        <activity android:name=".activities.HomeActivity" android:configChanges="keyboardHidden|orientation" />
         <activity android:name=".activities.SelectServerActivity" android:configChanges="keyboardHidden|orientation" />
+        <activity android:name=".activities.BrowserActivity" android:configChanges="keyboardHidden|orientation" />
 
     </application>
 

@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import jahspotify.android.R;
-import jahspotify.android.data.LibraryRetriever;
 import jahspotify.client.ServerBroadcasterClient;
 import jahspotify.web.system.ServerIdentity;
 
@@ -130,8 +129,8 @@ public class SelectServerActivity extends ListActivity implements ListView.OnScr
                 @Override
                 public void onClick(final View view)
                 {
-                    LibraryRetriever.initialize(serverIdentity.getServerWebAddress(), serverIdentity.getWebPort());
-                    Intent intent = new Intent(SelectServerActivity.this,FolderBrowseActivity.class);
+                    Intent intent = new Intent(SelectServerActivity.this,BrowserActivity.class);
+                    intent.putExtra("ServerIdentity",serverIdentity);
                     startActivity(intent);
                     finish();
                 }

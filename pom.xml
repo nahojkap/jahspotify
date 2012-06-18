@@ -17,12 +17,10 @@
         <module>api</module>
         <module>storage</module>
         <module>services</module>
-<!--
         <module>web-client</module>
--->
         <module>web-common</module>
-        <!--<module>executable-war</module>-->
-        <!--<module>android</module>-->
+        <module>executable-war</module>
+        <module>android</module>
     </modules>
 
     <properties>

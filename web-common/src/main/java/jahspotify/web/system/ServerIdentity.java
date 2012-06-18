@@ -19,11 +19,13 @@ package jahspotify.web.system;
  *        under the License.
  */
 
+import java.io.Serializable;
+
 /** Minimal class representing a Jahspotify server identity.
  *
  * @author Johan Lindquist
  */
-public class ServerIdentity
+public class ServerIdentity implements Serializable
 {
     String serverId;
     String type = "MASTER";
