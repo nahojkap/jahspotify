@@ -873,23 +873,20 @@ char* toHexString(byte* bytes)
     char   ls_hex[3] = "";
     int    i = 0;
     int    j = 0;
-    char hash[60];
+    char *finalHash = calloc(1, sizeof(char)*41);
     byte *theBytes = bytes;
 
     memset(ls_hex, '\0', 3);
 
     j = 0;
-    for (i=0; i < 30; i++)
+    for (i=0; i < 20; i++)
     {
         sprintf(ls_hex, "%.2X", *theBytes);
         theBytes++;
-        hash[j++] = ls_hex[0];
-        hash[j++] = ls_hex[1];
+        finalHash[j++] = ls_hex[0];
+        finalHash[j++] = ls_hex[1];
     }
-
-    char *finalHash = calloc(1, sizeof(char)*60);
-    strcpy(finalHash,hash);
-
+	finalHash[41] = '\0';
     return finalHash;
 }
 
