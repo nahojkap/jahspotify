@@ -1,6 +1,9 @@
 package jahspotify.media;
 
-import java.util.*;
+import jahspotify.media.Link.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Holds information about a playlist.
@@ -60,6 +63,11 @@ public class Playlist extends Container
 
     public void addTrack(Link track)
     {
+    	if (track.getType() == Type.LOCAL)
+    	{
+    		// Don't add local tracks, can't do anything with them...
+    		return;
+    	}
         if (tracks == null)
         {
             tracks = new ArrayList<Link>();

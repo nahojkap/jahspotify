@@ -26,8 +26,8 @@ modules).
 
 ---- To build -----
 
-Currently, Jah'Spotify only supports the Linux version of libspotify and will therefore require a Linux installation
-to compile.  You also need to download and install libspotify & request an API key from Spotify.  This can be done
+Jah'Spotify supports the Linux and Windows versions of libspotify (see below for more details on building on Windows).
+You also need to download and install libspotify & request an API key from Spotify.  This can be done
 on the http://developer.spotify.com website.  Generate the key and download the C code version of it.  Place this
 in a file called AppKey.h in the native/src/main/native/inc directory.  You may want to place some #ifndef APPKEY
 statements in this to prevent linking problems.
@@ -37,6 +37,26 @@ Next, to build the sources, check them out from git
 git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
 mvn clean install
+
+------- Building on Windows -------
+
+## Before compiling
+
+- Download MinGW and put the bin folder in your PATH.
+- Download the OpenAL SDK from and copy the include folder to the MinGW include folder and rename it to AL
+- The native pom.xml has a reference to a local LibSpotify folder. Change this to your own Spotify folder. You'll get an error that the api.h file can't be found if you don't.
+- Also add the reference to your OpenAL installation folder
+
+You can find the OpenAL SDK at:
+
+    http://connect.creativelabs.com/developer/Wiki/OpenAL%20SDK%20for%20Windows.aspx
+
+## Running
+The tool isn't quite working yet. Following the compile steps you will be able to run the Java part, but it won't o anything useful yet.
+You will also need to download a few more dependencies:
+- phtread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
+- mongodb, and have the daemon running.
+- I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
 
 ---- Modules -----
 
@@ -54,7 +74,7 @@ mvn clean install
 
 To run up the Jah'Spotify RESTful API
 
-mvn jetty:run -Dspotify.username=<your username> -Dspotify.password=<your password>
+mvn jetty:run -Djahspotify.spotify.username=<your username> -Djahspotify.spotify.password=<your password>
 
 NOTE: The username and password can also be specified in your Maven settings.xml
 

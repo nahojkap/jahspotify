@@ -23,7 +23,7 @@ public class Link
      */
     public static enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3, LOCAL, USER;
 
         /**
          * Returns the lower-case name of this enum constant.

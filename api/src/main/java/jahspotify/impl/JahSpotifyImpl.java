@@ -1,14 +1,39 @@
 package jahspotify.impl;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.*;
-import java.util.concurrent.locks.*;
+import jahspotify.ConnectionListener;
+import jahspotify.JahSpotify;
+import jahspotify.PlaybackListener;
+import jahspotify.PlaylistListener;
+import jahspotify.Search;
+import jahspotify.SearchListener;
+import jahspotify.SearchResult;
+import jahspotify.media.Album;
+import jahspotify.media.Artist;
+import jahspotify.media.Image;
+import jahspotify.media.ImageSize;
+import jahspotify.media.Library;
+import jahspotify.media.LibraryEntry;
+import jahspotify.media.Link;
+import jahspotify.media.Playlist;
+import jahspotify.media.Track;
+import jahspotify.media.User;
 
-import jahspotify.*;
-import jahspotify.media.*;
-import org.apache.commons.logging.*;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Johan Lindquist
@@ -710,7 +735,6 @@ public class JahSpotifyImpl implements JahSpotify
     static
     {
         System.loadLibrary("jahspotify");
-        System.loadLibrary("spotify");
     }
 
     @Override
