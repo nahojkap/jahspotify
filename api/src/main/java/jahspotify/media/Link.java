@@ -46,7 +46,7 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3;
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3, LOCAL, USER;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -127,6 +127,20 @@ public class Link
      * <pre>jahspotify:folder:([^\\s]+)</pre>
      */
     private static final Pattern jahFolderPattern = Pattern.compile("jahspotify:folder:(ROOT|([0-9A-Za-z]{16}))");
+    
+    /**
+     * A regular expression to match local URIs:
+     * <p/>
+     * <pre>jahspotify:folder:([^\\s]+)</pre>
+     */
+    private static final Pattern localPattern = Pattern.compile("spotify:local:(.*)");
+    
+    /**
+     * A regular expression to match local URIs:
+     * <p/>
+     * <pre>jahspotify:folder:([^\\s]+)</pre>
+     */
+    private static final Pattern userPattern = Pattern.compile("spotify:user:(.*)");
 
     /**
      * The {@link Link.Type} of this link.
@@ -190,6 +204,8 @@ public class Link
         Matcher jahPodcastMatcher = jahPodcastPattern.matcher(uri);
         Matcher jahMp3Matcher = jahMP3Pattern.matcher(uri);
         Matcher jahFolderMatcher = jahFolderPattern.matcher(uri);
+        Matcher localMatcher = localPattern.matcher(uri);
+        Matcher userMatcher = userPattern.matcher(uri);
 
         /* Check if URI matches artist/album/track pattern. */
         if (mediaMatcher.matches())
@@ -283,6 +299,16 @@ public class Link
             {
                 this.folderId = Hex.hexToLong(group);
             }
+        }
+        else if (localMatcher.matches())
+        {
+        	this.type = Type.LOCAL;
+        	this.id = uri;
+        }
+        else if (userMatcher.matches())
+        {
+        	this.type = Type.USER;
+        	this.id = uri;
         }
         /* If nothing was matched. */
         else

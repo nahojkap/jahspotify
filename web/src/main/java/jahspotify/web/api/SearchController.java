@@ -21,7 +21,7 @@ public class SearchController extends BaseController
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public SearchResult searchAsGet(@RequestParam String query, @RequestParam(defaultValue = "0") int trackOffset, @RequestParam(defaultValue = "0") int numTracks, @RequestParam(defaultValue = "255") int albumOffset, @RequestParam(defaultValue = "255") int numAlbums, @RequestParam(defaultValue = "0") int artistOffset, @RequestParam(defaultValue = "255") int numArtists)
+    public SearchResult searchAsGet(@RequestParam String query, @RequestParam(defaultValue = "0") int trackOffset, @RequestParam(defaultValue = "50") int numTracks, @RequestParam(defaultValue = "0") int albumOffset, @RequestParam(defaultValue = "20") int numAlbums, @RequestParam(defaultValue = "0") int artistOffset, @RequestParam(defaultValue = "20") int numArtists)
     {
         final Search search = new Search(TokenQuery.token(query));
         search.setNumTracks(numTracks);

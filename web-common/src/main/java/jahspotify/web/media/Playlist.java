@@ -1,5 +1,7 @@
 package jahspotify.web.media;
 
+import jahspotify.web.media.Link.Type;
+
 import java.util.*;
 
 /**
@@ -60,6 +62,12 @@ public class Playlist extends Container
 
     public void addTrack(Link track)
     {
+    	if (track.getType() == Type.LOCAL)
+    	{
+    		// Don't add local tracks, can't do anything with them...
+    		return;
+    	}
+    	
         if (tracks == null)
         {
             tracks = new ArrayList<Link>();

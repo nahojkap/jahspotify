@@ -655,6 +655,10 @@ int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
     }
     
     sp_artist *artist = sp_artistbrowse_artist(artistBrowse);
+	if (!artist)
+	{
+		goto fail;
+	}
     
     sp_artist_add_ref(artist);
     
@@ -852,6 +856,10 @@ int signalAlbumBrowseLoaded(sp_albumbrowse *albumBrowse, int32_t token)
   
   album = sp_albumbrowse_album(albumBrowse);
   
+  if (!album)
+  {
+	goto fail;
+  }
   sp_album_add_ref(album);
   
   albumLink = sp_link_create_from_album(album);

@@ -54,7 +54,8 @@ public class MediaBrowserUIController extends BaseController
         {
             final LibraryEntry entry = _jahSpotify.readFolder(link,0);
             modelAndView.addObject("entry",entry);
-            String name = entry.getName();
+
+            String name = entry == null ? "" : entry.getName();
             if (link.equals(Link.create("jahspotify:folder:ROOT")))
             {
                 name = "Top";

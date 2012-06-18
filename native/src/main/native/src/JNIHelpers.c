@@ -319,7 +319,7 @@ fail:
 }
 
 JNIEXPORT
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
+jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env = NULL;
     jint result = -1;

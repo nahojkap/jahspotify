@@ -1,84 +1,161 @@
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>jahspotify</groupId>
-        <artifactId>jahspotify-root</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+	<modelVersion>4.0.0</modelVersion>
 
-    <artifactId>libjahspotify</artifactId>
+	<parent>
+		<groupId>jahspotify</groupId>
+		<artifactId>jahspotify-root</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-    <name>jahspotify-libjahspotify</name>
 
-    <packaging>so</packaging>
+	<name>jahspotify-libjahspotify</name>
 
-    <dependencies>
+	<artifactId>${artifact}</artifactId>
+	<packaging>${packaging}</packaging>
 
-        <dependency>
-            <groupId>jahspotify</groupId>
-            <artifactId>jahspotify-api</artifactId>
-        </dependency>
+	<dependencies>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>jahspotify</groupId>
+			<artifactId>jahspotify-api</artifactId>
+		</dependency>
 
-    </dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 
-    <build>
+	</dependencies>
 
-        <finalName>${project.artifactId}</finalName>
+	<profiles>
+		<profile>
+			<id>NonWindows</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<OS>linux</OS>
+				<linkeropts>-lspotify -lc -lopenal -ldl -lrt</linkeropts>
+				<lstartopts>-z defs</lstartopts>
+				<artifact>libjahspotify</artifact>
+				<packaging>so</packaging>
+			</properties>
+		</profile>
+		<profile>
+			<id>Windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<OS>windows</OS>
+				<spotify>C:\Users\Niels\workspace\LibSpotify\</spotify>
+				<openal>C:\Program Files (x86)\OpenAL 1.1 SDK\</openal>
+				
+				<compilerparams>"-I${java.home}\..\include"
+					"-I${java.home}\..\include\win32" "-I${spotify}\include"</compilerparams>
+				<linkeropts>"${spotify}lib\libspotify.lib" "${openal}libs\Win32\OpenAL32.lib"</linkeropts>
+				<lstartopts>-D_JNI_IMPLEMENTATION_ -Wl,--kill-at</lstartopts>
+				<artifact>jahspotify</artifact>
+				<packaging>dll</packaging>
+			</properties>
+		</profile>
+	</profiles>
 
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
+	<build>
 
-                    <!--  trigger javah -->
-                    <javahOS>linux</javahOS>
-                    <javahClassNames>
-                        <javahClassName>jahspotify.impl.JahSpotifyImpl</javahClassName>
-                    </javahClassNames>
+		<finalName>${project.artifactId}</finalName>
+ 
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
 
-                    <compilerProvider>generic</compilerProvider>
-                    <compilerStartOptions>
-                        <compilerStartOption>-fPIC -O -I${basedir}/src/main/native/inc -D_GNU_SOURCE -g3 -fno-inline -O0</compilerStartOption>
-                    </compilerStartOptions>
-                    <sources>
-                        <source>
-                            <directory>${basedir}/src/main/native/src</directory>
-                            <includes>
-                                <include>**/*.c</include>
-                            </includes>
-                        </source>
-                    </sources>
+					<!-- trigger javah -->
+					<javahOS>${OS}</javahOS>
+					<javahClassNames>
+						<javahClassName>jahspotify.impl.JahSpotifyImpl</javahClassName>
+					</javahClassNames>
 
-                    <linkerEndOptions>
-                        <linkerEndOption>-lspotify</linkerEndOption>
-                        <linkerStartOption>-lc</linkerStartOption>
-                        <linkerStartOption>-lopenal</linkerStartOption>
-                        <linkerStartOption>-ldl</linkerStartOption>
-                        <linkerStartOption>-lpthread</linkerStartOption>
-                        <linkerStartOption>-lrt</linkerStartOption>
-                    </linkerEndOptions>
-                    <linkerStartOptions>
-                        <linkerStartOption>-shared</linkerStartOption>
-                        <linkerStartOption>-z defs</linkerStartOption>
-                    </linkerStartOptions>
+					<compilerProvider>generic</compilerProvider>
+					<compilerStartOptions>
+						<compilerStartOption>-fPIC -O -I${basedir}/src/main/native/inc
+							-D_GNU_SOURCE -g3 -fno-inline -O0 ${compilerparams}</compilerStartOption>
+					</compilerStartOptions>
+					<sources>
+						<source>
+							<directory>${basedir}/src/main/native/src</directory>
+							<includes>
+								<include>**/*.c</include>
+							</includes>
+						</source>
+					</sources>
 
-                </configuration>
+					<linkerEndOptions>
+						<linkerStartOption>-lpthread</linkerStartOption>
+						<linkerStartOption>${linkeropts}</linkerStartOption>
+					</linkerEndOptions>
+					<linkerStartOptions>
+						<linkerStartOption>-shared</linkerStartOption>
+						<linkerStartOption>${lstartopts}</linkerStartOption>
+					</linkerStartOptions>
 
-            </plugin>
+				</configuration>
 
-        </plugins>
+			</plugin>
 
-    </build>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											native-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.0-alpha-7,)
+										</versionRange>
+										<goals>
+											<goal>link</goal>
+											<goal>compile</goal>
+											<goal>javah</goal>
+											<goal>unzipinc</goal>
+											<goal>initialize</goal>
+											<goal>manifest</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 
 </project>
