@@ -63,9 +63,9 @@ You can find the OpenAL SDK at:
 
 Download and install MongoDB
 
-You will also need to download a few more dependencies:
-
 ### Running on Windows
+
+For windows, you will need to download a few more dependencies:
 
 - pthread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
 - I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
