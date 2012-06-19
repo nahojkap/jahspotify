@@ -28,15 +28,19 @@ modules).
 
 Jah'Spotify supports the Linux and Windows versions of libspotify (see below for more details on building on Windows).
 You also need to download and install libspotify & request an API key from Spotify.  This can be done
-on the http://developer.spotify.com website.  Generate the key and download the C code version of it.  Place this
-in a file called AppKey.h in the native/src/main/native/inc directory.  You may want to place some #ifndef APPKEY
-statements in this to prevent linking problems.
+on the http://developer.spotify.com website.
+
+Generate the key and download the C code version of it.  Place this in a file called AppKey.h in the
+
+    native/src/main/native/inc
+
+directory.  You may want to place some #ifndef APPKEY statements in this to prevent linking problems.
 
 Next, to build the sources, check them out from git
 
-git clone git://github.com/johanlindquist/jahspotify.git
-cd jahspotify
-mvn clean install
+    git clone git://github.com/johanlindquist/jahspotify.git
+    cd jahspotify
+    mvn clean install
 
 ### Building on Windows
 
@@ -59,7 +63,7 @@ You will also need to download a few more dependencies:
 
 ### Running on Windows
 
-- phtread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
+- pthread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
 - I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
 
 ## Modules
