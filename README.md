@@ -62,42 +62,61 @@ You will also need to download a few more dependencies:
 - phtread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
 - I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
 
----- Modules -----
+## Modules
 
 * android
+
   provides a simple app for browsing playlists and queueing tracks
+
 * api
+
   provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
+
 * native
+
   contains all native & JNI code interacting with libspotify
+
 * services
+
   provides all Jah'Spotify Spring services
+
 * web
+
   provides the RESTful API (json based)
+
 * executable-war
+
   provides a single, executable Jah'Spotify war file
+
 * web-client
+
   provides java client for interacting with the RESTful API
+
 * web-common
+
   provides the java beans which are serialized over the RESTful API
+
 * storage
+
   provides basic storage implementations for caching media objects (tracks/images/etc)
 
 ## UI
+
+TBD
 
 ## REST API
 
 To run up the Jah'Spotify RESTful API
 
-mvn jetty:run -Djahspotify.spotify.username=<your username> -Djahspotify.spotify.password=<your password>
+    mvn jetty:run -Djahspotify.spotify.username=<your username> -Djahspotify.spotify.password=<your password>
 
 NOTE: The username and password can also be specified in your Maven settings.xml
 
-http://localhost:8080/jahspotify/system/status
+[http://localhost:8080/jahspotify/system/status](http://localhost:8080/jahspotify/system/status)
 
 All media can be retrieved using the Media Controller URL
 
-http://localhost:8080/jahspotify/media/<URI>
+    http://localhost:8080/jahspotify/media/<URI>
 
 Where the URI is any of the URIs specified below, in the more specialized controllers:
 
@@ -155,7 +174,7 @@ __Pause playback__
 
 __Resume play__
 
-[http://localhost:8080/jahspotify/player/resumse](http://localhost:8080/jahspotify/player/play)
+[http://localhost:8080/jahspotify/player/resume](http://localhost:8080/jahspotify/player/resume)
 
 __Stop play__
 
@@ -167,15 +186,15 @@ __Play__
 
 __Seek__
 
-[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/seek?offset=43)
+[http://localhost:8080/jahspotify/player/seek?offset=43](http://localhost:8080/jahspotify/player/seek?offset=43)
 
 __Volume Up__
 
-[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/volume-up)
+[http://localhost:8080/jahspotify/player/volume-up](http://localhost:8080/jahspotify/player/volume-up)
 
 __Volume Down__
 
-[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/volume-down)
+[http://localhost:8080/jahspotify/player/volume-down](http://localhost:8080/jahspotify/player/volume-down)
 
 There are other URLs - please examine the web module for them.
 
