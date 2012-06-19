@@ -103,12 +103,18 @@ Where the URI is any of the URIs specified below, in the more specialized contro
 
 ### URLs
 
-Library retrieval
+__Library retrieval__
+
     http://localhost:8080/jahspotify/library/
-Folder retrieval
+
+__Folder retrieval__
+
     http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
-Playlist retrieval
+
+__Playlist retrieval__
+
     http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
+
 Album retrieval
     http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
 Artist retrieval
