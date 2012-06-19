@@ -105,7 +105,7 @@ Where the URI is any of the URIs specified below, in the more specialized contro
 
 __Library retrieval__
 
-(http://localhost:8080/jahspotify/library/)
+[http://localhost:8080/jahspotify/library/](http://localhost:8080/jahspotify/library/)
 
 __Folder retrieval__
 
@@ -119,36 +119,40 @@ __Album retrieval__
 
 http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
 
-__Artist retrieval
+__Artist retrieval__
 http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
 
-__Track retrieval
+__Track retrieval__
 http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
 
-__Image retrieval
+__Image retrieval__
 http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
 
-__Adding a track to the play queue
+__Adding a track to the play queue__
 http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
 
-__Retrieving play queue
+__Retrieving play queue__
 http://localhost:8080/jahspotify/queue/jahspotify:queue:default
 
-__Searching
+__Searching__
 http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
 
 #### While playing:
 
-Skip to next track in queue
-    http://localhost:8080/jahspotify/player/skip
-Pause playback
-    http://localhost:8080/jahspotify/player/pause
-Resume play
-    http://localhost:8080/jahspotify/player/play
-Stop play
-    http://localhost:8080/jahspotify/player/stop
-Play
-    http://localhost:8080/jahspotify/player/play
+__Skip to next track in queue__
+http://localhost:8080/jahspotify/player/skip
+
+__Pause playback__
+http://localhost:8080/jahspotify/player/pause
+
+__Resume play__
+http://localhost:8080/jahspotify/player/play
+
+__Stop play__
+http://localhost:8080/jahspotify/player/stop
+
+__Play__
+http://localhost:8080/jahspotify/player/play
 
 There are other URLs - please examine the web module for them.
 
