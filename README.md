@@ -2,29 +2,29 @@
 Jah'Spotify Project
 ===============================================================================
 
-# Introduction
+## Introduction
 
 Jah'Spotify is a Java wrapper built on top of the Spotify native APIs (libspotify)
 
 Currently supports:
 
-- retrieving library (all user playlists/folders)
-- retrieve a playlist
-- retrieve a folder (including/excluding sub-folders and playlists)
-- retrieve an album
-- retrieve a track
-- retrieve an image
-- add tracks to a queue (single queue currently supported)
-- play tracks
-- pause/skip functions
-- dynamic playlist using echonest apis
-- basic historical track list view
-- very basic android app for remote control
+* retrieving library (all user playlists/folders)
+* retrieve a playlist
+* retrieve a folder (including/excluding sub-folders and playlists)
+* retrieve an album
+* retrieve a track
+* retrieve an image
+* add tracks to a queue (single queue currently supported)
+* play tracks
+* pause/skip functions
+* dynamic playlist using echonest apis
+* basic historical track list view
+* very basic android app for remote control
 
 In addition, all the above functions are accessible over a JSON based RESTful API (provided by the services and web
 modules).
 
----- To build -----
+## To build
 
 Jah'Spotify supports the Linux and Windows versions of libspotify (see below for more details on building on Windows).
 You also need to download and install libspotify & request an API key from Spotify.  This can be done
@@ -117,3 +117,4 @@ on freenode - #jahspotify.
 Licensing
 
 All Jah'Spotify code is released under the Apache 2.0 license
+
