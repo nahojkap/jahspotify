@@ -1899,7 +1899,8 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
             ts.tv_sec += next_timeout / 1000;
             ts.tv_nsec += ( next_timeout % 1000 ) * 1000000;
 
-            pthread_cond_timedwait ( &g_notify_cond, &g_notify_mutex, &ts );
+			if (!g_notify_do) // Only wait if we know we have nothing to do.
+				pthread_cond_timedwait ( &g_notify_cond, &g_notify_mutex, &ts );
         }
 
         g_notify_do = 0;
