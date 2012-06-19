@@ -52,25 +52,40 @@ You can find the OpenAL SDK at:
     http://connect.creativelabs.com/developer/Wiki/OpenAL%20SDK%20for%20Windows.aspx
 
 ## Running
-The tool isn't quite working yet. Following the compile steps you will be able to run the Java part, but it won't o anything useful yet.
+
+Download and install MongoDB
+
 You will also need to download a few more dependencies:
+
+### Running on Windows
+
 - phtread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
-- mongodb, and have the daemon running.
 - I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
 
 ---- Modules -----
 
-- android: provides a simple app for browsing playlists and queueing tracks
-- api: provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
-- native: contains all native & JNI code interacting with libspotify
-- services: provides all Jah'Spotify Spring services
-- web: provides the RESTful API (json based)
-- executable-war: provides a single, executable Jah'Spotify war file
-- web-client: provides java client for interacting with the RESTful API
-- web-common: provides the java beans which are serialized over the RESTful API
-- storage: provides basic storage implementations for caching media objects (tracks/images/etc)
+* android
+  provides a simple app for browsing playlists and queueing tracks
+* api
+  provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
+* native
+  contains all native & JNI code interacting with libspotify
+* services
+  provides all Jah'Spotify Spring services
+* web
+  provides the RESTful API (json based)
+* executable-war
+  provides a single, executable Jah'Spotify war file
+* web-client
+  provides java client for interacting with the RESTful API
+* web-common
+  provides the java beans which are serialized over the RESTful API
+* storage
+  provides basic storage implementations for caching media objects (tracks/images/etc)
 
----- REST API -----
+## UI
+
+## REST API
 
 To run up the Jah'Spotify RESTful API
 
@@ -86,35 +101,52 @@ http://localhost:8080/jahspotify/media/<URI>
 
 Where the URI is any of the URIs specified below, in the more specialized controllers:
 
-Library retrieval: http://localhost:8080/jahspotify/library/
-Folder retrieval: http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
-Playlist retrieval: http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
-Album retrieval: http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
-Artist retrieval: http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
-Track retrieval: http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
-Image retrieval: http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
-Adding a track to the play queue: http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
-Retrieving play queue: http://localhost:8080/jahspotify/queue/jahspotify:queue:default
-Searching: http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
+### URLs
 
-While playing:
+Library retrieval
+    http://localhost:8080/jahspotify/library/
+Folder retrieval
+    http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
+Playlist retrieval
+    http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
+Album retrieval
+    http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
+Artist retrieval
+    http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
+Track retrieval
+    http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
+Image retrieval
+    http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
+Adding a track to the play queue
+    http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
+Retrieving play queue
+    http://localhost:8080/jahspotify/queue/jahspotify:queue:default
+Searching
+    http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
 
-Skip to next track in queue: http://localhost:8080/jahspotify/player/skip
-Pause playback: http://localhost:8080/jahspotify/player/pause
-Resume play: http://localhost:8080/jahspotify/player/play
-Stop play: http://localhost:8080/jahspotify/player/stop
-Play: http://localhost:8080/jahspotify/player/play
+#### While playing:
+
+Skip to next track in queue
+    http://localhost:8080/jahspotify/player/skip
+Pause playback
+    http://localhost:8080/jahspotify/player/pause
+Resume play
+    http://localhost:8080/jahspotify/player/play
+Stop play
+    http://localhost:8080/jahspotify/player/stop
+Play
+    http://localhost:8080/jahspotify/player/play
 
 There are other URLs - please examine the web module for them.
 
 NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
 
-Discussions and other:
+## Discussions and other:
 
 For now, there is nothing concrete setup but try the issues page on github, contacting us on github.  Also found at times
 on freenode - #jahspotify.
 
-Licensing
+## Licensing
 
 All Jah'Spotify code is released under the Apache 2.0 license
 
