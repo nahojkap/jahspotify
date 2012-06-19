@@ -4,3 +4,8 @@ target/
 *.iws
 .kdev*
 *.kdev4
+.classpath
+.project
+.settings
+rebel.xml
+*.dll

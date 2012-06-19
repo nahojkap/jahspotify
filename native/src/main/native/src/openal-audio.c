@@ -200,7 +200,7 @@ static void* audio_start(void *aux)
                      afd->rate);
 
         free(afd);
-	
+
         alSourceQueueBuffers(source, 1, &buffers[0]);
         queue_buffer(source, af, buffers[1]);
         queue_buffer(source, af, buffers[2]);
@@ -236,4 +236,3 @@ void audio_fifo_flush(audio_fifo_t *af)
     af->qlen = 0;
     pthread_mutex_unlock(&af->mutex);
 }
-

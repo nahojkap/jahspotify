@@ -26,7 +26,7 @@ int placeInThread(void *threadFunction, void *threadParams)
     }
     else
     {
-        log_trace("threadhelpers","placeInThread","Thread started: id: %llu", (long long unsigned int)thread_id);
+//        log_trace("threadhelpers","placeInThread","Thread started: id: %llu", (long long unsigned int)thread_id);
         return 0;
     }
     

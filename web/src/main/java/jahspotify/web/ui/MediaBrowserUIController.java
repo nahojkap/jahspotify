@@ -54,7 +54,8 @@ public class MediaBrowserUIController extends BaseController
         {
             final LibraryEntry entry = _jahSpotify.readFolder(link,0);
             modelAndView.addObject("entry",entry);
-            String name = entry.getName();
+
+            String name = entry == null ? "" : entry.getName();
             if (link.equals(Link.create("jahspotify:folder:ROOT")))
             {
                 name = "Top";
@@ -65,23 +66,32 @@ public class MediaBrowserUIController extends BaseController
         else if (link.isPlaylistLink())
         {
             final Playlist playlist = _jahSpotify.readPlaylist(link, 0, 0);
-            final Set<FullTrack> tracks = new TreeSet<FullTrack>(new Comparator<FullTrack>()
+
+            if (playlist == null)
             {
-                @Override
-                public int compare(final FullTrack o1, final FullTrack o2)
+                // Error loading it!
+            }
+            else
+            {
+
+                final Set<FullTrack> tracks = new TreeSet<FullTrack>(new Comparator<FullTrack>()
                 {
-                    return o1.getTitle().compareTo(o2.getTitle());
+                    @Override
+                    public int compare(final FullTrack o1, final FullTrack o2)
+                    {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
+                });
+                for (final Link trackLink : playlist.getTracks())
+                {
+                    FullTrack track = createFullTrack(_jahSpotify.readTrack(trackLink));
+                    tracks.add(track);
                 }
-            });
-            for (final Link trackLink : playlist.getTracks())
-            {
-                FullTrack track = createFullTrack(_jahSpotify.readTrack(trackLink));
-                tracks.add(track);
+                modelAndView.addObject("playlist",playlist);
+                modelAndView.addObject("tracks",tracks);
+                modelAndView.addObject("pageTitle", playlist.getName());
             }
 
-            modelAndView.addObject("playlist",playlist);
-            modelAndView.addObject("tracks",tracks);
-            modelAndView.addObject("pageTitle", playlist.getName());
             modelAndView.setViewName("/jsp/playlist.jsp");
         }
         else if (link.isTrackLink())
