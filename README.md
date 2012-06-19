@@ -38,14 +38,14 @@ git clone git://github.com/johanlindquist/jahspotify.git
 cd jahspotify
 mvn clean install
 
-------- Building on Windows -------
+### Building on Windows
 
-## Before compiling
+#### Before compiling
 
-- Download MinGW and put the bin folder in your PATH.
-- Download the OpenAL SDK from and copy the include folder to the MinGW include folder and rename it to AL
-- The native pom.xml has a reference to a local LibSpotify folder. Change this to your own Spotify folder. You'll get an error that the api.h file can't be found if you don't.
-- Also add the reference to your OpenAL installation folder
+1. Download MinGW and put the bin folder in your PATH.
+2. Download the OpenAL SDK from and copy the include folder to the MinGW include folder and rename it to AL
+3. The native pom.xml has a reference to a local LibSpotify folder. Change this to your own Spotify folder. You'll get an error that the api.h file can't be found if you don't.
+4. Add a reference to your OpenAL installation folder
 
 You can find the OpenAL SDK at:
 
