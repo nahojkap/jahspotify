@@ -886,7 +886,7 @@ char* toHexString(byte* bytes)
         finalHash[j++] = ls_hex[0];
         finalHash[j++] = ls_hex[1];
     }
-	finalHash[41] = '\0';
+	finalHash[40] = '\0';
     return finalHash;
 }
 
