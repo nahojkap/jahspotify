@@ -217,3 +217,8 @@ on freenode - #jahspotify.
 
 All Jah'Spotify code is released under the Apache 2.0 license
 
+## Contributors
+
+Niels vd Weem
+
+Thanks!

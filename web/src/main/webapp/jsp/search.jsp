@@ -28,21 +28,62 @@
     <!-- /header -->
     <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+
         <h1><c:out value="${pageTitle}"/></h1>
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
+        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right"
+           data-iconpos="notext">Player</a>
     </div>
 
-    <div data-role="footer">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="a.html" class="ui-btn-active">Tracks</a></li>
-                <li><a href="b.html">Albums</a></li>
-                <li><a href="c.html">Artists</a></li>
-            </ul>
-        </div>
+    <div data-role="content">
+        <div class="content-primary">
+            <div class="ui-body ui-body-a">
+                <c:url var="searchExectuteURL" value="/ui/search/execute"/>
+                <form action="<c:out value='${searchExectuteURL}'/>" method="post">
+                    <div data-role="fieldcontain" class="ui-hide-label" class="ui-body ui-body-a">
+                        <label for="query">Search Query:</label>
+                        <c:if test="${not empty searchResult}">
+                            <c:set var="previousQuery" value="${searchResult.query}"/>
+                        </c:if>
+                        <input type="text" name="query" id="query" value="<c:out value='${previousQuery}'/>"
+                               placeholder="Search Query"/>
+                    </div>
 
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup" data-mini="true">
+                            <legend>Scope:</legend>
+
+                            <input type="checkbox" name="artists" id="artists" class="custom"/>
+                            <label for="artists">Artists</label>
+
+                            <input type="checkbox" name="tracks" id="tracks" class="custom"/>
+                            <label for="tracks">Tracks</label>
+
+                            <input type="checkbox" name="albums" id="albums" class="custom"/>
+                            <label for="albums">Albums</label>
+
+                        </fieldset>
+                    </div>
+
+                    <div data-role="fieldcontain" data-mini="true">
+                        <label for="numresults">Results per Page:</label>
+                        <input data-mini="true" type="range" name="numresults" id="numresults" value="50" min="1"
+                               max="255"
+                               data-highlight="true"/>
+                    </div>
+
+                    <div>
+                        <fieldset>
+                            <div>
+                                <button type="submit" data-mini="true">Search</button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </form>
+            </div>
         </div>
+    </div>
 
     <%@ include file="/jsp/footer.jsp" %>
 

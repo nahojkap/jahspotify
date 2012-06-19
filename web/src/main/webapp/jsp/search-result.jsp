@@ -17,19 +17,33 @@
   ~        under the License.
   --%>
 
-<%@ page session="false" %>
+<%@ include file="/jsp/header.jsp" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
+<div id="playList" data-role="page" data-theme="g" class="homeBody">
 
-<div data-role="footer" class="footer-docs" data-theme="a">
-    <div style="line-height: 0.1em; padding-left: 5px;">
-        <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
-
-        <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core</p>
+    <!-- /header -->
+    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
+        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+        <h1><c:out value="${pageTitle}"/></h1>
+        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
+        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
     </div>
 
-</div>
+    <div data-role="footer">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="a.html" class="ui-btn-active">Tracks</a></li>
+                <li><a href="b.html">Albums</a></li>
+                <li><a href="c.html">Artists</a></li>
+            </ul>
+        </div>
 
-</body>
-</html>
+        </div>
+
+    <%@ include file="/jsp/footer.jsp" %>
+
+</div>
