@@ -105,7 +105,7 @@ Where the URI is any of the URIs specified below, in the more specialized contro
 
 __Library retrieval__
 
-http://localhost:8080/jahspotify/library/
+(http://localhost:8080/jahspotify/library/)
 
 __Folder retrieval__
 
