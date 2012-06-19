@@ -109,50 +109,59 @@ __Library retrieval__
 
 __Folder retrieval__
 
-http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
+[http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca](http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca)
 
 __Playlist retrieval__
 
-http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
+[http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO](http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO)
 
 __Album retrieval__
 
-http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
+[http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F](http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F)
 
 __Artist retrieval__
-http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
+[http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR](http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR)
 
 __Track retrieval__
-http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
+[http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx](http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx)
 
 __Image retrieval__
-http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
+[http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d](http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d)
 
 __Adding a track to the play queue__
-http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
+[http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd](http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd)
 
 __Retrieving play queue__
-http://localhost:8080/jahspotify/queue/jahspotify:queue:default
+[http://localhost:8080/jahspotify/queue/jahspotify:queue:default](http://localhost:8080/jahspotify/queue/jahspotify:queue:default)
 
 __Searching__
-http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
+[http://localhost:8080/jahspotify/search/?query=alika&numTracks=1](http://localhost:8080/jahspotify/search/?query=alika&numTracks=1)
 
 #### While playing:
 
 __Skip to next track in queue__
-http://localhost:8080/jahspotify/player/skip
+[http://localhost:8080/jahspotify/player/skip](http://localhost:8080/jahspotify/player/skip)
 
 __Pause playback__
-http://localhost:8080/jahspotify/player/pause
+[http://localhost:8080/jahspotify/player/pause](http://localhost:8080/jahspotify/player/pause)
 
 __Resume play__
-http://localhost:8080/jahspotify/player/play
+[http://localhost:8080/jahspotify/player/resumse](http://localhost:8080/jahspotify/player/play)
 
 __Stop play__
-http://localhost:8080/jahspotify/player/stop
+[http://localhost:8080/jahspotify/player/stop](http://localhost:8080/jahspotify/player/stop)
 
 __Play__
-http://localhost:8080/jahspotify/player/play
+[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/play)
+
+__Seek__
+[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/seek?offset=43)
+
+__Volume Up__
+[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/volume-up)
+
+__Volume Down__
+[http://localhost:8080/jahspotify/player/play](http://localhost:8080/jahspotify/player/volume-down)
 
 There are other URLs - please examine the web module for them.
 
