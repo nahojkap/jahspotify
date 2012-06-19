@@ -105,30 +105,37 @@ Where the URI is any of the URIs specified below, in the more specialized contro
 
 __Library retrieval__
 
-    http://localhost:8080/jahspotify/library/
+http://localhost:8080/jahspotify/library/
 
 __Folder retrieval__
 
-    http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
+http://localhost:8080/jahspotify/folder/jahspotify:folder:9594c66fa67e43ca
 
 __Playlist retrieval__
 
-    http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
+http://localhost:8080/jahspotify/playlist/spotify:user:dummy-user:playlist:0s8KIfDTmZz5zupnkqF6FO
 
-Album retrieval
-    http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
-Artist retrieval
-    http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
-Track retrieval
-    http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
-Image retrieval
-    http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
-Adding a track to the play queue
-    http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
-Retrieving play queue
-    http://localhost:8080/jahspotify/queue/jahspotify:queue:default
-Searching
-    http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
+__Album retrieval__
+
+http://localhost:8080/jahspotify/album/spotify:album:3PogVmhNucYNfyywZvTd7F
+
+__Artist retrieval
+http://localhost:8080/jahspotify/artist/spotify:artist:7dGJo4pcD2V6oG8kP0tJRR
+
+__Track retrieval
+http://localhost:8080/jahspotify/track/spotify:track:7mliwEVqxIuwLmHdTXlBrx
+
+__Image retrieval
+http://localhost:8080/jahspotify/image/spotify:image:e99e74261d120029fecfde36ab1c07a0eb99e54d
+
+__Adding a track to the play queue
+http://localhost:8080/jahspotify/queue/jahspotify:queue:default/add/spotify:track:2eEUnqeLUjxkefHrIgqgAd
+
+__Retrieving play queue
+http://localhost:8080/jahspotify/queue/jahspotify:queue:default
+
+__Searching
+http://localhost:8080/jahspotify/search/?query=alika&numTracks=1
 
 #### While playing:
 
