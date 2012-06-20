@@ -42,7 +42,7 @@
             <li>
 
 
-                <a href="<c:out value="${subEntryURL}"/>" data-prefetch="true">
+                <a href="<c:out value="${subEntryURL}"/>" >
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
                     <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>

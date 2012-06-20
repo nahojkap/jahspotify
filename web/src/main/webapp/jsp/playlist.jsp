@@ -41,7 +41,7 @@
                 <c:forEach items="${tracks}" var="track">
                     <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
                     <li>
-                        <a href="<c:out value="${trackURL}"/>" data-prefetch="true">
+                        <a href="<c:out value="${trackURL}"/>" >
                             <jah:duration var="duration" value="${track.length}"/>
                             <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                             <img src="<c:out value="${albumCoverURL}"/>"/>

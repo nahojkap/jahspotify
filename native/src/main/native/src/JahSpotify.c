@@ -658,14 +658,13 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
     log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Retrieving user" );
 
     int count = 0;
-    while (!sp_user_is_loaded(user) && count < 10)
+    while (!sp_user_is_loaded(user) && count < 4)
     {
-        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Waiting for user to load\n" );
         usleep(250);
         count ++;
     }
 
-    if (count == 10)
+    if (count == 4)
     {
         log_warn("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveUser","Timeout while waiting for user to load" );
         return NULL;
@@ -971,7 +970,7 @@ void populateJAlbumInstanceFromAlbumBrowse(JNIEnv *env, sp_album *album, sp_albu
     jobject albumTypeEnum = (jobjectArray)(*env)->CallStaticObjectMethod(env, albumTypeJClass, jMethod,(int)albumType);
     setObjectObjectField(env,albumInstance,"type","Ljahspotify/media/AlbumType;",albumTypeEnum);
 
-    sp_link *albumCoverLink = sp_link_create_from_album_cover(album, SP_IMAGE_SIZE_SMALL);
+    sp_link *albumCoverLink = sp_link_create_from_album_cover(album, SP_IMAGE_SIZE_NORMAL);
     if (albumCoverLink)
     {
       sp_link_add_ref(albumCoverLink);
@@ -1099,14 +1098,18 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
       int count = 0;
 
-      if (!sp_albumbrowse_is_loaded(albumBrowse))
+      if (!sp_albumbrowse_is_loaded(albumBrowse) && count < 4)
       {
-          log_trace("jahspotify","createJAlbumInstance","Album not loaded, will have to wait for callback");
-          sp_albumbrowse_release(albumBrowse);
-          sp_album_release(album);
-          return NULL;
+        usleep(250);
+        count++;
       }
-
+      if (count == 4)
+      {
+        log_warn("jahspotify","createJAlbumInstance","Album not loaded after 1 second, will have to wait for callback");
+        sp_albumbrowse_release(albumBrowse);
+        sp_album_release(album);
+        return NULL;
+      }
       populateJAlbumInstanceFromAlbumBrowse(env, album,albumBrowse, albumInstance);
 
       sp_albumbrowse_release(albumBrowse);
@@ -1308,9 +1311,15 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
             sp_artistbrowse_add_ref(artistBrowse);
 
             int count = 0;
-            if (!sp_artistbrowse_is_loaded(artistBrowse))
+            while (!sp_artistbrowse_is_loaded(artistBrowse) && count < 4)
             {
-              log_trace("jahspotify","createJArtistInstance","Artist not loaded, will have to wait for callback");
+              usleep(250);
+              count++;
+            }
+            
+            if (count == 4)
+            {
+              log_warn("jahspotify","createJArtistInstance","Artist not loaded after 1 second , will have to wait for callback");
               sp_artistbrowse_release(artistBrowse);
               sp_artist_release(artist);
               return NULL;
@@ -1486,15 +1495,15 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     sp_track *track = sp_link_as_track(link);
 
     int count = 0;
-    while (!sp_track_is_loaded(track) && count < 10)
+    while (!sp_track_is_loaded(track) && count < 4)
     {
-        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Waiting for track to be loaded ..." );
         usleep(250);
         count++;
     }
 
-    if (count == 10)
+    if (count == 4)
     {
+      log_warn("jahspotify","retrieveTrack","Track not loaded after 1 second, will have to wait for callback");
       return NULL;
     }
 
@@ -1530,16 +1539,15 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
     sp_playlist *playlist = sp_playlist_create(g_sess,link);
 
     int count = 0;
-    while (!sp_playlist_is_loaded(playlist) && count < 10)
+    while (!sp_playlist_is_loaded(playlist) && count < 4)
     {
-        log_debug("jahspotify","retrievePlaylist","Waiting for playlist to be loaded ..." );
         usleep(250);
         count++;
     }
 
-    if (count == 10)
+    if (count == 4)
     {
-      log_warn("jahspotify","retrievePlaylist","Timeout while waiting for playlist to load ..." );
+      log_warn("jahspotify","retrievePlaylist","Playlist not loaded after 1 second, will have to wait for callback");
       return NULL;
     }
 
@@ -1599,6 +1607,19 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *en
             sp_image_add_ref(image);
             sp_image_add_load_callback(image, imageLoadedCallback, NULL);
 
+            int count = 0;
+            while (!sp_image_is_loaded(image) && count < 4)
+            {
+              usleep(250);
+              count++;
+            }
+            
+            if (count == 4)
+            {
+              log_warn("jahspotify","readImage","Image not loaded after 1 second, will have to wait for callback");
+              goto fail;
+            }
+            
             if (sp_image_is_loaded(image))
             {
                 byte *data = (byte*)sp_image_data(image,&size);
@@ -1684,16 +1705,16 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
         }
 
         int count = 0;
-        while (!sp_track_is_loaded(t) && count < 10)
+        while (!sp_track_is_loaded(t) && count < 4)
         {
-            log_debug("jahspotify","nativePlayTrack","Waiting for track ...");
             usleep(250);
             count ++;
         }
 
-        if (count == 10)
+        if (count == 4)
         {
-          // Hmm timeout loading the track ... what now?
+          log_warn("jahspotify","nativePlayTrack","Track not loaded after 1 second, will have to wait for callback");
+          return;
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)

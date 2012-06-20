@@ -54,15 +54,16 @@ public class DurationFormatTag extends TagSupport
         long hours = durationSeconds / 3600;
         long remaining = durationSeconds % 3600;
         long minutes = remaining / 60;
+        minutes = minutes + (hours * 60);
         long seconds = remaining % 60;
 
         StringBuilder sb = new StringBuilder();
-        if (hours < 10)
+        /*if (hours < 10)
         {
            sb.append('0');
         }
         sb.append(hours);
-        sb.append(':');
+        sb.append(':');*/
 
         if (minutes < 10)
         {
