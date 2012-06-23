@@ -43,7 +43,7 @@ public class Artist extends Media
      /**
      * A {@link List} of tracks.
      */
-    private List<Link> tracks;
+    private List<Link> topHitTracks;
 
     /**
      * A {@link List} of similar artists.
@@ -236,6 +236,26 @@ public class Artist extends Media
         }
         similarArtists.add(similarArtist);
     }
+
+    public List<Link> getTopHitTracks()
+    {
+        return topHitTracks;
+    }
+
+    public void setTopHitTracks(final List<Link> topHitTracks)
+    {
+        this.topHitTracks = topHitTracks;
+    }
+
+    public void addTopHitTrack(final Link topHitTrack)
+    {
+        if (topHitTracks == null)
+        {
+            topHitTracks = new ArrayList<Link>();
+        }
+        topHitTracks.add(topHitTrack);
+    }
+
 
     /**
      * Determines if an object is equal to this {@link Artist} object.

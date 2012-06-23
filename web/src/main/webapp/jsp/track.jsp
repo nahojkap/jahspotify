@@ -21,6 +21,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div id="playList" data-role="page" data-theme="g" class="homeBody">
 
@@ -46,15 +47,18 @@
                 </div>
 
                 <div align="center" style="line-height: 0.5em">
-                    <jah:duration var="duration" value="${track.length}"/>
+                    <jah:duration var="duration" duration="${track.length}"/>
                     <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                     <div>
                         <img src="<c:out value='${albumCoverURL}'/>"/>
                     </div>
 
                     <p style="font-weight: 900;"><c:out value="${track.title}"/> (<c:out value="${duration}"/>)</p>
+
                     <p style="font-weight: bold; font-size: 80%"><c:out value="${track.albumName}"/></p>
-                    <p style="font-weight: bold; font-size: 70%"><c:forEach items="${track.artistNames}" varStatus="rowCounter" var="artistName">
+
+                    <p style="font-weight: bold; font-size: 70%"><c:forEach items="${track.artistNames}"
+                                                                            varStatus="rowCounter" var="artistName">
                         <c:set var="artistLink" value="${track.artistLinks[rowCounter.count]}"/>
                         <c:out value="${artistName}"/>
                         <c:if test="${not rowCounter.last}">, </c:if>
@@ -64,23 +68,24 @@
 
                 <div data-role="navbar" data-theme="g">
                     <ul>
-                        <li><a href="#" data-icon="plus">Add To</a></li>
-                        <li><a href="#" data-icon="grid">Queue</a></li>
-                        <li><a href="#" data-icon="people">Artist</a></li>
+                        <li><a href="#" data-icon="star">Star</a></li>
+                        <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
+                        <li><a data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid">Enqueue</a></li>
+                        <c:choose>
+                            <c:when test="${fn:length(track.artistNames) gt 1}">
+                                <c:url var="artistBrowseURL" value="/ui/media/artists/${track.id.id}"/>
+                                <li><a data-prefetch="true" data-rel="dialog" href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artists</a></li>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="artistLink" value="${track.artistLinks[0].id}"/>
+                                <c:url var="artistBrowseURL" value="/ui/media/artist/${artistLink}"/>
+                                <li><a href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artist</a></li>
+                            </c:otherwise>
+                        </c:choose>
+
                         <li><a href="#" data-icon="gear">More</a></li>
                     </ul>
                 </div>
-                <!-- /navbar -->
-                <%--
-
-                                <label for="browse-artists" class="select">Browse Artist(s):</label>
-                                <select name="browse-artists" id="browse-artists" data-mini="true">
-                                    <c:forEach items="${track.artistNames}" varStatus="rowCounter" var="artistName">
-                                        <c:set var="artistLink" value="${track.artistLinks[rowCounter.count]}"/>
-                                        <option value="<c:out value='${artistLink}'/>"><c:out value="${artistName}"/></option>
-                                    </c:forEach>
-                                </select>
-                --%>
 
             </div>
         </div>

@@ -23,9 +23,14 @@ import java.util.*;
 
 import jahspotify.JahSpotify;
 import jahspotify.media.*;
+import jahspotify.media.LibraryEntry;
+import jahspotify.media.Link;
+import jahspotify.media.Playlist;
+import jahspotify.media.Track;
 import jahspotify.services.QueueManager;
 import jahspotify.web.api.BaseController;
-import jahspotify.web.media.FullTrack;
+import jahspotify.web.media.*;
+import jahspotify.web.media.Artist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -44,16 +49,17 @@ public class MediaBrowserUIController extends BaseController
     @Autowired
     QueueManager _queueManager;
 
-    @RequestMapping(value="/{link}")
-    public ModelAndView retrievePlaylistView(@PathVariable(value = "link") String linkStr)
+    @RequestMapping(value = "/library/{link}")
+    public ModelAndView retrieveFolderView(@PathVariable(value = "link") String linkStr)
     {
         final Link link = Link.create(linkStr);
 
         final ModelAndView modelAndView = new ModelAndView();
         if (link.isFolderLink())
         {
-            final LibraryEntry entry = _jahSpotify.readFolder(link,0);
-            modelAndView.addObject("entry",entry);
+
+            final LibraryEntry entry = _jahSpotify.readFolder(link, 0);
+            modelAndView.addObject("entry", entry);
 
             String name = entry == null ? "" : entry.getName();
             if (link.equals(Link.create("jahspotify:folder:ROOT")))
@@ -87,22 +93,84 @@ public class MediaBrowserUIController extends BaseController
                     FullTrack track = createFullTrack(_jahSpotify.readTrack(trackLink));
                     tracks.add(track);
                 }
-                modelAndView.addObject("playlist",playlist);
-                modelAndView.addObject("tracks",tracks);
+                modelAndView.addObject("playlist", playlist);
+                modelAndView.addObject("tracks", tracks);
                 modelAndView.addObject("pageTitle", playlist.getName());
             }
 
             modelAndView.setViewName("/jsp/playlist.jsp");
-        }
-        else if (link.isTrackLink())
-        {
-            FullTrack fullTrack = createFullTrack(_jahSpotify.readTrack(link));
-            modelAndView.addObject("track",fullTrack);
-            modelAndView.addObject("pageTitle", fullTrack.getTitle());
-            modelAndView.setViewName("/jsp/track.jsp");
 
         }
+
         return modelAndView;
     }
+
+    @RequestMapping(value = "/track/{link}")
+    public ModelAndView retrieveTrackView(@PathVariable(value = "link") String linkStr)
+    {
+        final Link link = Link.create(linkStr);
+
+        if (!link.isTrackLink())
+        {
+        }
+
+        final ModelAndView modelAndView = new ModelAndView();
+
+        FullTrack fullTrack = createFullTrack(_jahSpotify.readTrack(link));
+        modelAndView.addObject("track", fullTrack);
+        modelAndView.addObject("pageTitle", fullTrack.getTitle());
+        modelAndView.setViewName("/jsp/track.jsp");
+
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/artist/{link}")
+    public ModelAndView retrieveArtistView(@PathVariable(value = "link") String linkStr)
+    {
+        final Link link = Link.create(linkStr);
+
+        if (!link.isArtistLink())
+        {
+        }
+
+        final ModelAndView modelAndView = new ModelAndView();
+
+        final Artist artist = convertToWebArtist(_jahSpotify.readArtist(link));
+
+        modelAndView.addObject("artist", artist);
+        modelAndView.addObject("pageTitle", artist.getName());
+
+        modelAndView.setViewName("/jsp/artist.jsp");
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/artists/{link}")
+    public ModelAndView selectArtistsDialog(@PathVariable(value = "link") String linkStr)
+    {
+        final Link link = Link.create(linkStr);
+
+        if (!link.isTrackLink())
+        {
+        }
+
+        final ModelAndView modelAndView = new ModelAndView();
+
+        final Track track = _jahSpotify.readTrack(link);
+
+        List<Artist> artists = new ArrayList<Artist>();
+
+        final List<Link> trackArtists = track.getArtists();
+        for (Link artistLink : trackArtists)
+        {
+            jahspotify.media.Artist artist = _jahSpotify.readArtist(artistLink);
+            artists.add(convertToWebArtist(artist));
+        }
+
+        modelAndView.addObject("artists", artists);
+
+        modelAndView.setViewName("/jsp/artist-select-dialog.jsp");
+        return modelAndView;
+    }
+
 
 }

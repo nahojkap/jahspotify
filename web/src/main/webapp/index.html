@@ -19,56 +19,49 @@
 <body>
 
 
-<div id="homePage" data-role="page" data-theme="g" class="homeBody">
+<div id="homePage" data-role="page" data-theme="g" class="homeBody" >
 
 
     <!-- /header -->
     <div class="ui-bar" data-position="inline" data-role="header">
-<!--
-        <a href="/jahspotify/index.html" data-icon="home" data-direction="reverse" data-iconpos="notext">Home</a>
--->
+        <!--
+                <a href="/jahspotify/index.html" data-icon="home" data-direction="reverse" data-iconpos="notext">Home</a>
+        -->
         <h3>Jah'Spotify</h3>
-        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
+        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right"  data-transition="fade"
+           data-iconpos="notext">Player</a>
     </div>
 
+    <!--<h2 id="banner">Banner</h2>-->
 
     <div class="mainContentPanel" data-role="content">
 
-        <div class="ui-grid-a">
-            <div class="ui-block-a tileDiv tileBorderRight">
-                <a class="wrapper" href="ui/queue/current" id="Queue"><span id="QueueIcon" class="queueImg"></span></a>
+        <ul data-role="listview" data-theme="a" data-inset="true" data-split-icon="arrow-le"
+            data-split-theme="a" data-count-theme="b">
 
-                <div id="LblQueue" class="tileLabel">Queue</div>
-                <div id="LblQueueStatus"></div>
-            </div>
-            <div class="ui-block-b tileDiv">
-                <a class="wrapper" data-prefetch="true" href="ui/media/jahspotify:folder:ROOT" id="Playlists"><span
-                        id="PlaylistIcon" class="playlistImg"></span></a>
+            <li><a class="wrapper" href="ui/media/library/jahspotify:folder:ROOT" id="Playlists">Playlists</a></li>
 
-                <div id="LblPlaylists" class="tileLabel">Playlists</div>
-            </div>
-        </div>
+            <li><a class="wrapper" href="ui/search" id="Search">Search</a></li>
 
-        <div class="ui-grid-a">
-            <div class="ui-block-a tileDiv tileBorderRight tileBorderTop">
-                <a class="wrapper" href="ui/search" id="Search"><span id="SearchIcon" class="searchImg"></span></a>
+            <li data-role="list-divider" data-theme="a"></li>
+            <li>
+                <a class="wrapper" href="ui/queue/current" id="Queue">Queue</a>
+            </li>
+            <li data-role="list-divider" data-theme="a"></li>
 
-                <div id="LblSearch" class="tileLabel">Search</div>
-                <div id="LblSearchStatus"></div>
-            </div>
-            <div class="ui-block-b tileDiv tileBorderTop">
-                <a class="wrapper" href="serverSettings" id="ServerSettings"><span id="ServerSettingsIcon"
-                                                                                    class="serverSettingsImg"></span></a>
 
-                <div id="LblLocation" class="tileLabel">Server Info</div>
-            </div>
-        </div>
+            <li><a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
+            </li>
+
+
+        </ul>
     </div>
 
 
     <div data-role="footer" style="text-align: left;" class="ui-bar" data-theme="a" data-position="fixed">
         <div style="line-height: 0.1em;">
             <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
+
             <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
         </div>
     </div>

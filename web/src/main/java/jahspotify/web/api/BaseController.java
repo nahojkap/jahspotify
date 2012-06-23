@@ -219,4 +219,29 @@ public class BaseController
 
         return fullTrack;
     }
+
+    protected jahspotify.web.media.Artist convertToWebArtist(final Artist artist)
+    {
+        jahspotify.web.media.Artist webArtist = new jahspotify.web.media.Artist();
+        webArtist.setTopHitTracks(toWebLinks(artist.getTopHitTracks()));
+        webArtist.setAlbums(toWebLinks(artist.getAlbums()));
+        webArtist.setPortraits(toWebLinks(artist.getPortraits()));
+        webArtist.setSimilarArtists(toWebLinks(artist.getSimilarArtists()));
+        webArtist.setId(toWebLink(artist.getId()));
+        webArtist.setBioParagraphs(splitIntoList(artist.getBios()));
+        BeanUtils.copyProperties(artist, webArtist, new String[]{"id", "restrictions", "albums", "similarArtists", "topHitTracks", "portraits", "bios"});
+        return webArtist;
+    }
+
+    private List<String> splitIntoList(final String bios)
+    {
+        if (bios == null || bios.trim().isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        String[] paragraphs = bios.split("\n");
+        return Arrays.asList(paragraphs);
+    }
+
+
 }

@@ -36,7 +36,7 @@ public class DurationFormatTag extends TagSupport
         _var = var;
     }
     
-    public void setValue(long duration)
+    public void setDuration(long duration)
     {
         _duration = duration;
     }

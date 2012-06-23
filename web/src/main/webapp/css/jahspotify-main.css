@@ -97,3 +97,13 @@ img.tile {
 .ui-body-o {
     text-shadow: 0 1px 0 #FFFFFF;
 }
+
+h2#banner {
+
+    background: url("images/jahspotify-logo.jpg") no-repeat scroll left 10px transparent;
+    height: 290px;
+    margin: -10px auto -175px;
+    text-indent: -9999px;
+    width: 480px;
+
+}

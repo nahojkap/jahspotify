@@ -33,6 +33,10 @@
 
 
 <div data-role="content">
+
+
+
+
 </div>
 
 <%@ include file="/jsp/footer.jsp" %>

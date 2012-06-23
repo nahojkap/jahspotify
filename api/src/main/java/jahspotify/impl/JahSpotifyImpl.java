@@ -818,6 +818,11 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
+    public void setStarredStateForTrack(final Link link, boolean starredState)
+    {
+    }
+
+    @Override
     public float getCurrentGain()
     {
         return getAudioGain();

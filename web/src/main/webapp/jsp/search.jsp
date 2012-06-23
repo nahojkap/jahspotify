@@ -31,7 +31,7 @@
 
         <h1><c:out value="${pageTitle}"/></h1>
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right"
+        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" data-transition="fade" class="ui-btn-right"
            data-iconpos="notext">Player</a>
     </div>
 

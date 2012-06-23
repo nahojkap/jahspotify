@@ -1202,12 +1202,12 @@ void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artis
         sp_link *portraitLink = sp_link_create_from_string(dest);
         if (portraitLink)
         {
-          // sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
-          // if (portrait)
-          // {
-            // sp_image_add_ref(portrait);
-            // sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
-            //}
+            sp_image *portrait = sp_image_create_from_link(g_sess,portraitLink);
+            if (portrait)
+            {
+              sp_image_add_ref(portrait);
+              sp_image_add_load_callback(portrait,imageLoadedCallback,NULL);
+            }
 
             sp_link_add_ref(portraitLink);
 
@@ -1226,7 +1226,9 @@ void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artis
       }
     }
   }
-
+  
+  
+  
   int numAlbums = sp_artistbrowse_num_albums(artistBrowse);
   if (numAlbums > 0)
   {
@@ -1260,6 +1262,40 @@ void populateJArtistInstanceFromArtistBrowse(JNIEnv *env, sp_artistbrowse *artis
     }
   }
 
+  int numTopTracks = sp_artistbrowse_num_tophit_tracks(artistBrowse);
+  if (numTopTracks > 0)
+  {
+    jmethodID jMethod = (*env)->GetMethodID(env,jClass,"addTopHitTrack","(Ljahspotify/media/Link;)V");
+    
+    if (jMethod == NULL)
+    {
+      log_error("jahspotify","populateJArtistInstanceFromArtistBrowse","Could not load method addTopHitTrack(link) on class Artist");
+      sp_artistbrowse_release(artistBrowse);
+      return;
+    }
+    
+    int count = 0;
+    for (count = 0; count < numTopTracks; count++)
+    {
+      sp_track *track = sp_artistbrowse_tophit_track(artistBrowse,count);
+      if (track)
+      {
+        sp_track_add_ref(track);
+        sp_link *trackLink = sp_link_create_from_track(track,0);
+        if (trackLink)
+        {
+          sp_link_add_ref(trackLink);
+          jobject albumJLink = createJLinkInstance(env,trackLink);
+          // set it on the track
+          (*env)->CallVoidMethod(env,artistInstance,jMethod,albumJLink);
+          sp_link_release(trackLink);
+        }
+        sp_track_release(track);
+      }
+    }
+  }
+  
+  
   const char *bios = sp_artistbrowse_biography(artistBrowse);
 
   if (bios)
@@ -1410,6 +1446,7 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
         }
     }
 
+    sp_playlist_get_image(playlist,NULL);
     return playlistInstance;
 
 }

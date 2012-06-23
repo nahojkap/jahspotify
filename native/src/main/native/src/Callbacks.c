@@ -634,7 +634,7 @@ int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
     jClass = (*env)->FindClass(env, "jahspotify/media/Artist");
     if (jClass == NULL)
     {
-      log_error("jahspotify","createJArtistInstance","Could not load jahnotify.media.Artist");
+      log_error("jahspotify","signalArtistBrowseLoaded","Could not load jahnotify.media.Artist");
       goto fail;
     }
     

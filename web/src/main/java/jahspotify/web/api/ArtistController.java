@@ -33,15 +33,5 @@ public class ArtistController extends BaseController
         }
     }
 
-    private jahspotify.web.media.Artist convertToWebArtist(final Artist artist)
-    {
-        jahspotify.web.media.Artist webArtist = new jahspotify.web.media.Artist();
-        webArtist.setAlbums(toWebLinks(artist.getAlbums()));
-        webArtist.setPortraits(toWebLinks(artist.getPortraits()));
-        webArtist.setSimilarArtists(toWebLinks(artist.getSimilarArtists()));
-        webArtist.setId(toWebLink(artist.getId()));
-        BeanUtils.copyProperties(artist, webArtist, new String[]{"id", "restrictions", "albums", "similarArtists", "portraits"});
-        return webArtist;
-    }
 
 }

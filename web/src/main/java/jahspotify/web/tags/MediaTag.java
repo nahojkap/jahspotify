@@ -1,4 +1,4 @@
-package jahspotify.web.ui;
+package jahspotify.web.tags;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,26 +19,39 @@ package jahspotify.web.ui;
  *        under the License.
  */
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.*;
+
+import jahspotify.JahSpotify;
+import jahspotify.media.Link;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.tags.RequestContextAwareTag;
 
 /**
  * @author Johan Lindquist
  */
-@Controller
-@RequestMapping(value = "/ui/server")
-public class ServerSettingsUIController
+public class MediaTag extends RequestContextAwareTag
 {
+    @Autowired
+    private JahSpotify _jahSpotify;
 
-    @RequestMapping(value = "/summary")
-    public ModelAndView retrieveServerSummaryAndSettings()
+    private String _var;
+    private String _link;
+
+    public void setVar(String var)
     {
-
-
-
-        return new ModelAndView("/jsp/server-info.jsp");
-
+        _var = var;
     }
 
+    public void setLink(final String link)
+    {
+        _link = link;
+    }
+
+    @Override
+    protected int doStartTagInternal() throws Exception
+    {
+        pageContext.setAttribute(_var,_jahSpotify.readTrack(Link.create(_link)));
+        return Tag.SKIP_BODY;
+    }
 }

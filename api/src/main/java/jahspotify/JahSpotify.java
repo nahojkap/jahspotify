@@ -140,6 +140,17 @@ public interface JahSpotify
      */
     public void shutdown();
 
-    float getCurrentGain();
-    void setCurrentGain(float gain);
+    /**
+     *
+     * @return
+     */
+    public float getCurrentGain();
+
+    /**
+     *
+     * @param gain
+     */
+    public void setCurrentGain(float gain);
+
+    public void setStarredStateForTrack(final Link link, boolean starredState);
 }

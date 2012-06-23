@@ -31,9 +31,9 @@ public class Artist extends Media
     private List<String> yearsActive;
 
     /**
-     * A {@String java.util.List} of biographies.
+     * A {@String java.util.List} of biography paragraphs.
      */
-    private String bios;
+    private List<String> bioParagraphs;
 
     /**
      * A {@String java.util.List} of albums.
@@ -43,7 +43,7 @@ public class Artist extends Media
      /**
      * A {@String java.util.List} of tracks.
      */
-    private List<Link> tracks;
+    private List<Link> topHitTracks;
 
     /**
      * A {@String java.util.List} of similar artists.
@@ -59,7 +59,7 @@ public class Artist extends Media
         this.portraits = null;
         this.genres = null;
         this.yearsActive = null;
-        this.bios = null;
+        this.bioParagraphs = null;
         this.albums = null;
         this.similarArtists = null;
     }
@@ -161,21 +161,21 @@ public class Artist extends Media
     /**
      * Get biographies for this artist.
      *
-     * @return A {@String java.util.List} of {@String Biography} objects.
+     * @return A {@String java.util.List} of {@String} objects.
      */
-    public String getBios()
+    public List<String> getBioParagraphs()
     {
-        return this.bios;
+        return this.bioParagraphs;
     }
 
     /**
      * Set biographies for this artist.
      *
-     * @param bios A {@String java.util.List} of {@String Biography} objects.
+     * @param bioParagraphs A {@String java.util.List} of {@String} objects.
      */
-    public void setBios(String bios)
+    public void setBioParagraphs(List<String> bioParagraphs)
     {
-        this.bios = bios;
+        this.bioParagraphs = bioParagraphs;
     }
 
     /**
@@ -206,6 +206,25 @@ public class Artist extends Media
             albums = new ArrayList<Link>();
         }
         albums.add(album);
+    }
+
+    public List<Link> getTopHitTracks()
+    {
+        return topHitTracks;
+    }
+
+    public void setTopHitTracks(final List<Link> topHitsTracks)
+    {
+        this.topHitTracks = topHitsTracks;
+    }
+
+    public void addTopHitTrack(final Link topHitTrack)
+    {
+        if (topHitTracks == null)
+        {
+            topHitTracks = new ArrayList<Link>();
+        }
+        topHitTracks.add(topHitTrack);
     }
 
     /**

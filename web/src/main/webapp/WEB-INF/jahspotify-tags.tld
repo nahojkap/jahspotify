@@ -28,18 +28,38 @@
     <uri>http://jahtify.com/jsp/jstl/tags</uri>
 
     <tag>
-        <description>Formats milliseconds into a hh:mm:ss duration</description>
+        <description>Formats milliseconds into a mm:ss duration</description>
         <name>duration</name>
         <tag-class>jahspotify.web.tags.DurationFormatTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <description></description>
-            <name>value</name>
+            <description>The duration to format</description>
+            <name>duration</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <description>Variable to place the formatted duration into</description>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
+
+
+    <tag>
+        <description>Loads the specified media into the context</description>
+        <name>media</name>
+        <tag-class>jahspotify.web.tags.MediaTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>The duration to format</description>
+            <name>link</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Variable to place the loaded media into</description>
             <name>var</name>
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
