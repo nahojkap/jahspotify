@@ -797,9 +797,11 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
         // setObjectIntField(env,trackInstance,"popularity",sp_track_popularity(track));
         setObjectIntField(env,trackInstance,"trackNumber",sp_track_index(track));
 
+        
         sp_album *album = sp_track_album(track);
         if (album)
         {
+            log_debug("jahspotify","createJTrackInstance","Loading album data");
             sp_album_add_ref(album);
             sp_link *albumLink = sp_link_create_from_album(album);
             if (albumLink)
@@ -1461,13 +1463,23 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist ( J
     sp_link *link = sp_link_create_from_string(nativeUri);
     if (link)
     {
+      
+      if (sp_link_type(link) != SP_LINKTYPE_ARTIST)
+      {
+        char *buffer = calloc(1,100);
+        sp_link_as_string(link,buffer,100);
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveArtist","Specified link is not an artist link: %s",buffer);
+        free(buffer);
+        return NULL;
+      }
+      
       sp_artist *artist= sp_link_as_artist(link);
 
       if (artist)
       {
-  sp_artist_add_ref(artist);
-  artistInstance = createJArtistInstance(env, artist);
-  sp_artist_release(artist);
+        sp_artist_add_ref(artist);
+        artistInstance = createJArtistInstance(env, artist);
+        sp_artist_release(artist);
       }
       sp_link_release(link);
     }
@@ -1489,6 +1501,16 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JN
     sp_link *link = sp_link_create_from_string(nativeUri);
     if (link)
     {
+      if (sp_link_type(link) != SP_LINKTYPE_ALBUM)
+      {
+        char *buffer = calloc(1,100);
+        sp_link_as_string(link,buffer,100);
+        log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum","Specified link is not an album link: %s",buffer);
+        free(buffer);
+        return NULL;
+      }
+      
+      
         sp_album *album= sp_link_as_album(link);
 
         if (album)
@@ -1521,6 +1543,8 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 
     nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
 
+    log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Retrieving track" );
+    
     sp_link *link = sp_link_create_from_string(nativeUri);
     if (!link)
     {
@@ -1529,6 +1553,16 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
         return JNI_FALSE;
     }
 
+    if (sp_link_type(link) != SP_LINKTYPE_TRACK)
+    {
+      char *buffer = calloc(1,100);
+      sp_link_as_string(link,buffer,100);
+      log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Specified link is not a track link: %s",buffer);
+      free(buffer);
+      return NULL;
+    }
+    
+    
     sp_track *track = sp_link_as_track(link);
 
     int count = 0;
@@ -1544,6 +1578,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
       return NULL;
     }
 
+    log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Track ready, populating" );
     trackInstance = createJTrackInstance(env, track);
 
     if (track)

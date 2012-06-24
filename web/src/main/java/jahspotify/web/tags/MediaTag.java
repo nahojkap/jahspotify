@@ -25,6 +25,7 @@ import javax.servlet.jsp.tagext.*;
 import jahspotify.JahSpotify;
 import jahspotify.media.Link;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.tags.RequestContextAwareTag;
 
 /**
@@ -37,10 +38,16 @@ public class MediaTag extends RequestContextAwareTag
 
     private String _var;
     private String _link;
+    private int _level = 0;
 
     public void setVar(String var)
     {
         _var = var;
+    }
+
+    public void setLevel(int level)
+    {
+        _level = level;
     }
 
     public void setLink(final String link)
@@ -51,7 +58,33 @@ public class MediaTag extends RequestContextAwareTag
     @Override
     protected int doStartTagInternal() throws Exception
     {
-        pageContext.setAttribute(_var,_jahSpotify.readTrack(Link.create(_link)));
+        final JahSpotify jahSpotify = WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean(JahSpotify.class);
+
+
+        Object value = null;
+        final Link link = Link.create(_link);
+        switch(link.getType())
+        {
+            case TRACK:
+                value = jahSpotify.readTrack(link);
+                break;
+            case ARTIST:
+                value = jahSpotify.readArtist(link);
+                break;
+            case ALBUM :
+                value = jahSpotify.readAlbum(link);
+                break;
+            case IMAGE:
+                value = jahSpotify.readImage(link);
+                break;
+            case FOLDER:
+                value = jahSpotify.readFolder(link,_level);
+                break;
+            case PLAYLIST:
+                value = jahSpotify.readPlaylist(link,0,0);
+                break;
+        }
+        pageContext.setAttribute(_var,value);
         return Tag.SKIP_BODY;
     }
 }

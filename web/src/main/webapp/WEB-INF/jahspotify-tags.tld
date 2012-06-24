@@ -64,6 +64,12 @@
             <required>true</required>
             <rtexprvalue>false</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>Variable to place the loaded media into</description>
+            <name>level</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
 
 

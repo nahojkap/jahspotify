@@ -144,6 +144,27 @@ public class MediaBrowserUIController extends BaseController
         return modelAndView;
     }
 
+    @RequestMapping(value = "/artist-albums/{link}")
+    public ModelAndView retrieveArtistAlbumsView(@PathVariable(value = "link") String linkStr)
+    {
+        final Link link = Link.create(linkStr);
+
+        if (!link.isArtistLink())
+        {
+        }
+
+        final ModelAndView modelAndView = new ModelAndView();
+
+        final Artist artist = convertToWebArtist(_jahSpotify.readArtist(link));
+
+        modelAndView.addObject("artist", artist);
+        modelAndView.addObject("pageTitle", artist.getName());
+
+        modelAndView.setViewName("/jsp/artist-albums.jsp");
+        return modelAndView;
+    }
+
+
     @RequestMapping(value = "/artists/{link}")
     public ModelAndView selectArtistsDialog(@PathVariable(value = "link") String linkStr)
     {

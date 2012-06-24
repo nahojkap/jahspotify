@@ -428,6 +428,8 @@ public class JahSpotifyImpl implements JahSpotify
     {
         ensureLoggedIn();
 
+        validateLink(uri, Link.Type.ALBUM);
+
         synchronized (_lockedAlbums)
         {
             int count = 0;
@@ -482,6 +484,8 @@ public class JahSpotifyImpl implements JahSpotify
     {
         ensureLoggedIn();
 
+        validateLink(uri, Link.Type.ARTIST);
+
         synchronized (_lockedArtists)
         {
             int count = 0;
@@ -535,6 +539,9 @@ public class JahSpotifyImpl implements JahSpotify
     public Track readTrack(Link uri)
     {
         ensureLoggedIn();
+
+        validateLink(uri, Link.Type.TRACK);
+
         synchronized (_lockedTracks)
         {
             int count = 0;
@@ -581,10 +588,25 @@ public class JahSpotifyImpl implements JahSpotify
         }
     }
 
+    private void validateLink(final Link link, final Link.Type requiredLinkType)
+    {
+        if (link == null)
+        {
+            throw new NullPointerException("link");
+        }
+
+        if (link.getType() != requiredLinkType)
+        {
+            throw new IllegalArgumentException("Link is not of required link type (" + link.getType() + " != " + requiredLinkType +")");
+        }
+
+    }
+
     @Override
     public Image readImage(Link uri)
     {
         ensureLoggedIn();
+        validateLink(uri, Link.Type.IMAGE);
 
         // Ok, till i figure out a better way of preventing overload on the spotify loading threads
         // (of multiple requests of the same image) i will have to do with this hack
@@ -649,6 +671,8 @@ public class JahSpotifyImpl implements JahSpotify
     public Playlist readPlaylist(Link uri, final int index, final int numEntries)
     {
         ensureLoggedIn();
+        validateLink(uri, Link.Type.PLAYLIST);
+
         _libSpotifyLock.lock();
         try
         {
@@ -765,6 +789,7 @@ public class JahSpotifyImpl implements JahSpotify
     public LibraryEntry readFolder(final Link uri, final int level)
     {
         ensureLoggedIn();
+        validateLink(uri, Link.Type.FOLDER);
 
         if (!uri.isFolderLink())
         {

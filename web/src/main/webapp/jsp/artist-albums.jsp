@@ -24,7 +24,7 @@
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<div id="artist" data-role="page" data-theme="g" class="homeBody">
+<div id="playList" data-role="page" data-theme="g" class="homeBody">
 
 
     <!-- /header -->
@@ -53,53 +53,6 @@
 
                     <p style="font-weight: 900;"><c:out value="${artist.name}"/></p>
 
-                    <c:if test="${not empty artist.topHitTracks}">
-
-                        <div data-role="collapsible" data-mini="true">
-                            <h3>Top Hits</h3>
-
-                            <div class="ui-body ui-body-a" align="left">
-                                <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true"
-                                    data-split-icon="plus"
-                                    data-split-theme="a" data-count-theme="b">
-                                    <c:forEach items="${artist.topHitTracks}" var="link">
-
-                                        <jah:media link="link.id" var="track"/>
-
-                                        <c:url var="trackURL" value="/ui/media/track/${track.id.id}"/>
-                                        <li id="<c:out value='%{track.id.id}'/>">
-                                            <a href="<c:out value="${trackURL}"/>">
-                                                <jah:duration var="duration" duration="${track.length}"/>
-                                                <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
-                                                <img src="<c:out value="${albumCoverURL}"/>"/>
-
-                                                <div>
-                                                    <h4><c:out value="${track.title}"/> <span
-                                                            style="vertical-align: middle; font-weight: lighter; font-size: 60%">(<c:out
-                                                            value="${duration}"/>)</span></h4>
-
-                                                    <p style="font-weight: bold; font-size: 65%">
-                                                        <c:out value="${track.albumName}"/></p>
-
-                                                    <p style="font-weight: bold; font-size: 50%"><c:forEach
-                                                            items="${track.artistNames}" var="artistName">
-                                                        <c:url var="artistURL" value="/ui/media/${track.id.id}"/>
-                                                        <c:out value="${artistName}"/>
-                                                    </c:forEach>
-                                                    </p>
-                                                </div>
-                                            </a>
-                                            <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                                            <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog"
-                                               data-transition="fade">Enqueue</a>
-                                        </li>
-                                    </c:forEach>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </c:if>
-
                     <c:if test="${not empty artist.bioParagraphs}">
 
                         <div data-role="collapsible" data-mini="true">
@@ -114,11 +67,31 @@
 
                     </c:if>
 
+                    <c:if test="${not empty artist.albums}">
+
+                        <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true"
+                            data-split-icon="plus" data-split-theme="a" data-count-theme="b">
+                            <c:forEach items="${artist.albums}" var="albumLink">
+                                <jah:media link="${albumLink.id}" var="album"/>
+                                <li id="<c:out value='%{albumLink.id}'/>">
+                                    <c:url var="albumURL" value="/ui/media/album/${albumLink.id}"/>
+                                    <a href="<c:out value="${albumURL}"/>">
+                                        <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
+                                        <img src="<c:out value="${albumCoverURL}"/>"/>
+                                        <c:out value="${album.name}"/>
+                                    </a></li>
+
+
+                            </c:forEach>
+                        </ul>
+                    </c:if>
+
+
                 </div>
 
                 <div data-role="navbar" data-theme="g">
                     <ul>
-                        <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artist.id.id}"/>
+                        <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artistLink}"/>
                         <li><a href="<c:out value='${artistAlbumsURL}'/>" data-icon="plus">Albums</a></li>
                         <c:url var="similarArtistsURL" value="/ui/media/artist-similar/${artistLink}"/>
                         <li><a href="<c:out value='${similarArtistsURL}'/>" data-icon="grid">Similar Artists</a></li>
@@ -132,6 +105,5 @@
     </div>
 
     <%@ include file="/jsp/footer.jsp" %>
-
 
 </div>

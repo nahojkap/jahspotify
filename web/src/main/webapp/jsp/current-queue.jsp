@@ -61,32 +61,32 @@
 
                                 <p style="font-weight: bold; font-size: 50%">
                                     <c:forEach items="${currentTrack.artistNames}" var="artistName">
-                                    <c:out value="${artistName}"/>
-                                </c:forEach>
+                                        <c:out value="${artistName}"/>
+                                    </c:forEach>
                                 </p>
                             </div>
                         </a>
                     </li>
 
-<%--
-                    <li>
-                        <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
-                        <jah:duration var="duration" value="${currentTrack.length}"/>
-                        <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
+                        <%--
+                                            <li>
+                                                <c:url var="albumCoverURL" value="/media/${currentTrack.albumCoverLink.id}"/>
+                                                <jah:duration var="duration" value="${currentTrack.length}"/>
+                                                <c:url var="trackURL" value="/ui/media/${track.id.id}"/>
 
-                        <fieldset class="ui-grid-a">
-                            <div class="ui-block-a"><img width="33%" src="<c:out value="${albumCoverURL}"/>"/></div>
-                            <div class="ui-block-b"><h3><c:out value="${currentTrack.title}"/> [<c:out
-                                    value="${duration}"/>]</h3>
+                                                <fieldset class="ui-grid-a">
+                                                    <div class="ui-block-a"><img width="33%" src="<c:out value="${albumCoverURL}"/>"/></div>
+                                                    <div class="ui-block-b"><h3><c:out value="${currentTrack.title}"/> [<c:out
+                                                            value="${duration}"/>]</h3>
 
-                                <p><strong><c:out value="${currentTrack.albumName}"/></strong></p>
+                                                        <p><strong><c:out value="${currentTrack.albumName}"/></strong></p>
 
-                                <p><c:out value="${currentTrack.artistNames}"/></p></div>
-                        </fieldset>
+                                                        <p><c:out value="${currentTrack.artistNames}"/></p></div>
+                                                </fieldset>
 
-                        </fieldset>
-                    </li>
---%>
+                                                </fieldset>
+                                            </li>
+                        --%>
                 </ul>
             </div>
 
@@ -98,31 +98,36 @@
 
                         <c:forEach items="${queuedTracks}" var="track">
                             <c:url var="trackURL" value="/ui/media/track/${track.id.id}"/>
-                            <li id="<c:out value="${track.id.id}"/>">
-                                <a href="<c:out value="${trackURL}"/>">
-                                    <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
-                                    <jah:duration var="duration" duration="${track.length}"/>
 
+                            <li id="<c:out value='%{track.id.id}'/>">
+                                <a href="<c:out value="${trackURL}"/>">
+                                    <jah:duration var="duration" duration="${track.length}"/>
+                                    <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
                                     <img src="<c:out value="${albumCoverURL}"/>"/>
 
-                                    <h3><c:out value="${track.title}"/> [<c:out value="${duration}"/>]</h3>
+                                    <div>
+                                        <h4><c:out value="${track.title}"/> <span
+                                                style="vertical-align: middle; font-weight: lighter; font-size: 60%">(<c:out
+                                                value="${duration}"/>)</span></h4>
 
-                                    <p><strong><c:out value="${track.albumName}"/> <c:out
-                                            value="${track.artistNames}"/></strong></p>
+                                        <p style="font-weight: bold; font-size: 65%">
+                                            <c:out value="${track.albumName}"/></p>
+
+                                        <p style="font-weight: bold; font-size: 50%"><c:forEach
+                                                items="${track.artistNames}" var="artistName">
+                                            <c:url var="artistURL" value="/ui/media/${track.id.id}"/>
+                                            <c:out value="${artistName}"/>
+                                        </c:forEach>
+                                        </p>
+                                    </div>
                                 </a>
-                                <c:url var="queueTrackURL"
+                                <c:url var="removeTrackURL"
                                        value="/ui/queue/remove/${track.id.id}"/>
-                                <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Remove
+                                <a href="<c:out value="${removeTrackURL}"/>" data-rel="dialog"
+                                   data-transition="slideup">Remove
                                     Track</a>
-
-
-                                    <%--
-                                    <a href="<c:out value="${queuedTrackURL}"/>">
-                                        <h3><c:out value="${queuedTrack.title}"/></h3>
-                                        <c:url var="queueTrackURL" value="/queue/jahspotify:queue:default/add/${track.id.id}"/>
-                                                            <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Queue Track</a>
-                                    </a>--%>
                             </li>
+
                         </c:forEach>
 
                             <%--<script>--%>
