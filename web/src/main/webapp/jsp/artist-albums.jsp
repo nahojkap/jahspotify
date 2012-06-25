@@ -42,7 +42,7 @@
         <div class="content-primary" align="center">
             <div class="ui-body ui-body-a">
 
-                <div align="center" style="line-height: 0.5em">
+                <div align="center">
 
                     <c:if test="${not empty artist.portraits}">
                         <c:url var="artistPortraitURL" value="/media/${artist.portraits[0].id}"/>
@@ -71,8 +71,11 @@
                     <c:if test="${not empty artist.albums}">
 
 
-                        <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true"
+                        <ul data-role="listview" data-theme="a" data-inset="true"
                             data-split-icon="plus" data-split-theme="a" data-count-theme="b">
+
+                            <li data-role="list-divider" data-theme="a">Album(s)</li>
+
                             <c:forEach items="${artist.albums}" var="albumLink">
                                 <jah:media link="${albumLink.id}" var="album"/>
                                 <li id="<c:out value='%{albumLink.id}'/>">
@@ -81,9 +84,12 @@
                                         <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
                                         <img src="<c:out value="${albumCoverURL}"/>"/>
                                         <c:out value="${album.name}"/>
-                                    </a></li>
+                                    </a>
 
-
+                                    <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
+                                    <a href="<c:out value="${queueAlbumURL}"/>" data-rel="dialog"
+                                       data-transition="fade">Enqueue</a>
+                                </li>
                             </c:forEach>
                         </ul>
                     </c:if>
