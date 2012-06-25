@@ -67,7 +67,9 @@
 
                     </c:if>
 
+
                     <c:if test="${not empty artist.albums}">
+
 
                         <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true"
                             data-split-icon="plus" data-split-theme="a" data-count-theme="b">
