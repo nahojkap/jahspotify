@@ -63,7 +63,7 @@ s<%--
 
                             <c:forEach items="${album.discs}" var="disc" varStatus="counter">
 
-                                    <div data-role="collapsible" data-mini="true">
+                                    <div data-role="collapsible" data-mini="true" data-collapsed="${counter.count != 1}">
                                                 <h3>Disc <c:out value="${counter.count}"/></h3>
 
                                 <c:if test="${not empty disc.tracks}">
