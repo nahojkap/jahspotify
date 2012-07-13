@@ -137,8 +137,11 @@ public class MongoDBMediaStorage implements MediaStorage
     {
         final DBCollection tracks = _db.getCollection("playlists");
         final BasicDBObject basicDBObject = (BasicDBObject) JSON.parse(new Gson().toJson(playlist));
-        basicDBObject.put("_id",playlist.getId().getId());
-        final WriteResult insert = tracks.insert(basicDBObject);
+        if (playlist.getId() != null)
+        {
+            basicDBObject.put("_id",playlist.getId().getId());
+            final WriteResult insert = tracks.insert(basicDBObject);
+        }
     }
 
     @Override

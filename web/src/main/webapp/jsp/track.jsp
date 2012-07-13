@@ -68,7 +68,10 @@
 
                 <div data-role="navbar" data-theme="g">
                     <ul>
+
+                        <c:url var="queueTrackURL" value="/ui/media/track/${track.id.id}/star?"/>
                         <li><a href="#" data-icon="star">Star</a></li>
+
                         <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
                         <li><a data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid">Enqueue</a></li>
                         <c:choose>

@@ -46,7 +46,9 @@ public interface JahSpotify
      */
     public Image readImage(Link link);
 
-    /** Read the information for the specified playlist.
+    /** Read the information for the specified playlist.  The <code>link</code> may be a normal playlist, a starred
+     * playlist link ({@link jahspotify.media.Link#getType()} == {@link jahspotify.media.Link.Type#STARRED}) or an inbox
+     * link ({@link jahspotify.media.Link#getType()} == {@link jahspotify.media.Link.Type#INBOX}).
      *
      *
      *

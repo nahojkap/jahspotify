@@ -20,13 +20,7 @@ import jahspotify.media.User;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -104,7 +98,7 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void image(final int token, final Link link, final ImageSize imageSize, final byte[] imageBytes)
             {
-                imageLoadedCallback(token, link,imageSize,imageBytes);
+                imageLoadedCallback(token, link, imageSize, imageBytes);
             }
 
             @Override
@@ -588,17 +582,21 @@ public class JahSpotifyImpl implements JahSpotify
         }
     }
 
-    private void validateLink(final Link link, final Link.Type requiredLinkType)
+    private void validateLink(final Link link, final Link.Type... requiredLinkTypes)
     {
         if (link == null)
         {
             throw new NullPointerException("link");
         }
 
-        if (link.getType() != requiredLinkType)
+        for (Link.Type requiredLinkType : requiredLinkTypes)
         {
-            throw new IllegalArgumentException("Link is not of required link type (" + link.getType() + " != " + requiredLinkType +")");
+            if (link.getType() == requiredLinkType)
+            {
+                return;
+            }
         }
+        throw new IllegalArgumentException("Link is not of required link type (" + link.getType() + " not one of " + Arrays.asList(requiredLinkTypes) + ")");
 
     }
 
@@ -671,17 +669,35 @@ public class JahSpotifyImpl implements JahSpotify
     public Playlist readPlaylist(Link uri, final int index, final int numEntries)
     {
         ensureLoggedIn();
-        validateLink(uri, Link.Type.PLAYLIST);
+        validateLink(uri, Link.Type.PLAYLIST, Link.Type.INBOX, Link.Type.STARRED);
 
         _libSpotifyLock.lock();
         try
         {
-            final Playlist playlist = retrievePlaylist(uri.asString());
+            final Playlist playlist;
+
+            if (uri.isStarredPlaylistLink())
+            {
+                playlist = nativeRetrieveStarredPlaylist();
+            }
+            else if (uri.isInboxPlaylistLink())
+            {
+                // An inbox link
+                playlist = nativeRetrieveInboxPlaylist();
+                if (playlist != null)
+                {
+                    playlist.setId(Link.create("jahspotify:inbox"));
+                }
+            }
+            else
+            {
+                playlist = retrievePlaylist(uri.asString());
+            }
+
             if ((index == 0 && numEntries == 0) || playlist == null)
             {
                 return playlist;
             }
-
             // Trim the playlist accordingly now
             return trimPlaylist(playlist, index, numEntries);
 
@@ -1071,6 +1087,10 @@ public class JahSpotifyImpl implements JahSpotify
     private native Track retrieveTrack(String uri);
 
     private native Playlist retrievePlaylist(String uri);
+
+    private native Playlist nativeRetrieveStarredPlaylist();
+
+    private native Playlist nativeRetrieveInboxPlaylist();
 
     private native int nativePlayTrack(String uri);
 

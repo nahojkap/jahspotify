@@ -77,14 +77,14 @@ public class QueueBrowserUIController extends BaseController
 
         if (currentlyPlaying != null)
         {
-            FullTrack fullTrack = createFullTrack(_jahSpotify.readTrack(currentlyPlaying.getTrackUri()));
+            FullTrack fullTrack = createFullTrack(_jahSpotify,_jahSpotify.readTrack(currentlyPlaying.getTrackUri()));
             modelAndView.addObject("currentTrack", fullTrack);
         }
 
         final List<FullTrack> queuedTracks = new ArrayList<FullTrack>();
         for (QueueTrack queueTrack : currentQueue.getQueuedTracks())
         {
-            queuedTracks.add(createFullTrack(_jahSpotify.readTrack(queueTrack.getTrackUri())));
+            queuedTracks.add(createFullTrack(_jahSpotify,_jahSpotify.readTrack(queueTrack.getTrackUri())));
         }
 
         modelAndView.addObject("queuedTracks", queuedTracks);

@@ -36,10 +36,10 @@
 <div data-role="content">
 
   <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-        data-split-theme="a" data-count-theme="b">
+        data-split-theme="a" data-count-theme="c">
         <c:forEach items="${entry.subEntries}" var="subEntry">
             <c:url var="subEntryURL" value="/ui/media/library/${subEntry.id}"/>
-            <li>
+            <li >
 
 
                 <a href="<c:out value="${subEntryURL}"/>" >

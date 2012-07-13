@@ -32,7 +32,7 @@ public class QueueController extends BaseController
     public List<jahspotify.web.media.Link> listQueues()
     {
         final List<Link> links = _queueManager.retrieveQueues();
-        return toWebLinks(links);
+        return toWebLinksAsList(links);
     }
 
     @RequestMapping(value="/{link}/add", method = RequestMethod.POST, produces = "application/json")

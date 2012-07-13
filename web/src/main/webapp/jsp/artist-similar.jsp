@@ -68,27 +68,33 @@
                     </c:if>
 
 
-                    <c:if test="${not empty artist.albums}">
+                    <c:if test="${not empty artist.similarArtists}">
 
 
                         <ul data-role="listview" data-theme="a" data-inset="true"
                             data-split-icon="plus" data-split-theme="a" data-count-theme="b">
 
-                            <li data-role="list-divider" data-theme="a">Album(s)</li>
+                            <li data-role="list-divider" data-theme="a">Similar Artist(s)</li>
 
-                            <c:forEach items="${artist.albums}" var="albumLink">
-                                <jah:media link="${albumLink.id}" var="album"/>
-                                <li id="<c:out value='%{albumLink.id}'/>">
-                                    <c:url var="albumURL" value="/ui/media/album/${albumLink.id}"/>
-                                    <a href="<c:out value="${albumURL}"/>">
-                                        <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
-                                        <img src="<c:out value="${albumCoverURL}"/>"/>
-                                        <c:out value="${album.name}"/>
+                            <c:forEach items="${artist.similarArtists}" var="similarArtistLink">
+                                <jah:media link="${similarArtistLink.id}" var="similarArtist"/>
+
+                                <li id="<c:out value='%{similarArtistLink.id}'/>">
+                                    <c:url var="similarArtistURL" value="/ui/media/artist/${similarArtistLink.id}"/>
+                                    <a href="<c:out value="${similarArtistURL}"/>">
+
+                                        <c:if test="${not empty similarArtist.portraits}">
+                                            <c:url var="similarArtistPortraitURL" value="/media/${similarArtist.portraits[0].id}"/>
+                                            <div>
+                                                <img src="<c:out value="${similarArtistPortraitURL}"/>"/>
+                                            </div>
+                                        </c:if>
+                                        <c:out value="${similarArtist.name}"/>
                                     </a>
 
-                                    <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
+                                   <%-- <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
                                     <a href="<c:out value="${queueAlbumURL}"/>" data-rel="dialog"
-                                       data-transition="fade">Enqueue</a>
+                                       data-transition="fade">Enqueue</a>--%>
                                 </li>
                             </c:forEach>
                         </ul>
@@ -96,7 +102,8 @@
 
 
                 </div>
-
+                   <%-- </div>
+--%>
                 <div data-role="navbar" data-theme="g">
                     <ul>
                         <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artist.id.id}"/>

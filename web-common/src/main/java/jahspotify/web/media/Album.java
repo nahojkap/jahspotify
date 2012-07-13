@@ -47,7 +47,7 @@ public class Album extends Media
      */
     private List<Disc> discs;
 
-    private List<String> copyrights;
+    private Set<String> copyrights;
 
     /**
      * Creates an empty {@String Album} object.
@@ -285,17 +285,17 @@ public class Album extends Media
     {
         if (copyrights == null)
         {
-            copyrights = new ArrayList<String>();
+            copyrights = new HashSet<String>();
         }
         copyrights.add(copyright);
     }
 
-    public List<String> getCopyrights()
+    public Set<String> getCopyrights()
     {
         return copyrights;
     }
 
-    public void setCopyrights(final List<String> copyrights)
+    public void setCopyrights(final Set<String> copyrights)
     {
         this.copyrights = copyrights;
     }

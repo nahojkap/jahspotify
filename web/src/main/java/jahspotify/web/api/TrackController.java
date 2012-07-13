@@ -37,7 +37,7 @@ public class TrackController extends BaseController
 
             if (shipFullTrack)
             {
-                return createFullTrack(track);
+                return createFullTrack(_jahSpotify,track);
             }
             else
             {

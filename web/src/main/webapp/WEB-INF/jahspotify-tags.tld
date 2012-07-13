@@ -53,7 +53,7 @@
         <tag-class>jahspotify.web.tags.MediaTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <description>The duration to format</description>
+            <description>The link to the content to load</description>
             <name>link</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
@@ -65,12 +65,30 @@
             <rtexprvalue>false</rtexprvalue>
         </attribute>
         <attribute>
-            <description>Variable to place the loaded media into</description>
+            <description>If loading a folder, the number of levels to load - defaults to 0</description>
             <name>level</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 
+    <tag>
+        <description>Loads the specified track into the context as a full track</description>
+        <name>fulltrack</name>
+        <tag-class>jahspotify.web.tags.FullTrackTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>The link to the full track to load</description>
+            <name>link</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Variable to place the loaded full track into</description>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
 
 </taglib>

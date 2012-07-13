@@ -19,7 +19,7 @@ public class JahSpotifyService
     private JahSpotify _jahSpotify;
 
     @Autowired(required = false)
-    @Qualifier(value ="mongodb")
+    @Qualifier(value ="in-memory")
     private MediaStorage _mediaStorage;
 
     @Bean(name="JahSpotify")

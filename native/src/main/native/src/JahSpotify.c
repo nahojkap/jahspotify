@@ -165,15 +165,38 @@ static void SP_CALLCONV playlist_update_in_progress ( sp_playlist *pl, bool done
             sp_link_release(link);
             signalPlaylistSeen(name,playListlinkStr);
         }
-
-    }
-
+   }
 }
 
 static void SP_CALLCONV playlist_metadata_updated ( sp_playlist *pl, void *userdata )
 {
-    log_debug("jahspotify","playlist_metadata_updated","Metadata updated: %s",sp_playlist_name(pl));
-    // signalMetadataUpdated(pl);
+  log_debug("jahspotify","playlist_metadata_updated","Metadata updated: %s",sp_playlist_name(pl));
+  // signalMetadataUpdated(pl);
+}
+
+static void SP_CALLCONV track_created_changed(sp_playlist *pl, int position, sp_user *user, int when, void *userdata)
+{
+  log_debug("jahspotify","track_created_changed","Track created changed: %s",sp_playlist_name(pl));
+}
+
+static void SP_CALLCONV track_seen_changed(sp_playlist *pl, int position, bool seen, void *userdata)
+{
+  log_debug("jahspotify","track_seen_changed","Track seen changed: %s @ %d : %d",sp_playlist_name(pl),position, seen);
+}
+
+static void SP_CALLCONV description_changed(sp_playlist *pl, const char *desc, void *userdata)
+{
+  log_debug("jahspotify","description_changed","Description changed for %s : %s",sp_playlist_name(pl),desc);
+}
+
+static void SP_CALLCONV image_changed(sp_playlist *pl, const byte *image, void *userdata)
+{
+  log_debug("jahspotify","image_changed","Image data changed for: %s",sp_playlist_name(pl));
+}
+
+static void SP_CALLCONV track_message_changed(sp_playlist *pl, int position, const char *message, void *userdata)
+{
+  log_debug("jahspotify","track_message_changed","Track message changed: %s @ %d : %s",sp_playlist_name(pl), position,message);
 }
 
 /**
@@ -187,8 +210,11 @@ static sp_playlist_callbacks pl_callbacks =
     .playlist_renamed = &playlist_renamed,
     .playlist_state_changed = &playlist_state_changed,
     .playlist_update_in_progress = &playlist_update_in_progress,
-    .playlist_metadata_updated = &playlist_metadata_updated,
-
+    .image_changed = &image_changed,
+    .track_message_changed = &track_message_changed,
+    .track_created_changed = &track_created_changed,
+    .track_seen_changed = &track_seen_changed,
+    .description_changed = &description_changed
 };
 
 
@@ -500,7 +526,6 @@ static void SP_CALLCONV message_to_user(sp_session *session, const char *data)
   log_debug("jahspotify","message_to_user","Message to user: ", data);
 }
 
-
 /**
  * The session callbacks
  */
@@ -518,7 +543,8 @@ static sp_session_callbacks session_callbacks =
     .userinfo_updated = &userinfo_updated,
     .connection_error = &connection_error,
     .streaming_error = &streaming_error,
-    .start_playback = &start_playback
+    .start_playback = &start_playback,
+    .stop_playback = &stop_playback
 };
 
 
@@ -796,7 +822,9 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
         setObjectIntField(env,trackInstance,"length",sp_track_duration(track));
         // setObjectIntField(env,trackInstance,"popularity",sp_track_popularity(track));
         setObjectIntField(env,trackInstance,"trackNumber",sp_track_index(track));
-
+        setObjectIntField(env,trackInstance,"discNumber",sp_track_disc(track));
+        
+        setObjectBooleanField(env,trackInstance,"starred",sp_track_is_starred(g_sess,track));
         
         sp_album *album = sp_track_album(track);
         if (album)
@@ -1448,7 +1476,42 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
         }
     }
 
-    sp_playlist_get_image(playlist,NULL);
+    byte imageUriData[20];
+    bool hasImage = sp_playlist_get_image(playlist,imageUriData);
+    if (hasImage)
+    {
+      char *imageUriStr = toHexString((byte*)imageUriData);
+      const char spotifyURI[] = "spotify:image:";
+      int len = strlen(spotifyURI) + strlen(imageUriStr);
+      char *dest = calloc(1, len+1);
+      dest[0] = 0;
+      strcat(dest,spotifyURI);
+      strcat(dest,imageUriStr);
+      
+      sp_link *playlistImageLink = sp_link_create_from_string(dest);
+      
+      free(dest);
+      
+      jobject playlistImageJLink = createJLinkInstance(env,playlistImageLink);
+      
+      setObjectObjectField(env,playlistInstance,"picture","Ljahspotify/media/Link;",playlistImageJLink);
+      
+      sp_link_release(playlistImageLink);
+      
+    }
+
+    const char *description = sp_playlist_get_description(playlist);
+    if (description)
+    {
+      // Add the description
+      setObjectStringField(env,playlistInstance,"description",description);
+    }
+    
+    setObjectBooleanField(env,playlistInstance,"collaborative",sp_playlist_is_collaborative(playlist));
+    
+    
+    
+    
     return playlistInstance;
 
 }
@@ -1634,6 +1697,114 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
 
     return playlistInstance;
 
+}
+
+
+JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveStarredPlaylistForUser ( JNIEnv *env, jobject obj, jstring uri)
+{
+  jobject playlistInstance;
+  uint8_t *nativeUri = NULL;
+  
+  nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
+  
+  log_debug("jahspotify","retrieveStarredPlaylistForUser","Retrieving starred playlist for user: %s",nativeUri );
+  
+  sp_link *link = sp_link_create_from_string(nativeUri);
+  if (!link)
+  {
+    // hmm
+    log_error("jahspotify","retrieveStarredPlaylistForUser","Could not create link!" );
+    return JNI_FALSE;
+  }
+  
+  sp_playlist *playlist = sp_playlist_create(g_sess,link);
+  
+  int count = 0;
+  while (!sp_playlist_is_loaded(playlist) && count < 4)
+  {
+    usleep(250);
+    count++;
+  }
+  
+  if (count == 4)
+  {
+    log_warn("jahspotify","retrieveStarredPlaylistForUser","Starred playlist not loaded after 1 second, will have to wait for callback");
+    return NULL;
+  }
+  
+  playlistInstance = createJPlaylist(env, playlist);
+  
+  if (playlist)
+    sp_playlist_release(playlist);
+  if (link)
+    sp_link_release(link);
+  if (nativeUri)
+    ( *env )->ReleaseStringUTFChars ( env, uri, nativeUri );
+  
+  return playlistInstance;
+  
+}
+
+
+
+JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveStarredPlaylist ( JNIEnv *env, jobject obj)
+{
+  jobject playlistInstance;
+  
+  log_debug("jahspotify","nativeRetrieveStarredPlaylist","Retrieving starred playlist");
+  
+  sp_playlist *playlist = sp_session_starred_create(g_sess);
+  
+  int count = 0;
+  while (!sp_playlist_is_loaded(playlist) && count < 4)
+  {
+    usleep(250);
+    count++;
+  }
+  
+  if (count == 4)
+  {
+    log_warn("jahspotify","nativeRetrieveStarredPlaylist","Starred playlist not loaded after 1 second, will have to wait for callback");
+    return NULL;
+  }
+  
+  playlistInstance = createJPlaylist(env, playlist);
+  
+  if (playlist)
+    sp_playlist_release(playlist);
+  
+  return playlistInstance;
+  
+}
+
+JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveInboxPlaylist ( JNIEnv *env, jobject obj)
+{
+  jobject playlistInstance;
+  
+  log_debug("jahspotify","nativeRetrieveInboxPlaylist","Retrieving inbox playlist");
+
+  sp_playlist *playlist = sp_session_inbox_create(g_sess);
+  
+  int count = 0;
+  while (!sp_playlist_is_loaded(playlist) && count < 4)
+  {
+    usleep(250);
+    count++;
+  }
+  
+  if (count == 4)
+  {
+    log_warn("jahspotify","nativeRetrieveInboxPlaylist","Inbox playlist not loaded after 1 second, will have to wait for callback");
+    return NULL;
+  }
+  
+  playlistInstance = createJPlaylist(env, playlist);
+  
+  if (playlist)
+    sp_playlist_release(playlist);
+  
+  return playlistInstance;
+  
 }
 
 JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTracks (JNIEnv *env, jobject obj, jobjectArray uris)

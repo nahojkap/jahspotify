@@ -19,7 +19,7 @@ public class Track extends Media
     /**
      * {@String Artist}s of this track.
      */
-    private List<Link> artists;
+    private Set<Link> artists;
 
     /**
      * A {@String String} to the album which this track belongs to.
@@ -30,6 +30,11 @@ public class Track extends Media
      * Track number on a certain disk.
      */
     private int trackNumber;
+
+    /**
+     * Appearance on a certain disk.
+     */
+    private int discNumber;
 
     /**
      * Length of this track in seconds.
@@ -45,6 +50,10 @@ public class Track extends Media
      * If this track is explicit.
      */
     private boolean explicit;
+
+    private boolean starred;
+
+    private String message;
 
     /**
      * Creates an empty {@String Track} object.
@@ -84,7 +93,7 @@ public class Track extends Media
      *
      * @return An {@String Artist}s object.
      */
-    public List<Link> getArtists()
+    public Set<Link> getArtists()
     {
         return this.artists;
     }
@@ -94,7 +103,7 @@ public class Track extends Media
      *
      * @param artists The desired {@String Artist}s of this track.
      */
-    public void setArtists(List<Link> artists)
+    public void setArtists(Set<Link> artists)
     {
         this.artists = artists;
     }
@@ -103,7 +112,7 @@ public class Track extends Media
     {
         if (artists == null)
         {
-            artists = new ArrayList<Link>();
+            artists = new HashSet<Link>();
         }
         artists.add(artist);
 
@@ -213,11 +222,19 @@ public class Track extends Media
 
         final Track track = (Track) o;
 
+        if (discNumber != track.discNumber)
+        {
+            return false;
+        }
         if (explicit != track.explicit)
         {
             return false;
         }
         if (length != track.length)
+        {
+            return false;
+        }
+        if (starred != track.starred)
         {
             return false;
         }
@@ -237,6 +254,10 @@ public class Track extends Media
         {
             return false;
         }
+        if (message != null ? !message.equals(track.message) : track.message != null)
+        {
+            return false;
+        }
         if (title != null ? !title.equals(track.title) : track.title != null)
         {
             return false;
@@ -252,9 +273,12 @@ public class Track extends Media
         result = 31 * result + (artists != null ? artists.hashCode() : 0);
         result = 31 * result + (album != null ? album.hashCode() : 0);
         result = 31 * result + trackNumber;
+        result = 31 * result + discNumber;
         result = 31 * result + length;
         result = 31 * result + (cover != null ? cover.hashCode() : 0);
         result = 31 * result + (explicit ? 1 : 0);
+        result = 31 * result + (starred ? 1 : 0);
+        result = 31 * result + (message != null ? message.hashCode() : 0);
         return result;
     }
 
@@ -266,9 +290,13 @@ public class Track extends Media
                 ", title='" + title + '\'' +
                 ", artists=" + artists +
                 ", trackNumber=" + trackNumber +
+                ", discNumber=" + discNumber +
                 ", length=" + length +
-                ", cover='" + cover + '\'' +
+                ", cover=" + cover +
                 ", explicit=" + explicit +
+                ", starred=" + starred +
+                ", message='" + message + '\'' +
                 "} " + super.toString();
     }
+
 }

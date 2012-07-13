@@ -141,7 +141,7 @@ public class EchoNestSpotifyBridge
     {
         try
         {
-            final List<Link> trackArtists = track.getArtists();
+            final Set<Link> trackArtists = track.getArtists();
             final List<String> artists = new ArrayList<String>();
             for (final Link trackArtist : trackArtists)
             {

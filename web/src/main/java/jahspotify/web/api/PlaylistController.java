@@ -50,7 +50,7 @@ public class PlaylistController extends BaseController
         webPlaylist.setId(toWebLink(playlist.getId()));
         webPlaylist.setPicture((playlist.getPicture() != null ? playlist.getPicture().asString() : null));
         webPlaylist.setName(playlist.getName());
-        webPlaylist.setTracks(toWebLinks(playlist.getTracks()));
+        webPlaylist.setTracks(toWebLinksAsList(playlist.getTracks()));
         webPlaylist.setNumTracks(playlist.getNumTracks());
         webPlaylist.setIndex(playlist.getIndex());
         return webPlaylist;

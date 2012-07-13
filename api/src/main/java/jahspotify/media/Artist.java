@@ -23,12 +23,12 @@ public class Artist extends Media
     /**
      * A {@link List} of genres.
      */
-    private List<String> genres;
+    private Set<String> genres;
 
     /**
      * A {@link List} of years active.
      */
-    private List<String> yearsActive;
+    private Set<String> yearsActive;
 
     /**
      * A {@link List} of biographies.
@@ -38,17 +38,17 @@ public class Artist extends Media
     /**
      * A {@link List} of albums.
      */
-    private List<Link> albums;
+    private Set<Link> albums;
 
      /**
      * A {@link List} of tracks.
      */
-    private List<Link> topHitTracks;
+    private Set<Link> topHitTracks;
 
     /**
      * A {@link List} of similar artists.
      */
-    private List<Link> similarArtists;
+    private Set<Link> similarArtists;
 
     /**
      * Creates an empty {@link Artist} object.
@@ -57,11 +57,12 @@ public class Artist extends Media
     {
         this.name = null;
         this.portraits = new ArrayList<Link>();
-        this.genres = new ArrayList<String>();
-        this.yearsActive = new ArrayList<String>();
+        this.genres = new HashSet<String>();
+        this.yearsActive = new HashSet<String>();
         this.bios = null;
-        this.albums = new ArrayList<Link>();
-        this.similarArtists = new ArrayList<Link>();
+        this.albums = new HashSet<Link>();
+        this.similarArtists = new HashSet<Link>();
+        this.topHitTracks = new HashSet<Link>();
     }
 
     /**
@@ -123,7 +124,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of genres.
      */
-    public List<String> getGenres()
+    public Set<String> getGenres()
     {
         return this.genres;
     }
@@ -133,7 +134,7 @@ public class Artist extends Media
      *
      * @param genres A {@link List} of genres.
      */
-    public void setGenres(List<String> genres)
+    public void setGenres(Set<String> genres)
     {
         this.genres = genres;
     }
@@ -143,7 +144,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of active years.
      */
-    public List<String> getYearsActive()
+    public Set<String> getYearsActive()
     {
         return this.yearsActive;
     }
@@ -153,7 +154,7 @@ public class Artist extends Media
      *
      * @param yearsActive A {@link List} of active years.
      */
-    public void setYearsActive(List<String> yearsActive)
+    public void setYearsActive(Set<String> yearsActive)
     {
         this.yearsActive = yearsActive;
     }
@@ -183,7 +184,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of {@link Album} objects.
      */
-    public List<Link> getAlbums()
+    public Set<Link> getAlbums()
     {
         return this.albums;
     }
@@ -193,7 +194,7 @@ public class Artist extends Media
      *
      * @param albums A {@link List} of {@link Album} objects.
      */
-    public void setAlbums(List<Link> albums)
+    public void setAlbums(Set<Link> albums)
     {
         this.albums = albums;
     }
@@ -203,7 +204,7 @@ public class Artist extends Media
     {
         if (albums == null)
         {
-            albums = new ArrayList<Link>();
+            albums = new HashSet<Link>();
         }
         albums.add(album);
     }
@@ -213,7 +214,7 @@ public class Artist extends Media
      *
      * @return A {@link List} of {@link Artist} objects.
      */
-    public List<Link> getSimilarArtists()
+    public Set<Link> getSimilarArtists()
     {
         return this.similarArtists;
     }
@@ -223,7 +224,7 @@ public class Artist extends Media
      *
      * @param similarArtists A {@link List} of {@link Artist} objects.
      */
-    public void setSimilarArtists(List<Link> similarArtists)
+    public void setSimilarArtists(Set<Link> similarArtists)
     {
         this.similarArtists = similarArtists;
     }
@@ -232,17 +233,17 @@ public class Artist extends Media
     {
         if (similarArtists == null)
         {
-            similarArtists = new ArrayList<Link>();
+            similarArtists = new HashSet<Link>();
         }
         similarArtists.add(similarArtist);
     }
 
-    public List<Link> getTopHitTracks()
+    public Set<Link> getTopHitTracks()
     {
         return topHitTracks;
     }
 
-    public void setTopHitTracks(final List<Link> topHitTracks)
+    public void setTopHitTracks(final Set<Link> topHitTracks)
     {
         this.topHitTracks = topHitTracks;
     }
@@ -251,7 +252,7 @@ public class Artist extends Media
     {
         if (topHitTracks == null)
         {
-            topHitTracks = new ArrayList<Link>();
+            topHitTracks = new HashSet<Link>();
         }
         topHitTracks.add(topHitTrack);
     }

@@ -119,7 +119,7 @@
                     <ul>
                         <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artist.id.id}"/>
                         <li><a href="<c:out value='${artistAlbumsURL}'/>" data-icon="plus">Albums</a></li>
-                        <c:url var="similarArtistsURL" value="/ui/media/artist-similar/${artistLink}"/>
+                        <c:url var="similarArtistsURL" value="/ui/media/artist-similar/${artist.id.id}"/>
                         <li><a href="<c:out value='${similarArtistsURL}'/>" data-icon="grid">Similar Artists</a></li>
                         <li><a href="#" data-icon="gear">More</a></li>
                     </ul>

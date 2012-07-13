@@ -126,15 +126,43 @@ jint setObjectIntField(JNIEnv * env, jobject obj, const char *name, jint value)
         return 1;
 
     field = (*env)->GetFieldID(env, clazz, name, "I");
-    (*env)->DeleteLocalRef(env, clazz);
 
     if (field == NULL)
+    {
+      field = (*env)->GetFieldID(env, clazz, name, "Ljava/lang/Integer;");
+      if (field == NULL)
+      {
+        (*env)->DeleteLocalRef(env, clazz);
         return 1;
-
+      }
+    }
+    (*env)->DeleteLocalRef(env, clazz);
+      
     (*env)->SetIntField(env, obj, field, value);
 
     return 0;
 }
+
+jint setObjectBooleanField(JNIEnv * env, jobject obj, const char *name, jint value)
+{
+  jclass clazz;
+  jfieldID field;
+  
+  clazz = (*env)->GetObjectClass(env, obj);
+  if (clazz == NULL)
+    return 1;
+  
+  field = (*env)->GetFieldID(env, clazz, name, "Z");
+  (*env)->DeleteLocalRef(env, clazz);
+  
+  if (field == NULL)
+    return 1;
+  
+  (*env)->SetBooleanField(env, obj, field, (value == JNI_TRUE ? JNI_TRUE : JNI_FALSE));
+  
+  return 0;
+}
+
 
 jint setObjectFloatField(JNIEnv * env, jobject obj, const char *name, jfloat value)
 {

@@ -15,21 +15,20 @@ import jahspotify.util.*;
  * <p/>
  * The following Spotify URIs are supported:<br/>
  * <ul>
- *     <li>spotify:album:&gt;album-identifier&lt;</li>
- *     <li>spotify:artist:&gt;artist-identifier&lt;</li>
- *     <li>spotify:track:&gt;track-identifier&lt;</li>
- *     <li>spotify:image:&gt;image-indentifier&lt;</li>
- *     <li>spotify:playlist:&gt;username&lt;:&gt;playlist-identifier&lt;</li>
+ * <li>spotify:album:&gt;album-identifier&lt;</li>
+ * <li>spotify:artist:&gt;artist-identifier&lt;</li>
+ * <li>spotify:track:&gt;track-identifier&lt;</li>
+ * <li>spotify:image:&gt;image-indentifier&lt;</li>
+ * <li>spotify:playlist:&gt;username&lt;:&gt;playlist-identifier&lt;</li>
  * </ul>
  * <p/>
  * In addition to the above Spotify URIs, the following Jah'Spotify URIs are used:
- *
+ * <p/>
  * <ul>
- *     <li>jahspotify:folder:&gtfolder-id&lt;</li>
- *     <li>jahspotify:queue:&gtqueue-name&lt;</li>
- *     <li>jahspotify:queue:&gtqueue-name&lt;:&gt;queue-entry-identifier&lt;</li>
+ * <li>jahspotify:folder:&gtfolder-id&lt;</li>
+ * <li>jahspotify:queue:&gtqueue-name&lt;</li>
+ * <li>jahspotify:queue:&gtqueue-name&lt;:&gt;queue-entry-identifier&lt;</li>
  * </ul>
- *
  *
  * @author Felix Bruns <felixbruns@web.de>
  * @author Johan Lindquist
@@ -46,7 +45,7 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3, LOCAL, USER;
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3, LOCAL, USER, INBOX, STARRED;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -127,14 +126,29 @@ public class Link
      * <pre>jahspotify:folder:([^\\s]+)</pre>
      */
     private static final Pattern jahFolderPattern = Pattern.compile("jahspotify:folder:(ROOT|([0-9A-Za-z]{16}))");
-    
+
+    /**
+     * A regular expression to match Spotify folder URIs:
+     * <p/>
+     * <pre>jahspotify:inbox</pre>
+     */
+    private static final Pattern jahInboxPattern = Pattern.compile("jahspotify:inbox");
+
+    /**
+     * A regular expression to match Spotify folder URIs:
+     * <p/>
+     * <pre>jahspotify:starred</pre>
+     */
+    private static final Pattern jahStarredPattern = Pattern.compile("jahspotify:starred");
+
+
     /**
      * A regular expression to match local URIs:
      * <p/>
      * <pre>jahspotify:folder:([^\\s]+)</pre>
      */
     private static final Pattern localPattern = Pattern.compile("spotify:local:(.*)");
-    
+
     /**
      * A regular expression to match local URIs:
      * <p/>
@@ -206,6 +220,8 @@ public class Link
         Matcher jahFolderMatcher = jahFolderPattern.matcher(uri);
         Matcher localMatcher = localPattern.matcher(uri);
         Matcher userMatcher = userPattern.matcher(uri);
+        Matcher inboxMatcher = jahInboxPattern.matcher(uri);
+        Matcher starredMatcher = jahStarredPattern.matcher(uri);
 
         /* Check if URI matches artist/album/track pattern. */
         if (mediaMatcher.matches())
@@ -302,13 +318,23 @@ public class Link
         }
         else if (localMatcher.matches())
         {
-        	this.type = Type.LOCAL;
-        	this.id = uri;
+            this.type = Type.LOCAL;
+            this.id = uri;
         }
         else if (userMatcher.matches())
         {
-        	this.type = Type.USER;
-        	this.id = uri;
+            this.type = Type.USER;
+            this.id = uri;
+        }
+        else if (inboxMatcher.matches())
+        {
+            this.type = Type.INBOX;
+            this.id = uri;
+        }
+        else if (starredMatcher.matches())
+        {
+            this.type = Type.STARRED;
+            this.id = uri;
         }
         /* If nothing was matched. */
         else
@@ -323,7 +349,7 @@ public class Link
         {
             return new Link("jahspotify:folder:ROOT");
         }
-        return new Link("jahspotify:folder:" + Hex.toHex(folderID,8));
+        return new Link("jahspotify:folder:" + Hex.toHex(folderID, 8));
     }
 
     /**
@@ -393,7 +419,31 @@ public class Link
      */
     public boolean isPlaylistLink()
     {
-        return this.type.equals(Type.PLAYLIST);
+        switch (this.type)
+        {
+            case PLAYLIST:
+            case INBOX:
+            case STARRED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * @return
+     */
+    public boolean isStarredPlaylistLink()
+    {
+        return this.type.equals(Type.STARRED);
+    }
+
+    /**
+     * @return
+     */
+    public boolean isInboxPlaylistLink()
+    {
+        return this.type.equals(Type.INBOX);
     }
 
     /**
@@ -450,7 +500,7 @@ public class Link
      */
     public String getUser()
     {
-        if (!this.isPlaylistLink())
+        if (!this.type.equals(Type.USER))
         {
             throw new IllegalStateException("Link is not a playlist link!");
         }

@@ -46,7 +46,6 @@ public class Media
     {
         this.id = null;
         this.redirects = new ArrayList<String>();
-        this.popularity = -1;
         this.restrictions = new ArrayList<Restriction>();
         this.externalIds = new HashMap<String, String>();
     }

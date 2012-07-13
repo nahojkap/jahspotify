@@ -36,37 +36,4 @@ public class AlbumController extends BaseController
         }
     }
 
-    private jahspotify.web.media.Album convertToWebAlbum(final Album album)
-    {
-
-        jahspotify.web.media.Album webAlbum = new jahspotify.web.media.Album();
-
-        webAlbum.setId(toWebLink(album.getId()));
-        webAlbum.setCover(toWebLink(album.getCover()));
-        webAlbum.setArtist(toWebLink(album.getArtist()));
-        webAlbum.setDiscs(toWebDiscs(album.getDiscs()));
-        webAlbum.setType(jahspotify.web.media.AlbumType.valueOf(album.getType().name()));
-        // webAlbum.setRestrictions(toWebRestrictions(album.getRestrictions()));
-
-        BeanUtils.copyProperties(album, webAlbum, new String[]{"id", "restrictions", "artist", "cover", "type", "discs"});
-        return webAlbum;
-    }
-
-    private List<jahspotify.web.media.Disc> toWebDiscs(final List<Disc> discs)
-    {
-        List<jahspotify.web.media.Disc> webDiscs = new ArrayList<jahspotify.web.media.Disc>();
-        for (Disc disc : discs)
-        {
-            webDiscs.add(toWebDisc(disc));
-        }
-        return webDiscs;
-    }
-
-    private jahspotify.web.media.Disc toWebDisc(final Disc disc)
-    {
-        jahspotify.web.media.Disc webDisc = new jahspotify.web.media.Disc();
-        webDisc.setTracks(toWebLinks(disc.getTracks()));
-        return webDisc;
-    }
-
 }

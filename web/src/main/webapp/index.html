@@ -19,7 +19,7 @@
 <body>
 
 
-<div id="homePage" data-role="page" data-theme="g" class="homeBody" >
+<div id="homePage" data-role="page" data-theme="g" class="homeBody">
 
 
     <!-- /header -->
@@ -28,7 +28,8 @@
                 <a href="/jahspotify/index.html" data-icon="home" data-direction="reverse" data-iconpos="notext">Home</a>
         -->
         <h3>Jah'Spotify</h3>
-        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right"  data-transition="fade"
+        <a href="/jahspotify/jsp/play-controller-dialog.jsp" data-icon="gear" data-rel="dialog" class="ui-btn-right"
+           data-transition="fade"
            data-iconpos="notext">Player</a>
     </div>
 
@@ -40,6 +41,8 @@
             data-split-theme="a" data-count-theme="b">
             <li data-role="list-divider" data-theme="a"></li>
 
+            <li><a class="wrapper" href="ui/media/library/jahspotify:inbox" id="Inbox">Inbox</a></li>
+            <li><a class="wrapper" href="ui/media/library/jahspotify:starred" id="Starred">Starred</a></li>
             <li><a class="wrapper" href="ui/media/library/jahspotify:folder:ROOT" id="Playlists">Playlists</a></li>
 
             <li><a class="wrapper" href="ui/search" id="Search">Search</a></li>
@@ -48,14 +51,14 @@
             <li>
                 <a class="wrapper" href="ui/queue/current" id="Queue">Queue</a>
             </li>
-            <li data-role="list-divider" data-theme="a"></li>
-
-
-            <li><a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
-            <li data-role="list-divider" data-theme="a"></li>
-
+            <li>
+                <a class="wrapper" href="ui/queue/history" id="History">History</a>
             </li>
-
+            <li data-role="list-divider" data-theme="a"></li>
+            <li>
+                <a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
+            </li>
+            <li data-role="list-divider" data-theme="a"></li>
 
         </ul>
     </div>

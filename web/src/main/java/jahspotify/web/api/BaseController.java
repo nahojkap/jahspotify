@@ -8,8 +8,13 @@ import javax.servlet.http.*;
 import com.google.gson.Gson;
 import jahspotify.JahSpotify;
 import jahspotify.media.*;
-import jahspotify.services.JahSpotifyService;
+import jahspotify.media.Album;
+import jahspotify.media.Artist;
+import jahspotify.media.Disc;
+import jahspotify.media.Link;
+import jahspotify.media.Track;
 import jahspotify.web.*;
+import jahspotify.web.media.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
@@ -30,10 +35,14 @@ public class BaseController
 
     public static jahspotify.web.media.Link toWebLink(final Link link)
     {
-        return new jahspotify.web.media.Link(link.asString(), jahspotify.web.media.Link.Type.valueOf(link.getType().name()));
+        if (link != null)
+        {
+            return new jahspotify.web.media.Link(link.asString(), jahspotify.web.media.Link.Type.valueOf(link.getType().name()));
+        }
+        return null;
     }
 
-    public static List<jahspotify.web.media.Link> toWebLinks(final List<Link> links)
+    public static List<jahspotify.web.media.Link> toWebLinksAsList(final List<Link> links)
     {
         if (links == null || links.isEmpty())
         {
@@ -41,6 +50,23 @@ public class BaseController
         }
 
         List<jahspotify.web.media.Link> stringLinks = new ArrayList<jahspotify.web.media.Link>(links.size());
+
+        for (Link track : links)
+        {
+            stringLinks.add(toWebLink(track));
+        }
+
+        return stringLinks;
+    }
+
+    public static Set<jahspotify.web.media.Link> toWebLinksAsSet(final Set<Link> links)
+    {
+        if (links == null || links.isEmpty())
+        {
+            return null;
+        }
+
+        final Set<jahspotify.web.media.Link> stringLinks = new HashSet<jahspotify.web.media.Link>(links.size());
 
         for (Link track : links)
         {
@@ -158,7 +184,7 @@ public class BaseController
         jahspotify.web.media.Track webTrack = new jahspotify.web.media.Track();
 
         webTrack.setAlbum(toWebLink(track.getAlbum()));
-        webTrack.setArtists(toWebLinks(track.getArtists()));
+        webTrack.setArtists(toWebLinksAsSet(track.getArtists()));
         webTrack.setId(toWebLink(track.getId()));
         // webTrack.setRestrictions(toWebRestrictions(track.getRestrictions()));
 
@@ -170,7 +196,7 @@ public class BaseController
 
 
 
-    protected jahspotify.web.media.FullTrack createFullTrack(final jahspotify.media.Track track)
+    public static jahspotify.web.media.FullTrack createFullTrack(final JahSpotify jahSpotify, final jahspotify.media.Track track)
     {
         jahspotify.web.media.FullTrack fullTrack = new jahspotify.web.media.FullTrack();
         fullTrack.setId(toWebLink(track.getId()));
@@ -179,7 +205,7 @@ public class BaseController
         fullTrack.setTrackNumber(track.getTrackNumber());
         fullTrack.setExplicit(track.isExplicit());
 
-        final List<Link> artists = track.getArtists();
+        final Set<Link> artists = track.getArtists();
         final List<jahspotify.web.media.Link> webArtistLinks = new ArrayList<jahspotify.web.media.Link>();
 
         final List<String> webArtistNames = new ArrayList<String>();
@@ -188,7 +214,7 @@ public class BaseController
 
         for (jahspotify.media.Link artistLink : artists)
         {
-            final Artist artist = _jahSpotify.readArtist(artistLink);
+            final Artist artist = jahSpotify.readArtist(artistLink);
 
             if (artist != null)
             {
@@ -202,7 +228,7 @@ public class BaseController
             }
         }
 
-        final jahspotify.media.Album album = _jahSpotify.readAlbum(track.getAlbum());
+        final jahspotify.media.Album album = jahSpotify.readAlbum(track.getAlbum());
         if (album != null)
         {
             fullTrack.setAlbumName(album.getName());
@@ -220,13 +246,46 @@ public class BaseController
         return fullTrack;
     }
 
+    protected jahspotify.web.media.Album convertToWebAlbum(final Album album)
+    {
+
+        jahspotify.web.media.Album webAlbum = new jahspotify.web.media.Album();
+
+        webAlbum.setId(toWebLink(album.getId()));
+        webAlbum.setCover(toWebLink(album.getCover()));
+        webAlbum.setArtist(toWebLink(album.getArtist()));
+        webAlbum.setDiscs(toWebDiscs(album.getDiscs()));
+        webAlbum.setType(jahspotify.web.media.AlbumType.valueOf(album.getType().name()));
+        // webAlbum.setRestrictions(toWebRestrictions(album.getRestrictions()));
+
+        BeanUtils.copyProperties(album, webAlbum, new String[]{"id", "restrictions", "artist", "cover", "type", "discs"});
+        return webAlbum;
+    }
+
+    protected List<jahspotify.web.media.Disc> toWebDiscs(final List<Disc> discs)
+    {
+        List<jahspotify.web.media.Disc> webDiscs = new ArrayList<jahspotify.web.media.Disc>();
+        for (Disc disc : discs)
+        {
+            webDiscs.add(toWebDisc(disc));
+        }
+        return webDiscs;
+    }
+
+    protected jahspotify.web.media.Disc toWebDisc(final Disc disc)
+    {
+        jahspotify.web.media.Disc webDisc = new jahspotify.web.media.Disc();
+        webDisc.setTracks(toWebLinksAsList(disc.getTracks()));
+        return webDisc;
+    }
+
     protected jahspotify.web.media.Artist convertToWebArtist(final Artist artist)
     {
         jahspotify.web.media.Artist webArtist = new jahspotify.web.media.Artist();
-        webArtist.setTopHitTracks(toWebLinks(artist.getTopHitTracks()));
-        webArtist.setAlbums(toWebLinks(artist.getAlbums()));
-        webArtist.setPortraits(toWebLinks(artist.getPortraits()));
-        webArtist.setSimilarArtists(toWebLinks(artist.getSimilarArtists()));
+        webArtist.setTopHitTracks(toWebLinksAsSet(artist.getTopHitTracks()));
+        webArtist.setAlbums(toWebLinksAsSet(artist.getAlbums()));
+        webArtist.setPortraits(toWebLinksAsList(artist.getPortraits()));
+        webArtist.setSimilarArtists(toWebLinksAsSet(artist.getSimilarArtists()));
         webArtist.setId(toWebLink(artist.getId()));
         webArtist.setBioParagraphs(splitIntoList(artist.getBios()));
         BeanUtils.copyProperties(artist, webArtist, new String[]{"id", "restrictions", "albums", "similarArtists", "topHitTracks", "portraits", "bios"});
