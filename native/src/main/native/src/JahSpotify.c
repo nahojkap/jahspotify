@@ -27,7 +27,6 @@
 #include "Logging.h"
 #include "JNIHelpers.h"
 #include "JahSpotify.h"
-#include "jahspotify_impl_JahSpotifyImpl.h"
 #include "AppKey.h"
 #include "audio.h"
 #include "Callbacks.h"

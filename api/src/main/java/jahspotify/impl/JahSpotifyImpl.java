@@ -1,12 +1,6 @@
 package jahspotify.impl;
 
-import jahspotify.ConnectionListener;
-import jahspotify.JahSpotify;
-import jahspotify.PlaybackListener;
-import jahspotify.PlaylistListener;
-import jahspotify.Search;
-import jahspotify.SearchListener;
-import jahspotify.SearchResult;
+import jahspotify.*;
 import jahspotify.media.Album;
 import jahspotify.media.Artist;
 import jahspotify.media.Image;
@@ -67,6 +61,12 @@ public class JahSpotifyImpl implements JahSpotify
 
     protected JahSpotifyImpl()
     {
+
+        if (!JahSpotifyNativeLoader.loadJahSpotify())
+        {
+            _log.error("Could not load JahSpotify Native Library");
+        }
+
         registerNativeMediaLoadedListener(new NativeMediaLoadedListener()
         {
             @Override
@@ -770,11 +770,6 @@ public class JahSpotifyImpl implements JahSpotify
         _user = retrieveUser();
 
         return _user;
-    }
-
-    static
-    {
-        System.loadLibrary("jahspotify");
     }
 
     @Override

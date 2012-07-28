@@ -84,6 +84,10 @@ For windows, you will need to download a few more dependencies:
 
   contains all native & JNI code interacting with libspotify
 
+* native-jar
+
+  contains wrapper code to load libjahspotify from a jar
+
 * services
 
   provides all Jah'Spotify Spring services
@@ -91,10 +95,6 @@ For windows, you will need to download a few more dependencies:
 * web
 
   provides the RESTful API (json based)
-
-* executable-war
-
-  provides a single, executable Jah'Spotify war file
 
 * web-client
 
@@ -107,6 +107,10 @@ For windows, you will need to download a few more dependencies:
 * storage
 
   provides basic storage implementations for caching media objects (tracks/images/etc)
+
+* executable-war
+
+  provides a single, executable Jah'Spotify war file
 
 ## UI
 
@@ -205,8 +209,6 @@ __Volume Down__
 [http://localhost:8080/jahspotify/player/volume-down](http://localhost:8080/jahspotify/player/volume-down)
 
 There are other URLs - please examine the web module for them.
-
-NOTE: You may have to setup your LD_LIBRARY_PATH to point to the libspotify & libjahspotify locations!
 
 ## Discussions and other:
 

@@ -21,11 +21,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>jahspotify</groupId>
-            <artifactId>jahspotify-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -83,9 +78,9 @@
 
                     <!-- trigger javah -->
                     <javahOS>${OS}</javahOS>
-                    <javahClassNames>
+             <!--       <javahClassNames>
                         <javahClassName>jahspotify.impl.JahSpotifyImpl</javahClassName>
-                    </javahClassNames>
+                    </javahClassNames>-->
 
                     <compilerProvider>generic</compilerProvider>
                     <compilerStartOptions>

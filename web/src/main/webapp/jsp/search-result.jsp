@@ -26,7 +26,7 @@
 <div id="playList" data-role="page" data-theme="g" class="homeBody">
 
     <!-- /header -->
-    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
+    <div data-role="header" role="banner" data-position="fixed">
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
         <h1><c:out value="${pageTitle}"/></h1>
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>

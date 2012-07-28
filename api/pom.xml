@@ -27,6 +27,12 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>jahspotify</groupId>
+            <artifactId>jahspotify-native-jar</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
