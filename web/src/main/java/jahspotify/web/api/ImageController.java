@@ -27,14 +27,6 @@ public class ImageController extends BaseController
         {
             final Link uri = Link.create(link);
 
-            if (uri == null)
-            {
-                final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
-                simpleStatusResponse.setResponseStatus(jahspotify.web.ResponseStatus.MISSING_PARAMETER);
-                writeResponse(httpServletResponse, simpleStatusResponse);
-                return;
-            }
-
             if (!uri.isImageLink())
             {
                 final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
@@ -75,6 +67,7 @@ public class ImageController extends BaseController
             }
             else
             {
+                httpServletResponse.setStatus(404);
                 final SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
                 simpleStatusResponse.setResponseStatus(jahspotify.web.ResponseStatus.RESOURCE_NOT_FOUND);
                 writeResponse(httpServletResponse, simpleStatusResponse);

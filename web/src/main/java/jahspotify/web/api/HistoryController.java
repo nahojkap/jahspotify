@@ -20,6 +20,7 @@ package jahspotify.web.api;
  */
 
 import java.io.*;
+import java.util.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
@@ -50,12 +51,12 @@ public class HistoryController extends BaseController
     @RequestMapping(value = "/history", method = RequestMethod.GET)
     public void getHistory(final HttpServletResponse httpServletResponse, @RequestParam(value = "index", defaultValue = "0") int index, @RequestParam(value = "count",defaultValue = "${jahspotify.history.default-count}")int count)
     {
-        final HistoryCursor history = _historicalStorage.getHistory(index, count, null);
+        final Collection<TrackHistory> history = _historicalStorage.getHistory(index, count, null);
         httpServletResponse.setContentType("application/json");
         serializeHistoryCursor(history, httpServletResponse);
     }
 
-    public void serializeHistoryCursor(HistoryCursor historyCursor, HttpServletResponse httpServletResponse)
+    public void serializeHistoryCursor(Collection<TrackHistory> historyCursor, HttpServletResponse httpServletResponse)
     {
         try
         {
@@ -63,14 +64,27 @@ public class HistoryController extends BaseController
             final BufferedWriter outputStream = new BufferedWriter(new OutputStreamWriter(httpOutputStream));
             outputStream.write("{");
             outputStream.write("\"count\":");
-            outputStream.write("" + historyCursor.getCount());
+            outputStream.write("" + historyCursor.size());
 
-            if (historyCursor.getCount() > 0)
+            if (historyCursor.size() > 0)
             {
                 Gson gson = new Gson();
 
                 outputStream.write(",");
                 outputStream.write("\"tracks\":[");
+
+                for (Iterator<TrackHistory> iterator = historyCursor.iterator(); iterator.hasNext(); )
+                {
+                    TrackHistory next = iterator.next();
+                    outputStream.write(gson.toJson(toWebTrack(next)));
+                    if (iterator.hasNext())
+                    {
+                        outputStream.write(",");
+                    }
+                    outputStream.flush();
+                }
+
+/*
                 while (historyCursor.hasNext())
                 {
                     outputStream.write(gson.toJson(toWebTrack(historyCursor.next())));
@@ -80,6 +94,7 @@ public class HistoryController extends BaseController
                     }
                     outputStream.flush();
                 }
+*/
                 outputStream.write("]");
             }
             outputStream.write("}");

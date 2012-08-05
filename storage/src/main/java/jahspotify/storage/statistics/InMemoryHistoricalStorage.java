@@ -17,22 +17,38 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
     private Log _log = LogFactory.getLog(HistoricalStorage.class);
 
     private List<TrackHistory> _trackHistory = new ArrayList<TrackHistory>();
+
     @Override
-    public HistoryCursor getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    public Collection<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
-        return new InMemoryHistoryCursor(_trackHistory);
+        return new AbstractCollection<TrackHistory>()
+        {
+            @Override
+            public Iterator<TrackHistory> iterator()
+            {
+                return new InMemoryHistoryCursor(_trackHistory);
+            }
+
+            @Override
+            public int size()
+            {
+                return _trackHistory.size();
+            }
+        };
     }
 
     public void addHistory(final TrackHistory trackHistory)
     {
         _log.debug("Adding track history: " + trackHistory);
-        _trackHistory.add(0,trackHistory);
+        _trackHistory.add(0, trackHistory);
 
     }
+
     public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)
     {
         return null;
     }
+
     public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count)
     {
         return null;

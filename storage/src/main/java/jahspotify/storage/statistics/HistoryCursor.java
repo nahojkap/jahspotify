@@ -19,10 +19,12 @@ package jahspotify.storage.statistics;
  *        under the License.
  */
 
+import java.util.Iterator;
+
 /**
  * @author Johan Lindquist
  */
-public interface HistoryCursor
+public interface HistoryCursor extends Iterator
 {
     public abstract int getCount();
     public abstract boolean hasNext();

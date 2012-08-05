@@ -65,7 +65,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     }
 
     @Override
-    public HistoryCursor getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
+    public Collection<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
         final DBCollection tracks = _db.getCollection("history");
 
@@ -73,10 +73,23 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
         dbObjects.skip(index);
         dbObjects.limit(count);
         final BasicDBObject orderBy = new BasicDBObject();
-        orderBy.put("_startTime",-1);
+        orderBy.put("startTime",-1);
         dbObjects.sort(orderBy);
 
-        return new MongoDBHistoryCursor(dbObjects);
+        return new AbstractCollection<TrackHistory>()
+        {
+            @Override
+            public Iterator<TrackHistory> iterator()
+            {
+                return new MongoDBHistoryCursor(dbObjects);
+            }
+
+            @Override
+            public int size()
+            {
+                return dbObjects.size();
+            }
+        };
     }
 
     @Override

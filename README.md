@@ -4,7 +4,7 @@ Jah'Spotify Project
 
 ## Introduction
 
-Jah'Spotify is a Java wrapper built on top of the Spotify native APIs (libspotify)
+Jah'Spotify is a Java wrapper built on top of the Spotify native APIs (libspotify) exposed both as an HTML5 UI and a JSON REST based API
 
 Currently supports:
 
@@ -20,9 +20,14 @@ Currently supports:
 * dynamic playlist using echonest apis
 * basic historical track list view
 * very basic android app for remote control
+* JSON reset based API
+* web-ui based on JQuery Mobile
 
 In addition, all the above functions are accessible over a JSON based RESTful API (provided by the services and web
 modules).
+
+Note: Currently, JahSpotify relies on existing playlists created from Spotify - there is currently no option to add
+playlists/folders using the API or UI - it is being worked on ;)
 
 ## To build
 
@@ -114,7 +119,10 @@ For windows, you will need to download a few more dependencies:
 
 ## UI
 
-TBD
+To access the HTML5 UI of JahSpotify, simply point your browser to:
+
+[http://localhost:8080/jahspotify/index.html](http://localhost:8080/jahspotify/index.html)
+
 
 ## REST API
 

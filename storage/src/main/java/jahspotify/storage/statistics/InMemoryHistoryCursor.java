@@ -59,4 +59,10 @@ public class InMemoryHistoryCursor implements HistoryCursor
         }
         return _trackHistoryListIterator.next();
     }
+
+    @Override
+    public void remove()
+    {
+        throw new UnsupportedOperationException("Remove is not supported");
+    }
 }

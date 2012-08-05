@@ -23,7 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <jni.h>
 #include "Logging.h"
 #include "JNIHelpers.h"
 #include "JahSpotify.h"
@@ -36,7 +36,7 @@
 
 /// The global session handle
 sp_session *g_sess = NULL;
-/// Handle to the curren track
+/// Handle to the current track
 sp_track *g_currenttrack = NULL;
 
 jobject g_libraryListener = NULL;
@@ -213,7 +213,9 @@ static sp_playlist_callbacks pl_callbacks =
     .track_message_changed = &track_message_changed,
     .track_created_changed = &track_created_changed,
     .track_seen_changed = &track_seen_changed,
-    .description_changed = &description_changed
+    .description_changed = &description_changed,
+    .playlist_metadata_updated = &playlist_metadata_updated
+
 };
 
 
@@ -311,6 +313,7 @@ static void SP_CALLCONV container_loaded ( sp_playlistcontainer *pc, void *userd
               break;
           default:
               log_warn("jahspotify","container_loaded","Unhandled playlist type: %d", sp_playlistcontainer_playlist_type ( pc,i ));
+              break;
         }
 
         if (link)
@@ -620,6 +623,7 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeMed
 {
    g_mediaLoadedListener =  (*env)->NewGlobalRef(env, mediaLoadedListener);
    log_debug("jahspotify","registerNativeMediaLoadedListener","Registered media loaded listener: 0x%x\n", (int)g_mediaLoadedListener);
+   return JNI_TRUE;
 }
 
 
@@ -627,24 +631,28 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeSea
 {
    g_searchCompleteListener =  (*env)->NewGlobalRef(env, searchCompleteListener);
    log_debug("jahspotify","registerNativeSearchCompleteListener","Registered search complete listener: 0x%x\n", (int)g_searchCompleteListener);
+   return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativePlaybackListener (JNIEnv *env, jobject obj, jobject playbackListener)
 {
     g_playbackListener = (*env)->NewGlobalRef(env, playbackListener);
     log_debug("jahspotify","registerNativePlaybackListener","Registered playback listener: 0x%x\n", (int)g_playbackListener);
+    return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeLibraryListener (JNIEnv *env, jobject obj, jobject libraryListener)
 {
     g_libraryListener = (*env)->NewGlobalRef(env, libraryListener);
     log_debug("jahspotify","registerNativeLibraryListener","Registered playlist listener: 0x%x\n", (int)g_libraryListener);
+    return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_registerNativeConnectionListener (JNIEnv *env, jobject obj, jobject connectionListener)
 {
     g_connectionListener = (*env)->NewGlobalRef(env, connectionListener);
     log_debug("jahspotify","registerNativeConnectionListener","Registered connection listener: 0x%x\n", (int)g_connectionListener);
+    return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_unregisterListeners (JNIEnv *env, jobject obj)
@@ -672,6 +680,8 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_unregisterListene
         (*env)->DeleteGlobalRef(env, g_connectionListener);
         g_connectionListener = NULL;
     }
+
+    return JNI_TRUE;
 }
 
 JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIEnv *env, jobject obj)
@@ -1595,6 +1605,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveAlbum ( JN
 JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeShutdown ( JNIEnv *env, jobject obj)
 {
   sp_session_logout(g_sess);
+  return JNI_TRUE;
 }
 
 
@@ -1809,6 +1820,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveInbo
 JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTracks (JNIEnv *env, jobject obj, jobjectArray uris)
 {
     // For each track, read out the info and populate all of the info in the Track instance
+	return NULL;
 }
 
 JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *env, jobject obj)
@@ -1818,6 +1830,7 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *
     {
         sp_session_player_play(g_sess,0);
     }
+    return 0;
 }
 
 JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv *env, jobject obj)
@@ -1827,6 +1840,7 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume (JNIEnv 
     {
         sp_session_player_play(g_sess,1);
     }
+    return 0;
 }
 
 JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *env, jobject obj, jstring uri, jobject outputStream)
@@ -1943,7 +1957,6 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
         if (!t)
         {
             log_error("jahspotify","nativePlayTrack","No track from link");
-            return;
         }
 
         int count = 0;
@@ -1956,13 +1969,11 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
         if (count == 4)
         {
           log_warn("jahspotify","nativePlayTrack","Track not loaded after 1 second, will have to wait for callback");
-          return;
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)
         {
             log_debug("jahspotify","nativePlayTrack","Error with track: %s",sp_error_message(sp_track_error(t)));
-            return;
         }
 
         log_debug("jahspotify","nativePlayTrack","track name: %s duration: %d",sp_track_name(t),sp_track_duration(t));
@@ -1970,7 +1981,6 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
         if (g_currenttrack == t)
         {
             log_warn("jahspotify","nativePlayTrack","Same track, will not play");
-            return;
         }
 
         // If there is one playing, unload that now
@@ -2197,8 +2207,6 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
 
         pthread_mutex_lock ( &g_notify_mutex );
     }
-
-    // FIXME: Release the username/password allocated?
 
     return 0;
 

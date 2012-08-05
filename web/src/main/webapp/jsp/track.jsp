@@ -43,7 +43,11 @@
 
                 <div data-role="controlgroup" data-type="horizontal" align="right">
                     <a href="index.html" data-role="button" data-icon="star" data-iconpos="notext">Star this track</a>
-                    <a href="index.html" data-role="button" data-icon="plus" data-iconpos="notext">Queue Track</a>
+
+                    <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
+                    <a data-role="button" data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid" data-iconpos="notext">Enqueue</a></li>
+                    <a href="index.html" data-role="button" data-icon="plus" data-iconpos="notext">Add to Playlist</a>
+
                 </div>
 
                 <div align="center" style="line-height: 0.5em">

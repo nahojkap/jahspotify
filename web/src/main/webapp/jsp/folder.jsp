@@ -28,21 +28,20 @@
     <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 
     <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-    <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext"  data-role="button">Player</a>
+    <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right"
+       data-iconpos="notext" data-role="button">Player</a>
 
 </div>
 
 
 <div data-role="content">
 
-  <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
+    <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
         data-split-theme="a" data-count-theme="c">
         <c:forEach items="${entry.subEntries}" var="subEntry">
             <c:url var="subEntryURL" value="/ui/media/library/${subEntry.id}"/>
-            <li >
-
-
-                <a href="<c:out value="${subEntryURL}"/>" >
+            <li>
+                <a href="<c:out value="${subEntryURL}"/>">
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
                     <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
@@ -55,6 +54,24 @@
     </ul>
 
 </div>
+
+
+<script>
+
+
+    $("li").bind("taphold", function (event)
+    {
+        // $(this).remove();
+        alert("tap hold")
+    });
+
+    $("li").bind("swiperight", function (event)
+    {
+        //$(this).remove();
+        alert("swipe right")
+    });
+
+</script>
 
 <%@ include file="/jsp/footer.jsp" %>
 

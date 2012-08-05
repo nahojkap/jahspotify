@@ -54,4 +54,10 @@ public class MongoDBHistoryCursor implements HistoryCursor
     {
         return _gson.fromJson(JSON.serialize(_dbObjects.next()), TrackHistory.class);
     }
+
+    @Override
+    public void remove()
+    {
+        throw new UnsupportedOperationException("Not supported");
+    }
 }
