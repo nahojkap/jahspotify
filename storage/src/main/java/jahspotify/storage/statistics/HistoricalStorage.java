@@ -11,7 +11,6 @@ public interface HistoricalStorage
 {
     public Collection<TrackHistory> getHistory(int index, int count, HistoryCriteria... historyCriterias);
     public void addHistory(final TrackHistory trackHistory);
-    public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink);
-    public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count);
+    public TrackStatistics getTrackStatistics(final Link trackLink);
     public int getHistoryCount(HistoryCriteria... historyCriterias);
 }

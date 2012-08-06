@@ -42,7 +42,7 @@
             <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
                 data-split-theme="a" data-count-theme="b">
                 <c:forEach items="${trackHistories}" var="trackHistory">
-                    <c:url var="trackURL" value="/ui/media/track/${trackHistory.trackLink.id}"/>
+                    <c:url var="trackURL" value="/ui/history/track/${trackHistory.trackLink.id}"/>
                     <jah:media link="${trackHistory.trackLink.id}" var="track"/>
                     <jah:media link="${track.album.id}" var="album"/>
                     <li id="<c:out value='%{track.id.id}'/>">
@@ -52,6 +52,7 @@
                             <img src="<c:out value="${albumCoverURL}"/>"/>
 
                             <div>
+
                                 <h4><c:out value="${track.title}"/> <span
                                         style="vertical-align: middle; font-weight: lighter; font-size: 60%">(<c:out
                                         value="${duration}"/>)</span></h4>
@@ -59,6 +60,23 @@
                                 <p style="font-weight: bold; font-size: 65%">
                                     <c:out value="${album.name}"/></p>
 
+                                <p style="font-weight: bold; font-size: 65%">
+                                    <c:set value="${trackHistory.startTime}" var="playedOnDate"/>
+                                    <jsp:useBean id="dateValue" class="java.util.Date" />
+                                    <jsp:setProperty name="dateValue" property="time" value="${playedOnDate}" />
+                                    <fmt:formatDate value="${dateValue}" var="date" timeZone="GMT" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
+                                    Played <abbr class="timeago" title="<c:out value='${date}'/>"><c:out value='${date}'/></abbr> &middot;
+
+
+                                    Played <c:out value='${trackStatistics.numTimesPlayed}'/> time(s)  &middot;
+
+                                    <jah:trackstatistics link="${trackHistory.trackLink.id}" var="trackStatistics"/>
+                                    <jsp:setProperty name="dateValue" property="time" value="${trackStatistics.firstPlayed}" />
+                                    <fmt:formatDate value="${dateValue}" var="date" timeZone="GMT" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
+
+                                    First played <abbr class="timeago" title="<c:out value='${date}'/>"><c:out value='${date}'/></abbr>
+
+                                </p>
 <%--
                                 <p style="font-weight: bold; font-size: 50%">
                                     <c:forEach items="${track.artistNames}"

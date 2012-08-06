@@ -44,12 +44,8 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
 
     }
 
-    public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)
-    {
-        return null;
-    }
 
-    public TrackStatisticsCursor trackStatistics(final Link trackLink, int startFrom, int count)
+    public TrackStatistics getTrackStatistics(final Link trackLink)
     {
         return null;
     }

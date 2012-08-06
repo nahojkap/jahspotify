@@ -49,6 +49,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
 
     private Mongo _mongoDBInstance;
     private DB _db;
+    private static Gson _gson = new Gson();
 
     @PostConstruct
     public void initialize()
@@ -101,15 +102,58 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     }
 
     @Override
-    public AggregatedTrackStatistics aggregatedTrackStatistics(final Link trackLink)
+    public TrackStatistics getTrackStatistics(final Link trackLink)
     {
-        return null;
-    }
+        final DBCollection tracks = _db.getCollection("history");
 
-    @Override
-    public TrackStatisticsCursor trackStatistics(final Link trackLink, final int startFrom, final int count)
-    {
-        return null;
+        final BasicDBObject query = new BasicDBObject();
+        query.put("trackLink.id",trackLink.getId());
+        final DBCursor dbObjects = tracks.find(query);
+        final BasicDBObject orderBy = new BasicDBObject();
+        orderBy.put("startTime",-1);
+
+        dbObjects.sort(orderBy);
+
+        TrackStatistics trackStatistics = new TrackStatistics();
+
+        int numCompleted = 0;
+        int numSkipped = 0;
+        int totalSecondsPlayed = 0;
+
+        if (dbObjects.hasNext())
+        {
+            final TrackHistory trackHistory = _gson.fromJson(JSON.serialize(dbObjects.next()), TrackHistory.class);
+            trackStatistics.setLastPlayed(trackHistory.getStartTime());
+            totalSecondsPlayed += trackHistory.getSecondsPlayed();
+            numSkipped += trackHistory.isCompleteTrackPlayed() ? 0 : 1;
+            numCompleted += trackHistory.isCompleteTrackPlayed() ? 1 : 0;
+
+            if (!dbObjects.hasNext())
+            {
+                trackStatistics.setFirstPlayed(trackHistory.getStartTime());
+            }
+        }
+
+        while (dbObjects.hasNext())
+        {
+            final TrackHistory trackHistory = _gson.fromJson(JSON.serialize(dbObjects.next()), TrackHistory.class);
+            totalSecondsPlayed += trackHistory.getSecondsPlayed();
+            numSkipped += trackHistory.isCompleteTrackPlayed() ? 0 : 1;
+            numCompleted += trackHistory.isCompleteTrackPlayed() ? 1 : 0;
+
+            if (!dbObjects.hasNext())
+            {
+                trackStatistics.setFirstPlayed(trackHistory.getStartTime());
+            }
+
+        }
+
+        trackStatistics.setNumTimesCompleted(numCompleted);
+        trackStatistics.setNumTimesSkipped(numSkipped);
+        trackStatistics.setNumTimesPlayed(numCompleted+numSkipped);
+        trackStatistics.setTotalPlaytime(totalSecondsPlayed);
+
+        return trackStatistics;
     }
 
     @Override

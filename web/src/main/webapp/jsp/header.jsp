@@ -29,11 +29,22 @@
 
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+    <c:url var="jqURL" value="/scripts/jquery-1.7.1.min.js"/>
+    <script src="<c:out value='${jqURL}'/>"></script>
+    <c:url var="jqMobileURL" value="/scripts/jquery.mobile-1.1.0.min.js"/>
+    <script src="<c:out value='${jqMobileURL}'/>"></script>
+    <c:url var="timeagoURL" value="/scripts/jquery.timeago.js"/>
+    <script src="<c:out value='${timeagoURL}'/>"></script>
 
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css"/>
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile.structure-1.1.0.min.css"/>
 
 </head>
+
+<script>
+jQuery(document).ready(function() {
+  jQuery("abbr.timeago").timeago();
+});
+</script>
+
 <body>

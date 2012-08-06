@@ -67,6 +67,14 @@
                 </select>
             </div>
 
+            <div data-role="fieldcontain">
+                <label for="repeat">Auto-Fill Empty Queue:</label>
+                <select name="autofill" id="autofill" data-role="slider">
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                </select>
+            </div>
+
         </form>
     </div>
 

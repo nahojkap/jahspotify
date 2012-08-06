@@ -91,4 +91,23 @@
         </attribute>
     </tag>
 
+    <tag>
+          <description>Loads the specified track into the context as a full track</description>
+          <name>trackstatistics</name>
+          <tag-class>jahspotify.web.tags.TrackStatisticsTag</tag-class>
+          <body-content>empty</body-content>
+          <attribute>
+              <description>The link of the track to load statistics for</description>
+              <name>link</name>
+              <required>true</required>
+              <rtexprvalue>true</rtexprvalue>
+          </attribute>
+          <attribute>
+              <description>Variable to place the loaded track statistics into</description>
+              <name>var</name>
+              <required>true</required>
+              <rtexprvalue>false</rtexprvalue>
+          </attribute>
+      </tag>
+
 </taglib>
