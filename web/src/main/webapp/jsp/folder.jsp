@@ -21,6 +21,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
 <!-- /header -->
 <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
@@ -37,11 +38,23 @@
 <div data-role="content">
 
     <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-        data-split-theme="a" data-count-theme="c">
+        data-split-theme="a" data-count-theme="b">
         <c:forEach items="${entry.subEntries}" var="subEntry">
             <c:url var="subEntryURL" value="/ui/media/library/${subEntry.id}"/>
             <li>
                 <a href="<c:out value="${subEntryURL}"/>">
+                    <%--<c:choose>
+                                            <c:when test="${subEntry.type == 'PLAYLIST'}">
+                                                <jah:media link="${subEntry.id}" var="playlist"/>
+                                                <c:if test="${not empty playlist.picture}">
+                                                    <c:url var="playlistImage" value="/media/${playlist.picture.id}"/>
+                                                    <img src="<c:out value="${playlistImage}"/>"/>
+                                                </c:if>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src=""/>
+                                            </c:otherwise>
+                                        </c:choose>--%>
                     <h3><c:out value="${subEntry.name}"/></h3>
                     <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
                     <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
@@ -62,13 +75,13 @@
     $("li").bind("taphold", function (event)
     {
         // $(this).remove();
-        alert("tap hold")
+        // alert("tap hold")
     });
 
     $("li").bind("swiperight", function (event)
     {
-        //$(this).remove();
-        alert("swipe right")
+        // $(this).remove();
+        // alert("swipe right")
     });
 
 </script>

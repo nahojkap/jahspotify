@@ -19,10 +19,11 @@ package jahspotify.web.ui;
  *        under the License.
  */
 
-import java.util.Collection;
+import java.util.*;
 
 import jahspotify.storage.statistics.*;
 import jahspotify.web.api.BaseController;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,14 +45,14 @@ public class HistoryBrowswerUIController extends BaseController
     {
         final ModelAndView modelAndView = new ModelAndView("/jsp/history.jsp");
 
-        final Collection<TrackHistory> trackHistories = _historicalStorage.getHistory(0,200);
+        final Collection<TrackHistory> trackHistories = _historicalStorage.getHistory(0, 200);
 
         Collection<TrackHistory> today = getTodays(trackHistories);
         Collection<TrackHistory> yesteday = getYesterdays(trackHistories);
 
-        modelAndView.addObject("today",today);
-        modelAndView.addObject("yesterday",yesteday);
-        modelAndView.addObject("trackHistories",trackHistories);
+        modelAndView.addObject("today", today);
+        modelAndView.addObject("yesterday", yesteday);
+        modelAndView.addObject("trackHistories", trackHistories);
 
         return modelAndView;
 
@@ -59,12 +60,44 @@ public class HistoryBrowswerUIController extends BaseController
 
     private Collection<TrackHistory> getYesterdays(final Collection<TrackHistory> trackHistories)
     {
-        return trackHistories;
+        try
+        {
+            final Collection<TrackHistory> yesterdays = new ArrayList<TrackHistory>();
+
+            final DateMidnight midnightToday = new DateMidnight();
+            final DateMidnight midnightYesterday = midnightToday.minusDays(1);
+
+            for (TrackHistory trackHistory : trackHistories)
+            {
+                if (trackHistory.getStartTime() >= midnightYesterday.getMillis() && trackHistory.getStartTime() < midnightToday.getMillis())
+                {
+                    yesterdays.add(trackHistory);
+                }
+            }
+
+            return trackHistories;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     private Collection<TrackHistory> getTodays(final Collection<TrackHistory> trackHistories)
     {
-        return trackHistories;
+        DateMidnight midnightToday = new DateMidnight();
+        final Collection<TrackHistory> todays = new ArrayList<TrackHistory>();
+
+        for (TrackHistory trackHistory : trackHistories)
+        {
+            if (trackHistory.getStartTime() >= midnightToday.getMillis())
+            {
+                todays.add(trackHistory);
+            }
+        }
+
+        return todays;
     }
 
 

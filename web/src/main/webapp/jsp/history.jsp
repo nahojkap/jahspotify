@@ -42,7 +42,10 @@
             <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
                 data-split-theme="a" data-count-theme="b">
                 <c:forEach items="${trackHistories}" var="trackHistory">
-                    <c:url var="trackURL" value="/ui/history/track/${trackHistory.trackLink.id}"/>
+                    <c:url var="trackURL" value="/ui/history/trackhistory/${trackHistory.id}"/>
+
+                    <jah:trackstatistics link="${trackHistory.trackLink.id}" var="trackStatistics"/>
+
                     <jah:media link="${trackHistory.trackLink.id}" var="track"/>
                     <jah:media link="${track.album.id}" var="album"/>
                     <li id="<c:out value='%{track.id.id}'/>">
@@ -70,7 +73,6 @@
 
                                     Played <c:out value='${trackStatistics.numTimesPlayed}'/> time(s)  &middot;
 
-                                    <jah:trackstatistics link="${trackHistory.trackLink.id}" var="trackStatistics"/>
                                     <jsp:setProperty name="dateValue" property="time" value="${trackStatistics.firstPlayed}" />
                                     <fmt:formatDate value="${dateValue}" var="date" timeZone="GMT" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
 
