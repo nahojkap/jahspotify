@@ -44,60 +44,9 @@ public class HistoryBrowswerUIController extends BaseController
     public ModelAndView retrieveHistory()
     {
         final ModelAndView modelAndView = new ModelAndView("/jsp/history.jsp");
-
         final Collection<TrackHistory> trackHistories = _historicalStorage.getHistory(0, 200);
-
-        Collection<TrackHistory> today = getTodays(trackHistories);
-        Collection<TrackHistory> yesteday = getYesterdays(trackHistories);
-
-        modelAndView.addObject("today", today);
-        modelAndView.addObject("yesterday", yesteday);
         modelAndView.addObject("trackHistories", trackHistories);
-
         return modelAndView;
-
-    }
-
-    private Collection<TrackHistory> getYesterdays(final Collection<TrackHistory> trackHistories)
-    {
-        try
-        {
-            final Collection<TrackHistory> yesterdays = new ArrayList<TrackHistory>();
-
-            final DateMidnight midnightToday = new DateMidnight();
-            final DateMidnight midnightYesterday = midnightToday.minusDays(1);
-
-            for (TrackHistory trackHistory : trackHistories)
-            {
-                if (trackHistory.getStartTime() >= midnightYesterday.getMillis() && trackHistory.getStartTime() < midnightToday.getMillis())
-                {
-                    yesterdays.add(trackHistory);
-                }
-            }
-
-            return trackHistories;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
-
-    private Collection<TrackHistory> getTodays(final Collection<TrackHistory> trackHistories)
-    {
-        DateMidnight midnightToday = new DateMidnight();
-        final Collection<TrackHistory> todays = new ArrayList<TrackHistory>();
-
-        for (TrackHistory trackHistory : trackHistories)
-        {
-            if (trackHistory.getStartTime() >= midnightToday.getMillis())
-            {
-                todays.add(trackHistory);
-            }
-        }
-
-        return todays;
     }
 
 

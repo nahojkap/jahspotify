@@ -22,6 +22,11 @@ public class JahSpotifyService
     @Qualifier(value ="in-memory")
     private MediaStorage _mediaStorage;
 
+    @Value(value = "${jahspotify.spotify.username}")
+    private String _username;
+    @Value(value = "${jahspotify.spotify.password}")
+    private String _password;
+
     @Bean(name="JahSpotify")
     public JahSpotify createJahSpotify()
     {
@@ -44,7 +49,7 @@ public class JahSpotifyService
             }
             if (!_jahSpotify.isStarted())
             {
-                _jahSpotify.login(System.getProperty("jahspotify.spotify.username"), System.getProperty("jahspotify.spotify.password"));
+                _jahSpotify.login(_username,_password);
             }
         }
     }
