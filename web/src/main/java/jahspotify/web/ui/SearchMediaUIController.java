@@ -46,14 +46,14 @@ public class SearchMediaUIController
     }
 
     @RequestMapping(value = {"/execute"})
-    public ModelAndView executeSearchQuery(@RequestParam String query, @RequestParam(defaultValue = "0") int trackOffset, @RequestParam(defaultValue = "0") int numTracks, @RequestParam(defaultValue = "255") int albumOffset, @RequestParam(defaultValue = "255") int numAlbums, @RequestParam(defaultValue = "0") int artistOffset, @RequestParam(defaultValue = "255") int numArtists)
+    public ModelAndView executeSearchQuery(@RequestParam String query, @RequestParam(defaultValue = "0") int trackOffset, @RequestParam(defaultValue = "255") int numTracks, @RequestParam(defaultValue = "0") int albumOffset, @RequestParam(defaultValue = "255") int numAlbums, @RequestParam(defaultValue = "0") int artistOffset, @RequestParam(defaultValue = "255") int numArtists, @RequestParam(defaultValue = "255") int numResults)
     {
         final ModelAndView modelAndView = new ModelAndView("/jsp/search-result.jsp");
 
         final Search search = new Search(TokenQuery.token(query));
-        search.setNumTracks(numTracks);
-        search.setNumAlbums(numAlbums);
-        search.setNumArtists(numArtists);
+        search.setNumTracks(numResults);
+        search.setNumAlbums(numResults);
+        search.setNumArtists(numResults);
         search.setTrackOffset(trackOffset);
         search.setAlbumOffset(albumOffset);
         search.setArtistOffset(artistOffset);

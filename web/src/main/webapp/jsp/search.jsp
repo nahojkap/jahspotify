@@ -29,7 +29,7 @@
     <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
 
-        <h1><c:out value="${pageTitle}"/></h1>
+        <h1>Search</h1>
         <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
         <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" data-transition="fade" class="ui-btn-right"
            data-iconpos="notext">Player</a>
@@ -39,7 +39,7 @@
         <div class="content-primary">
             <div class="ui-body ui-body-a">
                 <c:url var="searchExectuteURL" value="/ui/search/execute"/>
-                <form action="<c:out value='${searchExectuteURL}'/>" method="post">
+                <form action="<c:out value='${searchExectuteURL}'/>" method="get">
                     <div data-role="fieldcontain" class="ui-hide-label" class="ui-body ui-body-a">
                         <label for="query">Search Query:</label>
                         <c:if test="${not empty searchResult}">
@@ -66,8 +66,8 @@
                     </div>
 
                     <div data-role="fieldcontain" data-mini="true">
-                        <label for="numresults">Results per Page:</label>
-                        <input data-mini="true" type="range" name="numresults" id="numresults" value="50" min="1"
+                        <label for="numResults">Results per Page:</label>
+                        <input data-mini="true" type="range" name="numResults" id="numResults" value="20" min="1"
                                max="255"
                                data-highlight="true"/>
                     </div>

@@ -21,14 +21,14 @@ public class SearchResult
    private int totalNumArtists;
    private int artistOffset;
 
-    public String getDidYouMean()
-    {
-        return didYouMean;
-    }
-
     public int getAlbumOffset()
     {
         return albumOffset;
+    }
+
+    public void setAlbumOffset(final int albumOffset)
+    {
+        this.albumOffset = albumOffset;
     }
 
     public List<Link> getAlbumsFound()
@@ -36,9 +36,19 @@ public class SearchResult
         return albumsFound;
     }
 
+    public void setAlbumsFound(final List<Link> albumsFound)
+    {
+        this.albumsFound = albumsFound;
+    }
+
     public int getArtistOffset()
     {
         return artistOffset;
+    }
+
+    public void setArtistOffset(final int artistOffset)
+    {
+        this.artistOffset = artistOffset;
     }
 
     public List<Link> getArtistsFound()
@@ -46,9 +56,29 @@ public class SearchResult
         return artistsFound;
     }
 
+    public void setArtistsFound(final List<Link> artistsFound)
+    {
+        this.artistsFound = artistsFound;
+    }
+
+    public String getDidYouMean()
+    {
+        return didYouMean;
+    }
+
+    public void setDidYouMean(final String didYouMean)
+    {
+        this.didYouMean = didYouMean;
+    }
+
     public String getQuery()
     {
         return query;
+    }
+
+    public void setQuery(final String query)
+    {
+        this.query = query;
     }
 
     public int getTotalNumAlbums()
@@ -56,9 +86,19 @@ public class SearchResult
         return totalNumAlbums;
     }
 
+    public void setTotalNumAlbums(final int totalNumAlbums)
+    {
+        this.totalNumAlbums = totalNumAlbums;
+    }
+
     public int getTotalNumArtists()
     {
         return totalNumArtists;
+    }
+
+    public void setTotalNumArtists(final int totalNumArtists)
+    {
+        this.totalNumArtists = totalNumArtists;
     }
 
     public int getTotalNumTracks()
@@ -66,14 +106,29 @@ public class SearchResult
         return totalNumTracks;
     }
 
+    public void setTotalNumTracks(final int totalNumTracks)
+    {
+        this.totalNumTracks = totalNumTracks;
+    }
+
     public int getTrackOffset()
     {
         return trackOffset;
     }
 
+    public void setTrackOffset(final int trackOffset)
+    {
+        this.trackOffset = trackOffset;
+    }
+
     public List<Link> getTracksFound()
     {
         return tracksFound;
+    }
+
+    public void setTracksFound(final List<Link> tracksFound)
+    {
+        this.tracksFound = tracksFound;
     }
 
     @Override

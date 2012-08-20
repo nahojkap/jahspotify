@@ -9,6 +9,7 @@ import jahspotify.media.*;
  */
 public interface HistoricalStorage
 {
+    public TrackHistory getHistory(Link trackLink);
     public Collection<TrackHistory> getHistory(int index, int count, HistoryCriteria... historyCriterias);
     public void addHistory(final TrackHistory trackHistory);
     public TrackStatistics getTrackStatistics(final Link trackLink);

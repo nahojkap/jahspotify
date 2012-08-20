@@ -66,6 +66,12 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     }
 
     @Override
+    public TrackHistory getHistory(final Link trackLink)
+    {
+        return null;
+    }
+
+    @Override
     public Collection<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
         final DBCollection tracks = _db.getCollection("history");

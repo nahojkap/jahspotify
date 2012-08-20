@@ -21,6 +21,7 @@ package jahspotify.web.ui;
 
 import java.util.*;
 
+import jahspotify.media.Link;
 import jahspotify.storage.statistics.*;
 import jahspotify.web.api.BaseController;
 import org.joda.time.*;
@@ -49,5 +50,17 @@ public class HistoryBrowswerUIController extends BaseController
         return modelAndView;
     }
 
+    @RequestMapping(value = "/trackhistory/{link}")
+    public ModelAndView trackHistoryDetail(String queueTrackLink)
+    {
+        final Link link = Link.create(queueTrackLink);
+
+        final TrackHistory trackHistory = _historicalStorage.getHistory(link);
+        final TrackStatistics trackStatistics = _historicalStorage.getTrackStatistics(trackHistory.getTrackLink());
+
+        final ModelAndView modelAndView = new ModelAndView("/jsp/track-history-detail.jsp");
+        modelAndView.addObject("trackHistories", trackStatistics);
+        return modelAndView;
+    }
 
 }

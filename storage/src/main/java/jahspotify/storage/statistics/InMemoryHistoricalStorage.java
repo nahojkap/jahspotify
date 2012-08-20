@@ -19,6 +19,12 @@ public class InMemoryHistoricalStorage implements HistoricalStorage
     private List<TrackHistory> _trackHistory = new ArrayList<TrackHistory>();
 
     @Override
+    public TrackHistory getHistory(final Link trackLink)
+    {
+        return null;
+    }
+
+    @Override
     public Collection<TrackHistory> getHistory(final int index, final int count, final HistoryCriteria... historyCriterias)
     {
         return new AbstractCollection<TrackHistory>()
