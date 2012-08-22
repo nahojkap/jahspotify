@@ -221,7 +221,7 @@ There are other URLs - please examine the web module for them.
 ## Discussions and other:
 
 For now, there is nothing concrete setup but try the issues page on github, contacting me on github.  Also found at times
-on freenode - #jahspotify.  Or try Twitter [https://twitter.com/nahojkap](@nahojkap)
+on freenode - #jahspotify.  Or try Twitter [@nahojkap](https://twitter.com/nahojkap)
 
 ## Licensing
 
