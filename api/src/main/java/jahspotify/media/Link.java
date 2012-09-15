@@ -45,7 +45,8 @@ public class Link
      */
     public enum Type
     {
-        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, PODCAST, MP3, LOCAL, USER, INBOX, STARRED;
+        ARTIST, ALBUM, TRACK, PLAYLIST, FOLDER, IMAGE, SEARCH, QUEUE, QUEUE_ENTRY, PODCAST, MP3, LOCAL, USER, INBOX,
+        STARRED;
 
         /**
          * Returns the lower-case name of this enum constant.
@@ -106,6 +107,7 @@ public class Link
      */
     private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
 
+    private static final Pattern jahQueueEntryPattern = Pattern.compile("jahspotify:queue((:)([^\\s]+)(:)([^\\s]+))");
     /**
      * A regular expression to match podcast URIs:
      * <p/>
@@ -214,6 +216,7 @@ public class Link
         Matcher imageMatcher = imagePattern.matcher(uri);
         Matcher playlistMatcher = playlistPattern.matcher(uri);
         Matcher searchMatcher = searchPattern.matcher(uri);
+        Matcher jahQueueEntryMatcher = jahQueueEntryPattern.matcher(uri);
         Matcher jahQueueMatcher = jahQueuePattern.matcher(uri);
         Matcher jahPodcastMatcher = jahPodcastPattern.matcher(uri);
         Matcher jahMp3Matcher = jahMP3Pattern.matcher(uri);
@@ -279,6 +282,12 @@ public class Link
             {
                 throw new InvalidSpotifyURIException("Invalid encoding of query");
             }
+        }
+        else if (jahQueueEntryMatcher.matches())
+        {
+            this.type = Type.QUEUE_ENTRY;
+            this.id = uri;
+            this.uri = uri;
         }
         else if (jahQueueMatcher.matches())
         {

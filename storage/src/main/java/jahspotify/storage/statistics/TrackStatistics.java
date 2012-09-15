@@ -1,16 +1,29 @@
 package jahspotify.storage.statistics;
 
+import jahspotify.media.Link;
+
 /**
  * @author Johan Lindquist
  */
 public class TrackStatistics
 {
+    private Link trackLink;
     private long totalPlaytime;
     private int numTimesSkipped;
     private long lastPlayed;
     private long firstPlayed;
     private int numTimesCompleted;
     private int numTimesPlayed;
+
+    public Link getTrackLink()
+    {
+        return trackLink;
+    }
+
+    public void setTrackLink( Link trackLink )
+    {
+        this.trackLink = trackLink;
+    }
 
     public int getNumTimesPlayed()
     {
@@ -73,53 +86,44 @@ public class TrackStatistics
     }
 
     @Override
-    public String toString()
+    public boolean equals( Object o )
     {
-        return "TrackStatistics{" +
-                "firstPlayed=" + firstPlayed +
-                ", totalPlaytime=" + totalPlaytime +
-                ", numTimesSkipped=" + numTimesSkipped +
-                ", lastPlayed=" + lastPlayed +
-                ", numTimesCompleted=" + numTimesCompleted +
-                ", numTimesPlayed=" + numTimesPlayed +
-                '}';
-    }
-
-    @Override
-    public boolean equals(final Object o)
-    {
-        if (this == o)
+        if ( this == o )
         {
             return true;
         }
-        if (!(o instanceof TrackStatistics))
+        if ( ! ( o instanceof TrackStatistics ) )
         {
             return false;
         }
 
-        final TrackStatistics that = (TrackStatistics) o;
+        TrackStatistics that = (TrackStatistics) o;
 
-        if (firstPlayed != that.firstPlayed)
+        if ( firstPlayed != that.firstPlayed )
         {
             return false;
         }
-        if (lastPlayed != that.lastPlayed)
+        if ( lastPlayed != that.lastPlayed )
         {
             return false;
         }
-        if (numTimesCompleted != that.numTimesCompleted)
+        if ( numTimesCompleted != that.numTimesCompleted )
         {
             return false;
         }
-        if (numTimesPlayed != that.numTimesPlayed)
+        if ( numTimesPlayed != that.numTimesPlayed )
         {
             return false;
         }
-        if (numTimesSkipped != that.numTimesSkipped)
+        if ( numTimesSkipped != that.numTimesSkipped )
         {
             return false;
         }
-        if (totalPlaytime != that.totalPlaytime)
+        if ( totalPlaytime != that.totalPlaytime )
+        {
+            return false;
+        }
+        if ( trackLink != null ? ! trackLink.equals( that.trackLink ) : that.trackLink != null )
         {
             return false;
         }
@@ -130,12 +134,28 @@ public class TrackStatistics
     @Override
     public int hashCode()
     {
-        int result = (int) (totalPlaytime ^ (totalPlaytime >>> 32));
+        int result = trackLink != null ? trackLink.hashCode() : 0;
+        result = 31 * result + (int) ( totalPlaytime ^ ( totalPlaytime >>> 32 ) );
         result = 31 * result + numTimesSkipped;
-        result = 31 * result + (int) (lastPlayed ^ (lastPlayed >>> 32));
-        result = 31 * result + (int) (firstPlayed ^ (firstPlayed >>> 32));
+        result = 31 * result + (int) ( lastPlayed ^ ( lastPlayed >>> 32 ) );
+        result = 31 * result + (int) ( firstPlayed ^ ( firstPlayed >>> 32 ) );
         result = 31 * result + numTimesCompleted;
         result = 31 * result + numTimesPlayed;
         return result;
     }
+
+    @Override
+    public String toString()
+    {
+        return "TrackStatistics{" +
+            "firstPlayed=" + firstPlayed +
+            ", trackLink=" + trackLink +
+            ", totalPlaytime=" + totalPlaytime +
+            ", numTimesSkipped=" + numTimesSkipped +
+            ", lastPlayed=" + lastPlayed +
+            ", numTimesCompleted=" + numTimesCompleted +
+            ", numTimesPlayed=" + numTimesPlayed +
+            '}';
+    }
+
 }

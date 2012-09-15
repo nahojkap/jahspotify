@@ -27,7 +27,9 @@ import jahspotify.web.api.BaseController;
 import org.joda.time.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -42,16 +44,18 @@ public class HistoryBrowswerUIController extends BaseController
     HistoricalStorage _historicalStorage;
 
     @RequestMapping(value = "/recent")
-    public ModelAndView retrieveHistory()
+    public ModelAndView retrieveHistory(@RequestParam(value = "index", defaultValue = "0") int index, @RequestParam(value = "count",defaultValue = "${jahspotify.history.default-count}")int count)
     {
         final ModelAndView modelAndView = new ModelAndView("/jsp/history.jsp");
-        final Collection<TrackHistory> trackHistories = _historicalStorage.getHistory(0, 200);
+        final Collection<TrackHistory> trackHistories = _historicalStorage.getHistory(index, count);
         modelAndView.addObject("trackHistories", trackHistories);
+        modelAndView.addObject( "index", index );
+        modelAndView.addObject( "count", count );
         return modelAndView;
     }
 
-    @RequestMapping(value = "/trackhistory/{link}")
-    public ModelAndView trackHistoryDetail(String queueTrackLink)
+    @RequestMapping(value = "/trackhistory/{queueTrackLink}")
+    public ModelAndView trackHistoryDetail(@PathVariable(value = "queueTrackLink") String queueTrackLink)
     {
         final Link link = Link.create(queueTrackLink);
 
@@ -59,7 +63,7 @@ public class HistoryBrowswerUIController extends BaseController
         final TrackStatistics trackStatistics = _historicalStorage.getTrackStatistics(trackHistory.getTrackLink());
 
         final ModelAndView modelAndView = new ModelAndView("/jsp/track-history-detail.jsp");
-        modelAndView.addObject("trackHistories", trackStatistics);
+        modelAndView.addObject("trackStatistics", trackStatistics);
         return modelAndView;
     }
 

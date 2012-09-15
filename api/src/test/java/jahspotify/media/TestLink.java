@@ -41,6 +41,10 @@ public class TestLink extends TestCase
         assertNotNull("no link created", link);
         assertEquals("bad type", Link.Type.FOLDER,link.getType());
 
+        link = Link.create( "jahspotify:queue:default:d9418cb4-fff4-4542-9dee-cc136c5f1929" );
+        assertNotNull("no link created", link);
+        assertEquals("bad type", Link.Type.QUEUE_ENTRY,link.getType());
+
 
     }
 }

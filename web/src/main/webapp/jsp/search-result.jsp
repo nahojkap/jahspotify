@@ -23,7 +23,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div data-role="page" id="tracks">
+<div data-role="page" id="tracks" data-title="Tracks">
     <!-- /header -->
     <div data-role="header" role="banner" data-position="fixed">
         <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext"
@@ -76,7 +76,7 @@
     <div data-role="footer">
         <div data-role="navbar">
             <ul>
-                <li><a href="#tracks" class="ui-btn-active">Tracks</a></li>
+                <li><a href="#tracks">Tracks</a></li>
                 <li><a href="#albums">Albums</a></li>
                 <li><a href="#artists">Artists</a></li>
             </ul>
@@ -135,8 +135,8 @@
     <div data-role="footer">
         <div data-role="navbar">
             <ul>
-                <li><a href="#tracks" class="ui-btn-active">Tracks</a></li>
-                <li><a href="#albums">Albums</a></li>
+              <li><a href="#tracks">Tracks</a></li>
+              <li><a href="#albums">Albums</a></li>
                 <li><a href="#artists">Artists</a></li>
             </ul>
         </div>
@@ -194,7 +194,7 @@
     <div data-role="footer">
         <div data-role="navbar">
             <ul>
-                <li><a href="#tracks" class="ui-btn-active">Tracks</a></li>
+                <li><a href="#tracks">Tracks</a></li>
                 <li><a href="#albums">Albums</a></li>
                 <li><a href="#artists">Artists</a></li>
             </ul>

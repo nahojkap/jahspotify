@@ -68,6 +68,17 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
     @Override
     public TrackHistory getHistory(final Link trackLink)
     {
+        final DBCollection tracks = _db.getCollection("history");
+
+        final DBObject query = new BasicDBObject( "id", trackLink.getUri() );
+
+        final DBCursor dbObjects = tracks.find(query);
+
+        if (dbObjects.size() == 1)
+        {
+            return _gson.fromJson(JSON.serialize(dbObjects.next()), TrackHistory.class);
+        }
+
         return null;
     }
 
@@ -129,6 +140,7 @@ public class MongoDBHistoricalStorage implements HistoricalStorage
         if (dbObjects.hasNext())
         {
             final TrackHistory trackHistory = _gson.fromJson(JSON.serialize(dbObjects.next()), TrackHistory.class);
+            trackStatistics.setTrackLink( trackHistory.getTrackLink() );
             trackStatistics.setLastPlayed(trackHistory.getStartTime());
             totalSecondsPlayed += trackHistory.getSecondsPlayed();
             numSkipped += trackHistory.isCompleteTrackPlayed() ? 0 : 1;

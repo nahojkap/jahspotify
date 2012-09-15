@@ -42,6 +42,10 @@
         <div class="content-primary" align="center">
             <div class="ui-body ui-body-a">
 
+              <jah:trackstatistics link="${trackStatistics.trackLink.id}" var="trackStatistics"/>
+              <jah:media link="${trackStatistics.trackLink.id}" var="track"/>
+              <jah:media link="${track.album.id}" var="album"/>
+
                 <div data-role="controlgroup" data-type="horizontal" align="right">
                     <a href="index.html" data-role="button" data-icon="star" data-iconpos="notext">Star this track</a>
 
@@ -53,19 +57,22 @@
 
                 <div align="center" style="line-height: 0.5em">
                     <jah:duration var="duration" duration="${track.length}"/>
-                    <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
+                    <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
                     <div>
                         <img src="<c:out value='${albumCoverURL}'/>"/>
                     </div>
 
                     <p style="font-weight: 900;"><c:out value="${track.title}"/> (<c:out value="${duration}"/>)</p>
 
-                    <p style="font-weight: bold; font-size: 80%"><c:out value="${track.albumName}"/></p>
+                    <p style="font-weight: bold; font-size: 80%"><c:out value="${album.name}"/></p>
 
-                    <p style="font-weight: bold; font-size: 70%"><c:forEach items="${track.artistNames}"
-                                                                            varStatus="rowCounter" var="artistName">
+                    <p style="font-weight: bold; font-size: 70%">
+                      <c:forEach items="${track.artists}" varStatus="rowCounter" var="artistLink">
+<%--
                         <c:set var="artistLink" value="${track.artistLinks[rowCounter.count]}"/>
-                        <c:out value="${artistName}"/>
+--%>
+                        <jah:media link="${artistLink.id}" var="artist"/>
+                        <c:out value="${artist.name}"/>
                         <c:if test="${not rowCounter.last}">, </c:if>
                     </c:forEach>
                     </p>
@@ -80,14 +87,16 @@
                         <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
                         <li><a data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid">Enqueue</a></li>
                         <c:choose>
-                            <c:when test="${fn:length(track.artistNames) gt 1}">
+                            <c:when test="${fn:length(track.artists) gt 1}">
                                 <c:url var="artistBrowseURL" value="/ui/media/artists/${track.id.id}"/>
                                 <li><a data-prefetch="true" data-rel="dialog" href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artists</a></li>
                             </c:when>
                             <c:otherwise>
-                                <c:set var="artistLink" value="${track.artistLinks[0].id}"/>
-                                <c:url var="artistBrowseURL" value="/ui/media/artist/${artistLink}"/>
-                                <li><a href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artist</a></li>
+                                <c:forEach var="artistLink" items="${track.artists}">
+                                  <c:url var="artistBrowseURL" value="/ui/media/artist/${artistLink}"/>
+                                                                 <li><a href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artist</a></li>
+                                  </c:forEach>
+
                             </c:otherwise>
                         </c:choose>
 
