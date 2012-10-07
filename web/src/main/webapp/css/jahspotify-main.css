@@ -16,94 +16,42 @@
  *        specific language governing permissions and limitations
  *        under the License.
  */
-.homeBody {
-    background-image: url("images/springboard-bg-sm.png");
-    background-repeat: repeat-x;
-    color: #AE9971;
-    font-family: 'Helvetica Neue',Helvetica,sans-serif;
-    font-size: 15px;
-    letter-spacing: 0.03em;
-    text-align: center;
-    text-shadow: 0 1px 0 #FFFFFF;
 
+#popupPanel-popup {
+    right: 0 !important;
+    left: auto !important;
 }
 
-.mainContentPanel {
-    clear: both;
-    margin-bottom: 5px;
-    padding: 5px 5px 20px;
+#popupPanel {
+    width: 250px;
+    border: 1px solid #000;
+    border-right: none;
+    background: rgba(0,0,0,.5);
+    margin: -1px 0;
 }
 
-img.homeLogo {
-    display: block;
-    margin: 15px auto 10px;
+#popupPanel .ui-btn {
+/*    margin: 2em 15px;*/
 }
 
-img.tile {
-    margin-top: 19px;
+#mediaQueuedResult-popup {
+/*
+    right: 0 !important;
+    left: auto !important;
+*/
 }
 
-.homeBody .tileDiv {
-    color: #42382C;
-    height: 160px;
-    letter-spacing: 0.05em;
-    line-height: 16px;
-    width: 49%;
+
+#mediaQueuedResult {
+    width: 250px;
+    border: 1px solid #000;
+/*
+    border-right: none;
+*/
+    background: rgba(0,0,0,.5);
+    margin: -1px 0;
 }
 
-.ui-listview .ui-li, .tileDiv, .clickable {
-    cursor: pointer;
-}
-
-.homeBody .tileLabel {
-    margin-top: 10px;
-}
-.homeBody .tileBorderRight {
-    border-right: 1px solid #FFFFFF;
-}
-.homeBody .tileBorderTop {
-    border-top: 1px solid #FFFFFF;
-    opacity: 0.75;
-}
-.homeBody .disable-image {
-    opacity: 0.2;
-}
-.queueImg, .playlistImg,.serverSettingsImg,.playingNowImg, .searchImg {
-    background-image: url("images/home-sprite.png");
-    background-repeat: no-repeat;
-    display: block;
-    height: 80px;
-    margin: 29px auto 0;
-    width: 80px;
-}
-.queueImg {
-    background-position: -31px -1597px;
-}
-.playlistImg {
-    background-position: -31px -295px;
-}
-.searchImg {
-    background-position: -31px -729px;
-}
-
-.serverSettingsImg {
-    background-position: -31px -1597px;
-}
-
-.playingNowImg {
-    background-position: -31px -1597px;
-}
-
-.ui-body-o {
-    text-shadow: 0 1px 0 #FFFFFF;
-}
-
-h2#banner {
-
-    background: url("images/jahspotify-logo.jpg") no-repeat scroll left 10px transparent;
-    height: 290px;
-    margin: -10px auto -175px;
-    text-indent: -9999px;
-    width: 480px;
-
+#mediaQueuedResult .ui-btn {
+/*    margin: 2em 15px;*/
 }

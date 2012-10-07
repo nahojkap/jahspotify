@@ -24,6 +24,7 @@ public class BrowserActivity extends Activity
 
         WebView engine = (WebView) findViewById(R.id.web_engine);
         engine.getSettings().setJavaScriptEnabled(true);
+        engine.getSettings().setBuiltInZoomControls( true );
         engine.loadUrl("http://" + serverIdentity.getServerWebAddress() + ":" + serverIdentity.getWebPort() + "/jahspotify/index.html");
 
 

@@ -19,28 +19,18 @@
 
 <%@ include file="/jsp/header.jsp" %>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div id="playList" data-role="page" data-theme="g" class="homeBody">
+<div id="searchStart" data-role="page" data-theme="g" class="homeBody">
 
-    <!-- /header -->
-    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
-        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+    <c:set var="pageTitle" value="Search" scope="request"/>
+    <jsp:include page="/jsp/header-bar.jsp"/>
 
-        <h1>Search</h1>
-        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" data-transition="fade" class="ui-btn-right"
-           data-iconpos="notext">Player</a>
-    </div>
-
-    <div data-role="content">
+    <div class="mainContentPanel" data-role="content">
         <div class="content-primary">
             <div class="ui-body ui-body-a">
                 <c:url var="searchExectuteURL" value="/ui/search/execute"/>
                 <form action="<c:out value='${searchExectuteURL}'/>" method="get">
-                    <div data-role="fieldcontain" class="ui-hide-label" class="ui-body ui-body-a">
+                    <div data-role="fieldcontain" class="ui-hide-label ui-body ui-body-a">
                         <label for="query">Search Query:</label>
                         <c:if test="${not empty searchResult}">
                             <c:set var="previousQuery" value="${searchResult.query}"/>
@@ -85,6 +75,8 @@
         </div>
     </div>
 
-    <%@ include file="/jsp/footer.jsp" %>
+    <%@ include file="/jsp/footer-bar.jsp" %>
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>

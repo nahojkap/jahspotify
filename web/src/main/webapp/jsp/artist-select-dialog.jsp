@@ -54,3 +54,5 @@
     <%@ include file="/jsp/dialog-footer.jsp" %>
 
 </div>
+
+<jsp:include page="/jsp/footer.jsp" />

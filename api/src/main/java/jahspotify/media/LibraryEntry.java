@@ -32,7 +32,7 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     private String name;
     private String type;
     private int numEntries;
-    private Set<LibraryEntry> subEntries = new TreeSet<LibraryEntry>();
+    private Collection<LibraryEntry> subEntries = new ArrayList<LibraryEntry>();
 
     public static final String FOLDER_ENTRY_TYPE="FOLDER";
     public static final String PLAYLIST_ENTRY_TYPE="PLAYLIST";
@@ -96,12 +96,12 @@ public class LibraryEntry implements Comparable<LibraryEntry>
         this.name = name;
     }
 
-    public Set<LibraryEntry> getSubEntries()
+    public Collection<LibraryEntry> getSubEntries()
     {
         return subEntries;
     }
 
-    public void setSubEntries(final Set<LibraryEntry> subEntries)
+    public void setSubEntries(final Collection<LibraryEntry> subEntries)
     {
         this.subEntries = subEntries;
     }
@@ -125,7 +125,7 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     {
         if (subEntries == null)
         {
-            subEntries = new TreeSet<LibraryEntry>();
+            subEntries = new ArrayList<LibraryEntry>();
         }
         numEntries++;
         subEntries.add(subEntry);

@@ -81,14 +81,7 @@ public class MediaBrowserUIController extends BaseController
             else
             {
 
-                final Set<FullTrack> tracks = new TreeSet<FullTrack>(new Comparator<FullTrack>()
-                {
-                    @Override
-                    public int compare(final FullTrack o1, final FullTrack o2)
-                    {
-                        return o1.getTitle().compareTo(o2.getTitle());
-                    }
-                });
+                final Collection<FullTrack> tracks = new ArrayList<FullTrack>();
                 for (final Link trackLink : playlist.getTracks())
                 {
                     FullTrack track = createFullTrack(_jahSpotify,_jahSpotify.readTrack(trackLink));
@@ -96,7 +89,9 @@ public class MediaBrowserUIController extends BaseController
                 }
                 modelAndView.addObject("playlist", playlist);
                 modelAndView.addObject("tracks", tracks);
-                modelAndView.addObject("pageTitle", playlist.getName());
+                modelAndView.addObject("pageTitle", (link.isInboxPlaylistLink() ? "Inbox" : (link
+                    .isStarredPlaylistLink() ? "Starred" : playlist.getName()
+                )));
             }
 
             modelAndView.setViewName("/jsp/playlist.jsp");

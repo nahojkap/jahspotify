@@ -22,6 +22,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<div date-role="page" id="searchSettings">
+
 <!-- /header -->
 <div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
@@ -129,3 +131,8 @@
 </div>
 
 <%@ include file="/jsp/dialog-footer.jsp" %>
+
+
+</div>
+
+<%@ include file="/jsp/footer.jsp" %>

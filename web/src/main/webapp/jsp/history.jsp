@@ -107,7 +107,9 @@
         });
     </script>
 
-    <%@ include file="/jsp/footer.jsp" %>
+    <%@ include file="/jsp/footer-bar.jsp" %>
 
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>

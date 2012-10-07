@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Lazy(value = false)
 public class ServerBroadcaster
 {
-    private Log _log = LogFactory.getLog(QueueManager.class);
+    private Log _log = LogFactory.getLog(ServerBroadcaster.class);
 
     @Value(value = "${jahspotify.server.discovery-broadcast-interval}")
     private int _interval = 5000;
@@ -67,30 +67,34 @@ public class ServerBroadcaster
         {
             try
             {
-                InetAddress group = InetAddress.getByName(_address);
-                DatagramSocket s = new DatagramSocket(_port);
+                final InetAddress group = InetAddress.getByName(_address);
+                final DatagramSocket s = new DatagramSocket(_port);
                 s.setReuseAddress(true);
 
-                ServerIdentity serverIdentity = new ServerIdentity(_serverId, _apiVersion, _webPort, "MASTER", _upSince);
+                final ServerIdentity serverIdentity = new ServerIdentity(_serverId, _apiVersion, _webPort, "MASTER", _upSince);
+                final String msg = new Gson().toJson(serverIdentity);
 
                 while (_keepRunning)
                 {
                     try
                     {
-                        String msg = new Gson().toJson(serverIdentity);
-
                         DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(), group, _port);
                         s.send(hi);
+                    }
+                    catch (Exception e)
+                    {
+                        _log.error("Error while sending broadcast discovery message: " + e.getMessage());
+                    }
+
+                    try
+                    {
                         Thread.sleep(_interval);
                     }
                     catch (InterruptedException e)
                     {
                         // Ignore
                     }
-                    catch (Exception e)
-                    {
-                        _log.error("Error while sending broadcast discovery message: " + e.getMessage());
-                    }
+
                 }
 
                 s.close();

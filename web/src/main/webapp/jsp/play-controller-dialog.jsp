@@ -133,3 +133,5 @@
 <%@ include file="/jsp/dialog-footer.jsp" %>
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>

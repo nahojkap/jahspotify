@@ -72,39 +72,66 @@ public class JahSpotifyImpl implements JahSpotify
             @Override
             public void track(final int token, final Link link)
             {
-                _log.trace(String.format("Track loaded: token=%d link=%s", token, link));
-                synchronized (_lockedTracks)
+                new Thread()
                 {
-                    if (_lockedTracks.contains(link))
+                    @Override
+                    public void run()
                     {
-                        _lockedTracks.remove(link);
-                        _lockedTracks.notifyAll();
+                        trackLoadedCallback(token, link);
                     }
-                }
+                }.start();
             }
 
             @Override
             public void playlist(final int token, final Link link)
             {
-                _log.trace(String.format("Playlist loaded: token=%d link=%s", token, link));
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        _log.trace(String.format("Playlist loaded: token=%d link=%s", token, link));
+                    }
+                }.start();
             }
 
             @Override
             public void album(final int token, final Album album)
             {
-                albumLoadedCallback(token, album);
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        albumLoadedCallback(token, album);
+                    }
+                }.start();
             }
 
             @Override
             public void image(final int token, final Link link, final ImageSize imageSize, final byte[] imageBytes)
             {
-                imageLoadedCallback(token, link, imageSize, imageBytes);
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        imageLoadedCallback(token, link, imageSize, imageBytes);
+                    }
+                }.start();
             }
 
             @Override
-            public void artist(final int token, Artist artist)
+            public void artist(final int token, final Artist artist)
             {
-                artistLoadedCallback(token, artist);
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        artistLoadedCallback(token, artist);
+                    }
+                }.start();
             }
         });
 
@@ -115,18 +142,25 @@ public class JahSpotifyImpl implements JahSpotify
             {
                 _log.debug(String.format("Search completed: token=%d searchResult=%s", token, searchResult));
 
-                if (token > 0)
+                new Thread()
                 {
-                    final SearchListener searchListener = _prioritySearchListeners.get(token);
-                    if (searchListener != null)
+                    @Override
+                    public void run()
                     {
-                        searchListener.searchComplete(searchResult);
+                        if (token > 0)
+                        {
+                            final SearchListener searchListener = _prioritySearchListeners.get(token);
+                            if (searchListener != null)
+                            {
+                                searchListener.searchComplete(searchResult);
+                            }
+                        }
+                        for (SearchListener searchListener : _searchListeners)
+                        {
+                            searchListener.searchComplete(searchResult);
+                        }
                     }
-                }
-                for (SearchListener searchListener : _searchListeners)
-                {
-                    searchListener.searchComplete(searchResult);
-                }
+                }.start();
             }
         });
 
@@ -136,20 +170,35 @@ public class JahSpotifyImpl implements JahSpotify
             public void trackStarted(final String uri)
             {
                 _log.debug("Track started: " + uri);
-                for (PlaybackListener listener : _playbackListeners)
+                new Thread()
                 {
-                    listener.trackStarted(Link.create(uri));
-                }
+                    @Override
+                    public void run()
+                    {
+                        for (PlaybackListener listener : _playbackListeners)
+                        {
+                            listener.trackStarted(Link.create(uri));
+                        }
+                    }
+                }.start();
             }
 
             @Override
             public void trackEnded(final String uri, final boolean forcedEnd)
             {
                 _log.debug("Track ended signalled: " + uri + " (" + (forcedEnd ? "forced)" : "natural ending)"));
-                for (PlaybackListener listener : _playbackListeners)
+                new Thread()
                 {
-                    listener.trackEnded(Link.create(uri), forcedEnd);
-                }
+                    @Override
+                    public void run()
+                    {
+                        for (PlaybackListener listener : _playbackListeners)
+                        {
+                            listener.trackEnded(Link.create(uri), forcedEnd);
+                        }
+
+                    }
+                }.start();
 
             }
 
@@ -157,6 +206,7 @@ public class JahSpotifyImpl implements JahSpotify
             public String nextTrackToPreload()
             {
                 _log.debug("Next to pre-load, will query listeners");
+
                 for (PlaybackListener listener : _playbackListeners)
                 {
                     Link nextTrack = listener.nextTrackToPreload();
@@ -300,10 +350,19 @@ public class JahSpotifyImpl implements JahSpotify
                 _log.debug("Logged in");
                 _loggedIn = true;
                 _connected = true;
-                for (ConnectionListener listener : _connectionListeners)
+                new Thread()
                 {
-                    listener.loggedIn();
-                }
+                    @Override
+                    public void run()
+                    {
+                        for (ConnectionListener listener : _connectionListeners)
+                        {
+                            listener.loggedIn();
+                        }
+
+                    }
+                }.start();
+
             }
 
             @Override
@@ -313,6 +372,19 @@ public class JahSpotifyImpl implements JahSpotify
                 _loggedIn = false;
             }
         });
+    }
+
+    protected void trackLoadedCallback(final int token, final Link trackLink)
+    {
+        _log.trace(String.format("Track loaded: token=%d link=%s", token, trackLink));
+        synchronized (_lockedTracks)
+        {
+            if (_lockedTracks.contains(trackLink))
+            {
+                _lockedTracks.remove(trackLink);
+                _lockedTracks.notifyAll();
+            }
+        }
     }
 
     protected void albumLoadedCallback(final int token, final Album album)
@@ -369,7 +441,7 @@ public class JahSpotifyImpl implements JahSpotify
                 case FOLDER:
                     msg = msg + "-" + entry.getName() + "(" + entry.getId() + ")";
                     _log.debug(msg);
-                    Set<LibraryEntry> children = entry.getSubEntries();
+                    Collection<LibraryEntry> children = entry.getSubEntries();
                     for (LibraryEntry child : children)
                     {
                         debugPrintNodes(child, indentation + 2);
@@ -746,7 +818,10 @@ public class JahSpotifyImpl implements JahSpotify
     public void play(Link link)
     {
         ensureLoggedIn();
-        nativePlayTrack(link.asString());
+        if (!nativePlayTrack(link.asString()))
+        {
+            _log.error("Error occurred while trying to start playback of track: " + link);
+        }
     }
 
     private void ensureLoggedIn()
@@ -935,7 +1010,7 @@ public class JahSpotifyImpl implements JahSpotify
             return folderEntry;
         }
 
-        final Set<LibraryEntry> strippedSubEntries = new TreeSet<LibraryEntry>();
+        final Collection<LibraryEntry> strippedSubEntries = new ArrayList<LibraryEntry>();
         if (level == currentLevel)
         {
             // Remove all children of any sub-entries now
@@ -1087,7 +1162,7 @@ public class JahSpotifyImpl implements JahSpotify
 
     private native Playlist nativeRetrieveInboxPlaylist();
 
-    private native int nativePlayTrack(String uri);
+    private native boolean nativePlayTrack(String uri);
 
     private native void nativeStopTrack();
 

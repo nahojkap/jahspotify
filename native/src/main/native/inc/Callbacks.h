@@ -19,6 +19,7 @@ int signalEndFolderSeen();
 int signalTrackEnded(char *uri, bool forcedTrackEnd);
 int signalTrackStarted(char *uri);
 int signalPlaylistSeen(const char *playlistName, char *linkName);
+int signalPlaylistUpdate(const char *playlistName, char *linkName, bool complete);
 
 int signalSearchComplete(sp_search *search, int32_t token);
 int signalImageLoaded(sp_image *image, int32_t token);

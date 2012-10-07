@@ -24,15 +24,7 @@
 
 <div id="playList" data-role="page" data-theme="g" class="homeBody">
 
-
-    <!-- /header -->
-    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
-        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
-        <h1><c:out value="${pageTitle}"/></h1>
-        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right" data-iconpos="notext">Player</a>
-    </div>
-
+  <jsp:include page="/jsp/header-bar.jsp" />
 
     <div data-role="content">
         <div class="content-primary">
@@ -40,7 +32,7 @@
                 data-split-theme="a" data-count-theme="b">
                 <c:forEach items="${tracks}" var="track">
                     <c:url var="trackURL" value="/ui/media/track/${track.id.id}"/>
-                    <li id="<c:out value='%{track.id.id}'/>">
+                    <li id="<c:out value='${track.id.id}'/>">
                         <a href="<c:out value="${trackURL}"/>" >
                             <jah:duration var="duration" duration="${track.length}"/>
                             <c:url var="albumCoverURL" value="/media/${track.albumCoverLink.id}"/>
@@ -57,8 +49,14 @@
                             </div>
                         </a>
 
+                        <c:set var="mediaId" value="${track.id.id}" scope="request"/>
+                        <jsp:include page="queue-media-link.jsp"/>
+
+<%--
                         <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
                         <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="fade">Enqueue</a>
+--%>
+
                     </li>
                 </c:forEach>
             </ul>
@@ -75,7 +73,8 @@
         });
     </script>
 
-    <%@ include file="/jsp/footer.jsp" %>
-
+    <%@ include file="/jsp/footer-bar.jsp" %>
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>

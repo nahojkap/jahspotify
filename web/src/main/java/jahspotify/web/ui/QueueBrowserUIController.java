@@ -48,8 +48,9 @@ public class QueueBrowserUIController extends BaseController
         _queueManager.deleteQueuedTrack(QueueManager.DEFAULT_QUEUE_LINK,link);
 
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("/jsp/success-dialog.jsp");
-        modelAndView.addObject("successMessage", "Track has been removed!");
+        modelAndView.setViewName("/jsp/result-dialog.jsp");
+        modelAndView.addObject( "failure",false );
+        modelAndView.addObject("resultMessage", "Track has been removed!");
         return modelAndView;
     }
 
@@ -60,9 +61,9 @@ public class QueueBrowserUIController extends BaseController
         _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK,link);
 
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("/jsp/success-dialog.jsp");
-
-        modelAndView.addObject("successMessage","Media has been queued");
+        modelAndView.setViewName("/jsp/result-dialog.jsp");
+        modelAndView.addObject( "failure",false );
+        modelAndView.addObject("resultMessage","Media has been queued");
         return modelAndView;
     }
 

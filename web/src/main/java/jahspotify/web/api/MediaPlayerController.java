@@ -22,6 +22,7 @@ package jahspotify.web.api;
 import javax.servlet.http.*;
 
 import jahspotify.services.*;
+import jahspotify.services.MediaPlayerStatus;
 import jahspotify.web.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,24 +42,20 @@ public class MediaPlayerController extends BaseController
     @RequestMapping(value = "/player/status", method = RequestMethod.GET)
     public void status(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
-        // Should return:
-        // - current track
-        // - current track duration
-        MediaPlayerStatus mediaPlayerStatus = new MediaPlayerStatus();
-        mediaPlayerStatus.setCurrentGain(_mediaPlayer.getCurrentGain());
-        final jahspotify.services.MediaPlayerState mediaPlayerState = _mediaPlayer.getMediaPlayerState();
-        mediaPlayerStatus.setMediaPlayerState(jahspotify.web.MediaPlayerState.valueOf(mediaPlayerState.name()));
+        final MediaPlayerStatus mediaPlayerStatus = _mediaPlayer.getMediaPlayerStatus();
 
-        final Queue currentQueue = _queueManager.getCurrentQueue(1);
-        if (currentQueue.getCurrentlyPlaying() != null)
+        final jahspotify.web.MediaPlayerStatus webMediaPlayerStatus = new jahspotify.web.MediaPlayerStatus();
+        webMediaPlayerStatus.setLength(mediaPlayerStatus.getTrackDuration());
+        webMediaPlayerStatus.setOffset(mediaPlayerStatus.getTrackCurrentOffset());
+        webMediaPlayerStatus.setCurrentGain(_mediaPlayer.getCurrentGain());
+        if (mediaPlayerStatus.getCurrentTrack() != null)
         {
-            mediaPlayerStatus.setLength(currentQueue.getCurrentlyPlaying().getLength());
-            mediaPlayerStatus.setOffset(currentQueue.getCurrentlyPlaying().getOffset());
-            mediaPlayerStatus.setCurrentTrack(toWebLink(currentQueue.getCurrentlyPlaying().getTrackUri()));
+            webMediaPlayerStatus.setCurrentTrack(toWebLink(mediaPlayerStatus.getCurrentTrack().getTrackUri()));
         }
 
+        super.writeResponseGeneric(httpServletResponse,webMediaPlayerStatus);
 
-        super.writeResponseGeneric(httpServletResponse,mediaPlayerStatus);
+
     }
 
     @RequestMapping(value = "/player/stop", method = RequestMethod.GET)

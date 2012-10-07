@@ -23,20 +23,15 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<!-- /header -->
-<div class="mainHeaderPanel" data-position="inline" data-role="header" role="banner">
-    <h1><c:out value="${pageTitle}"/></h1>
-    <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
-    <c:url var="queueSettingsURL" value="/jsp/queue-settings-dialog.jsp"/>
-    <a href="<c:out value='${queueSettingsURL}'/>" data-icon="gear" data-rel="dialog" class="ui-btn-right">Options</a>
-</div>
+<div data-role="page" id="serverInfo">
 
+  <%@ include file="/jsp/header-bar.jsp" %>
 
-<div data-role="content">
+  <div data-role="content">
 
+  </div>
 
-
-
+  <%@ include file="/jsp/footer-bar.jsp" %>
 </div>
 
 <%@ include file="/jsp/footer.jsp" %>

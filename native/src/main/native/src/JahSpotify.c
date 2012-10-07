@@ -154,23 +154,20 @@ static void SP_CALLCONV playlist_update_in_progress ( sp_playlist *pl, bool done
 
     log_debug("jahspotify","playlist_update_in_progress","Update in progress: %s (done: %s)", name, (done ? "yes" : "no"));
 
-    if (done)
+    link = sp_link_create_from_playlist(pl);
+    if (link)
     {
-        link = sp_link_create_from_playlist(pl);
-        if (link)
-        {
-            playListlinkStr =  calloc ( 1, sizeof ( char ) * ( 100 ) );
-            sp_link_as_string(link,playListlinkStr,100);
-            sp_link_release(link);
-            signalPlaylistSeen(name,playListlinkStr);
-        }
-   }
+        playListlinkStr =  calloc ( 1, sizeof ( char ) * ( 100 ) );
+        sp_link_as_string(link,playListlinkStr,100);
+        sp_link_release(link);
+        signalPlaylistUpdate(name,playListlinkStr, done );
+    }
 }
 
 static void SP_CALLCONV playlist_metadata_updated ( sp_playlist *pl, void *userdata )
 {
   log_debug("jahspotify","playlist_metadata_updated","Metadata updated: %s",sp_playlist_name(pl));
-  // signalMetadataUpdated(pl);
+  signalMetadataUpdated(pl);
 }
 
 static void SP_CALLCONV track_created_changed(sp_playlist *pl, int position, sp_user *user, int when, void *userdata)
@@ -234,7 +231,7 @@ static void SP_CALLCONV playlist_added ( sp_playlistcontainer *pc, sp_playlist *
                              int position, void *userdata )
 {
     log_debug("jahspotify","playlist_added","Playlist added: %s (loaded: %s)",sp_playlist_name(pl),sp_playlist_is_loaded(pl) ? "Yes" : "No");
-    // sp_playlist_add_callbacks ( pl, &pl_callbacks, NULL );
+    sp_playlist_add_callbacks ( pl, &pl_callbacks, NULL );
 }
 
 /**
@@ -267,7 +264,6 @@ static void SP_CALLCONV container_loaded ( sp_playlistcontainer *pc, void *userd
     char *folderName = calloc ( 1, sizeof ( char ) * ( MAX_LENGTH_FOLDER_NAME ) );
     int i;
 
-
     if ( folderName == NULL )
     {
         log_error("jahspotify","container_loaded","Could not allocate folder name variable" );
@@ -293,6 +289,7 @@ static void SP_CALLCONV container_loaded ( sp_playlistcontainer *pc, void *userd
         else
         {
             strcpy(linkStr,"N/A\0");
+            log_error("jahspotify","container_loaded","No link available for playlist entry at %d",i);
             // strcpy(linkStr,sp_playlist_name(pl));
         }
         switch ( sp_playlistcontainer_playlist_type ( pc,i ) )
@@ -448,6 +445,7 @@ static void SP_CALLCONV end_of_track ( sp_session *sess )
 {
     pthread_mutex_lock ( &g_notify_mutex );
     g_playback_done = 1;
+    g_notify_do = 1;
     pthread_cond_signal ( &g_notify_cond );
     pthread_mutex_unlock ( &g_notify_mutex );
 }
@@ -514,8 +512,8 @@ static void SP_CALLCONV streaming_error(sp_session *session, sp_error error)
 
 static void SP_CALLCONV start_playback(sp_session *session)
 {
-    log_debug("jahspotify","start_playback","Next playback about to start, initiating pre-load sequence");
-    startPlaybackSignalled();
+    log_debug("jahspotify","start_playback","Next playback about to start, initiating pre-load sequence");\
+    // placeInThread(startPlaybackSignalled,NULL);
 }
 
 static void SP_CALLCONV stop_playback(sp_session *session)
@@ -1479,9 +1477,11 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
                 // Add it to the playlist
                 (*env)->CallVoidMethod(env,playlistInstance,jMethod,trackJLink);
                 sp_link_release(trackLink);
+
+                log_debug("jahspotify","createJPlaylist","Track at index %d is %s", trackCounter, (sp_track_is_loaded(track) ? "loaded" : "not loaded"));
+
             }
             sp_track_release(track);
-
         }
     }
 
@@ -1930,13 +1930,17 @@ JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeTrackSeek(JNIEn
 JNIEXPORT void JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeStopTrack (JNIEnv *env, jobject obj)
 {
     log_debug("jahspotify","nativeStopTrack","Stopping playback");
-    sp_session_player_unload(g_sess);
+    if (g_currenttrack != NULL)
+    {
+        sp_session_player_unload(g_sess);
+    }
 }
 
 
-JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEnv *env, jobject obj, jstring uri)
+JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIEnv *env, jobject obj, jstring uri)
 {
     uint8_t *nativeURI = NULL;
+    jboolean resultCode = JNI_TRUE;
 
     nativeURI = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
 
@@ -1959,6 +1963,10 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
             log_error("jahspotify","nativePlayTrack","No track from link");
         }
 
+        //sp_track_add_ref(t);
+
+        sp_error result = sp_session_player_load(g_sess, t);
+
         int count = 0;
         while (!sp_track_is_loaded(t) && count < 4)
         {
@@ -1966,14 +1974,27 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
             count ++;
         }
 
-        if (count == 4)
+        if (count == 8)
         {
-          log_warn("jahspotify","nativePlayTrack","Track not loaded after 1 second, will have to wait for callback");
+          log_warn("jahspotify","nativePlayTrack","Track not loaded after 2 seconds, will have to wait for callback");
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)
         {
-            log_debug("jahspotify","nativePlayTrack","Error with track: %s",sp_error_message(sp_track_error(t)));
+            log_error("jahspotify","nativePlayTrack","Issue loading track: %s", sp_error_message((sp_track_error(t))));
+            count = 0;
+            while (!sp_track_is_loaded(t) && count < 8)
+            {
+                usleep(250);
+                count ++;
+            }
+
+            if (count == 8)
+            {
+              log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, playback will fail");
+              // sp_track_release(t);
+              goto fail;
+            }
         }
 
         log_debug("jahspotify","nativePlayTrack","track name: %s duration: %d",sp_track_name(t),sp_track_duration(t));
@@ -2005,20 +2026,10 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
                 free(currentTrackLinkStr);
             }
 
-            sp_track_release(g_currenttrack);
+            //sp_track_release(g_currenttrack);
 
             g_currenttrack = NULL;
 
-        }
-
-        sp_track_add_ref(t);
-
-        sp_error result = sp_session_player_load(g_sess, t);
-
-        if (sp_track_error(t) != SP_ERROR_OK)
-        {
-            log_error("jahspotify","nativePlayTrack","Issue loading track: %s", sp_error_message((sp_track_error(t))));
-            goto fail;
         }
 
         log_debug("jahspotify","nativePlayTrack","Track loaded: %s", (result == SP_ERROR_OK ? "yes" : "no"));
@@ -2047,10 +2058,12 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (JNIE
 
 fail:
   log_error("jahspotify","nativePlayTrack","Error starting play");
+  resultCode = JNI_FALSE;
 
 exit:
   if (nativeURI) (*env)->ReleaseStringUTFChars(env, uri, (char *)nativeURI);
 
+  return resultCode;
 
 }
 
@@ -2090,7 +2103,7 @@ static void track_ended(void)
 
         sp_session_player_unload(g_sess);
 
-        sp_track_release(g_currenttrack);
+        // sp_track_release(g_currenttrack);
 
         g_currenttrack = NULL;
 

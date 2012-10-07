@@ -26,90 +26,85 @@
 
 <div id="playList" data-role="page" data-theme="g" class="homeBody">
 
+  <%@ include file="/jsp/header-bar.jsp" %>
 
-    <!-- /header -->
-    <div class="mainHeaderPanel" data-role="header" role="banner" data-position="fixed">
-        <h3><c:out value="${pageTitle}"/></h3>
-        <a href="/jahspotify/index.html" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+  <div data-role="content">
+    <div class="content-primary" align="center">
+      <div class="ui-body ui-body-a">
 
-        <c:url var="playControllerURL" value="/jsp/play-controller-dialog.jsp"/>
-        <a href="<c:out value='${playControllerURL}'/>" data-icon="gear" data-rel="dialog"
-           class="ui-btn-right">Player</a>
-    </div>
+        <jah:trackstatistics link="${trackStatistics.trackLink.id}" var="trackStatistics"/>
+        <jah:media link="${trackStatistics.trackLink.id}" var="track"/>
+        <jah:media link="${track.album.id}" var="album"/>
 
+        <div data-role="controlgroup" data-type="horizontal" align="right">
+          <a href="index.html" data-role="button" data-icon="star" data-iconpos="notext">Star this track</a>
 
-    <div data-role="content">
-        <div class="content-primary" align="center">
-            <div class="ui-body ui-body-a">
+          <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
+          <a data-role="button" data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>"
+             data-icon="grid" data-iconpos="notext">Enqueue</a></li>
+          <a href="index.html" data-role="button" data-icon="plus" data-iconpos="notext">Add to Playlist</a>
 
-              <jah:trackstatistics link="${trackStatistics.trackLink.id}" var="trackStatistics"/>
-              <jah:media link="${trackStatistics.trackLink.id}" var="track"/>
-              <jah:media link="${track.album.id}" var="album"/>
-
-                <div data-role="controlgroup" data-type="horizontal" align="right">
-                    <a href="index.html" data-role="button" data-icon="star" data-iconpos="notext">Star this track</a>
-
-                    <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                    <a data-role="button" data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid" data-iconpos="notext">Enqueue</a></li>
-                    <a href="index.html" data-role="button" data-icon="plus" data-iconpos="notext">Add to Playlist</a>
-
-                </div>
-
-                <div align="center" style="line-height: 0.5em">
-                    <jah:duration var="duration" duration="${track.length}"/>
-                    <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
-                    <div>
-                        <img src="<c:out value='${albumCoverURL}'/>"/>
-                    </div>
-
-                    <p style="font-weight: 900;"><c:out value="${track.title}"/> (<c:out value="${duration}"/>)</p>
-
-                    <p style="font-weight: bold; font-size: 80%"><c:out value="${album.name}"/></p>
-
-                    <p style="font-weight: bold; font-size: 70%">
-                      <c:forEach items="${track.artists}" varStatus="rowCounter" var="artistLink">
-<%--
-                        <c:set var="artistLink" value="${track.artistLinks[rowCounter.count]}"/>
---%>
-                        <jah:media link="${artistLink.id}" var="artist"/>
-                        <c:out value="${artist.name}"/>
-                        <c:if test="${not rowCounter.last}">, </c:if>
-                    </c:forEach>
-                    </p>
-                </div>
-
-                <div data-role="navbar" data-theme="g" >
-                    <ul>
-
-                        <c:url var="queueTrackURL" value="/ui/media/track/${track.id.id}/star?"/>
-                        <li><a href="#" data-icon="star" data-icon-theme="c">Star</a></li>
-
-                        <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                        <li><a data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid">Enqueue</a></li>
-                        <c:choose>
-                            <c:when test="${fn:length(track.artists) gt 1}">
-                                <c:url var="artistBrowseURL" value="/ui/media/artists/${track.id.id}"/>
-                                <li><a data-prefetch="true" data-rel="dialog" href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artists</a></li>
-                            </c:when>
-                            <c:otherwise>
-                                <c:forEach var="artistLink" items="${track.artists}">
-                                  <c:url var="artistBrowseURL" value="/ui/media/artist/${artistLink}"/>
-                                                                 <li><a href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artist</a></li>
-                                  </c:forEach>
-
-                            </c:otherwise>
-                        </c:choose>
-
-                        <li><a href="#" data-icon="gear">More</a></li>
-                    </ul>
-                </div>
-
-            </div>
         </div>
 
+        <div align="center" style="line-height: 0.5em">
+          <jah:duration var="duration" duration="${track.length}"/>
+          <c:url var="albumCoverURL" value="/media/${album.cover.id}"/>
+          <div>
+            <img src="<c:out value='${albumCoverURL}'/>"/>
+          </div>
+
+          <p style="font-weight: 900;"><c:out value="${track.title}"/> (<c:out value="${duration}"/>)</p>
+
+          <p style="font-weight: bold; font-size: 80%"><c:out value="${album.name}"/></p>
+
+          <p style="font-weight: bold; font-size: 70%">
+            <c:forEach items="${track.artists}" varStatus="rowCounter" var="artistLink">
+              <%--
+                                      <c:set var="artistLink" value="${track.artistLinks[rowCounter.count]}"/>
+              --%>
+              <jah:media link="${artistLink.id}" var="artist"/>
+              <c:out value="${artist.name}"/>
+              <c:if test="${not rowCounter.last}">, </c:if>
+            </c:forEach>
+          </p>
+        </div>
+
+        <div data-role="navbar" data-theme="g">
+          <ul>
+
+            <c:url var="queueTrackURL" value="/ui/media/track/${track.id.id}/star?"/>
+            <li><a href="#" data-icon="star" data-icon-theme="c">Star</a></li>
+
+            <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
+            <li><a data-rel="dialog" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="grid">Enqueue</a>
+            </li>
+            <c:choose>
+              <c:when test="${fn:length(track.artists) gt 1}">
+                <c:url var="artistBrowseURL" value="/ui/media/artists/${track.id.id}"/>
+                <li><a data-prefetch="true" data-rel="dialog" href="<c:out value='${artistBrowseURL}'/>"
+                       data-icon="people">Artists</a></li>
+              </c:when>
+              <c:otherwise>
+                <c:forEach var="artistLink" items="${track.artists}">
+                  <c:url var="artistBrowseURL" value="/ui/media/artist/${artistLink}"/>
+                  <li><a href="<c:out value='${artistBrowseURL}'/>" data-icon="people">Artist</a></li>
+                </c:forEach>
+
+              </c:otherwise>
+            </c:choose>
+
+            <li><a href="#" data-icon="gear">More</a></li>
+          </ul>
+        </div>
+
+      </div>
     </div>
 
-    <%@ include file="/jsp/footer.jsp" %>
+  </div>
+
+  <%@ include file="/jsp/footer-bar.jsp" %>
 
 
 </div>
+
+<%@ include file="/jsp/footer.jsp" %>

@@ -17,21 +17,15 @@
   ~        under the License.
   --%>
 
-<%@ include file="/jsp/header.jsp" %>
-
+<%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<!-- /header -->
-<div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
-    <h1><c:out value="${pageTitle}"/></h1>
-</div>
 
-<div data-role="content">
-    <div class="content-primary" data-theme="a">
-        <p><c:out value="${successMessage}"/></p>
-        <a href="#" data-role="button" data-rel="back">Ok</a>
+<div data-role="footer" class="footer-docs" data-theme="a">
+    <div style="line-height: 0.1em; padding-left: 5px;">
+        <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
+        <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
     </div>
-</div>
 
-<%@ include file="/jsp/dialog-footer.jsp" %>
+</div>
