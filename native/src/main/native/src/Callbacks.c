@@ -97,8 +97,22 @@ void startPlaybackSignalled()
          {
              sp_track *track = sp_link_as_track(link);
              sp_link_release(link);
+
+             int count = 0;
+             while (!sp_track_is_loaded( track ) && count < 4)
+             {
+                 usleep(250);
+                 count ++;
+             }
+
+             if (count == 4)
+             {
+                 log_warn("jahspotify","startPlaybackSignalled","Waited for track to load but took too long" );
+                 goto exit;
+             }
+
              sp_error error = sp_session_player_prefetch(g_sess,track);
-             sp_track_release(track);
+             // sp_track_release(track);
              if (error != SP_ERROR_OK)
              {
                  log_error("callbacks","startPlaybackSignalled","Error prefetch: %s",sp_error_message(error));

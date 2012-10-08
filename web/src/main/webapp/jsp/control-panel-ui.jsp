@@ -111,7 +111,7 @@
 
   var popupCloseTimer = $.timer( function ()
                                  {
-                                   alert( "Closing popup" );
+                                   // alert( "Closing popup" );
                                    $( "#actionResultPopup" ).popup( "close" );
                                    popupCloseTimer.stop();
                                  } );

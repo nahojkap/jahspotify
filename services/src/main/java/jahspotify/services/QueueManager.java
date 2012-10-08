@@ -302,9 +302,10 @@ public class QueueManager
                     QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI, QueueManager.DEFAULT_QUEUE_LINK, "JahSpotify");
                     queuedTrack.setLength(track.getLength());
                     queuedTracks.add(queuedTrack);
-                    _currentQueue.getQueuedTracks().add(queuedTrack);
                 }
             }
+
+            _currentQueue.getQueuedTracks().addAll(queuedTracks);
 
             final QueueTrack[] queueTracks = new QueueTrack[queuedTracks.size()];
             queuedTracks.toArray(queueTracks);

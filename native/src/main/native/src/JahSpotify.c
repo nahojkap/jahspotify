@@ -1613,6 +1613,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 {
     jobject trackInstance;
     uint8_t *nativeUri = NULL;
+    char *buffer = NULL;
 
     nativeUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, uri, NULL );
 
@@ -1628,31 +1629,40 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 
     if (sp_link_type(link) != SP_LINKTYPE_TRACK)
     {
-      char *buffer = calloc(1,100);
+      buffer = calloc(1,100);
       sp_link_as_string(link,buffer,100);
       log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Specified link is not a track link: %s",buffer);
-      free(buffer);
-      return NULL;
+      goto exit;
     }
     
     
     sp_track *track = sp_link_as_track(link);
 
+    sp_track_add_ref(track);
+
     int count = 0;
     while (!sp_track_is_loaded(track) && count < 4)
     {
-        usleep(250);
+        sleep(1);
         count++;
     }
 
     if (count == 4)
     {
-      log_warn("jahspotify","retrieveTrack","Track not loaded after 1 second, will have to wait for callback");
-      return NULL;
+      log_warn("jahspotify","retrieveTrack","Track not loaded after 4 seconds, will have to wait for callback");
+      goto exit;
     }
 
     log_debug("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack","Track ready, populating" );
     trackInstance = createJTrackInstance(env, track);
+
+    goto exit;
+
+ fail:
+
+ exit:
+
+    free(buffer);
 
     if (track)
         sp_track_release(track);
@@ -1963,41 +1973,41 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
             log_error("jahspotify","nativePlayTrack","No track from link");
         }
 
-        //sp_track_add_ref(t);
+        sp_track_add_ref(t);
 
-        sp_error result = sp_session_player_load(g_sess, t);
+        // sp_error result = sp_session_player_load(g_sess, t);
 
         int count = 0;
         while (!sp_track_is_loaded(t) && count < 4)
         {
-            usleep(250);
+            sleep(1);
             count ++;
         }
 
-        if (count == 8)
+        if (count == 4)
         {
-          log_warn("jahspotify","nativePlayTrack","Track not loaded after 2 seconds, will have to wait for callback");
+          log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, will wait for a little longer");
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)
         {
             log_error("jahspotify","nativePlayTrack","Issue loading track: %s", sp_error_message((sp_track_error(t))));
             count = 0;
-            while (!sp_track_is_loaded(t) && count < 8)
+            while (!sp_track_is_loaded(t) && count < 4)
             {
-                usleep(250);
+                sleep(1);
                 count ++;
             }
 
-            if (count == 8)
+            if (count == 4)
             {
-              log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, playback will fail");
+              log_warn("jahspotify","nativePlayTrack","Track not loaded after yet another 4 seconds of wait, playback will fail");
               // sp_track_release(t);
               goto fail;
             }
         }
 
-        log_debug("jahspotify","nativePlayTrack","track name: %s duration: %d",sp_track_name(t),sp_track_duration(t));
+        log_debug("jahspotify","nativePlayTrack","Track is loaded: name: %s duration: %d",sp_track_name(t),sp_track_duration(t));
 
         if (g_currenttrack == t)
         {
@@ -2007,6 +2017,8 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
         // If there is one playing, unload that now
         if (g_currenttrack && t != g_currenttrack)
         {
+            log_debug("jahspotify","nativePlayTrack","Unloading currently playing track");
+
             // Unload the current track now
             sp_session_player_unload(g_sess);
 
@@ -2026,21 +2038,30 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
                 free(currentTrackLinkStr);
             }
 
-            //sp_track_release(g_currenttrack);
+            sp_track_release(g_currenttrack);
 
             g_currenttrack = NULL;
 
         }
 
-        log_debug("jahspotify","nativePlayTrack","Track loaded: %s", (result == SP_ERROR_OK ? "yes" : "no"));
+        log_debug("jahspotify","nativePlayTrack","Track loaded: %s", (sp_track_is_loaded(t) ? "yes" : "no"));
 
         // Update the global reference
         g_currenttrack = t;
 
-        // Start playing the next track
-        sp_session_player_play(g_sess, 1);
+        sp_error result = sp_session_player_load(g_sess, g_currenttrack);
 
-        log_debug("jahspotify","nativePlayTrack","Playing track");
+        // Start playing the next track
+        result = sp_session_player_play(g_sess, 1);
+        if (result != SP_ERROR_OK)
+        {
+            log_debug("jahspotify","nativePlayTrack","Error playing track: %s", sp_error_message(result));
+            goto fail;
+        }
+        else
+        {
+            log_debug("jahspotify","nativePlayTrack","Playing track");
+        }
 
         sp_link_release(link);
 
@@ -2103,7 +2124,7 @@ static void track_ended(void)
 
         sp_session_player_unload(g_sess);
 
-        // sp_track_release(g_currenttrack);
+        sp_track_release(g_currenttrack);
 
         g_currenttrack = NULL;
 
@@ -2177,16 +2198,21 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
 #else
             struct timeval tv;
             gettimeofday ( &tv, NULL );
-			//TIMEVAL_TO_TIMESPEC ( &tv, &ts );
-			(&ts)->tv_sec = (&tv)->tv_sec;
-			(&ts)->tv_nsec = (&tv)->tv_usec * 1000;
-            ///TIMEVAL_TO_TIMESPEC ( &tv, &ts );
+			TIMEVAL_TO_TIMESPEC ( &tv, &ts );
+			//(&ts)->tv_sec = (&tv)->tv_sec;
+			//(&ts)->tv_nsec = (&tv)->tv_usec * 1000;
+            //TIMEVAL_TO_TIMESPEC ( &tv, &ts );
 #endif
             ts.tv_sec += next_timeout / 1000;
             ts.tv_nsec += ( next_timeout % 1000 ) * 1000000;
 
-			if (!g_notify_do) // Only wait if we know we have nothing to do.
-				pthread_cond_timedwait ( &g_notify_cond, &g_notify_mutex, &ts );
+            while (!g_notify_do)
+            {
+			// if (!g_notify_do) // Only wait if we know we have nothing to do.
+				// pthread_cond_timedwait ( &g_notify_cond, &g_notify_mutex, &ts );
+				if(pthread_cond_timedwait(&g_notify_cond, &g_notify_mutex, &ts))
+				                    break;
+            }
         }
 
         g_notify_do = 0;
