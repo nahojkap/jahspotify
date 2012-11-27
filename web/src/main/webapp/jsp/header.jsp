@@ -25,41 +25,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+    <meta charset="utf-8"/>
 
-  <title>Jah'Spotify</title>
+    <title>Jah'Spotify</title>
 
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <c:url var="jqueryURL" value="/scripts/jquery-1.8.1.min.js"/>
-  <script src="${jqueryURL}"></script>
+    <c:url var="jqueryURL" value="/scripts/jquery-1.8.1.min.js"/>
+    <script src="${jqueryURL}"></script>
 
-  <c:url var="jqueryMobileURL" value="/scripts/jquery.mobile-1.2.0-rc.2.min.js"/>
-  <script src="${jqueryMobileURL}"></script>
+    <c:url var="jqueryMobileURL" value="/scripts/jquery.mobile-1.2.0-rc.2.min.js"/>
+    <script src="${jqueryMobileURL}"></script>
 
-  <c:url var="jqueryMobileCSSURL" value="/css/jquery.mobile-1.2.0-rc.2.min.css"/>
-  <link href="<c:out value='${jqueryMobileCSSURL}'/>" type="text/css" rel="stylesheet">
+    <c:url var="jqueryMobileCSSURL" value="/css/jquery.mobile-1.2.0-rc.2.min.css"/>
+    <link href="<c:out value='${jqueryMobileCSSURL}'/>" type="text/css" rel="stylesheet">
 
-  <c:url var="cssURL" value="/css/jahspotify-main.css"/>
-  <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
+    <c:url var="cssURL" value="/css/jahspotify-main.css"/>
+    <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
 
-  <c:url var="timerURL" value="/scripts/jquery.timer.js"/>
-  <script src="<c:out value='${timerURL}'/>"></script>
+    <c:url var="timerURL" value="/scripts/jquery.timer.js"/>
+    <script src="<c:out value='${timerURL}'/>"></script>
 
-  <c:url var="timeagoURL" value="/scripts/jquery.timeago.js"/>
-  <script src="<c:out value='${timeagoURL}'/>"></script>
+    <c:url var="timeagoURL" value="/scripts/jquery.timeago.js"/>
+    <script src="<c:out value='${timeagoURL}'/>"></script>
 
-  <c:url var="jahspotifyURL" value="/scripts/jahspotify.js"/>
-  <script src="<c:out value='${jahspotifyURL}'/>"></script>
+    <c:url var="jahspotifyURL" value="/scripts/jahspotify.js"/>
+    <script src="<c:out value='${jahspotifyURL}'/>"></script>
 
 
-  <script>
-    $( document ).bind( 'pageinit', function ()
-    {
-      jQuery( "abbr.timeago" ).timeago();
-    } );
-  </script>
+    <script>
+        $(document).bind("mobileinit", function ()
+        {
+            $.mobile.ajaxEnabled = false;
+            $.mobile.pushStateEnabled = false;
+        });
+
+        $(document).bind('pageinit', function ()
+        {
+            jQuery("abbr.timeago").timeago();
+        });
+    </script>
 
 </head>
 

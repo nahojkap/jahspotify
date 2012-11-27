@@ -33,10 +33,22 @@ playlists/folders using the API or UI - it is being worked on ;)
 
 Jah'Spotify supports the Linux and Windows versions of libspotify (see below for more details on building on Windows).
 
+### Prerequisites
+
+The following prerequisites are required in order to build Jah'Spotify
+
+* libspotify
+* Spotify API key
+* OpenAL
+
+### Checking out the sources
+
 To build the sources first check them out from git
 
     git clone git://github.com/johanlindquist/jahspotify.git
     cd jahspotify
+
+### Preparing Spotify API key and libraries
 
 Next, you need to download and install libspotify & request an API key from Spotify.  This can be done
 on the http://developer.spotify.com website.
@@ -46,6 +58,8 @@ Generate the key and download the C code version of it.  Place this in a file ca
     native/src/main/native/inc
 
 directory.  You may want to place some #ifndef APPKEY statements in this to prevent linking problems.
+
+### Performing the build
 
 Finally, execute the Maven build
 

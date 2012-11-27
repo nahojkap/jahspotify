@@ -36,7 +36,7 @@ function currentQueueStatus(callback)
 
 function skip( skipSuccessFunction, skipFailedFunction )
 {
-    invokeRestfulGet("/jahspotify/player/skip", pauseSuccessFunction, pauseFailedFunction);
+    invokeRestfulGet("/jahspotify/player/skip", skipSuccessFunction, skipFailedFunction);
 }
 
 function pause( pauseSuccessFunction, pauseFailedFunction )

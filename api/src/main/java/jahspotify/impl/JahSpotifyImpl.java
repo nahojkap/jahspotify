@@ -255,6 +255,7 @@ public class JahSpotifyImpl implements JahSpotify
                 _synching = true;
                 _nodeStack.clear();
                 _library = null;
+                _currentLibraryEntry.clear();
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
@@ -1010,7 +1011,7 @@ public class JahSpotifyImpl implements JahSpotify
             return folderEntry;
         }
 
-        final Collection<LibraryEntry> strippedSubEntries = new ArrayList<LibraryEntry>();
+        final Collection<LibraryEntry> strippedSubEntries = new HashSet<LibraryEntry>();
         if (level == currentLevel)
         {
             // Remove all children of any sub-entries now

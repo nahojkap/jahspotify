@@ -24,7 +24,7 @@
 
   <h1><c:out value="${pageTitle}"/></h1>
 
-  <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+  <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse" rel="external">Home</a>
 
     <a data-rel="popup" onclick="showControlPanel(); return false;" href="#popupPanel" data-theme="f"
        data-icon="gear" data-role="button" class="ui-btn-right"

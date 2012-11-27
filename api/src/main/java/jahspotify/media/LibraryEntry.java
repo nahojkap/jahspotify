@@ -32,7 +32,7 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     private String name;
     private String type;
     private int numEntries;
-    private Collection<LibraryEntry> subEntries = new ArrayList<LibraryEntry>();
+    private Collection<LibraryEntry> subEntries = new LinkedHashSet<LibraryEntry>();
 
     public static final String FOLDER_ENTRY_TYPE="FOLDER";
     public static final String PLAYLIST_ENTRY_TYPE="PLAYLIST";
@@ -125,7 +125,7 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     {
         if (subEntries == null)
         {
-            subEntries = new ArrayList<LibraryEntry>();
+            subEntries = new LinkedHashSet<LibraryEntry>();
         }
         numEntries++;
         subEntries.add(subEntry);
@@ -135,5 +135,39 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     public int compareTo(final LibraryEntry o)
     {
         return name.compareTo(o.getName());
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof LibraryEntry))
+        {
+            return false;
+        }
+
+        final LibraryEntry that = (LibraryEntry) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    public void clear()
+    {
+        numEntries = 0;
+        subEntries.clear();
     }
 }

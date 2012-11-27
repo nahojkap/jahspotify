@@ -21,45 +21,67 @@
 
 <div id="homePage" data-role="page" data-theme="g" class="homeBody">
 
-  <c:set var="pageTitle" value="Jah'Spotify" scope="request"/>
-  <jsp:include page="/jsp/header-bar.jsp"/>
+    <c:set var="pageTitle" value="Jah'Spotify" scope="request"/>
+    <jsp:include page="/jsp/header-bar.jsp"/>
 
-  <div class="mainContentPanel" data-role="content">
+    <div class="mainContentPanel" data-role="content">
 
-    <ul data-role="listview" data-theme="a" data-inset="true" data-split-icon="arrow-le"
-        data-split-theme="a" data-count-theme="b">
-      <li data-role="list-divider" data-theme="a"></li>
+        <ul data-role="listview" data-theme="a" data-inset="true" data-split-icon="arrow-le" data-split-theme="a" data-count-theme="b">
 
-      <li><a class="wrapper" href="ui/media/library/jahspotify:inbox" id="Inbox">Inbox</a></li>
-      <li><a class="wrapper" href="ui/media/library/jahspotify:starred" id="Starred">Starred</a></li>
-      <li><a class="wrapper" href="ui/media/library/jahspotify:folder:ROOT" id="Playlists" data-ajax="false">Playlists</a></li>
+            <li data-role="list-divider" data-theme="a"></li>
 
-      <li><a class="wrapper" href="ui/search" id="Search">Search</a></li>
+            <li>
+                <c:url var="inboxURL" value="/ui/media/library/jahspotify:inbox"/>
+                <a class="wrapper" href="<c:out value='${inboxURL}'/>" id="Queue">Inbox</a>
+            </li>
 
-      <li data-role="list-divider" data-theme="a"></li>
-      <li>
-        <a class="wrapper" href="ui/queue/current" id="Queue">Queue</a>
-      </li>
-      <li>
-        <a class="wrapper" href="ui/history/recent" id="History">History</a>
-      </li>
-      <li data-role="list-divider" data-theme="a"></li>
-      <li>
-        <a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
-      </li>
-      <li data-role="list-divider" data-theme="a"></li>
+            <li>
+                <c:url var="starredURL" value="/ui/media/library/jahspotify:starred"/>
+                <a class="wrapper" href="<c:out value='${starredURL}'/>" id="Queue">Starred</a>
+            </li>
 
-    </ul>
-  </div>
+            <li>
+                <c:url var="playlistsURL" value="/ui/media/library/jahspotify:folder:ROOT"/>
+                <a class="wrapper" href="<c:out value='${playlistsURL}'/>" id="Queue">Playlists</a>
+            </li>
 
+            <li>
+                <c:url var="searchURL" value="/ui/search"/>
+                <a class="wrapper" href="<c:out value='${searchURL}'/>" id="Queue">Search</a>
+            </li>
 
-  <div data-role="footer" style="text-align: left;" class="ui-bar" data-theme="a" data-position="fixed">
-    <div style="line-height: 0.1em;">
-      <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
+            <li data-role="list-divider" data-theme="a"></li>
 
-      <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
+            <li>
+                <c:url var="queueURL" value="/ui/queue/current"/>
+                <a class="wrapper" href="<c:out value='${queueURL}'/>" id="Queue">Queue</a>
+            </li>
+
+            <li>
+                <c:url var="historyURL" value="/ui/history/recent"/>
+                <a class="wrapper" href="<c:out value='${historyURL}'/>" id="History">History</a>
+            </li>
+
+            <li data-role="list-divider" data-theme="a"></li>
+
+            <li>
+                <c:url var="serverSettingsURL" value="/ui/history/recent"/>
+                <a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
+            </li>
+
+            <li data-role="list-divider" data-theme="a"></li>
+
+        </ul>
     </div>
-  </div>
+
+
+    <div data-role="footer" style="text-align: left;" class="ui-bar" data-theme="a" data-position="fixed">
+        <div style="line-height: 0.1em;">
+            <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
+
+            <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
+        </div>
+    </div>
 
 </div>
 

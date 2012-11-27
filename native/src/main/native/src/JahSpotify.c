@@ -1986,7 +1986,7 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
 
         if (count == 4)
         {
-          log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, will wait for a little longer");
+          log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, will wait for a bit more");
         }
 
         if (sp_track_error(t) != SP_ERROR_OK)
