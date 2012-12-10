@@ -33,6 +33,11 @@ function currentQueueStatus(callback)
     });
 }
 
+function starTrack( link, trackID, starredState, starSuccessFunction, starFailedFunction )
+{
+    invokeRestfulGet("/jahspotify/track/" + trackID + "/star?value="+starredState, null, null);
+}
+
 
 function skip( skipSuccessFunction, skipFailedFunction )
 {
@@ -54,20 +59,36 @@ function invokeRestfulGet( url, successFunction, failedFunction )
                                                     // Evaluate the result of the skip
                                                     if ( data.responseStatus == 'OK' )
                                                     {
-                                                        // If successful
-                                                        successFunction();
+                                                        if (successFunction != null)
+                                                        {
+                                                            // If successful
+                                                            successFunction();
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        // if not successful
-                                                        failedFunction();
-
+                                                        if (failedFunction != null)
+                                                        {
+                                                            // if not successful
+                                                            failedFunction();
+                                                        }
+                                                        else
+                                                        {
+                                                            alert("Invocation failed miserably and no fail function defined!")
+                                                        }
                                                     }
                                                 } ).fail( function ()
                                                           {
                                                               $.mobile.hidePageLoadingMsg();
                                                               // if not successful
-                                                              failedFunction();
+                                                              if (failedFunction != null)
+                                                              {
+                                                                failedFunction();
+                                                              }
+                                                              else
+                                                              {
+                                                                  alert("Invocation failed miserably and no fail function defined!")
+                                                              }
                                                           } )
 }
 

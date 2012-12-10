@@ -1,6 +1,5 @@
 package jahspotify.web.api;
 
-import java.util.*;
 import javax.servlet.http.*;
 
 import jahspotify.media.Library;
@@ -26,12 +25,12 @@ public class PlaylistController extends BaseController
 
     @RequestMapping(value = "/playlist/{link}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public jahspotify.web.media.Playlist retrievePlaylist(@PathVariable String link, @RequestParam(defaultValue = "0") int entries, @RequestParam(defaultValue = "0") int index, final HttpServletResponse httpServletResponse)
+    public jahspotify.web.media.Playlist retrievePlaylist(@PathVariable String link, @RequestParam(defaultValue = "0") int numTrackEntries, @RequestParam(defaultValue = "0") int trackIndex, final HttpServletResponse httpServletResponse)
     {
         try
         {
             final Link playlistLink = Link.create(link);
-            Playlist playlist = _jahSpotify.readPlaylist(playlistLink, index, entries);
+            Playlist playlist = _jahSpotify.readPlaylist(playlistLink, trackIndex, numTrackEntries);
             return convertToWebPlaylist(playlist);
         }
         catch (Exception e)
@@ -52,6 +51,7 @@ public class PlaylistController extends BaseController
         webPlaylist.setName(playlist.getName());
         webPlaylist.setTracks(toWebLinksAsList(playlist.getTracks()));
         webPlaylist.setNumTracks(playlist.getNumTracks());
+        webPlaylist.setTrackIndex(playlist.getTrackIndex());
         webPlaylist.setIndex(playlist.getIndex());
         return webPlaylist;
     }

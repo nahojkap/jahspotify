@@ -295,15 +295,15 @@ static void SP_CALLCONV container_loaded ( sp_playlistcontainer *pc, void *userd
         switch ( sp_playlistcontainer_playlist_type ( pc,i ) )
         {
           case SP_PLAYLIST_TYPE_PLAYLIST:
-            signalPlaylistSeen(sp_playlist_name ( pl ),linkStr);
+            signalPlaylistSeen(sp_playlist_name ( pl ),linkStr,i);
             break;
           case SP_PLAYLIST_TYPE_START_FOLDER:
             sp_playlistcontainer_playlist_folder_name ( pc,i,folderName, MAX_LENGTH_FOLDER_NAME);
-            signalStartFolderSeen(folderName, sp_playlistcontainer_playlist_folder_id(pc,i));
+            signalStartFolderSeen(folderName, sp_playlistcontainer_playlist_folder_id(pc,i), i);
             break;
           case SP_PLAYLIST_TYPE_END_FOLDER:
             sp_playlistcontainer_playlist_folder_name ( pc,i,folderName,MAX_LENGTH_FOLDER_NAME);
-            signalEndFolderSeen();
+            signalEndFolderSeen(i);
             break;
           case SP_PLAYLIST_TYPE_PLACEHOLDER:
               log_debug("jahspotify","container_loaded","Placeholder");
@@ -1765,7 +1765,71 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveStarredPla
   
 }
 
+JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeSetStarredStateForTrack ( JNIEnv *env, jobject obj, jstring uri, jboolean starredState)
+{
 
+    char *linkStr = NULL;
+
+    linkStr = (char*)(*env)->GetStringUTFChars(env, uri, NULL);
+
+    log_debug("jahspotify","nativeSetStarredStateForTrack","Setting starred state to %s for track %s", (starredState == JNI_TRUE ? "starred" : "unstarred"),linkStr );
+
+    sp_link *link = sp_link_create_from_string(linkStr);
+
+    if (!link)
+    {
+        // hmm
+        log_error("jahspotify","nativeSetStarredStateForTrack","Could not create link!" );
+        return JNI_FALSE;
+    }
+
+    if (sp_link_type(link) != SP_LINKTYPE_TRACK)
+    {
+      log_error("jahspotify","nativeSetStarredStateForTrack","Specified link is not a track link: %s",linkStr);
+      sp_link_release(link);
+      return JNI_FALSE;
+    }
+
+    sp_track *track = sp_link_as_track(link);
+
+    sp_link_release(link);
+
+    if (track)
+    {
+        log_debug("jahspotify","nativeSetStarredStateForTrack","Have a track reference, will ");
+
+        sp_track_add_ref(track);
+
+        int count = 0;
+        while (!sp_track_is_loaded(track) && count < 4)
+        {
+          usleep(250);
+          count++;
+        }
+
+        if (count == 4)
+        {
+          log_warn("jahspotify","nativeSetStarredStateForTrack","Track not loaded after 1 second, will have to bail");
+          return JNI_FALSE;
+        }
+
+        sp_error error = sp_track_set_starred(g_sess,&track,1,starredState);
+
+        sp_track_release(track);
+
+        if (error != SP_ERROR_OK)
+        {
+            log_error("jahspotify","nativeSetStarredStateForTrack","Issue setting starred state for track: %s", sp_error_message(error));
+        }
+
+    }
+
+
+    if (linkStr) (*env)->ReleaseStringUTFChars(env, uri, (char *)linkStr);
+
+
+    return JNI_TRUE;
+}
 
 JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveStarredPlaylist ( JNIEnv *env, jobject obj)
 {
@@ -1825,12 +1889,6 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveInbo
   
   return playlistInstance;
   
-}
-
-JNIEXPORT jobjectArray JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeReadTracks (JNIEnv *env, jobject obj, jobjectArray uris)
-{
-    // For each track, read out the info and populate all of the info in the Track instance
-	return NULL;
 }
 
 JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause (JNIEnv *env, jobject obj)

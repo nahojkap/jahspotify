@@ -69,15 +69,6 @@
 
 </c:if>
 
-<%--
-
---%>
-
-<%--
-<c:url var="queueTrackURL" value="/ui/queue/add/${mediaId}}"/>
-                        <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="fade">Enqueue</a>
---%>
-
 <a id="actionButton-<c:out value='${mediaId}'/>" onclick="loadMedia('<c:out value="${mediaId}"/>')" href="#"
-   data-theme="a" data-icon="plus" >Enqueue</a>
+   data-theme="a" data-icon="spotify-enqueue" >Enqueue</a>
 

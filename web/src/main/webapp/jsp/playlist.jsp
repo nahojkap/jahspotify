@@ -52,11 +52,6 @@
                         <c:set var="mediaId" value="${track.id.id}" scope="request"/>
                         <jsp:include page="queue-media-link.jsp"/>
 
-<%--
-                        <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                        <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="fade">Enqueue</a>
---%>
-
                     </li>
                 </c:forEach>
             </ul>

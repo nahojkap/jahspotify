@@ -103,10 +103,10 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
     }
 
     @Override
-    public Playlist readPlaylist(final Link uri, final int index, final int numEntries)
+    public Playlist readPlaylist(final Link uri, final int trackIndex, final int numEntries)
     {
         Playlist playlist;
-        if (index == 0 && numEntries == 0 && _mediaStorage != null)
+        if (trackIndex == 0 && numEntries == 0 && _mediaStorage != null)
         {
             playlist = _mediaStorage.readPlaylist(uri);
             if (playlist != null)
@@ -116,9 +116,9 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
             }
         }
 
-        playlist = super.readPlaylist(uri, index, numEntries);
+        playlist = super.readPlaylist(uri, trackIndex, numEntries);
 
-        if (index == 0 && numEntries == 0 && _mediaStorage != null && playlist != null)
+        if (trackIndex == 0 && numEntries == 0 && _mediaStorage != null && playlist != null)
         {
             _mediaStorage.store(playlist);
         }
@@ -150,6 +150,16 @@ public class StorageAwareJahspotify extends JahSpotifyImpl
 
         return track;
 
+    }
+
+    public boolean setStarredStateForTrack(final Link link, boolean starredState)
+    {
+        final boolean b = super.setStarredStateForTrack(link, starredState);
+
+        _mediaStorage.deleteTrack(link);
+        _mediaStorage.deletePlaylist(Link.create("jahspotify:starred"));
+
+        return b;
     }
 
     @Override

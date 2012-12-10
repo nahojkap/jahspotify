@@ -5,6 +5,7 @@ import java.util.*;
 
 import jahspotify.media.*;
 import jahspotify.services.JahSpotifyService;
+import jahspotify.web.SimpleStatusResponse;
 import org.apache.commons.logging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.*;
@@ -50,5 +51,26 @@ public class TrackController extends BaseController
             throw new JahSpotifyWebException();
         }
     }
+
+    @RequestMapping(value = "/{link}/star", method = RequestMethod.GET,produces = "application/json")
+    @ResponseBody
+    public SimpleStatusResponse starTrack(@PathVariable String link, @RequestParam(value="value", required = true) boolean value)
+    {
+        try
+        {
+            final jahspotify.media.Link uri = Link.create(link);
+
+            _jahSpotify.setStarredStateForTrack(uri,value);
+
+            return SimpleStatusResponse.createSimpleSuccess("Track value starred state changed to " + value);
+
+        }
+        catch (Exception e)
+        {
+            _log.error("Error while retrieving track: " + e.getMessage(), e);
+            throw new JahSpotifyWebException();
+        }
+    }
+
 
 }

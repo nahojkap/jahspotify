@@ -38,11 +38,14 @@
     <c:url var="jqueryMobileURL" value="/scripts/jquery.mobile-1.2.0-rc.2.min.js"/>
     <script src="${jqueryMobileURL}"></script>
 
+    <c:url var="cssURL" value="/css/jahspotify-main.css"/>
+    <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
+
     <c:url var="jqueryMobileCSSURL" value="/css/jquery.mobile-1.2.0-rc.2.min.css"/>
     <link href="<c:out value='${jqueryMobileCSSURL}'/>" type="text/css" rel="stylesheet">
 
-    <c:url var="cssURL" value="/css/jahspotify-main.css"/>
-    <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
+    <c:url var="jqmIconPackCSSURL" value="/css/jqm-icon-pack-2.0-original.css"/>
+    <link href="<c:out value='${jqmIconPackCSSURL}'/>" type="text/css" rel="stylesheet">
 
     <c:url var="timerURL" value="/scripts/jquery.timer.js"/>
     <script src="<c:out value='${timerURL}'/>"></script>

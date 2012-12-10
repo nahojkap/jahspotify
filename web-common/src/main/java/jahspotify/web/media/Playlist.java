@@ -17,12 +17,14 @@ public class Playlist extends Container
     private String author;
     private boolean collaborative;
 
+    private int index;
+
     private String description;
     private String picture;
 
     private List<Link> tracks;
     private int numTracks;
-    private int index;
+    private int trackIndex;
 
     public Playlist()
     {
@@ -43,6 +45,16 @@ public class Playlist extends Container
     public void setId(Link id)
     {
         this.id = id;
+    }
+
+    public int getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(final int index)
+    {
+        this.index = index;
     }
 
     public String getName()
@@ -135,14 +147,14 @@ public class Playlist extends Container
         return numTracks;
     }
 
-    public int getIndex()
+    public int getTrackIndex()
     {
-        return index;
+        return trackIndex;
     }
 
-    public void setIndex(final int index)
+    public void setTrackIndex(final int trackIndex)
     {
-        this.index = index;
+        this.trackIndex = trackIndex;
     }
 
     @Override
@@ -168,6 +180,10 @@ public class Playlist extends Container
             return false;
         }
         if (numTracks != playlist.numTracks)
+        {
+            return false;
+        }
+        if (trackIndex != playlist.trackIndex)
         {
             return false;
         }
@@ -206,11 +222,12 @@ public class Playlist extends Container
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (collaborative ? 1 : 0);
+        result = 31 * result + index;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (picture != null ? picture.hashCode() : 0);
         result = 31 * result + (tracks != null ? tracks.hashCode() : 0);
         result = 31 * result + numTracks;
-        result = 31 * result + index;
+        result = 31 * result + trackIndex;
         return result;
     }
 
@@ -222,11 +239,12 @@ public class Playlist extends Container
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 ", collaborative=" + collaborative +
+                ", index=" + index +
                 ", description='" + description + '\'' +
                 ", picture='" + picture + '\'' +
                 ", tracks=" + tracks +
                 ", numTracks=" + numTracks +
-                ", index=" + index +
+                ", trackIndex=" + trackIndex +
                 "} " + super.toString();
     }
 }

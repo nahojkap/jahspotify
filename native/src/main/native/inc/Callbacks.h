@@ -10,15 +10,15 @@ int signalConnected();
 int signalDisconnected();
 int signalLoggedOut();
 
-int signalStartFolderSeen(char *folderName, uint64_t folderId);
+int signalStartFolderSeen(char *folderName, uint64_t folderId, int index);
 int signalSynchStarting(int numPlaylists);
 int signalSynchCompleted();
 int signalMetadataUpdated(sp_playlist *playlist);
-int signalEndFolderSeen();
+int signalEndFolderSeen(int index);
 
 int signalTrackEnded(char *uri, bool forcedTrackEnd);
 int signalTrackStarted(char *uri);
-int signalPlaylistSeen(const char *playlistName, char *linkName);
+int signalPlaylistSeen(const char *playlistName, char *linkName, int index);
 int signalPlaylistUpdate(const char *playlistName, char *linkName, bool complete);
 
 int signalSearchComplete(sp_search *search, int32_t token);

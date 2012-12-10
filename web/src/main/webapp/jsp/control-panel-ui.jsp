@@ -240,8 +240,7 @@
                                        onclick="pause(pauseSuccess, pauseFailed);" data-mini="true">pause</a>
                                     <a id="playerResumeButton" data-icon="grid" href="#" data-role="button" data-theme="a"
                                        onclick="resume(resumeSuccess, resumeFailed);"
-                                       data-mini="true">resum
-                                        e</a>
+                                       data-mini="true">resume</a>
                                     <a id="playerSkipButton" data-icon="help" href="#" data-role="button" data-theme="a"
                                        onclick="skip(skipSuccess,skipFailed);"
                                        data-mini="true">skip</a>
@@ -273,10 +272,10 @@
                         onclick="gotoLink('/jahspotify/ui/queue/current')">current
                     queue
                 </button>
-                <button id="searchButton" data-theme="a" data-icon="grid" data-mini="true"
+                <button id="searchButton" data-theme="a" data-icon="search" data-mini="true"
                         onclick="gotoLink('/jahspotify/ui/search')">search
                 </button>
-                <button id="homeButton" data-theme="a" data-icon="grid" data-mini="true"
+                <button id="homeButton" data-theme="a" data-icon="home" data-mini="true"
                         onclick="gotoLink('/jahspotify/index.jsp')">home
                 </button>
             </li>

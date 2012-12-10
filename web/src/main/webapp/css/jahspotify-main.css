@@ -17,6 +17,65 @@
  *        under the License.
  */
 
+#starred .ui-icon-star
+{
+    background: #f6f419;
+    background: rgba(246, 244, 25, 0.9);
+    background-image: url(images/icons-18-white.png);
+   	background-repeat: no-repeat;
+    background-position: 	-468px 50%;
+}
+
+.ui-icon-spotify-album
+{
+    background: url(images/spotify/icn_quickact_album.png) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+.ui-icon-spotify-play-queue
+{
+    background: url(images/spotify/icn_play_queue.png) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+
+.ui-icon-spotify-more
+{
+    background: url(images/spotify/icn_quickact_more.png) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+
+.ui-icon-spotify-artist
+{
+    background: url(images/spotify/icn_quickact_artist.png) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+
+.ui-icon-spotify-enqueue
+{
+    background: url(images/spotify/icn_quickact_queue.png) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+.ui-icon-spotify-star {
+    background: url(images/spotify/icn_quickact_star.png ) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
+.ui-icon-spotify-unstar {
+    background: url(images/spotify/icn_quickact_unstar.png ) no-repeat !important;
+    background-color: #000000 !important;
+    background-size: 18px 18px !important;
+}
+
 #popupPanel-popup {
     right: 0 !important;
     left: auto !important;

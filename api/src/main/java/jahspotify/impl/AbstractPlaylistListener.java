@@ -19,17 +19,17 @@ public abstract class AbstractPlaylistListener implements PlaylistListener
     }
 
     @Override
-    public void startFolder(final Link link, final String folderName)
+    public void startFolder(final Link link, final String folderName, int index)
     {
     }
 
     @Override
-    public void endFolder(final Link link)
+    public void endFolder(final Link link, int index)
     {
     }
 
     @Override
-    public void playlist(final Link link, final String name)
+    public void playlist(final Link link, final String name, int index)
     {
     }
 

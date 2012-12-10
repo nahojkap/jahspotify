@@ -32,6 +32,8 @@ public class LibraryEntry implements Comparable<LibraryEntry>
     private String name;
     private String type;
     private int numEntries;
+    private int index;
+
     private Collection<LibraryEntry> subEntries = new LinkedHashSet<LibraryEntry>();
 
     public static final String FOLDER_ENTRY_TYPE="FOLDER";

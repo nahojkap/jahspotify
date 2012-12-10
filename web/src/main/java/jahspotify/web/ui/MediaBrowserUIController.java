@@ -112,8 +112,10 @@ public class MediaBrowserUIController extends BaseController
 
         final ModelAndView modelAndView = new ModelAndView();
 
-        FullTrack fullTrack = createFullTrack(_jahSpotify,_jahSpotify.readTrack(link));
-        modelAndView.addObject("track", fullTrack);
+        jahspotify.media.Track track = _jahSpotify.readTrack(link);
+        FullTrack fullTrack = createFullTrack(_jahSpotify,track);
+        modelAndView.addObject("track", track);
+        modelAndView.addObject("fullTrack", fullTrack);
         modelAndView.addObject("pageTitle", fullTrack.getTitle());
         modelAndView.setViewName("/jsp/track.jsp");
 

@@ -143,7 +143,7 @@ jint setObjectIntField(JNIEnv * env, jobject obj, const char *name, jint value)
     return 0;
 }
 
-jint setObjectBooleanField(JNIEnv * env, jobject obj, const char *name, jint value)
+jint setObjectBooleanField(JNIEnv * env, jobject obj, const char *name, int value)
 {
   jclass clazz;
   jfieldID field;

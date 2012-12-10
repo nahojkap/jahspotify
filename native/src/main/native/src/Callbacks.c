@@ -223,7 +223,7 @@ int signalLoggedIn()
 
 }
 
-int signalStartFolderSeen(char *folderName, uint64_t folderId)
+int signalStartFolderSeen(char *folderName, uint64_t folderId, int index)
 {
     JNIEnv* env = NULL;
     int result;
@@ -252,7 +252,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
         }
     }
 
-    method = (*env)->GetMethodID(env, g_libraryListenerClass, "startFolder", "(Ljava/lang/String;J)V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "startFolder", "(Ljava/lang/String;JI)V");
 
     if (method == NULL )
     {
@@ -261,7 +261,7 @@ int signalStartFolderSeen(char *folderName, uint64_t folderId)
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_libraryListener, method, folderNameStr, folderId);
+    (*env)->CallVoidMethod(env, g_libraryListener, method, folderNameStr, folderId, index);
     if (checkException(env) != 0)
     {
         log_error("callbacks", "signalStartFolderSeen", "Exception while calling callback");
@@ -387,12 +387,12 @@ int signalMetadataUpdated(sp_playlist *playlist)
     if (playlistLink)
     {
         linkStr = calloc(1, sizeof(char) * 100);
-        sp_link_as_string(link, linkStr, 100);
+        sp_link_as_string(playlistLink, linkStr, 100);
     }
 
     if (linkStr)
     {
-        log_debug("callbacks", "signalMetadataUpdated", "Metadata updated for %c", linkStr);
+        log_debug("callbacks", "signalMetadataUpdated", "Metadata updated for %s", linkStr);
         playlistLinkStr = (*env)->NewStringUTF(env, linkStr);
         free(linkStr);
         if (playlistLinkStr == NULL )
@@ -428,7 +428,7 @@ int signalMetadataUpdated(sp_playlist *playlist)
 
 }
 
-int signalEndFolderSeen()
+int signalEndFolderSeen(int index)
 {
     JNIEnv* env = NULL;
     int result;
@@ -446,7 +446,7 @@ int signalEndFolderSeen()
         goto fail;
     }
 
-    method = (*env)->GetMethodID(env, g_libraryListenerClass, "endFolder", "()V");
+    method = (*env)->GetMethodID(env, g_libraryListenerClass, "endFolder", "(I)V");
 
     if (method == NULL )
     {
@@ -455,7 +455,7 @@ int signalEndFolderSeen()
         goto fail;
     }
 
-    (*env)->CallVoidMethod(env, g_libraryListener, method);
+    (*env)->CallVoidMethod(env, g_libraryListener, method,index);
     checkException(env);
 
     goto exit;
@@ -575,7 +575,7 @@ int signalTrackStarted(char *uri)
     result = detachThread();
 }
 
-int signalPlaylistSeen(const char *playlistName, char *linkName)
+int signalPlaylistSeen(const char *playlistName, char *linkName, int index)
 {
     log_debug("callbacks", "signalPlaylistSeen", "Playlist seen: name: %s link: %s", playlistName, linkName);
 
@@ -598,12 +598,12 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
         goto fail;
     }
 
-    aMethod = (*env)->GetMethodID(env, g_libraryListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;)V");
+    aMethod = (*env)->GetMethodID(env, g_libraryListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;I)V");
 
     if (aMethod == NULL )
     {
         log_error("callbacks", "signalPlaylistSeen",
-                "Could not load callback method playlistSeen(string) on class NativeLibraryListener");
+                "Could not load callback method playlist(string,string,int) on class NativeLibraryListener");
         goto fail;
     }
 
@@ -627,7 +627,7 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
         }
     }
 
-    (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr, linkNameStr);
+    (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr, linkNameStr,index);
     if (checkException(env) != 0)
     {
         log_error("callbacks", "signalPlaylistSeen", "Exception while calling callback");
@@ -650,11 +650,11 @@ int signalPlaylistSeen(const char *playlistName, char *linkName)
 
 int signalPlaylistUpdate(const char *playlistName, char *linkName, bool complete)
 {
-    log_debug("callbacks", "signalPlaylistSeen", "Playlist seen: name: %s link: %s", playlistName, linkName);
+    log_debug("callbacks", "signalPlaylistUpdate", "Playlist seen: name: %s link: %s", playlistName, linkName);
 
     if (!g_libraryListener)
     {
-        log_error("jahspotify", "signalPlaylistSeen", "No playlist listener registered");
+        log_error("jahspotify", "signalPlaylistUpdate", "No playlist listener registered");
         return 1;
     }
 
@@ -663,20 +663,20 @@ int signalPlaylistUpdate(const char *playlistName, char *linkName, bool complete
     jclass aClass;
     jmethodID aMethod;
 
-    jstring playListStr;
-    jstring linkNameStr;
+    jstring playListStr = NULL;
+    jstring linkNameStr = NULL;
 
     if (!retrieveEnv((JNIEnv*) &env))
     {
         goto fail;
     }
 
-    aMethod = (*env)->GetMethodID(env, g_libraryListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;)V");
+    aMethod = (*env)->GetMethodID(env, g_libraryListenerClass, "playlist", "(Ljava/lang/String;Ljava/lang/String;I)V");
 
     if (aMethod == NULL )
     {
-        log_error("callbacks", "signalPlaylistSeen",
-                "Could not load callback method playlistSeen(string) on class NativeLibraryListener");
+        log_error("callbacks", "signalPlaylistUpdate",
+                "Could not load callback method playlist(string, string, int) on class NativeLibraryListener");
         goto fail;
     }
 
@@ -695,23 +695,25 @@ int signalPlaylistUpdate(const char *playlistName, char *linkName, bool complete
         playListStr = (*env)->NewStringUTF(env, playlistName);
         if (playListStr == NULL )
         {
-            log_error("callbacks", "signalPlaylistSeen", "Error creating java string");
+            log_error("callbacks", "signalPlaylistUpdate", "Error creating java string");
             goto fail;
         }
     }
 
-    (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr, linkNameStr);
+    (*env)->CallVoidMethod(env, g_libraryListener, aMethod, playListStr, linkNameStr, 0);
     if (checkException(env) != 0)
     {
-        log_error("callbacks", "signalPlaylistSeen", "Exception while calling callback");
+        log_error("callbacks", "signalPlaylistUpdate", "Exception while calling callback");
         goto fail;
     }
 
     goto exit;
 
-    fail: log_error("callbacks", "signalPlaylistSeen", "Error during callback");
+    fail: log_error("callbacks", "signalPlaylistUpdate", "Error during callback");
 
-    exit: if (linkNameStr)
+    exit:
+
+    if (linkNameStr)
         (*env)->DeleteLocalRef(env, linkNameStr);
     if (playListStr)
         (*env)->DeleteLocalRef(env, playListStr);

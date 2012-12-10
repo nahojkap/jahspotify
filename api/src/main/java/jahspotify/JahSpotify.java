@@ -53,11 +53,11 @@ public interface JahSpotify
      *
      *
      * @param link The link for the playlist in question
-     * @param index Index to start from
+     * @param trackIndex Index to of the track within the playlist to start start from
      * @param numEntries The number of entries of the playlist to retrieve  @return The read playlist or null if it could not be read
      * @return The processed playlist
      */
-    public Playlist readPlaylist(Link link, final int index, final int numEntries);
+    public Playlist readPlaylist(Link link, final int trackIndex, final int numEntries);
 
     /** Retrieves the library for the currently logged in user.  This will retrieve all playlists and playlist folders
      * for the user.
@@ -154,5 +154,5 @@ public interface JahSpotify
      */
     public void setCurrentGain(float gain);
 
-    public void setStarredStateForTrack(final Link link, boolean starredState);
+    public boolean setStarredStateForTrack(final Link link, boolean starredState);
 }

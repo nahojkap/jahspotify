@@ -171,4 +171,10 @@ public class FileMediaStorage implements MediaStorage
     {
         return readObject(_imageBaseDirectory, uri, Image.class);
     }
+
+    @Override
+    public void deletePlaylist(final Link uri)
+    {
+        deleteObject(_playlistBaseDirectory, uri);
+    }
 }

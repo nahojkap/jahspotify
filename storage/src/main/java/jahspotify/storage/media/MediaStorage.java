@@ -18,4 +18,6 @@ public interface MediaStorage
     public Playlist readPlaylist(Link uri);
     public void store(Image image);
     public Image readImage(Link uri);
+
+    public void deletePlaylist(Link uri);
 }

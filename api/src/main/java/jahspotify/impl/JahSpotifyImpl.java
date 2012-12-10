@@ -287,33 +287,41 @@ public class JahSpotifyImpl implements JahSpotify
             }
 
             @Override
-            public void startFolder(final String folderName, final long folderID)
+            public void startFolder(final String folderName, final long folderID, int index)
             {
+
                 _nodeStack.push(_currentLibraryEntry);
                 final Link folderLink = Link.createFolderLink(folderID);
+                _log.debug("Start folder " + folderName + " (" + folderLink.getId() + "/" + index + ")");
                 _currentLibraryEntry = new LibraryEntry(_currentLibraryEntry.getId(), folderLink.getId(), folderName, Link.Type.FOLDER.name());
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.startFolder(folderLink, folderName);
+                    listener.startFolder(folderLink, folderName, index);
                 }
             }
 
             @Override
-            public void endFolder()
+            public void endFolder(int index)
             {
                 final LibraryEntry entry = _nodeStack.pop();
                 entry.addSubEntry(_currentLibraryEntry);
+
+                _log.debug("End folder " + _currentLibraryEntry.getName() + " (" + _currentLibraryEntry.getId()+ "/" + index + ")");
+
                 _currentLibraryEntry = entry;
+
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.endFolder(Link.create(entry.getId()));
+                    listener.endFolder(Link.create(entry.getId()), index);
                 }
             }
 
             @Override
-            public void playlist(final String name, final String link)
+            public void playlist(final String name, final String link, int index)
             {
+                _log.debug("Playlist " + name + " (" + link+ "/" + index + ")");
+
                 if (_synching)
                 {
                     _currentLibraryEntry.addSubEntry(new LibraryEntry(_currentLibraryEntry.getId(), link, name, Link.Type.PLAYLIST.name()));
@@ -321,7 +329,7 @@ public class JahSpotifyImpl implements JahSpotify
 
                 for (PlaylistListener listener : _playlistListeners)
                 {
-                    listener.playlist(Link.create(link), name);
+                    listener.playlist(Link.create(link), name,index);
                 }
             }
         });
@@ -641,6 +649,7 @@ public class JahSpotifyImpl implements JahSpotify
             }
             else
             {
+                _log.debug("Track read: " + track);
                 synchronized (_lockedTracks)
                 {
                     _lockedTracks.remove(uri);
@@ -739,7 +748,7 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public Playlist readPlaylist(Link uri, final int index, final int numEntries)
+    public Playlist readPlaylist(Link uri, final int trackIndex, final int numEntries)
     {
         ensureLoggedIn();
         validateLink(uri, Link.Type.PLAYLIST, Link.Type.INBOX, Link.Type.STARRED);
@@ -767,12 +776,12 @@ public class JahSpotifyImpl implements JahSpotify
                 playlist = retrievePlaylist(uri.asString());
             }
 
-            if ((index == 0 && numEntries == 0) || playlist == null)
+            if ((trackIndex == 0 && numEntries == 0) || playlist == null)
             {
                 return playlist;
             }
             // Trim the playlist accordingly now
-            return trimPlaylist(playlist, index, numEntries);
+            return trimPlaylist(playlist, trackIndex, numEntries);
 
         }
         finally
@@ -781,7 +790,7 @@ public class JahSpotifyImpl implements JahSpotify
         }
     }
 
-    private Playlist trimPlaylist(final Playlist playlist, final int index, final int numEntries)
+    private Playlist trimPlaylist(final Playlist playlist, final int trackIndex, final int numEntries)
     {
         Playlist trimmedPlaylist = new Playlist();
         trimmedPlaylist.setAuthor(playlist.getAuthor());
@@ -791,9 +800,9 @@ public class JahSpotifyImpl implements JahSpotify
         trimmedPlaylist.setName(playlist.getName());
         trimmedPlaylist.setPicture(playlist.getPicture());
         trimmedPlaylist.setNumTracks(numEntries == 0 ? playlist.getNumTracks() : numEntries);
-        trimmedPlaylist.setIndex(index);
+        trimmedPlaylist.setTrackIndex(trackIndex);
         // FIXME: Trim this list
-        trimmedPlaylist.setTracks(playlist.getTracks().subList(index, numEntries));
+        trimmedPlaylist.setTracks(playlist.getTracks().subList(trackIndex, numEntries));
         return null;
     }
 
@@ -930,8 +939,12 @@ public class JahSpotifyImpl implements JahSpotify
     }
 
     @Override
-    public void setStarredStateForTrack(final Link link, boolean starredState)
+    public boolean setStarredStateForTrack(final Link link, boolean starredState)
     {
+        _log.debug("Setting starred state to : " + (starredState ? "starred" : "unstarred") + " for track " + link);
+        final boolean b = nativeSetStarredStateForTrack(link.asString(), starredState);
+        _log.debug("Setting starred state for track " + link + " " + (b? "was successful" : "failed"));
+        return b;
     }
 
     @Override
@@ -1184,4 +1197,7 @@ public class JahSpotifyImpl implements JahSpotify
     private native void setAudioGain(float gain);
 
     private native float getAudioGain();
+
+    private native boolean nativeSetStarredStateForTrack(String uri, boolean starredState);
+
 }

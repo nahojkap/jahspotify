@@ -18,12 +18,14 @@ public class Playlist extends Container
     private String author;
     private boolean collaborative;
 
+    private int index;
+
     private String description;
     private Link picture;
 
     private List<Link> tracks;
     private int numTracks;
-    private int index;
+    private int trackIndex;
 
     public Playlist()
     {
@@ -44,6 +46,16 @@ public class Playlist extends Container
     public void setId(Link id)
     {
         this.id = id;
+    }
+
+    public int getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(final int index)
+    {
+        this.index = index;
     }
 
     public String getName()
@@ -135,14 +147,14 @@ public class Playlist extends Container
         this.numTracks = numTracks;
     }
 
-    public int getIndex()
+    public int getTrackIndex()
     {
-        return index;
+        return trackIndex;
     }
 
-    public void setIndex(final int index)
+    public void setTrackIndex(final int trackIndex)
     {
-        this.index = index;
+        this.trackIndex = trackIndex;
     }
 
     @Override
@@ -159,6 +171,10 @@ public class Playlist extends Container
 
         final Playlist playlist = (Playlist) o;
 
+        if (collaborative != playlist.collaborative)
+        {
+            return false;
+        }
         if (index != playlist.index)
         {
             return false;
@@ -167,7 +183,7 @@ public class Playlist extends Container
         {
             return false;
         }
-        if (collaborative != playlist.collaborative)
+        if (trackIndex != playlist.trackIndex)
         {
             return false;
         }
@@ -206,11 +222,12 @@ public class Playlist extends Container
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (collaborative ? 1 : 0);
+        result = 31 * result + index;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (picture != null ? picture.hashCode() : 0);
         result = 31 * result + (tracks != null ? tracks.hashCode() : 0);
         result = 31 * result + numTracks;
-        result = 31 * result + index;
+        result = 31 * result + trackIndex;
         return result;
     }
 
@@ -218,15 +235,16 @@ public class Playlist extends Container
     public String toString()
     {
         return "Playlist{" +
-                "index=" + index +
+                "author='" + author + '\'' +
                 ", id=" + id +
                 ", name='" + name + '\'' +
-                ", author='" + author + '\'' +
                 ", collaborative=" + collaborative +
+                ", index=" + index +
                 ", description='" + description + '\'' +
                 ", picture=" + picture +
                 ", tracks=" + tracks +
                 ", numTracks=" + numTracks +
+                ", trackIndex=" + trackIndex +
                 "} " + super.toString();
     }
 }

@@ -28,6 +28,8 @@ import jahspotify.util.*;
  * <li>jahspotify:folder:&gtfolder-id&lt;</li>
  * <li>jahspotify:queue:&gtqueue-name&lt;</li>
  * <li>jahspotify:queue:&gtqueue-name&lt;:&gt;queue-entry-identifier&lt;</li>
+ * <li>jahspotify:starred</li>
+ * <li>jahspotify:inbox</li>
  * </ul>
  *
  * @author Felix Bruns <felixbruns@web.de>
