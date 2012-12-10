@@ -51,7 +51,7 @@ To build the sources first check them out from git
 ### Preparing Spotify API key and libraries
 
 Next, you need to download and install libspotify & request an API key from Spotify.  This can be done
-on the http://developer.spotify.com website.
+on the https://developer.spotify.com/technologies/libspotify/ website or from your OS package provider (Homebrew for OS X for example)
 
 Generate the key and download the C code version of it.  Place this in a file called AppKey.h in the
 
