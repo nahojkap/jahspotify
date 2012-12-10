@@ -84,7 +84,7 @@ You can find the OpenAL SDK at:
 
 ## Running
 
-Download and install MongoDB
+Jah'Spotify uses MongoDB for storing the historical statistics and tracks played.  This can be downloaded from [MongoDB](http://www.mongodb.org/downloads).  As long as MongoDB is running when Jah'Spotify is started (and the connection does not require credentials), it should work.
 
 ### Running on Windows
 
@@ -93,54 +93,11 @@ For windows, you will need to download a few more dependencies:
 - pthread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
 - I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
 
-## Modules
-
-* android
-
-  provides a simple app for browsing playlists and queueing tracks
-
-* api
-
-  provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
-
-* native
-
-  contains all native & JNI code interacting with libspotify
-
-* native-jar
-
-  contains wrapper code to load libjahspotify from a jar
-
-* services
-
-  provides all Jah'Spotify Spring services
-
-* web
-
-  provides the RESTful API (json based)
-
-* web-client
-
-  provides java client for interacting with the RESTful API
-
-* web-common
-
-  provides the java beans which are serialized over the RESTful API
-
-* storage
-
-  provides basic storage implementations for caching media objects (tracks/images/etc)
-
-* executable-war
-
-  provides a single, executable Jah'Spotify war file
-
 ## UI
 
 To access the HTML5 UI of JahSpotify, simply point your browser to:
 
 [http://localhost:8080/jahspotify/index.html](http://localhost:8080/jahspotify/index.html)
-
 
 ## REST API
 
@@ -235,6 +192,51 @@ __Volume Down__
 [http://localhost:8080/jahspotify/player/volume-down](http://localhost:8080/jahspotify/player/volume-down)
 
 There are other URLs - please examine the web module for them.
+
+## Developing
+
+### Modules
+
+* android
+
+  provides a simple app for browsing playlists and queueing tracks
+
+* api
+
+  provides the basic operations for interacting with Jah'Spotify (and in turn libspotify)
+
+* native
+
+  contains all native & JNI code interacting with libspotify
+
+* native-jar
+
+  contains wrapper code to load libjahspotify from a jar
+
+* services
+
+  provides all Jah'Spotify Spring services
+
+* web
+
+  provides the RESTful API (json based)
+
+* web-client
+
+  provides java client for interacting with the RESTful API
+
+* web-common
+
+  provides the java beans which are serialized over the RESTful API
+
+* storage
+
+  provides basic storage implementations for caching media objects (tracks/images/etc)
+
+* executable-war
+
+  provides a single, executable Jah'Spotify war file
+
 
 ## Discussions and other:
 
