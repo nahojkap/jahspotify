@@ -51,7 +51,7 @@ To build the sources first check them out from git
 ### Preparing Spotify API key and libraries
 
 Next, you need to download and install libspotify & request an API key from Spotify.  This can be done
-on the https://developer.spotify.com/technologies/libspotify/ website or from your OS package provider (Homebrew for OS X for example)
+on the [libspotify](https://developer.spotify.com/technologies/libspotify/) website or via your OS package provider (Homebrew for OS X for example)
 
 Generate the key and download the C code version of it.  Place this in a file called AppKey.h in the
 
@@ -60,6 +60,10 @@ Generate the key and download the C code version of it.  Place this in a file ca
 directory.  You may want to place some #ifndef APPKEY statements in this to prevent linking problems.
 
 ### Performing the build
+
+Ensure that your JAVA_HOME environment variable points to the JDK (v1.6.x) you want to use.
+
+    export JAVA_HOME=<path/to/your/jdk>
 
 Finally, execute the Maven build
 
