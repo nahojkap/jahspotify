@@ -27,7 +27,27 @@
 
     </dependencies>
 
+    <properties>
+        <additional.includes/>
+        <compilerparams/>
+    </properties>
+
     <profiles>
+
+        <profile>
+            <id>MacOSX</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <OS>mac</OS>
+                <linkeropts>-lspotify -lc -ldl -framework OpenAL</linkeropts>
+                <artifact>libjahspotify</artifact>
+                <packaging>so</packaging>
+                <additional.includes>-I/System/Library/Frameworks/JavaVM.framework/Headers</additional.includes>
+            </properties>
+        </profile>
+
         <profile>
             <id>NonWindows</id>
             <activation>
@@ -39,7 +59,6 @@
                 <lstartopts>-z defs</lstartopts>
                 <artifact>libjahspotify</artifact>
                 <packaging>so</packaging>
-                <compilerparams/>
             </properties>
         </profile>
         <profile>
@@ -51,13 +70,8 @@
             </activation>
             <properties>
                 <OS>windows</OS>
-                <spotify>C:\Users\Niels\workspace\LibSpotify\</spotify>
-                <openal>C:\Program Files (x86)\OpenAL 1.1 SDK\</openal>
-
-                <compilerparams>"-I${java.home}\..\include"
-                    "-I${java.home}\..\include\win32" "-I${spotify}\include"
-                </compilerparams>
-                <linkeropts>"${spotify}lib\libspotify.lib" "${openal}libs\Win32\OpenAL32.lib"</linkeropts>
+                <compilerparams>"-I${java.home}\..\include" "-I${java.home}\..\include\win32" "-I${JAHSPOTIFY_SPOTIFY_DIR}\include" ${additional.includes}</compilerparams>
+                <linkeropts>"${JAHSPOTIFY_SPOTIFY_DIR}lib\libspotify.lib" "${JAHSPOTIFY_OPENAL_DIR}libs\Win32\OpenAL32.lib"</linkeropts>
                 <lstartopts>-D_JNI_IMPLEMENTATION_ -Wl,--kill-at</lstartopts>
                 <artifact>jahspotify</artifact>
                 <packaging>dll</packaging>
@@ -76,17 +90,11 @@
                 <extensions>true</extensions>
                 <configuration>
 
-                    <!-- trigger javah -->
                     <javahOS>${OS}</javahOS>
-             <!--       <javahClassNames>
-                        <javahClassName>jahspotify.impl.JahSpotifyImpl</javahClassName>
-                    </javahClassNames>-->
 
                     <compilerProvider>generic</compilerProvider>
                     <compilerStartOptions>
-                        <compilerStartOption>-fPIC -O -I${basedir}/src/main/native/inc
-                            -D_GNU_SOURCE -g3 -fno-inline -O0 ${compilerparams}
-                        </compilerStartOption>
+                        <compilerStartOption>-fPIC -O -I${basedir}/src/main/native/inc -D_GNU_SOURCE -g3 -fno-inline -O0 ${compilerparams}</compilerStartOption>
                     </compilerStartOptions>
                     <sources>
                         <source>

@@ -82,16 +82,55 @@ You can find the OpenAL SDK at:
 
     http://connect.creativelabs.com/developer/Wiki/OpenAL%20SDK%20for%20Windows.aspx
 
+Next, define the following environment properties:
+
+    JAHSPOTIFY_SPOTIFY_DIR=c:\path\to\spotify\installation\LibSpotify\
+    JAHSPOTIFY_OPENAL_DIR=c:\path\to\openal\installation\OpenAL 1.1 SDK\
+
+#### Performing the build
+
+To build, simply execute maven build
+
+    mvn clean install
+
+### Building on OX X
+
+Depending on your
+
 ## Running
 
+Jah'Spotity will run both from within Maven (using Jetty) and in a web container such as Tomcat.
+
+### Prerequisites
+
 Jah'Spotify uses MongoDB for storing the historical statistics and tracks played.  This can be downloaded from [MongoDB](http://www.mongodb.org/downloads).  As long as MongoDB is running when Jah'Spotify is started (and the connection does not require credentials), it should work.
+
+### Configuration
+
+TDB
 
 ### Running on Windows
 
 For windows, you will need to download a few more dependencies:
 
-- pthread (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
-- I didn't have to add any paths to OpenAL but I installed the SDK. Let me know if you get a message complaining that not all dependencies are available.
+- pthreads (http://sources.redhat.com/pthreads-win32/). pthreadGC2.dll needs to be in your path.
+- Install the OpenAL SDK for Windows
+
+### Using Maven/Jetty
+
+To run up the Jah'Spotify with Maven/Jetty
+
+    mvn jetty:run -Djahspotify.spotify.username=<your username> -Djahspotify.spotify.password=<your password>
+
+NOTE: The username and password can also be specified in your Maven settings.xml
+
+### Using Tomcat
+
+TBD
+
+#### Configuration
+
+TBD
 
 ## UI
 
@@ -101,11 +140,7 @@ To access the HTML5 UI of JahSpotify, simply point your browser to:
 
 ## REST API
 
-To run up the Jah'Spotify RESTful API
-
-    mvn jetty:run -Djahspotify.spotify.username=<your username> -Djahspotify.spotify.password=<your password>
-
-NOTE: The username and password can also be specified in your Maven settings.xml
+Once running, Jah'Spotify exposes it's  RESTful API
 
 [http://localhost:8080/jahspotify/system/status](http://localhost:8080/jahspotify/system/status)
 
