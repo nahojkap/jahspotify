@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 public class EchoNestService
 {
     @Value(value = "${jahspotify.echonest.api-key}")
-    private String _apiKey = "N6E4NIOVYMTHNDM8J";
+    private String _apiKey = "HKYTORNR6BWEODOSV";
 
     private URL _echoNestListStylesURL;
     private URL _echoNestListMoodsURL;

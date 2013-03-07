@@ -25,6 +25,24 @@ function currentMediaPlayerStatus(callback)
     });
 }
 
+function currentQueue(callback)
+{
+    $.getJSON("/jahspotify/queue/jahspotify:queue:default/",function (data)
+    {
+        callback(data);
+    });
+}
+
+
+function media(id, callback)
+{
+    $.getJSON("/jahspotify/media/" + id,function (data)
+    {
+        callback(data);
+    });
+}
+
+
 function currentQueueStatus(callback)
 {
     $.getJSON("/jahspotify/queue/jahspotify:queue:default/status",function (data)

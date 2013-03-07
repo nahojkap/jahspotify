@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct;
 
 import com.echonest.api.v4.*;
 import com.echonest.api.v4.Playlist;
-import jahspotify.JahSpotify;
+import jahspotify.*;
 import jahspotify.media.*;
 import jahspotify.media.Artist;
 import jahspotify.media.Track;
@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import static jahspotify.Query.*;
 /**
  * @author Johan Lindquist
  */
@@ -80,6 +81,8 @@ public class EchoNestSpotifyBridge
                     _log.debug("Queue " + queue + " is not configured to auto-refill, skipping");
                     return;
                 }
+
+                _log.debug("Queue " + queue + " is configured to auto-refill, will initiate");
 
                 Thread t = new Thread()
                 {
@@ -176,16 +179,18 @@ public class EchoNestSpotifyBridge
         }
     }
 
-    private Link retrieveSpotifyLink(Song song)
+    private Link retrieveSpotifyLink(final Song song)
     {
         Metadata md = new Metadata();
-        final TrackSearchResult trackSearchResult = md.searchTracks(AndQuery.and(ArtistQuery.artist(song.getArtistName()), TokenQuery.token(song.getTitle())));
+        Query query = artist(song.getArtistName()).and(track(song.getTitle()));
+        final TrackSearchResult trackSearchResult = md.searchTracks(query);
 
         if (trackSearchResult.getTracks() == null || trackSearchResult.getTracks().isEmpty())
         {
             return null;
         }
 
+        // FIXME: Some more intelligent way of resolving which one to use?
         return jahspotify.media.Link.create(trackSearchResult.getTracks().get(0).getHref());
 
     }

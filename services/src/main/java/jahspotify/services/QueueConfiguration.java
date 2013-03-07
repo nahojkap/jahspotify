@@ -10,7 +10,7 @@ public class QueueConfiguration
     private boolean _repeatCurrentTrack;
     private boolean _repeatCurrentQueue;
     private boolean _shuffle;
-    private boolean _autoRefill;
+    private boolean _autoRefill = true;
     private URL _callbackURL;
     private boolean _reportTrackChanges;
     private boolean _reportEmptyQueue;

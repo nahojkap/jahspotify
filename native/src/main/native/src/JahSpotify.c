@@ -44,18 +44,29 @@ jobject g_connectionListener = NULL;
 jobject g_playbackListener = NULL;
 jobject g_searchCompleteListener = NULL;
 jobject g_mediaLoadedListener = NULL;
+
+/// Synchronization mutex any operations which may hitting spotify from mulitple threads
+pthread_mutex_t g_spotify_mutex;
+
 extern jclass g_linkClass;
 
 /// The output queue for audo data
 static audio_fifo_t g_audiofifo;
+
+
 /// Synchronization mutex for the main thread
-static pthread_mutex_t g_notify_mutex;
+pthread_mutex_t g_notify_mutex;
+
 /// Synchronization condition variable for the main thread
 static pthread_cond_t g_notify_cond;
+
 /// Synchronization variable telling the main thread to process events
 static int g_notify_do;
+
 /// Non-zero when a track has ended and a new one has not yet started a new one
 static int g_playback_done;
+
+
 
 static bool g_audio_initialized = JNI_FALSE;
 
@@ -538,7 +549,7 @@ static sp_session_callbacks session_callbacks =
     .music_delivery = &music_delivery,
     .metadata_updated = &metadata_updated,
     .play_token_lost = &play_token_lost,
-    .log_message = log_message,
+    .log_message = &log_message,
     .end_of_track = &end_of_track,
     .userinfo_updated = &userinfo_updated,
     .connection_error = &connection_error,
@@ -693,7 +704,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveUser (JNIE
     int count = 0;
     while (!sp_user_is_loaded(user) && count < 4)
     {
-        usleep(250);
+        usleep(250*1000);
         count ++;
     }
 
@@ -1137,7 +1148,7 @@ jobject createJAlbumInstance(JNIEnv *env, sp_album *album)
 
       if (!sp_albumbrowse_is_loaded(albumBrowse) && count < 4)
       {
-        usleep(250);
+        usleep(250*1000);
         count++;
       }
       if (count == 4)
@@ -1386,7 +1397,7 @@ jobject createJArtistInstance(JNIEnv *env, sp_artist *artist)
             int count = 0;
             while (!sp_artistbrowse_is_loaded(artistBrowse) && count < 4)
             {
-              usleep(250);
+              usleep(250*1000);
               count++;
             }
             
@@ -1643,7 +1654,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     int count = 0;
     while (!sp_track_is_loaded(track) && count < 4)
     {
-        sleep(1);
+        usleep(250*1000);
         count++;
     }
 
@@ -1696,7 +1707,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrievePlaylist (
     int count = 0;
     while (!sp_playlist_is_loaded(playlist) && count < 4)
     {
-        usleep(250);
+        usleep(250*1000);
         count++;
     }
 
@@ -1742,7 +1753,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveStarredPla
   int count = 0;
   while (!sp_playlist_is_loaded(playlist) && count < 4)
   {
-    usleep(250);
+    usleep(250*1000);
     count++;
   }
   
@@ -1803,7 +1814,7 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeSetStarredS
         int count = 0;
         while (!sp_track_is_loaded(track) && count < 4)
         {
-          usleep(250);
+          usleep(250*1000);
           count++;
         }
 
@@ -1842,7 +1853,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveStar
   int count = 0;
   while (!sp_playlist_is_loaded(playlist) && count < 4)
   {
-    usleep(250);
+    usleep(250*1000);
     count++;
   }
   
@@ -1872,7 +1883,7 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeRetrieveInbo
   int count = 0;
   while (!sp_playlist_is_loaded(playlist) && count < 4)
   {
-    usleep(250);
+    usleep(250*1000);
     count++;
   }
   
@@ -1934,7 +1945,7 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_readImage (JNIEnv *en
             int count = 0;
             while (!sp_image_is_loaded(image) && count < 4)
             {
-              usleep(250);
+              usleep(250*1000);
               count++;
             }
             
@@ -2020,6 +2031,8 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
         g_audio_initialized = JNI_TRUE;
     }
 
+    pthread_mutex_lock ( &g_spotify_mutex );
+
     // For each track, read out the info and populate all of the info in the Track instance
     sp_link *link = sp_link_create_from_string(nativeURI);
     if (link)
@@ -2033,34 +2046,27 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
 
         sp_track_add_ref(t);
 
-        // sp_error result = sp_session_player_load(g_sess, t);
-
         int count = 0;
-        while (!sp_track_is_loaded(t) && count < 4)
+        while (!sp_track_is_loaded(t) && count < 8)
         {
-            sleep(1);
+            usleep(250*1000);
             count ++;
         }
 
-        if (count == 4)
-        {
-          log_warn("jahspotify","nativePlayTrack","Track not loaded after 4 seconds, will wait for a bit more");
-        }
+        log_debug("jahspotify","nativePlayTrack","Track loaded completed after %d milliseconds (%s)", count*250, sp_track_is_loaded(t) ? "loaded" : "not loaded");
 
-        if (sp_track_error(t) != SP_ERROR_OK)
+        if (count == 8)
         {
-            log_error("jahspotify","nativePlayTrack","Issue loading track: %s", sp_error_message((sp_track_error(t))));
+            log_warn("jahspotify","nativePlayTrack","Track not loaded after 2 seconds, will wait for a bit more");
             count = 0;
-            while (!sp_track_is_loaded(t) && count < 4)
+            while (!sp_track_is_loaded(t) && count < 8)
             {
-                sleep(1);
+                usleep(250*1000);
                 count ++;
             }
-
-            if (count == 4)
+            if (count == 8)
             {
-              log_warn("jahspotify","nativePlayTrack","Track not loaded after yet another 4 seconds of wait, playback will fail");
-              // sp_track_release(t);
+              log_warn("jahspotify","nativePlayTrack","Track not loaded after yet another 2 seconds of wait, playback will fail");
               goto fail;
             }
         }
@@ -2076,6 +2082,9 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack (
         if (g_currenttrack && t != g_currenttrack)
         {
             log_debug("jahspotify","nativePlayTrack","Unloading currently playing track");
+
+            // Flush the audio buffers
+            audio_fifo_flush(&g_audiofifo);
 
             // Unload the current track now
             sp_session_player_unload(g_sess);
@@ -2142,6 +2151,8 @@ fail:
 exit:
   if (nativeURI) (*env)->ReleaseStringUTFChars(env, uri, (char *)nativeURI);
 
+  pthread_mutex_unlock ( &g_spotify_mutex );
+
   return resultCode;
 
 }
@@ -2180,6 +2191,9 @@ static void track_ended(void)
             sp_link_release(link);
         }
 
+        // Flush the audio buffers
+        audio_fifo_flush(&g_audiofifo);
+
         sp_session_player_unload(g_sess);
 
         sp_track_release(g_currenttrack);
@@ -2210,6 +2224,8 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_initialize ( JNIEnv *
         log_error("jahspotify","Java_jahspotify_impl_JahSpotifyImpl_initialize","Username or password not specified" );
         return 1;
     }
+
+    pthread_mutex_init ( &g_spotify_mutex, NULL );
 
 	pthread_mutex_init ( &g_notify_mutex, NULL );
     pthread_cond_init ( &g_notify_cond, NULL );

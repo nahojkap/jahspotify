@@ -22,6 +22,8 @@ extern jobject createJPlaylistInstance(JNIEnv *env, sp_playlist *playlist);
 extern sp_session *g_sess;
 extern sp_track *g_currenttrack;
 
+extern pthread_mutex_t g_spotify_mutex;
+
 extern jobject g_libraryListener;
 extern jobject g_connectionListener;
 extern jobject g_playbackListener;
@@ -65,10 +67,12 @@ void startPlaybackSignalled()
     int result;
     jclass aClass;
     jmethodID method;
-    jstring nextUriStr;
-    char *nextUri;
+    jstring nextUriStr = NULL;
+    char *nextUri = NULL;
 
-     log_debug("callbacks","startPlaybackSignalled","About to start pre-loading track");
+     log_debug("callbacks","startPlaybackSignalled","About to start pre-fetching track");
+
+     pthread_mutex_lock ( &g_spotify_mutex );
 
 
      if (!retrieveEnv((JNIEnv*)&env))
@@ -91,34 +95,61 @@ void startPlaybackSignalled()
      {
          nextUri = ( uint8_t * ) ( *env )->GetStringUTFChars ( env, nextUriStr, NULL );
 
+         log_debug("callbacks","startPlaybackSignalled","Got track %s", nextUri);
+
          sp_link *link = sp_link_create_from_string(nextUri);
 
          if (link)
          {
+             log_debug("callbacks","startPlaybackSignalled","Got link");
+
              sp_track *track = sp_link_as_track(link);
-             sp_link_release(link);
 
-             int count = 0;
-             while (!sp_track_is_loaded( track ) && count < 4)
+             log_debug("callbacks","startPlaybackSignalled","Got track: 0x%x", track);
+
+             if (track)
              {
-                 usleep(250);
-                 count ++;
+                 sp_track_add_ref(track);
+
+                 int count = 0;
+                 while (!sp_track_is_loaded( track ) && count < 8)
+                 {
+                     usleep(250*1000);
+                     count ++;
+                 }
+
+                 if (count == 8)
+                 {
+                     log_warn("jahspotify","startPlaybackSignalled","Waited for track to load but took too long (2 seconds)" );
+                     goto exit;
+                 }
+
+                 sp_error error = sp_session_player_prefetch(g_sess,track);
+
+                 sp_track_release(track);
+                 sp_link_release(link);
+
+                 if (error != SP_ERROR_OK)
+                 {
+                     log_error("callbacks","startPlaybackSignalled","Error prefetch: %s",sp_error_message(error));
+                     goto fail;
+                 }
+                 else
+                 {
+                     log_debug("jahspotify","startPlaybackSignalled","Track successfully pre-fetched" );
+
+                 }
+             }
+             else
+             {
+                 log_debug("jahspotify","startPlaybackSignalled","Could not get hold of track" );
              }
 
-             if (count == 4)
-             {
-                 log_warn("jahspotify","startPlaybackSignalled","Waited for track to load but took too long" );
-                 goto exit;
-             }
-
-             sp_error error = sp_session_player_prefetch(g_sess,track);
-             // sp_track_release(track);
-             if (error != SP_ERROR_OK)
-             {
-                 log_error("callbacks","startPlaybackSignalled","Error prefetch: %s",sp_error_message(error));
-                 goto fail;
-             }
          }
+     }
+     else
+     {
+         log_debug("jahspotify","startPlaybackSignalled","No track returned from callback, will simply ignore" );
      }
 
      goto exit;
@@ -127,6 +158,8 @@ void startPlaybackSignalled()
      log_error("callbacks","startPlaybackSignalled","Error during callback");
 
      exit:
+
+     pthread_mutex_unlock ( &g_spotify_mutex );
 
      if (nextUri)
      {

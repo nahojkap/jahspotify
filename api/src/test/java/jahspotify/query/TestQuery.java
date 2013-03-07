@@ -18,4 +18,11 @@ public class TestQuery extends TestCase
 
         assertEquals("bad query", "(( NOT ((artist:\"alika\" AND artist:\"Mad Professor\"))) OR fred)", result.serialize());
     }
+
+    public void testAndQueryWithTextQuery() throws Exception
+    {
+        final Query andQuery = artist("alika").and(text("some text"));
+
+        assertEquals("bad query", "(artist:\"alika\" AND \"some text\")", andQuery.serialize());
+    }
 }

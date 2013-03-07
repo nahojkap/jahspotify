@@ -58,7 +58,7 @@
             </li>
 
             <li>
-                <c:url var="historyURL" value="/ui/history/recent"/>
+                <c:url var="historyURL" value="/ui/history/recent?count=50"/>
                 <a class="wrapper" href="<c:out value='${historyURL}'/>" id="History">History</a>
             </li>
 

@@ -33,16 +33,33 @@
         $('#playerSkipButton').hide();
         $('#queueRandomTrack').hide();
 
-        currentQueueStatus(function (queueStatus)
+        currentQueue(function (queue)
         {
             $('#loadingQueueInformation').hide();
 
-            if (queueStatus.queueState == 'PLAYING')
+            if (queue.queueStatus.queueState == 'PLAYING')
             {
                 $('#playerPauseButton').show();
                 $('#playerSkipButton').show();
+
+                $('#currentTrack').show();
+                media(queue.currentlyPlaying.trackID, function (track)
+                {
+                    $('#currentTrackName').text(track.title);
+                    media(track.album.id, function (album)
+                    {
+
+                        $('#currentTrackImage').attr("src","/jahspotify/media/" + album.cover.id);
+                        $('#currentTrackAlbum').text(album.name);
+                    });
+
+
+                });
+
+
+
             }
-            else if (queueStatus.queueState == 'PAUSED')
+            else if (queue.queueStatus.queueState == 'PAUSED')
             {
                 $('#playerResumeButton').show();
                 $('#playerSkipButton').show();
@@ -51,7 +68,7 @@
             {
                 // Show the link to load random track
                 $('#queueRandomTrack').show();
-                if (queueStatus.currentQueueSize == 0)
+                if (queue.queueStatus.currentQueueSize == 0)
                 {
                     $('#noTracks').show();
                 }
@@ -60,8 +77,9 @@
 
         });
 
-        hehe = $("#popupPanel");
         $("#popupPanel").popup("open");
+
+
 
     }
 
@@ -214,12 +232,9 @@
 
                         <ul data-role="listview" data-theme="a" data-inset="true">
                             <li id="currentTrack" style="display: none;">
-                                <img src="/jahspotify/media/spotify:image:950bb7d4f6208eb4d10533da25d2f8d86bda2ba4" width="100" h
-                                     eight="100"/>
-
-                                <p>What I Got</p>
-
-                                <p>Sublime</p>
+                                <img id="currentTrackImage" src="/jahspotify/media/spotify:image:950bb7d4f6208eb4d10533da25d2f8d86bda2ba4" width="100" height="100"/>
+                                <p id="currentTrackName">What I Got</p>
+                                <p id="currentTrackAlbum">Sublime</p>
                             </li>
                         </ul>
 

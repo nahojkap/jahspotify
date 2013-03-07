@@ -1,6 +1,6 @@
 package jahspotify.storage.media;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.*;
 
 import com.google.gson.Gson;
 import com.mongodb.*;
@@ -29,11 +29,24 @@ public class MongoDBMediaStorage implements MediaStorage
     private Mongo _mongoDBInstance;
     private DB _db;
 
+    @PreDestroy
+    public void shutdown()
+    {
+        if (_mongoDBInstance != null)
+        {
+            _log.debug("Shutting down Mongo DB instance");
+            _mongoDBInstance.close();
+            _mongoDBInstance = null;
+
+        }
+    }
+
     @PostConstruct
     public void initialize()
     {
         try
         {
+            _log.debug("Initializing Mongo DB instance");
             _mongoDBInstance = new Mongo();
             _db = _mongoDBInstance.getDB(_dbName);
         }

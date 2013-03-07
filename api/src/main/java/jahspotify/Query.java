@@ -21,7 +21,8 @@ import jahspotify.query.*;
  * <br/>
  * <strong>Note:</strong> Most of the tags are currently covered.  For un-supported tags it is still possible to create
  * a query for the using the <code>TokenQuery</code>.  Simply place the tag code you wish to use into this and it will
- * be passed as is to Spotify.
+ * be passed as is to Spotify. Any escaping of quotes and such must be directly handled by the client if using
+ * <code>TokenQuery</code> directly.
  *
  * @author Johan Lindquist
  */
@@ -58,6 +59,12 @@ public abstract class Query
     {
         return new ArtistQuery(artist);
     }
+
+    public static Query track(String track)
+    {
+        return new TrackQuery(track);
+    }
+
 
     /** Creates a new NOT query.  This will take the specified query and return the NOT'd version of the same.
      *
@@ -102,9 +109,14 @@ public abstract class Query
      * @param token The token string to base the query on
      * @return The token query
      */
-    public static TokenQuery token(final String token)
+    public static Query token(final String token)
     {
         return TokenQuery.token(token);
+    }
+
+    public static Query text(final String text)
+    {
+        return new TextQuery(text);
     }
 
     /** Creates a NOT query based on this <code>Query</code> instance.
