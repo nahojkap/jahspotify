@@ -832,7 +832,6 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
 
     if (trackLink)
     {
-        sp_link_add_ref(trackLink);
         jobject trackJLink = createJLinkInstance(env,trackLink);
         setObjectObjectField(env,trackInstance,"id","Ljahspotify/media/Link;",trackJLink);
 
@@ -848,12 +847,9 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
         if (album)
         {
             log_debug("jahspotify","createJTrackInstance","Loading album data");
-            sp_album_add_ref(album);
             sp_link *albumLink = sp_link_create_from_album(album);
             if (albumLink)
             {
-                sp_link_add_ref(albumLink);
-
                 jobject albumJLink = createJLinkInstance(env,albumLink);
 
                 jmethodID jMethod = (*env)->GetMethodID(env,jClass,"setAlbum","(Ljahspotify/media/Link;)V");
@@ -867,10 +863,7 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
                 // set it on the track
                 (*env)->CallVoidMethod(env,trackInstance,jMethod,albumJLink);
 
-                sp_link_release(albumLink);
-
             }
-            sp_album_release(album);
         }
 
         int numArtists = sp_track_num_artists(track);
@@ -890,27 +883,16 @@ jobject createJTrackInstance(JNIEnv *env, sp_track *track)
                 sp_artist *artist = sp_track_artist(track,i);
                 if (artist)
                 {
-                    sp_artist_add_ref(artist);
-
                     sp_link *artistLink = sp_link_create_from_artist(artist);
                     if (artistLink)
                     {
-                        sp_link_add_ref(artistLink);
-
                         jobject artistJLink = createJLinkInstance(env,artistLink);
-
                         // set it on the track
                         (*env)->CallVoidMethod(env,trackInstance,jMethod,artistJLink);
-
-                        sp_link_release(artistLink);
-
                     }
-                    sp_artist_release(artist);
                 }
             }
         }
-
-        sp_link_release(trackLink);
     }
     return trackInstance;
 }
@@ -1649,8 +1631,6 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
     
     sp_track *track = sp_link_as_track(link);
 
-    sp_track_add_ref(track);
-
     int count = 0;
     while (!sp_track_is_loaded(track) && count < 4)
     {
@@ -1675,10 +1655,9 @@ JNIEXPORT jobject JNICALL Java_jahspotify_impl_JahSpotifyImpl_retrieveTrack ( JN
 
     free(buffer);
 
-    if (track)
-        sp_track_release(track);
     if (link)
         sp_link_release(link);
+
     if (nativeUri)
         (*env)->ReleaseStringUTFChars(env, uri,nativeUri);
 
