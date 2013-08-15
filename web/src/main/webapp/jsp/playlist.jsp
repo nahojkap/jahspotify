@@ -22,14 +22,14 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div id="playList" data-role="page" data-theme="g" class="homeBody">
+<div id="playList" data-role="page" data-theme="b" class="homeBody">
 
   <jsp:include page="/jsp/header-bar.jsp" />
 
-    <div data-role="content">
-        <div class="content-primary">
-            <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-                data-split-theme="a" data-count-theme="b">
+    <div data-theme="b" data-role="content">
+        <div data-theme="b" class="content-primary">
+            <ul data-role="listview" data-theme="b" data-inset="true" data-filter="true"
+                data-split-theme="b" data-count-theme="b">
                 <c:forEach items="${tracks}" var="track">
                     <c:url var="trackURL" value="/ui/media/track/${track.id.id}"/>
                     <li id="<c:out value='${track.id.id}'/>">
@@ -60,12 +60,14 @@
     </div>
 
     <script>
-        $("li").bind ("swiperight", function (event)
 
+        $( "li" ).bind( "taphold", function (event)
         {
-          alert("Swiping : " + this.id);
+            event.preventDefault();
+            alert("Long click : " + this.id);
 
         });
+
     </script>
 
     <%@ include file="/jsp/footer-bar.jsp" %>

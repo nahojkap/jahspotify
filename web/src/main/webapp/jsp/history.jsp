@@ -23,7 +23,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div id="playList" data-role="page" data-theme="g" class="homeBody">
+<div id="playList" data-role="page" data-theme="b" class="homeBody">
 
 
     <!-- /header -->
@@ -39,8 +39,8 @@
 
     <div data-role="content">
         <div class="content-primary">
-            <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-                data-split-theme="a" data-count-theme="b">
+            <ul data-role="listview" data-inset="true" data-filter="true" data-split-icon="plus"
+                >
                 <c:forEach items="${trackHistories}" var="trackHistory">
                     <c:url var="trackURL" value="/ui/history/trackhistory/${trackHistory.id}"/>
 

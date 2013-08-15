@@ -103,9 +103,10 @@ public class Link
     private static final Pattern searchPattern = Pattern.compile("spotify:search:([^\\s]+)");
 
     /**
-     * A regular expression to match search URIs:
+     * A regular expression to match queue URIs:
      * <p/>
      * <pre>jahspotify:queue:([^\\s]+)</pre>
+     * <pre>e.g. jahspotify:queue:default</pre>
      */
     private static final Pattern jahQueuePattern = Pattern.compile("jahspotify:queue((:)([^\\s]+))");
 
@@ -182,7 +183,7 @@ public class Link
 
     private String queue;
 
-    private String queueId;
+    private String queueEntryId;
 
     private String uri;
 
@@ -290,6 +291,14 @@ public class Link
             this.type = Type.QUEUE_ENTRY;
             this.id = uri;
             this.uri = uri;
+            this.queue = "default";
+            if (searchMatcher.groupCount() > 0)
+            {
+                this.queue = jahQueueEntryMatcher.group(3);
+            }
+
+            this.queueEntryId = jahQueueEntryMatcher.group(5);
+
         }
         else if (jahQueueMatcher.matches())
         {
@@ -373,9 +382,13 @@ public class Link
         return this.type;
     }
 
-    public String getQueueId()
+    public String getQueueEntryId()
     {
-        return queue;
+        if (!this.isQueueEntryLink())
+        {
+            throw new IllegalStateException("Link is not a queue link!");
+        }
+        return queueEntryId;
     }
 
     /**
@@ -478,6 +491,16 @@ public class Link
     }
 
     /**
+     * Check if this link is a queue entry link.
+     *
+     * @return true if this link is a queue entry link, false otherwise.
+     */
+    public boolean isQueueEntryLink()
+    {
+        return this.type.equals(Type.QUEUE_ENTRY);
+    }
+
+    /**
      * Check if this link is a folder link.
      *
      * @return true if this link is a folder link, false otherwise.
@@ -521,9 +544,9 @@ public class Link
 
     public String getQueue()
     {
-        if (!this.isQueueLink())
+        if (!this.isQueueLink() && !this.isQueueEntryLink())
         {
-            throw new IllegalStateException("Link is not a queue link!");
+            throw new IllegalStateException("Link is not a queue or queue entry link!");
         }
         return queue;
     }
@@ -684,7 +707,7 @@ public class Link
         {
             return false;
         }
-        if (queueId != null ? !queueId.equals(link.queueId) : link.queueId != null)
+        if (queueEntryId != null ? !queueEntryId.equals(link.queueEntryId) : link.queueEntryId != null)
         {
             return false;
         }
@@ -712,7 +735,7 @@ public class Link
         result = 31 * result + (user != null ? user.hashCode() : 0);
         result = 31 * result + (query != null ? query.hashCode() : 0);
         result = 31 * result + (queue != null ? queue.hashCode() : 0);
-        result = 31 * result + (queueId != null ? queueId.hashCode() : 0);
+        result = 31 * result + (queueEntryId != null ? queueEntryId.hashCode() : 0);
         result = 31 * result + (uri != null ? uri.hashCode() : 0);
         result = 31 * result + (folderId != null ? folderId.hashCode() : 0);
         return result;

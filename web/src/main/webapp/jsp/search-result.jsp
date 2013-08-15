@@ -23,15 +23,14 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div data-role="page" id="tracks" data-title="Tracks">
+<div data-role="page" id="searchResults" data-title="Tracks" data-theme="b">
 
   <jsp:include page="/jsp/header-bar.jsp"/>
 
-  <div data-role="content">
+  <div data-role="content" data-theme="b">
 
     <div class="content-primary">
-      <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-          data-split-theme="a" data-count-theme="b">
+      <ul data-role="listview" data-inset="true" data-filter="true" data-split-icon="plus">
         <c:forEach items="${queryResult.tracksFound}" var="trackLink">
 
           <jah:media link="${trackLink.id}" var="track"/>
@@ -55,8 +54,14 @@
 
               </div>
             </a>
+
+              <c:set var="mediaId" value="${track.id.id}" scope="request"/>
+              <jsp:include page="queue-media-link.jsp"/>
+
+<%--
             <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
             <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="fade">Enqueue</a>
+--%>
           </li>
         </c:forEach>
       </ul>
@@ -154,9 +159,9 @@
               <c:out value="${artist.name}"/>
             </a>
 
-              <%-- <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
+              &lt;%&ndash; <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
            <a href="<c:out value="${queueAlbumURL}"/>" data-rel="dialog"
-              data-transition="fade">Enqueue</a>--%>
+              data-transition="fade">Enqueue</a>&ndash;%&gt;
           </li>
         </c:forEach>
       </ul>
@@ -176,6 +181,5 @@
   </div>
 
 </div>
-
 
 <%@ include file="/jsp/footer.jsp" %>

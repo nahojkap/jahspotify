@@ -22,10 +22,27 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<div id="result" data-role="page" data-theme="b">
+
+
+  <div class="mainHeaderPanel" data-theme="b" data-position="inline" data-role="header" role="banner">
+    <h1><c:out value="${pageTitle}"/></h1>
+  </div>
+
+  <div data-role="content">
+    <div class="content-primary" data-theme="a">
+      <p><c:out value="${resultMessage}"/></p>
+      <a href="#" data-role="button" data-rel="back">Ok</a>
+    </div>
+  </div>
+
+</div>
+
 <script>
 
   var timer = $.timer( function ()
    {
+       alert("Should remove");
    } );
 
   $( document ).on( "pageinit", function ()
@@ -49,20 +66,6 @@
 
 </script>
 
-<div id="result" data-role="page">
 
-
-  <div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
-    <h1><c:out value="${pageTitle}"/></h1>
-  </div>
-
-  <div data-role="content">
-    <div class="content-primary" data-theme="a">
-      <p><c:out value="${resultMessage}"/></p>
-      <a href="#" data-role="button" data-rel="back">Ok</a>
-    </div>
-  </div>
-
-</div>
 
 <%@ include file="/jsp/dialog-footer.jsp" %>

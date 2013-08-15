@@ -18,17 +18,11 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="/jsp/control-panel-ui.jsp" />
-
-<div data-role="header">
-
-  <h1><c:out value="${pageTitle}"/></h1>
-
-  <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse" rel="external">Home</a>
-
-    <a data-rel="popup" onclick="showControlPanel(); return false;" href="#popupPanel" data-theme="f"
-       data-icon="gear" data-role="button" class="ui-btn-right"
-       id="controlPanelButton" data-iconpos="notext">Control Panel</a>
-
+<div data-theme="b" data-role="header">
+    <h1><c:out value="${pageTitle}"/></h1>
+    <a href="<c:out value='${homeURL}'/>" data-icon="home" data-iconpos="notext" data-direction="reverse" rel="external">Home</a>
+    <a href="#ctrlpanel" data-theme="b" data-icon="gear" data-role="button" class="ui-btn-right" id="controlPanelButton" data-iconpos="notext">Control Panel</a>
 </div>
+
+<jsp:include page="/jsp/control-panel-ui.jsp"/>
 

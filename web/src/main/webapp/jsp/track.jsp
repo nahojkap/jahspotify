@@ -24,12 +24,12 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 
-<div id="track" data-role="page" data-theme="g" class="homeBody">
+<div id="track" data-role="page" data-theme="b" class="homeBody">
 
 
-    <div data-role="popup" id="trackPanel" data-theme="a" data-overlay-theme="a" class="ui-content">
+    <div data-role="popup" id="trackPanel" class="ui-content">
 
-        <div data-role="controlgroup" class="ui-body ui-body-a">
+        <div data-role="controlgroup" class="ui-body ui-body-b">
 
             <!-- View the album link -->
             <c:url var="albumURL" value="/ui/media/album/${track.album.id}"/>
@@ -66,7 +66,7 @@
 
     <div data-role="content">
         <div class="content-primary" align="center">
-            <div class="ui-body ui-body-a">
+            <div class="ui-body ui-body-b">
 
                 <div align="center" style="line-height: 0.5em">
                     <jah:duration var="duration" duration="${fullTrack.length}"/>
@@ -75,7 +75,8 @@
                         <img src="<c:out value='${albumCoverURL}'/>"/>
                     </div>
 
-                    <p style="font-weight: 900;"><c:out value="${fullTrack.title}"/> (<c:out value="${duration}"/>)</p>
+                    <p style="font-weight: 900;"><c:out value="${fullTrack.title}"/> <span
+                                                    style="vertical-align: middle; font-weight: lighter; font-size: 60%">(<c:out value="${duration}"/>)</span></p>
 
                     <p style="font-weight: bold; font-size: 80%"><c:out value="${fullTrack.albumName}"/></p>
 
@@ -88,7 +89,7 @@
                     </p>
                 </div>
 
-                <div data-role="controlgroup" data-type="horizontal" class="ui-body ui-body-a">
+                <div data-role="controlgroup" data-type="horizontal" class="ui-body ui-body-b">
 
                     <c:choose>
                         <c:when test="${track.starred}">

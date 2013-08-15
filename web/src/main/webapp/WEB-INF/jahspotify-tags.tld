@@ -46,6 +46,31 @@
         </attribute>
     </tag>
 
+    <tag>
+        <description>Loads the image as a URL</description>
+        <name>image</name>
+        <tag-class>jahspotify.web.tags.ImageTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>The link to the content to load</description>
+            <name>link</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The base url to use (not including application context path)</description>
+            <name>baseurl</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Context path to use (defaults to / followed by application context path)</description>
+            <name>context</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
 
     <tag>
         <description>Loads the specified media into the context</description>
@@ -92,22 +117,22 @@
     </tag>
 
     <tag>
-          <description>Loads the specified track into the context as a full track</description>
-          <name>trackstatistics</name>
-          <tag-class>jahspotify.web.tags.TrackStatisticsTag</tag-class>
-          <body-content>empty</body-content>
-          <attribute>
-              <description>The link of the track to load statistics for</description>
-              <name>link</name>
-              <required>true</required>
-              <rtexprvalue>true</rtexprvalue>
-          </attribute>
-          <attribute>
-              <description>Variable to place the loaded track statistics into</description>
-              <name>var</name>
-              <required>true</required>
-              <rtexprvalue>false</rtexprvalue>
-          </attribute>
-      </tag>
+        <description>Loads the specified track into the context as a full track</description>
+        <name>trackstatistics</name>
+        <tag-class>jahspotify.web.tags.TrackStatisticsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>The link of the track to load statistics for</description>
+            <name>link</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Variable to place the loaded track statistics into</description>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
 
 </taglib>

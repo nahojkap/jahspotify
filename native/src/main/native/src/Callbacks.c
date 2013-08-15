@@ -421,34 +421,40 @@ int signalMetadataUpdated(sp_playlist *playlist)
     {
         linkStr = calloc(1, sizeof(char) * 100);
         sp_link_as_string(playlistLink, linkStr, 100);
+
+        sp_link_release(playlistLink);
+
+        if (linkStr)
+        {
+            log_debug("callbacks", "signalMetadataUpdated", "Metadata updated for %s", linkStr);
+            playlistLinkStr = (*env)->NewStringUTF(env, linkStr);
+            free(linkStr);
+            if (playlistLinkStr == NULL )
+            {
+                log_error("callbacks", "signalMetadataUpdated", "Error creating java string");
+                goto fail;
+            }
+
+            method = (*env)->GetMethodID(env, g_libraryListenerClass, "metadataUpdated", "(Ljava/lang/String;)V");
+
+            if (method == NULL )
+            {
+                log_error("callbacks", "signalMetadataUpdated",
+                        "Could not load callback method metadataUpdated() on class NativeLibraryListener");
+                goto fail;
+            }
+
+            (*env)->CallVoidMethod(env, g_libraryListener, method, playlistLinkStr);
+            if (checkException(env) != 0)
+            {
+                log_error("callbacks", "signalMetadataUpdated", "Exception while calling callback");
+            }
+            goto exit;
+        }
     }
-
-    if (linkStr)
+    else
     {
-        log_debug("callbacks", "signalMetadataUpdated", "Metadata updated for %s", linkStr);
-        playlistLinkStr = (*env)->NewStringUTF(env, linkStr);
-        free(linkStr);
-        if (playlistLinkStr == NULL )
-        {
-            log_error("callbacks", "signalMetadataUpdated", "Error creating java string");
-            goto fail;
-        }
-
-        method = (*env)->GetMethodID(env, g_libraryListenerClass, "metadataUpdated", "(Ljava/lang/String;)V");
-
-        if (method == NULL )
-        {
-            log_error("callbacks", "signalMetadataUpdated",
-                    "Could not load callback method metadataUpdated() on class NativeLibraryListener");
-            goto fail;
-        }
-
-        (*env)->CallVoidMethod(env, g_libraryListener, method, playlistLinkStr);
-        if (checkException(env) != 0)
-        {
-            log_error("callbacks", "signalMetadataUpdated", "Exception while calling callback");
-        }
-        goto exit;
+        // Error
     }
 
     fail:
@@ -803,11 +809,7 @@ int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
         goto fail;
     }
 
-    sp_artist_add_ref(artist);
-
     artistLink = sp_link_create_from_artist(artist);
-
-    sp_link_add_ref(artistLink);
 
     jobject artistJLink = createJLinkInstance(env, artistLink);
 
@@ -816,8 +818,6 @@ int signalArtistBrowseLoaded(sp_artistbrowse *artistBrowse, int32_t token)
     sp_link_release(artistLink);
 
     setObjectStringField(env, artistInstance, "name", sp_artist_name(artist));
-
-    sp_artist_release(artist);
 
     // Convert the instance to an artist
     // Pass it up in the callback
@@ -1139,7 +1139,7 @@ int signalSearchComplete(sp_search *search, int32_t token)
     for (index = 0; index < numResultsFound; index++)
     {
         sp_track *track = sp_search_track(search, index);
-        if (track)
+        if (track && sp_track_get_availability(g_sess, track) == SP_TRACK_AVAILABILITY_AVAILABLE)
         {
             sp_track_add_ref(track);
 
@@ -1170,7 +1170,7 @@ int signalSearchComplete(sp_search *search, int32_t token)
     for (index = 0; index < numResultsFound; index++)
     {
         sp_album *album = sp_search_album(search, index);
-        if (album)
+        if (album && sp_album_is_available(album))
         {
             sp_album_add_ref(album);
 

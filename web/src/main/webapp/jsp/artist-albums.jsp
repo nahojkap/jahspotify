@@ -24,13 +24,13 @@
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<div id="artistAlbums" data-role="page" data-theme="g" class="homeBody">
+<div id="artistAlbums" data-role="page" data-theme="b" class="homeBody">
 
   <jsp:include page="/jsp/header-bar.jsp"/>
 
   <div data-role="content">
     <div class="content-primary" align="center">
-      <div class="ui-body ui-body-a">
+      <div class="ui-body ui-body-b">
 
         <div align="center">
 
@@ -61,10 +61,10 @@
           <c:if test="${not empty artist.albums}">
 
 
-            <ul data-role="listview" data-theme="a" data-inset="true"
+            <ul data-role="listview" data-theme="b" data-inset="true"
                 data-split-icon="plus" data-split-theme="a" data-count-theme="b">
 
-              <li data-role="list-divider" data-theme="a">Album(s)</li>
+              <li data-role="list-divider" data-theme="b">Album(s)</li>
 
               <c:forEach items="${artist.albums}" var="albumLink">
                 <jah:media link="${albumLink.id}" var="album"/>
@@ -87,7 +87,7 @@
 
         </div>
 
-        <div data-role="navbar" data-theme="g">
+        <div data-role="navbar" data-theme="b">
           <ul>
             <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artist.id.id}"/>
             <li><a href="<c:out value='${artistAlbumsURL}'/>" data-icon="plus">Albums</a></li>

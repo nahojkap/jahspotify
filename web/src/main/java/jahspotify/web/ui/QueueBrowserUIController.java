@@ -20,12 +20,14 @@ package jahspotify.web.ui;
  */
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
 
 import jahspotify.media.Link;
 import jahspotify.services.*;
 import jahspotify.services.Queue;
 import jahspotify.web.api.BaseController;
 import jahspotify.web.media.FullTrack;
+import jahspotify.web.queue.QueuedTrack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -42,10 +44,11 @@ public class QueueBrowserUIController extends BaseController
     QueueManager _queueManager;
 
     @RequestMapping(value = "/remove/{link}")
-    public ModelAndView retrieveCurrentQueue(@PathVariable(value = "link") String linkStr)
+    public ModelAndView deleteQueuedTrack(@PathVariable(value = "link") String linkStr)
     {
-        Link link = Link.create(linkStr);
-        _queueManager.deleteQueuedTrack(QueueManager.DEFAULT_QUEUE_LINK,link);
+        Link queuedEntry = Link.create(linkStr);
+
+        _queueManager.deleteQueuedTrack(queuedEntry);
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("/jsp/result-dialog.jsp");
@@ -78,21 +81,24 @@ public class QueueBrowserUIController extends BaseController
 
         if (currentlyPlaying != null)
         {
-            FullTrack fullTrack = createFullTrack(_jahSpotify,_jahSpotify.readTrack(currentlyPlaying.getTrackUri()));
-            modelAndView.addObject("currentTrack", fullTrack);
+            modelAndView.addObject("currentTrack", new QueuedTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().getId()));
         }
 
-        final List<FullTrack> queuedTracks = new ArrayList<FullTrack>();
-        for (QueueTrack queueTrack : currentQueue.getQueuedTracks())
-        {
-            queuedTracks.add(createFullTrack(_jahSpotify,_jahSpotify.readTrack(queueTrack.getTrackUri())));
-        }
-
-        modelAndView.addObject("queuedTracks", queuedTracks);
+        modelAndView.addObject("queuedTracks", convertToWebQueuedTrack(currentQueue.getQueuedTracks()));
 
         return modelAndView;
 
 
+    }
+
+    private List<QueuedTrack> convertToWebQueuedTrack(final BlockingDeque<QueueTrack> queuedTracks)
+    {
+        List<QueuedTrack> webQueuedTracks = new ArrayList<QueuedTrack>();
+        for (QueueTrack queuedTrack : queuedTracks)
+        {
+            webQueuedTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().getId()));
+        }
+        return webQueuedTracks;
     }
 
 }

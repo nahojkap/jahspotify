@@ -22,7 +22,6 @@ package jahspotify.web.ui;
 import java.util.*;
 
 import jahspotify.JahSpotify;
-import jahspotify.media.*;
 import jahspotify.media.LibraryEntry;
 import jahspotify.media.Link;
 import jahspotify.media.Playlist;

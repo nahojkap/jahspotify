@@ -23,68 +23,77 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
-<div data-role="page" id="folder">
+<div data-role="page" id="folder" data-theme="b">
 
-  <jsp:include page="/jsp/header-bar.jsp"/>
+    <jsp:include page="/jsp/header-bar.jsp"/>
 
-  <div data-role="content">
-    <div class="content-primary">
+    <div data-role="content">
+        <div class="content-primary">
 
-    <ul data-role="listview" data-theme="a" data-inset="true" data-filter="true" data-split-icon="plus"
-        data-split-theme="a" data-count-theme="b">
-      <c:forEach items="${entry.subEntries}" var="subEntry">
-        <c:url var="subEntryURL" value="/ui/media/library/${subEntry.id}"/>
-        <li>
-          <a href="<c:out value="${subEntryURL}"/>">
-              <%--<c:choose>
-                  <c:when test="${subEntry.type == 'PLAYLIST'}">
-                      <jah:media link="${subEntry.id}" var="playlist"/>
-                      <c:if test="${not empty playlist.picture}">
-                          <c:url var="playlistImage" value="/media/${playlist.picture.id}"/>
-                          <img src="<c:out value="${playlistImage}"/>"/>
-                      </c:if>
-                  </c:when>
-                  <c:otherwise>
-                      <img src=""/>
-                  </c:otherwise>
-              </c:choose>--%>
-            <h3><c:out value="${subEntry.name}"/></h3>
-            <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>
-            <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
-            <%--<a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Enqueue
-            <c:choose><c:when test="${subEntry.type == 'FOLDER'}">Folder</c:when><c:otherwise>Playlist</c:otherwise></c:choose></a>--%>
-                  <c:set var="mediaId" value="${subEntry.id}" scope="request"/>
-                           <jsp:include page="queue-media-link.jsp"/>
+            <ul data-role="listview" data-theme="b" data-inset="true" data-filter="true" data-split-icon="gear"
+                data-split-theme="b" data-count-theme="b">
+                <c:forEach items="${entry.subEntries}" var="subEntry">
+                    <c:url var="subEntryURL" value="/ui/media/library/${subEntry.id}"/>
+                    <li>
 
-          </a>
-        </li>
-      </c:forEach>
-    </ul>
+                        <jah:media link="${subEntry.id}" var="playlist"/>
+
+                        <a href="<c:out value="${subEntryURL}"/>">
+
+                            <c:choose>
+                                <c:when test="${subEntry.type == 'PLAYLIST'}">
+                                    <c:if test="${not empty playlist.picture}">
+                                        <c:url var="playlistImage" value="/media/${playlist.picture.id}"/>
+                                        <img src="<c:out value="${playlistImage}"/>"/>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise>
+                                    <%--<img src=""/>--%>
+                                </c:otherwise>
+                            </c:choose>
+
+                            <h3><c:out value="${subEntry.name}"/></h3>
+
+
+                            <c:if test="${subEntry.type == 'PLAYLIST'}">
+                                <p><c:out value="${playlist.author}"/></p>
+                            </c:if>
+
+                                <%--  <span class="ui-li-count"><c:out value="${subEntry.numEntries}"/></span>--%>
+                            <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
+                                <%--<a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog" data-transition="slideup">Enqueue
+                                <c:choose><c:when test="${subEntry.type == 'FOLDER'}">Folder</c:when><c:otherwise>Playlist</c:otherwise></c:choose></a>--%>
+                            <c:set var="mediaId" value="${subEntry.id}" scope="request"/>
+                            <jsp:include page="queue-media-link.jsp"/>
+
+                        </a>
+                    </li>
+                </c:forEach>
+            </ul>
+        </div>
+
     </div>
 
-  </div>
+
+    <script>
 
 
-  <script>
 
-/*
+         $( "li" ).bind( "taphold", function ( event )
+         {
+          $(this).remove();
+          alert("tap hold")
+         } );
 
-    $( "li" ).bind( "taphold", function ( event )
-    {
-      // $(this).remove();
-      // alert("tap hold")
-    } );
+         $( "li" ).bind( "swiperight", function ( event )
+         {
+          $(this).remove();
+         alert("swipe right")
+         } );
 
-    $( "li" ).bind( "swiperight", function ( event )
-    {
-      // $(this).remove();
-      // alert("swipe right")
-    } );
-*/
+    </script>
 
-  </script>
-
-  <%@ include file="/jsp/footer-bar.jsp" %>
+    <%@ include file="/jsp/footer-bar.jsp" %>
 
 </div>
 

@@ -19,54 +19,54 @@
 
 <%@ include file="/jsp/header.jsp" %>
 
-<div id="homePage" data-role="page" data-theme="g" class="homeBody">
+<div id="homePage" data-role="page" data-theme="b" class="homeBody">
 
     <c:set var="pageTitle" value="Jah'Spotify" scope="request"/>
     <jsp:include page="/jsp/header-bar.jsp"/>
 
     <div class="mainContentPanel" data-role="content">
 
-        <ul data-role="listview" data-theme="a" data-inset="true" data-split-icon="arrow-le" data-split-theme="a" data-count-theme="b">
+        <ul data-role="listview" data-theme="b" data-inset="true" data-split-icon="arrow-le" data-split-theme="b" data-count-theme="b">
 
             <li data-role="list-divider" data-theme="a"></li>
 
             <li>
                 <c:url var="inboxURL" value="/ui/media/library/jahspotify:inbox"/>
-                <a class="wrapper" href="<c:out value='${inboxURL}'/>" id="Queue">Inbox</a>
+                <a class="wrapper" href="<c:out value='${inboxURL}'/>" id="INBOX">Inbox</a>
             </li>
 
             <li>
                 <c:url var="starredURL" value="/ui/media/library/jahspotify:starred"/>
-                <a class="wrapper" href="<c:out value='${starredURL}'/>" id="Queue">Starred</a>
+                <a class="wrapper" href="<c:out value='${starredURL}'/>" id="STARRED">Starred</a>
             </li>
 
             <li>
                 <c:url var="playlistsURL" value="/ui/media/library/jahspotify:folder:ROOT"/>
-                <a class="wrapper" href="<c:out value='${playlistsURL}'/>" id="Queue">Playlists</a>
+                <a class="wrapper" href="<c:out value='${playlistsURL}'/>" id="PLAYLISTS">Playlists</a>
             </li>
 
             <li>
                 <c:url var="searchURL" value="/ui/search"/>
-                <a class="wrapper" href="<c:out value='${searchURL}'/>" id="Queue">Search</a>
+                <a class="wrapper" href="<c:out value='${searchURL}'/>" id="SEARCH">Search</a>
             </li>
 
             <li data-role="list-divider" data-theme="a"></li>
 
             <li>
                 <c:url var="queueURL" value="/ui/queue/current"/>
-                <a class="wrapper" href="<c:out value='${queueURL}'/>" id="Queue">Queue</a>
+                <a class="wrapper" href="<c:out value='${queueURL}'/>" id="QUEUE">Queue</a>
             </li>
 
             <li>
                 <c:url var="historyURL" value="/ui/history/recent?count=50"/>
-                <a class="wrapper" href="<c:out value='${historyURL}'/>" id="History">History</a>
+                <a class="wrapper" href="<c:out value='${historyURL}'/>" id="HISTORY">History</a>
             </li>
 
             <li data-role="list-divider" data-theme="a"></li>
 
             <li>
                 <c:url var="serverSettingsURL" value="/ui/history/recent"/>
-                <a class="wrapper" href="serverSettings" id="ServerSettings">Server Settings</a>
+                <a class="wrapper" href="serverSettings" id="SERVERSETTINGS">Server Settings</a>
             </li>
 
             <li data-role="list-divider" data-theme="a"></li>
@@ -74,14 +74,7 @@
         </ul>
     </div>
 
-
-    <div data-role="footer" style="text-align: left;" class="ui-bar" data-theme="a" data-position="fixed">
-        <div style="line-height: 0.1em;">
-            <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
-
-            <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
-        </div>
-    </div>
+    <%@ include file="/jsp/footer-bar.jsp" %>
 
 </div>
 

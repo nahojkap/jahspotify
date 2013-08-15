@@ -32,20 +32,20 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <c:url var="jqueryURL" value="/scripts/jquery-1.8.2.min.js"/>
+    <c:url var="jqueryURL" value="/scripts/jquery-1.9.1.min.js"/>
     <script src="${jqueryURL}"></script>
 
-    <c:url var="jqueryMobileURL" value="/scripts/jquery.mobile-1.2.0.min.js"/>
+    <c:url var="jqueryMobileURL" value="/scripts/jquery.mobile-1.4.0-alpha.1.min.js"/>
     <script src="${jqueryMobileURL}"></script>
 
-    <c:url var="cssURL" value="/css/jahspotify-main.css"/>
-    <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
-
-    <c:url var="jqueryMobileCSSURL" value="/css/jquery.mobile-1.2.0.min.css"/>
+    <c:url var="jqueryMobileCSSURL" value="/css/jquery.mobile-1.4.0-alpha.1.min.css"/>
     <link href="<c:out value='${jqueryMobileCSSURL}'/>" type="text/css" rel="stylesheet">
 
     <c:url var="jqmIconPackCSSURL" value="/css/jqm-icon-pack-2.0-original.css"/>
     <link href="<c:out value='${jqmIconPackCSSURL}'/>" type="text/css" rel="stylesheet">
+
+    <c:url var="cssURL" value="/css/jahspotify-main.css"/>
+    <link href="<c:out value='${cssURL}'/>" type="text/css" rel="stylesheet">
 
     <c:url var="timerURL" value="/scripts/jquery.timer.js"/>
     <script src="<c:out value='${timerURL}'/>"></script>
@@ -58,6 +58,7 @@
 
 
     <script>
+
         $(document).bind("mobileinit", function ()
         {
             $.mobile.ajaxEnabled = false;

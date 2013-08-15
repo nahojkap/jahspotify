@@ -83,7 +83,7 @@ public class MediaPlayerController extends BaseController
     public void increaseGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         float currentGain = _mediaPlayer.getCurrentGain();
-        if (currentGain + 0.05f != 1.0f)
+        if (currentGain + 0.05f < 1.0f)
         {
             currentGain += 0.05f;
             _mediaPlayer.setCurrentGain(currentGain);
@@ -105,7 +105,7 @@ public class MediaPlayerController extends BaseController
     public void decreaseGain(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
     {
         float currentGain = _mediaPlayer.getCurrentGain();
-        if (currentGain - 0.05f != 0.0f)
+        if (currentGain - 0.05f > 0.0f)
         {
             currentGain -= 0.05f;
             _mediaPlayer.setCurrentGain(currentGain);

@@ -340,44 +340,32 @@ public class QueueManager
         return size;
     }
 
-    public int deleteQueuedTrack(final Link queue, final Link uri)
+    public int deleteQueuedTrack(final Link queueEntry)
     {
-        if (!queue.equals(DEFAULT_QUEUE_LINK))
+        if (!queueEntry.isQueueEntryLink())
+        {
+            throw new IllegalArgumentException("URI is not a queue entry");
+        }
+
+        if (!queueEntry.getQueue().equals(DEFAULT_QUEUE_LINK.getQueue()))
         {
             throw new IllegalArgumentException("URIs other than the default queue are not yet supported");
         }
 
         // uris are in the form of:
-        // spotify:track:...
         // jahspotify:queue:<quename>:<uuid>
 
         final List<QueueTrack> removedTracks = new ArrayList<QueueTrack>();
         int count = 0;
 
-        if (uri.isTrackLink())
+        for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
         {
-            for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
+            // Extract the ID from the URI
+            if (Link.create(queuedTrack.getId()).equals(queueEntry))
             {
-                if (queuedTrack.getTrackUri().equals(uri))
-                {
-                    removedTracks.add(queuedTrack);
-                    _currentQueue.getQueuedTracks().remove(queuedTrack);
-                    count++;
-                }
-            }
-        }
-        else if (uri.isQueueLink())
-        {
-            for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
-            {
-                // Extract the ID from the URI
-                String queueId = uri.getQueueId();
-                if (queuedTrack.getId().equals(queueId))
-                {
-                    removedTracks.add(queuedTrack);
-                    _currentQueue.getQueuedTracks().remove(queuedTrack);
-                    count++;
-                }
+                removedTracks.add(queuedTrack);
+                _currentQueue.getQueuedTracks().remove(queuedTrack);
+                count++;
             }
         }
 

@@ -20,17 +20,17 @@
 <%@ include file="/jsp/header.jsp" %>
 
 
-<div id="searchStart" data-role="page" data-theme="g" class="homeBody">
+<div id="searchStart" data-role="page" data-theme="b" class="homeBody">
 
     <c:set var="pageTitle" value="Search" scope="request"/>
     <jsp:include page="/jsp/header-bar.jsp"/>
 
     <div class="mainContentPanel" data-role="content">
         <div class="content-primary">
-            <div class="ui-body ui-body-a">
+            <div class="ui-body ui-body-b">
                 <c:url var="searchExectuteURL" value="/ui/search/execute"/>
                 <form action="<c:out value='${searchExectuteURL}'/>" method="get">
-                    <div data-role="fieldcontain" class="ui-hide-label ui-body ui-body-a">
+                    <div data-role="fieldcontain" >
                         <label for="query">Search Query:</label>
                         <c:if test="${not empty searchResult}">
                             <c:set var="previousQuery" value="${searchResult.query}"/>

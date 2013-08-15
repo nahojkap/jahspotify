@@ -30,7 +30,6 @@ import jahspotify.media.Artist;
 import jahspotify.media.Track;
 import jahspotify.metadata.Metadata;
 import jahspotify.metadata.search.*;
-import jahspotify.query.*;
 import jahspotify.services.*;
 import org.apache.commons.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;

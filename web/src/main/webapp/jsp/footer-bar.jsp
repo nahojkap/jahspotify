@@ -14,7 +14,7 @@
   ~        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   ~        KIND, either express or implied.  See the License for the
   ~        specific language governing permissions and limitations
-  ~        under the License.
+  ~        under the License.  Jahz
   --%>
 
 <%@ page session="false" %>
@@ -22,9 +22,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 
-<div data-role="footer" class="footer-docs" data-theme="a">
+<div data-role="footer" class="footer-docs" data-theme="b">
     <div style="line-height: 0.1em; padding-left: 5px;">
-        <p style="text-align: left; font-size: 60%">&copy; 2012 Jah'Spotify</p>
+        <p style="text-align: left; font-size: 60%">&copy; 2012- Jah'Spotify</p>
         <p style="text-align: left; font-size: 40%">Powered by Spotify&trade; Core & The EchoNest API</p>
     </div>
 

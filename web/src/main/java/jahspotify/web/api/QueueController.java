@@ -35,13 +35,13 @@ public class QueueController extends BaseController
         return toWebLinksAsList(links);
     }
 
-    @RequestMapping(value="/{link}/add", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value="/{queue}/add", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public SimpleStatusResponse addEntry(@PathVariable String link, @RequestBody QueueTracksRequest queueTracksRequest)
+    public SimpleStatusResponse addEntry(@PathVariable String queue, @RequestBody QueueTracksRequest queueTracksRequest)
     {
         try
         {
-            Link qLink = Link.create(link);
+            Link qLink = Link.create(queue);
             final List<Link> uriQueue = convertToLinkList(queueTracksRequest.getURIQueue());
             _queueManager.addToQueue(qLink,uriQueue);
 
@@ -68,14 +68,14 @@ public class QueueController extends BaseController
         return linkList;
     }
 
-    @RequestMapping(value = "/{link}/add/{trackLink}", method = RequestMethod.GET,produces = "application/json")
+    @RequestMapping(value = "/{queue}/add/{track}", method = RequestMethod.GET,produces = "application/json")
     @ResponseBody
-    public SimpleStatusResponse addEntryViaGet(@PathVariable String link, @PathVariable String trackLink)
+    public SimpleStatusResponse addEntryViaGet(@PathVariable String queue, @PathVariable String track)
     {
         try
         {
-            Link qLink = Link.create(link);
-            Link tLink = Link.create(trackLink);
+            Link qLink = Link.create(queue);
+            Link tLink = Link.create(track);
             _queueManager.addToQueue(qLink, tLink);
 
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
@@ -92,19 +92,14 @@ public class QueueController extends BaseController
 
     }
 
-    @RequestMapping(value="/{link}/remove/{trackLink}",method = RequestMethod.GET,produces = "application/json")
+    @RequestMapping(value="/{link}/remove/{entry}",method = RequestMethod.GET,produces = "application/json")
     @ResponseBody
-    public SimpleStatusResponse deleteEntry(@PathVariable String link,@PathVariable String trackLink)
+    public SimpleStatusResponse deleteEntry(@PathVariable(value = "jahspotify:queue:default") String queue,@PathVariable String entry)
     {
-        // Either:
-        // - track (or in fact, all occurences of that track in the queue)
-        // - id in the form of a jahspotify uri
-
         try
         {
-            Link qLink = Link.create(link);
-            Link tLink = Link.create(trackLink);
-            _queueManager.deleteQueuedTrack(qLink, tLink);
+            Link qEntryLink = Link.create(queue + ":" + entry);
+            _queueManager.deleteQueuedTrack(qEntryLink);
             SimpleStatusResponse simpleStatusResponse = new SimpleStatusResponse();
             simpleStatusResponse.setResponseStatus(jahspotify.web.ResponseStatus.OK);
             simpleStatusResponse.setDetail("QUEUED_TRACK_DELETED");
@@ -118,11 +113,11 @@ public class QueueController extends BaseController
     }
 
     @RequestMapping(value="/{link}",method = RequestMethod.GET,produces = "application/json")
-    public void getQueue(@PathVariable String link, @RequestParam(defaultValue = "0", required = false) int count, final HttpServletResponse httpServletResponse)
+    public void getQueue(@PathVariable String queue, @RequestParam(defaultValue = "0", required = false) int count, final HttpServletResponse httpServletResponse)
     {
-        _log.debug("Request for the queue");
-        final Queue queue = _queueManager.getCurrentQueue(count);
-        writeCurrentQueue(httpServletResponse, queue);
+        final Link queueLink = Link.create(queue);
+        final Queue currentQueue = _queueManager.getCurrentQueue(count);
+        writeCurrentQueue(httpServletResponse, currentQueue);
     }
 
     private void writeCurrentQueue(final HttpServletResponse httpServletResponse, final Queue queue)
@@ -135,7 +130,8 @@ public class QueueController extends BaseController
     @ResponseBody
     public jahspotify.web.queue.QueueConfiguration readQueueConfigurationDefaultURI(@PathVariable String link)
     {
-        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create(link));
+        final Link queueLink = Link.create(link);
+        final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(queueLink);
         return QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration);
     }
 
@@ -145,9 +141,10 @@ public class QueueController extends BaseController
     {
         try
         {
-            final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(Link.create(link));
-            _queueManager.setQueueConfiguration(Link.create("jahspotify:queue:default"), QueueWebHelper.mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
-            final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(Link.create("jahspotify:queue:default"));
+            final Link queueLink = Link.create(link);
+            final QueueConfiguration currentQueueConfiguration = _queueManager.getQueueConfiguration(queueLink);
+            _queueManager.setQueueConfiguration(queueLink, QueueWebHelper.mergeConfigurations(webQueueConfiguration, currentQueueConfiguration));
+            final QueueConfiguration queueConfiguration = _queueManager.getQueueConfiguration(queueLink);
             return QueueWebHelper.convertToWebQueueConfiguration(queueConfiguration);
         }
         catch (Exception e)
@@ -161,17 +158,18 @@ public class QueueController extends BaseController
     @ResponseBody
     public jahspotify.web.queue.QueueStatus readQueueStatus(@PathVariable String link)
     {
-        final QueueStatus queueStatus = _queueManager.getQueueStatus(Link.create(link));
+        final Link queue = Link.create(link);
+        final QueueStatus queueStatus = _queueManager.getQueueStatus(queue);
         return QueueWebHelper.convertToWebQueueStatus(queueStatus);
     }
 
-    @RequestMapping(value = "/{link}/shuffle", method = RequestMethod.GET,produces = "application/json")
+    @RequestMapping(value = "/{link}/shuffle", method = RequestMethod.GET, produces = "application/json")
     public void shuffleQueue(@PathVariable String link, final HttpServletResponse httpServletResponse)
     {
         try
         {
-            Link uri = Link.create(link);
-            Queue queue = _queueManager.shuffle(uri);
+            Link queueLink = Link.create(link);
+            Queue queue = _queueManager.shuffle(queueLink);
             writeCurrentQueue(httpServletResponse, queue);
         }
         catch (Exception e)

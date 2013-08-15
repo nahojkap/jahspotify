@@ -24,20 +24,19 @@
 <%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<div id="artist" data-role="page" data-theme="g" class="homeBody">
+<div id="artist" data-role="page" data-theme="b" class="homeBody">
 
   <jsp:include page="/jsp/header-bar.jsp"/>
 
-  <div data-role="content">
+  <div data-role="content" data-theme="b">
     <div class="content-primary" align="center">
-      <div class="ui-body ui-body-a">
+      <div class="ui-body ui-body-b">
 
         <div align="center">
 
           <c:if test="${not empty artist.portraits}">
-            <c:url var="artistPortraitURL" value="/media/${artist.portraits[0].id}"/>
             <div>
-              <img src="<c:out value="${artistPortraitURL}"/>"/>
+                <jah:image link="${artist.portraits[0].id}"/>
             </div>
           </c:if>
 
@@ -45,10 +44,10 @@
 
           <c:if test="${not empty artist.bioParagraphs}">
 
-            <div data-role="collapsible" data-mini="true">
+            <div data-role="collapsible" data-mini="false" data-collapsed="false">
               <h3>Biography</h3>
 
-              <div class="ui-body ui-body-a" align="left">
+              <div class="ui-body ui-body-b" align="left">
                 <c:forEach var="bioParagraph" items="${artist.bioParagraphs}">
                   <p style="line-height: 1.0em"><c:out value="${bioParagraph}" escapeXml="false"/></p>
                 </c:forEach>
@@ -59,10 +58,12 @@
 
           <c:if test="${not empty artist.topHitTracks}">
 
-            <ul data-role="listview" data-theme="a" data-inset="true"
+            <div data-role="collapsible" data-content-theme="b" data-collapsed="false">
+                <h3>Top Hits</h3>
+
+            <ul data-role="listview" data-inset="true"
                 data-split-icon="plus"
-                data-split-theme="a" data-count-theme="b">
-              <li data-role="list-divider" data-theme="a">Top Hits</li>
+                >
 
               <c:forEach items="${artist.topHitTracks}" var="link">
 
@@ -85,27 +86,29 @@
                       <p style="font-weight: bold; font-size: 65%">
                         <c:out value="${album.name}"/></p>
 
-                        <%--<p style="font-weight: bold; font-size: 50%"><c:forEach
+                       <%-- <p style="font-weight: bold; font-size: 50%"><c:forEach
                                 items="${track.artistNames}" var="artistName">
                             <c:url var="artistURL" value="/ui/media/${track.id.id}"/>
                             <c:out value="${artistName}"/>
                         </c:forEach>
-                        </p>--%>
+                        </p>        --%>
                     </div>
                   </a>
-                  <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                  <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog"
-                     data-transition="fade">Enqueue</a>
+
+                    <c:set var="mediaId" value="${track.id.id}" scope="request"/>
+                    <jsp:include page="queue-media-link.jsp"/>
+
                 </li>
               </c:forEach>
             </ul>
+                </div>
 
 
           </c:if>
 
         </div>
 
-        <div data-role="navbar" data-theme="g">
+        <div data-role="navbar" data-theme="a">
           <ul>
             <c:url var="artistAlbumsURL" value="/ui/media/artist-albums/${artist.id.id}"/>
             <li><a href="<c:out value='${artistAlbumsURL}'/>" data-icon="plus">Albums</a></li>
