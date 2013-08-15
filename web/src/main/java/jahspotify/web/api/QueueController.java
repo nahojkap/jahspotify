@@ -112,7 +112,7 @@ public class QueueController extends BaseController
         }
     }
 
-    @RequestMapping(value="/{link}",method = RequestMethod.GET,produces = "application/json")
+    @RequestMapping(value="/{queue}",method = RequestMethod.GET,produces = "application/json")
     public void getQueue(@PathVariable String queue, @RequestParam(defaultValue = "0", required = false) int count, final HttpServletResponse httpServletResponse)
     {
         final Link queueLink = Link.create(queue);
