@@ -22,7 +22,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div id="result" data-role="page" data-theme="b">
+<div id="result" data-role="page" data-theme="b" class="homeBody">
 
 
   <div class="mainHeaderPanel" data-theme="b" data-position="inline" data-role="header" role="banner">
@@ -30,7 +30,7 @@
   </div>
 
   <div data-role="content">
-    <div class="content-primary" data-theme="a">
+    <div class="content-primary" data-theme="b">
       <p><c:out value="${resultMessage}"/></p>
       <a href="#" data-role="button" data-rel="back">Ok</a>
     </div>

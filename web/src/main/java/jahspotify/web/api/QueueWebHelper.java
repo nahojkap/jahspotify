@@ -102,7 +102,7 @@ public class QueueWebHelper
         final List<QueuedTrack> queuedWebTracks = new ArrayList<QueuedTrack>();
         for (QueueTrack queuedTrack : queuedTracks)
         {
-            queuedWebTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().asString()));
+            queuedWebTracks.add(new QueuedTrack(queuedTrack.getQueueEntry().getId(), queuedTrack.getTrackUri().asString()));
         }
 
         return queuedWebTracks;
@@ -118,7 +118,7 @@ public class QueueWebHelper
         final QueueTrack currentlyPlaying = queue.getCurrentlyPlaying();
         if (currentlyPlaying != null)
         {
-            final CurrentTrack webCurrentlyPlaying = new CurrentTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().asString());
+            final CurrentTrack webCurrentlyPlaying = new CurrentTrack(currentlyPlaying.getQueueEntry().getId(), currentlyPlaying.getTrackUri().asString());
             webCurrentlyPlaying.setLength(currentlyPlaying.getLength());
             webCurrentlyPlaying.setOffset(currentlyPlaying.getOffset());
             currentCurrentQueue.setCurrentlyPlaying(webCurrentlyPlaying);

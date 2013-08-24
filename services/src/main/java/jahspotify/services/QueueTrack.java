@@ -11,8 +11,8 @@ import jahspotify.media.Link;
  */
 public class QueueTrack
 {
+    private Link _queueEntry;
     private Link _queue;
-    private String _id;
     private Link _trackID;
     private String _source;
     private int _length;
@@ -20,12 +20,17 @@ public class QueueTrack
 
     private Map<String, String> _metadata = new HashMap<String, String>();
 
-    public QueueTrack(final String id, final Link trackUri, final Link queue, final String source)
+    public QueueTrack(final Link queueEntry, final Link trackUri, final String source)
     {
-        _id = id;
+        _queueEntry = queueEntry;
+        _queue = Link.create("jahspotify:queue:" + _queueEntry.getQueue());
         _trackID = trackUri;
         _source = source;
-        _queue = queue;
+    }
+
+    public Link getQueueEntry()
+    {
+        return _queueEntry;
     }
 
     public int getOffset()
@@ -46,11 +51,6 @@ public class QueueTrack
     public int getLength()
     {
         return _length;
-    }
-
-    public String getId()
-    {
-        return _id;
     }
 
     public Link getTrackUri()
@@ -74,6 +74,20 @@ public class QueueTrack
     }
 
     @Override
+    public String toString()
+    {
+        return "QueueTrack{" +
+                "_length=" + _length +
+                ", _queueEntry=" + _queueEntry +
+                ", _queue=" + _queue +
+                ", _trackID=" + _trackID +
+                ", _source='" + _source + '\'' +
+                ", _offset=" + _offset +
+                ", _metadata=" + _metadata +
+                "} " + super.toString();
+    }
+
+    @Override
     public boolean equals(final Object o)
     {
         if (this == o)
@@ -87,7 +101,11 @@ public class QueueTrack
 
         final QueueTrack that = (QueueTrack) o;
 
-        if (_id != null ? !_id.equals(that._id) : that._id != null)
+        if (_length != that._length)
+        {
+            return false;
+        }
+        if (_offset != that._offset)
         {
             return false;
         }
@@ -96,6 +114,14 @@ public class QueueTrack
             return false;
         }
         if (_queue != null ? !_queue.equals(that._queue) : that._queue != null)
+        {
+            return false;
+        }
+        if (_queueEntry != null ? !_queueEntry.equals(that._queueEntry) : that._queueEntry != null)
+        {
+            return false;
+        }
+        if (_source != null ? !_source.equals(that._source) : that._source != null)
         {
             return false;
         }
@@ -110,21 +136,13 @@ public class QueueTrack
     @Override
     public int hashCode()
     {
-        int result = _queue != null ? _queue.hashCode() : 0;
-        result = 31 * result + (_id != null ? _id.hashCode() : 0);
+        int result = _queueEntry != null ? _queueEntry.hashCode() : 0;
+        result = 31 * result + (_queue != null ? _queue.hashCode() : 0);
         result = 31 * result + (_trackID != null ? _trackID.hashCode() : 0);
+        result = 31 * result + (_source != null ? _source.hashCode() : 0);
+        result = 31 * result + _length;
+        result = 31 * result + _offset;
         result = 31 * result + (_metadata != null ? _metadata.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "QueueTrack{" +
-                "_id='" + _id + '\'' +
-                ", _queue=" + _queue +
-                ", _trackID=" + _trackID +
-                ", _metadata=" + _metadata +
-                '}';
     }
 }

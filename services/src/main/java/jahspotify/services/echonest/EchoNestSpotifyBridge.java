@@ -68,11 +68,6 @@ public class EchoNestSpotifyBridge
         _queueManager.addQueueListener(new AbstractQueueListener()
         {
             @Override
-            public void newTrackAtFront(final Link queue, final QueueTrack queueTrack)
-            {
-            }
-
-            @Override
             public void queueEmpty(final Link queue, final QueueTrack lastTrackPlayed)
             {
                 if (!_queueManager.getQueueConfiguration(queue).isAutoRefill())
@@ -96,17 +91,49 @@ public class EchoNestSpotifyBridge
                             if (ECHO_NEST_SOURCE_ID.equals(lastTrackPlayed.getSource()))
                             {
                                 // Have already a EchoNest sourced track - use the session id for getting the next one!
-                                Playlist echoNestPlaylist = retrieveNextDynamicTrack(lastTrackPlayed.getMetadata().get(ECHONEST_SESSION_ID));
-                                Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
-                                if (spotLink != null)
+                                final String sessionId = lastTrackPlayed.getMetadata().get(ECHONEST_SESSION_ID);
+                                if (sessionId != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue, ECHO_NEST_SOURCE_ID);
-                                    queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
-                                    _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
+                                    Playlist echoNestPlaylist = retrieveNextDynamicTrack(sessionId);
+
+                                    final String foreignID = echoNestPlaylist.getSongs().get(0).getTrack("spotify-WW").getForeignID();
+                                    int trackPos = foreignID.indexOf(":track:");
+                                    final String uri = "spotify" + foreignID.substring(trackPos);
+
+                                    _log.debug("Rewrote " + foreignID + " into " + uri);
+                                    Link spotLink = Link.create(uri);
+                                    // retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0).getTrack("spotify-WW").getForeignID());
+                                    if (spotLink != null)
+                                    {
+                                        final Link queueEntry = Link.create(QueueManager.DEFAULT_QUEUE_LINK.getId() + ":" + UUID.randomUUID().toString());
+                                        final QueueTrack queueTrack = new QueueTrack(queueEntry , spotLink, ECHO_NEST_SOURCE_ID);
+                                        queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
+                                        _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
+                                    }
+                                    else
+                                    {
+                                        _log.error("Could not retrieve Spotify link for song: " + echoNestPlaylist.getSongs().get(0));
+                                    }
                                 }
                                 else
                                 {
-                                    _log.error("Could not retrieve Spotify link for song: " + echoNestPlaylist.getSongs().get(0));
+                                    // Based on the last track, create a new dynamic playlist, adding that to the queue when done
+                                    Track track = _jahSpotify.readTrack(lastTrackPlayed.getTrackUri());
+                                    Playlist echoNestPlaylist = retrieveFirstDynamicTrack(track);
+                                    // Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
+                                    Link spotLink = Link.create(echoNestPlaylist.getSongs().get(0).getTrack("spotify-WW").getForeignID().replace("spotify-WW","spotify"));
+
+                                    if (spotLink != null)
+                                    {
+                                        final Link queueEntry = Link.create(QueueManager.DEFAULT_QUEUE_LINK.getId() + ":" + UUID.randomUUID().toString());
+                                        final QueueTrack queueTrack = new QueueTrack(queueEntry , spotLink, ECHO_NEST_SOURCE_ID);
+                                        queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
+                                        _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
+                                    }
+                                    else
+                                    {
+                                        _log.error("Could not retrieve Spotify link for song: " + echoNestPlaylist.getSongs().get(0));
+                                    }
                                 }
                             }
                             else
@@ -114,10 +141,13 @@ public class EchoNestSpotifyBridge
                                 // Based on the last track, create a new dynamic playlist, adding that to the queue when done
                                 Track track = _jahSpotify.readTrack(lastTrackPlayed.getTrackUri());
                                 Playlist echoNestPlaylist = retrieveFirstDynamicTrack(track);
-                                Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
+                                // Link spotLink = retrieveSpotifyLink(echoNestPlaylist.getSongs().get(0));
+                                Link spotLink = Link.create(echoNestPlaylist.getSongs().get(0).getTrackNew("spotify-WW").getForeignID().replace("spotify-WW","spotify"));
+
                                 if (spotLink != null)
                                 {
-                                    final QueueTrack queueTrack = new QueueTrack(UUID.randomUUID().toString(), spotLink, queue,ECHO_NEST_SOURCE_ID);
+                                    final Link queueEntry = Link.create(QueueManager.DEFAULT_QUEUE_LINK.getId() + ":" + UUID.randomUUID().toString());
+                                    final QueueTrack queueTrack = new QueueTrack(queueEntry , spotLink, ECHO_NEST_SOURCE_ID);
                                     queueTrack.getMetadata().put(ECHONEST_SESSION_ID, echoNestPlaylist.getSession());
                                     _queueManager.addToQueue(QueueManager.DEFAULT_QUEUE_LINK, queueTrack);
                                 }
@@ -133,7 +163,7 @@ public class EchoNestSpotifyBridge
                         }
                     }
                 };
-                t.start();
+                // t.start();
 
             }
         });
@@ -154,7 +184,7 @@ public class EchoNestSpotifyBridge
                 }
                 else
                 {
-                    artists.add(artist.getName());
+                    artists.add(artist.getId().getId());
                 }
             }
             return _echoNestService.retrieveDynamicPlaylist(artists, null, null);

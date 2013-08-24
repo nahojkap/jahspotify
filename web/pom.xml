@@ -142,12 +142,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.googlecode.jen-api</groupId>
-            <artifactId>jen-api</artifactId>
-            <version>4.x.p</version>
-        </dependency>
-
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.6</version>

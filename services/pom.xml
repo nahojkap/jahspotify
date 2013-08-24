@@ -82,7 +82,6 @@
         <dependency>
             <groupId>com.googlecode.jen-api</groupId>
             <artifactId>jen-api</artifactId>
-            <version>4.x.p</version>
         </dependency>
 
         <dependency>

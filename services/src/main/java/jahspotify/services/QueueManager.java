@@ -147,7 +147,7 @@ public class QueueManager
                 final QueueTrack peek = _currentQueue.getQueuedTracks().peek();
                 if (peek != null)
                 {
-                    return new QueueNextTrack(peek.getId(), peek.getTrackUri(), 1000, peek.getQueue(), peek.getSource());
+                    return new QueueNextTrack(peek.getQueueEntry(), peek.getTrackUri(), 1000, peek.getSource());
                 }
                 return null;
             }
@@ -299,7 +299,8 @@ public class QueueManager
                 final Track track = _jahSpotifyService.getJahSpotify().readTrack(trackURI);
                 if (track != null)
                 {
-                    QueueTrack queuedTrack = new QueueTrack("jahspotify:queue:default:" + UUID.randomUUID().toString(), trackURI, QueueManager.DEFAULT_QUEUE_LINK, "JahSpotify");
+                    Link queuedTrackLink = Link.create(QueueManager.DEFAULT_QUEUE_LINK.getId() + ":" + UUID.randomUUID().toString());
+                    QueueTrack queuedTrack = new QueueTrack(queuedTrackLink, trackURI, "JahSpotify");
                     queuedTrack.setLength(track.getLength());
                     queuedTracks.add(queuedTrack);
                 }
@@ -361,7 +362,7 @@ public class QueueManager
         for (QueueTrack queuedTrack : _currentQueue.getQueuedTracks())
         {
             // Extract the ID from the URI
-            if (Link.create(queuedTrack.getId()).equals(queueEntry))
+            if (queuedTrack.getQueueEntry().equals(queueEntry))
             {
                 removedTracks.add(queuedTrack);
                 _currentQueue.getQueuedTracks().remove(queuedTrack);

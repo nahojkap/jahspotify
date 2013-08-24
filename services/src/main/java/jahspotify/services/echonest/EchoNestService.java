@@ -29,6 +29,7 @@ import com.echonest.api.v4.*;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import jahspotify.services.nuances.*;
+import org.apache.commons.logging.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -42,6 +43,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class EchoNestService
 {
+    private Log _log = LogFactory.getLog(EchoNestService.class);
+
     @Value(value = "${jahspotify.echonest.api-key}")
     private String _apiKey = "HKYTORNR6BWEODOSV";
 
@@ -49,6 +52,10 @@ public class EchoNestService
     private URL _echoNestListMoodsURL;
 
     private EchoNestAPI _echoNestApi;
+    // private Map<String, DynamicPlaylistSession> _sessions = new HashMap<String, DynamicPlaylistSession>();
+
+    @Value(value = "${jahspotify.echonest.num-songs-to-request-for-dynamic-playlist}")
+    private int _numSongsToRequest = 3;
 
     @PostConstruct
     private void initialize() throws Exception
@@ -134,12 +141,18 @@ public class EchoNestService
      */
     public Playlist retrieveDynamicPlaylist(List<String> artists, List<Mood> moods, List<Style> styles) throws EchoNestException
     {
+/*
         final DynamicPlaylistParams p = new DynamicPlaylistParams();
         for (String artist : artists)
         {
-            p.addArtist(artist);
+            final String artistID = "spotify-WW:" + artist.substring(8);
+            _log.debug("Adding artist: " + artistID);
+            p.addArtist(artistID);
         }
-        p.setType(PlaylistParams.PlaylistType.SONG_RADIO);
+        p.add("bucket","id:spotify-WW");
+        p.add("bucket","tracks");
+
+        p.setType(PlaylistParams.PlaylistType.ARTIST_RADIO);
         if (moods != null)
         {
             for (Mood mood : moods)
@@ -155,20 +168,15 @@ public class EchoNestService
             }
         }
 
-        return _echoNestApi.createDynamicPlaylist(p);
+        final DynamicPlaylistSession dynamicPlaylist = _echoNestApi.createDynamicPlaylist(p);
+        _sessions.put(dynamicPlaylist.getSessionID(),dynamicPlaylist);
+        return dynamicPlaylist.next(_numSongsToRequest, 0);
+*/
+        return null;
     }
 
-    /**
-     *
-     * @param session
-     * @return
-     * @throws EchoNestException
-     */
-    public Playlist updateDynamicPlaylist(String session) throws EchoNestException
+    public Playlist updateDynamicPlaylist(final String sessionId) throws EchoNestException
     {
-
-
-        return _echoNestApi.getNextInDynamicPlaylist(session);
+       return null; // _sessions.get(sessionId).next();
     }
-
 }

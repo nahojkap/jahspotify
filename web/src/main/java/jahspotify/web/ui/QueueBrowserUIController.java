@@ -81,7 +81,7 @@ public class QueueBrowserUIController extends BaseController
 
         if (currentlyPlaying != null)
         {
-            modelAndView.addObject("currentTrack", new QueuedTrack(currentlyPlaying.getId(), currentlyPlaying.getTrackUri().getId()));
+            modelAndView.addObject("currentTrack", new QueuedTrack(currentlyPlaying.getQueueEntry().getId(), currentlyPlaying.getTrackUri().getId()));
         }
 
         modelAndView.addObject("queuedTracks", convertToWebQueuedTrack(currentQueue.getQueuedTracks()));
@@ -96,7 +96,7 @@ public class QueueBrowserUIController extends BaseController
         List<QueuedTrack> webQueuedTracks = new ArrayList<QueuedTrack>();
         for (QueueTrack queuedTrack : queuedTracks)
         {
-            webQueuedTracks.add(new QueuedTrack(queuedTrack.getId(), queuedTrack.getTrackUri().getId()));
+            webQueuedTracks.add(new QueuedTrack(queuedTrack.getQueueEntry().getId(), queuedTrack.getTrackUri().getId()));
         }
         return webQueuedTracks;
     }

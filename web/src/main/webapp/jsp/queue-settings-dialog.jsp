@@ -22,10 +22,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div date-role="page" id="searchSettings">
+<div date-role="page" id="queueSettings">
 
 <!-- /header -->
-<div class="mainHeaderPanel" data-theme="o" data-position="inline" data-role="header" role="banner">
+<div class="mainHeaderPanel" data-theme="b" data-position="inline" data-role="header" role="banner">
     <h1><c:out value="${pageTitle}"/></h1>
 </div>
 
@@ -48,8 +48,8 @@
 
 </script>
 
-<div data-role="content" data-inset="true" class="ui-body ui-body-a">
-    <div data-theme="a" data-inset="true" class="ui-body ui-body-a">
+<div data-role="content" data-inset="true" class="ui-body ui-body-b">
+    <div data-theme="b" data-inset="true" class="ui-body ui-body-b">
 
         <form action="#" method="get">
 
@@ -80,7 +80,7 @@
         </form>
     </div>
 
-    <div class="content-primary" data-theme="a" data-inset="true" class="ui-body ui-body-a">
+    <div class="content-primary" data-theme="b" data-inset="true" class="ui-body ui-body-b">
 
 
         <div data-role="fieldcontain">
