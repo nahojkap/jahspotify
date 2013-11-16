@@ -4,6 +4,9 @@
 #include <libspotify/api.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef __APPLE__
+#include <pthread.h>
+#endif
 
 #include "Callbacks.h"
 #include "JahSpotify.h"
