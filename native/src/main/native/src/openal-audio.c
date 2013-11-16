@@ -166,7 +166,7 @@ static void* audio_start(void *aux)
             if (error != AL_NO_ERROR)
             {
                 log_error("openal","audio_start","Error buffering: %s", alGetString(error));
-                return;
+                return NULL;
             }
 
             alSourceQueueBuffers(source, 1, &buffer);
@@ -175,7 +175,7 @@ static void* audio_start(void *aux)
             if (alGetError() != AL_NO_ERROR)
             {
                 log_error("openal","audio_start","Error queing buffering: %s", alGetString(error));
-                return;
+                return NULL;
             }
 
 
