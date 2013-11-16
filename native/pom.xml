@@ -45,7 +45,7 @@
                 <compilerparams>${additional.includes}</compilerparams>
                 <artifact>libjahspotify</artifact>
                 <packaging>so</packaging>
-                <additional.includes>-I/System/Library/Frameworks/JavaVM.framework/Headers -I${java.home}/../include -I${java.home}../include/darwin</additional.includes>
+                <additional.includes>-I/System/Library/Frameworks/JavaVM.framework/Headers -I${java.home}/../include -I${java.home}../include/darwin -I/System/Library/Frameworks/OpenAL.framework/Headers</additional.includes>
             </properties>
         </profile>
 

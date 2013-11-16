@@ -25,8 +25,13 @@
  * This file is part of the libspotify examples suite.
  */
 
+#ifndef __APPLE__
 #include <AL/al.h>
 #include <AL/alc.h>
+#else
+#include <al.h>
+#include <alc.h>
+#endif
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
