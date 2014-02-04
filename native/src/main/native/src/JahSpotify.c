@@ -528,14 +528,31 @@ static void SP_CALLCONV message_to_user(sp_session *session, const char *data)
     log_debug("jahspotify", "message_to_user", "Message to user: ", data);
 }
 
+void get_audio_buffer_stats(sp_session *session, sp_audio_buffer_stats *stats)
+{
+}
+
 /**
  * The session callbacks
  */
 static sp_session_callbacks session_callbacks =
-        { .message_to_user = &message_to_user, .logged_in = &logged_in, .logged_out = &logged_out, .notify_main_thread = &notify_main_thread,
-                .music_delivery = &music_delivery, .metadata_updated = &metadata_updated, .play_token_lost = &play_token_lost, .log_message =
-                        &log_message, .end_of_track = &end_of_track, .userinfo_updated = &userinfo_updated, .connection_error = &connection_error,
-                .streaming_error = &streaming_error, .start_playback = &start_playback, .stop_playback = &stop_playback };
+{
+		.message_to_user = &message_to_user,
+		.logged_in = &logged_in,
+		.logged_out = &logged_out,
+		.notify_main_thread = &notify_main_thread,
+		.music_delivery = &music_delivery,
+		.metadata_updated = &metadata_updated,
+		.play_token_lost = &play_token_lost,
+		.log_message = &log_message,
+		.end_of_track = &end_of_track,
+		.userinfo_updated = &userinfo_updated,
+		.connection_error = &connection_error,
+		.streaming_error = &streaming_error,
+		.start_playback = &start_playback,
+		.stop_playback = &stop_playback,
+		.get_audio_buffer_stats = &get_audio_buffer_stats
+};
 
 static sp_session_config spconfig = { .api_version = SPOTIFY_API_VERSION,
 #ifdef _WIN32
@@ -1022,7 +1039,7 @@ void populateJAlbumInstanceFromAlbumBrowse(JNIEnv *env, sp_album *album, sp_albu
         {
             sp_track *track = sp_albumbrowse_track(albumBrowse, i);
 
-            if (track)
+            if (track && sp_track_get_availability(g_sess, track) == SP_TRACK_AVAILABILITY_AVAILABLE)
             {
                 sp_link *trackLink = sp_link_create_from_track(track, 0);
                 if (trackLink)
@@ -1414,7 +1431,7 @@ jobject createJPlaylist(JNIEnv *env, sp_playlist *playlist)
     for (trackCounter = 0; trackCounter < numTracks; trackCounter++)
     {
         sp_track *track = sp_playlist_track(playlist, trackCounter);
-        if (track && sp_track_get_availability(g_sess, track) <= SP_TRACK_AVAILABILITY_AVAILABLE)
+        if (track && sp_track_get_availability(g_sess, track) == SP_TRACK_AVAILABILITY_AVAILABLE)
         {
             sp_link *trackLink = sp_link_create_from_track(track, 0);
             if (trackLink)
@@ -1830,7 +1847,11 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePause(JNIEnv *e
     log_debug("jahspotify", "nativeResume", "Pausing playback");
     if (g_currenttrack)
     {
-        sp_session_player_play(g_sess, 0);
+    	sp_error result = sp_session_player_play(g_sess, 0);
+        if (result != SP_ERROR_OK)
+        {
+            log_error("jahspotify", "nativePause", "Error while pausing: %d", result);
+        }
     }
     return 0;
 }
@@ -1840,7 +1861,11 @@ JNIEXPORT jint JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativeResume(JNIEnv *
     log_debug("jahspotify", "nativeResume", "Resuming playback");
     if (g_currenttrack)
     {
-        sp_session_player_play(g_sess, 1);
+    	sp_error result = sp_session_player_play(g_sess, 1);
+        if (result != SP_ERROR_OK)
+		{
+            log_error("jahspotify", "nativeResume", "Error while resuming: %d", result);
+		}
     }
     return 0;
 }
@@ -2014,7 +2039,11 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack(J
             audio_fifo_flush(&g_audiofifo);
 
             // Unload the current track now
-            sp_session_player_unload(g_sess);
+            sp_error result = sp_session_player_unload(g_sess);
+            if (result != SP_ERROR_OK)
+            {
+                log_warn("jahspotify", "nativePlayTrack", "Error while unloading player: %d", result);
+            }
 
             sp_link *currentTrackLink = sp_link_create_from_track(g_currenttrack, 0);
             char *currentTrackLinkStr = NULL;
@@ -2043,7 +2072,17 @@ JNIEXPORT jboolean JNICALL Java_jahspotify_impl_JahSpotifyImpl_nativePlayTrack(J
         // Update the global reference
         g_currenttrack = t;
 
+        if (sp_track_error(t) != SP_ERROR_OK)
+        {
+            log_debug("jahspotify", "nativePlayTrack", "Some issue with track: %d", sp_track_error(t));
+        }
+
         sp_error result = sp_session_player_load(g_sess, g_currenttrack);
+        if (result != SP_ERROR_OK)
+        {
+            log_debug("jahspotify", "nativePlayTrack", "Error for player to load: %d", result);
+            goto fail;
+        }
 
         // Start playing the next track
         result = sp_session_player_play(g_sess, 1);
