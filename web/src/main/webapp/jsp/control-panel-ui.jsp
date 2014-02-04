@@ -189,10 +189,18 @@
     {
       // Queue the given media
 
-      $.mobile.showPageLoadingMsg();
+      //$.mobile.showPageLoadingMsg();
+
+        $.mobile.loading( 'show', {
+        	text: 'foo',
+        	textVisible: true,
+        	theme: 'z',
+        	html: ""
+        });
+
 
       mediaURL = "/jahspotify/queue/jahspotify:queue:default/add/" + id;
-      var jqxhr = $.getJSON( mediaURL ).done( function ( data )
+      $.getJSON( mediaURL ).done( function ( data )
                                               {
                                                 if ( data.responseStatus == 'OK' )
                                                 {
@@ -205,7 +213,10 @@
                                                   // Error - set message!
                                                   $("#mediaQueuedResultMessage").html("Error while enqueueing media!");
                                                 }
-                                                $.mobile.hidePageLoadingMsg();
+                                                // $.mobile.hidePageLoadingMsg();
+
+                                                  $.mobile.loading( 'hide' );
+
                                                 $( "#mediaQueuedResult" ).popup( "open" );
                                               } );
     }
