@@ -55,9 +55,14 @@ s<%--
 
                                 <c:if test="${not empty disc.tracks}">
 
+                                <ul data-role="listview" data-theme="b" data-inset="true" data-split-icon="gear"
+                                    data-split-theme="b" data-count-theme="b">
+
+<%--
                                     <ul data-role="listview" data-theme="b" data-inset="true"
                                         data-split-icon="plus"
                                         data-split-theme="a" data-count-theme="b">
+--%>
 
                                         <c:forEach items="${disc.tracks}" var="link">
 
@@ -87,11 +92,6 @@ s<%--
                                                 <c:set var="mediaId" value="${track.id.id}" scope="request"/>
                                                 <jsp:include page="queue-media-link.jsp"/>
 
-                                                    <%--
-                                                                            <c:url var="queueTrackURL" value="/ui/queue/add/${track.id.id}"/>
-                                                                            <a href="<c:out value="${queueTrackURL}"/>" data-rel="dialog"
-                                                                               data-transition="fade">Enqueue</a>
-                                                    --%>
                                             </li>
 
 

@@ -61,8 +61,8 @@
           <c:if test="${not empty artist.albums}">
 
 
-            <ul data-role="listview" data-theme="b" data-inset="true"
-                data-split-icon="plus" data-split-theme="a" data-count-theme="b">
+              <ul data-role="listview" data-theme="b" data-inset="true" data-filter="true" data-split-icon="gear"
+                  data-split-theme="b" data-count-theme="b">
 
               <li data-role="list-divider" data-theme="b">Album(s)</li>
 

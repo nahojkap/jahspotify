@@ -94,19 +94,19 @@
                     <c:choose>
                         <c:when test="${track.starred}">
                             <c:set var="onclick" value="starTrack(this,'${fullTrack.id.id}',false,skipSuccess,skipFailed);"/>
-                            <a href="#" onclick="<c:out value='${onclick}'/>" data-role="button" data-icon="spotify-unstar">Unstar</a>
+                            <a href="#" onclick="<c:out value='${onclick}'/>" class="ui-btn ui-icon-star ui-btn-icon-notext" title="Unstar">Unstar</a>
                         </c:when>
                         <c:otherwise>
                             <c:set var="onclick" value="starTrack(this,'${fullTrack.id.id}',true,null,null);"/>
-                            <a href="#" onclick="<c:out value='${onclick}'/>" data-role="button" data-icon="spotify-star">Star</a>
+                            <a href="#" onclick="<c:out value='${onclick}'/>" class="ui-btn ui-icon-star ui-btn-icon-notext" title="Star">Star</a>
 
                         </c:otherwise>
                     </c:choose>
 
                     <c:url var="queueTrackURL" value="/ui/queue/add/${fullTrack.id.id}"/>
-                    <a data-rel="dialog" data-role="button" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" data-icon="spotify-enqueue">Enqueue</a>
+                    <a data-rel="dialog" class="ui-btn ui-icon-plus ui-btn-icon-notext" data-transition="fade" href="<c:out value='${queueTrackURL}'/>" title="Enqueue">Enqueue</a>
 
-                    <a data-rel="popup" href="#trackPanel" data-icon="spotify-more" data-role="button" id="morePanelButton">More</a>
+                    <a data-rel="popup" class="ui-btn ui-icon-bullets ui-btn-icon-notext" id="morePanelButton" href="#trackPanel" title="More">More</a>
 
                 </div>
 

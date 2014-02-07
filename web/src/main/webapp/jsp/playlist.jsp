@@ -49,6 +49,9 @@
                             </div>
                         </a>
 
+                        <c:url var="queueTrackURL" value="/ui/queue/add/${subEntry.id}"/>
+                        <c:set var="mediaId" value="${subEntry.id}" scope="request"/>
+
                         <c:set var="mediaId" value="${track.id.id}" scope="request"/>
                         <jsp:include page="queue-media-link.jsp"/>
 

@@ -69,10 +69,10 @@ function pause( pauseSuccessFunction, pauseFailedFunction )
 
 function invokeRestfulGet( url, successFunction, failedFunction )
 {
-    $.mobile.showPageLoadingMsg();
+    // $.mobile.showPageLoadingMsg();
     $.getJSON( url ).done(function ( data )
                                                 {
-                                                    $.mobile.hidePageLoadingMsg();
+                                                    // $.mobile.hidePageLoadingMsg();
 
                                                     // Evaluate the result of the skip
                                                     if ( data.responseStatus == 'OK' )
@@ -97,7 +97,7 @@ function invokeRestfulGet( url, successFunction, failedFunction )
                                                     }
                                                 } ).fail( function ()
                                                           {
-                                                              $.mobile.hidePageLoadingMsg();
+                                                              // $.mobile.hidePageLoadingMsg();
                                                               // if not successful
                                                               if (failedFunction != null)
                                                               {

@@ -18,5 +18,6 @@
   --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<a id="actionButton-<c:out value='${mediaId}'/>" onclick="loadMedia('<c:out value="${mediaId}"/>')" href="#">Enqueue</a>
+<a id="actionButton-<c:out value='${mediaId}'/>" onclick="loadMedia('<c:out value="${mediaId}"/>')" href="#" class="ui-btn ui-icon-plus ui-btn-icon-notext">Enqueue</a>
+
 

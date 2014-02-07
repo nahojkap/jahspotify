@@ -61,8 +61,8 @@
           <c:if test="${not empty artist.similarArtists}">
 
 
-            <ul data-role="listview" data-theme="b" data-inset="true"
-                data-split-icon="plus" data-split-theme="a" data-count-theme="b">
+              <ul data-role="listview" data-theme="b" data-inset="true" data-split-icon="gear"
+                  data-split-theme="b" data-count-theme="b">
 
               <li data-role="list-divider" data-theme="b">Similar Artist(s)</li>
 
@@ -82,9 +82,6 @@
                     <c:out value="${similarArtist.name}"/>
                   </a>
 
-                    <%-- <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
-                 <a href="<c:out value="${queueAlbumURL}"/>" data-rel="dialog"
-                    data-transition="fade">Enqueue</a>--%>
                 </li>
               </c:forEach>
             </ul>
