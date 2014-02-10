@@ -21,7 +21,8 @@
 
 <script>
 
-    function refreshControlPanel() {
+    function refreshControlPanel()
+    {
         var h = $(window).height();
 
         $('#loadingQueueInformation').show();
@@ -31,20 +32,36 @@
         $('#playerSkipButton').hide();
         $('#queueRandomTrack').hide();
 
-        currentQueue(function (queue) {
+        currentQueue(function (queue)
+        {
             $('#loadingQueueInformation').hide();
 
-            if (queue.queueStatus.queueState == 'PLAYING') {
-                $('#playerPauseButton').show();
+            if (queue.queueStatus.queueState == 'PLAYING' || queue.queueStatus.queueState == 'PAUSED')
+            {
+
+                if (queue.queueStatus.queueState == 'PAUSED')
+                {
+                    $('#playerResumeButton').show();
+                    $('#playerSkipButton').show();
+                }
+                else
+                {
+                    $('#playerPauseButton').show();
+                }
                 $('#playerSkipButton').show();
 
                 $('#currentTrack').show();
-                media(queue.currentlyPlaying.trackID, function (track) {
+                media(queue.currentlyPlaying.trackID, function (track)
+                {
                     $('#currentTrackName').text(track.title);
-                    media(track.album.id, function (album) {
+                    media(track.album.id, function (album)
+                    {
 
                         $('#currentTrackImage').attr("src", "/jahspotify/media/" + album.cover.id);
                         $('#currentTrackAlbum').text(album.name);
+
+                        $("#ctrlpanel").trigger("updatelayout");
+
                     });
 
 
@@ -52,16 +69,16 @@
 
 
             }
-            else if (queue.queueStatus.queueState == 'PAUSED') {
-                $('#playerResumeButton').show();
-                $('#playerSkipButton').show();
-            }
-            else {
+            else
+            {
                 // Show the link to load random track
                 $('#queueRandomTrack').show();
-                if (queue.queueStatus.currentQueueSize == 0) {
+
+                if (queue.queueStatus.currentQueueSize == 0)
+                {
                     $('#noTracks').show();
                 }
+                $("#ctrlpanel").trigger("updatelayout");
 
             }
 
@@ -69,44 +86,51 @@
 
     }
 
-    function setEventsOnPanel() {
+    function setEventsOnPanel()
+    {
         $("#ctrlpanel").panel({
-            beforeopen: function (event, ui) {
+            beforeopen: function (event, ui)
+            {
                 refreshControlPanel();
             }
         });
     }
 
 
-    function skipSuccess() {
+    function skipSuccess()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Track skipped");
         popupShowTimer.set({ time: 100, autostart: true });
         popupCloseTimer.set({ time: 3000, autostart: true });
     }
 
-    function skipFailed() {
+    function skipFailed()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Track skip failed!");
         popupShowTimer.set({ time: 100, autostart: true });
         popupCloseTimer.stop();
     }
 
-    function resumeSuccess() {
+    function resumeSuccess()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Track resumed");
         popupShowTimer.set({ time: 100, autostart: true });
         popupCloseTimer.set({ time: 3000, autostart: true });
     }
 
-    function resumeFailed() {
+    function resumeFailed()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Resume failed!");
         popupShowTimer.set({ time: 100, autostart: true });
         popupCloseTimer.stop();
     }
 
-    function pauseSuccess() {
+    function pauseSuccess()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Track paused");
         popupShowTimer.set({ time: 100, autostart: true });
@@ -114,23 +138,27 @@
 
     }
 
-    function pauseFailed() {
+    function pauseFailed()
+    {
         $("#ctrlpanel").panel("close");
         $("#actionResultMessage").html("Pause failed!");
         popupShowTimer.set({ time: 100, autostart: true });
         popupCloseTimer.stop();
     }
 
-    var popupCloseTimer = $.timer(function () {
+    var popupCloseTimer = $.timer(function ()
+    {
         $("#actionResultPopup").popup("close");
         popupCloseTimer.stop();
     });
 
-    var popupShowTimer = $.timer(function () {
+    var popupShowTimer = $.timer(function ()
+    {
         $("#actionResultPopup").popup("open");
     });
 
-    var panelTimer = $.timer(function () {
+    var panelTimer = $.timer(function ()
+    {
         // Load the current queue status
 
         // Evaluate the current state
@@ -177,55 +205,11 @@
      */
     // TODO: Add function that will 're-load' the statuses' below
 
-    var mediaQueuedResultTimer = $.timer( function ()
-                         {
-                           // Close the popup now!
-                           $( "#mediaQueuedResult" ).popup( "close" );
-                           mediaQueuedResultTimer.reset();
-
-                         } );
-
-    function loadMedia( id )
-    {
-      // Queue the given media
-
-      //$.mobile.showPageLoadingMsg();
-
-        $.mobile.loading( 'show', {
-        	text: 'foo',
-        	textVisible: true,
-        	theme: 'z',
-        	html: ""
-        });
-
-
-      mediaURL = "/jahspotify/queue/jahspotify:queue:default/add/" + id;
-      $.getJSON( mediaURL ).done( function ( data )
-                                              {
-                                                if ( data.responseStatus == 'OK' )
-                                                {
-                                                  // Set the text accordingly $('#mediaQueuedResultMessage' );
-                                                  $("#mediaQueuedResultMessage").html("Media successfully enqueued");
-                                                  mediaQueuedResultTimer.set( { time:2000, autostart:true } );
-                                                }
-                                                else
-                                                {
-                                                  // Error - set message!
-                                                  $("#mediaQueuedResultMessage").html("Error while enqueueing media!");
-                                                }
-                                                // $.mobile.hidePageLoadingMsg();
-
-                                                  $.mobile.loading( 'hide' );
-
-                                                $( "#mediaQueuedResult" ).popup( "open" );
-                                              } );
-    }
-
 
 </script>
 
 
-<div data-role="popup" id="mediaQueuedResult" data-theme="b"  data-overlay-theme="b" class="ui-content">
+<div data-role="popup" id="mediaQueuedResult" data-theme="b" data-overlay-theme="b" class="ui-content">
 
     <a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext"
        class="ui-btn-right">Close</a>
@@ -233,101 +217,115 @@
     <p id="mediaQueuedResultMessage">No message</p>
 </div>
 
-<div data-role="panel" id="ctrlpanel" data-position="right" data-display="overlay" data-dismissible="true"
-     data-theme="b">
-    <div class="panel-content">
-        <div>
+<div data-role="panel" id="ctrlpanel" data-position="right" data-display="overlay" data-theme="b">
+
+    <ul data-role="listview" data-inset="false">
+        <li>
+            <div>
+
+                <ul data-role="listview" data-inset="true">
+                    <li id="loadingQueueInformation">
+                        <img id="loadingCurrentTrackSpinner" src="/jahspotify/css/images/ajax-loader.gif"
+                             width="100" height="100"/>
+
+                        <p>Loading Queue Information ...</p>
+                    </li>
+                </ul>
+
+                <ul data-role="listview" data-inset="true">
+                    <li id="noTracks" style="display: none;">
+                        <p>No tracks queued</p>
+                    </li>
+                </ul>
+
+                <ul data-role="listview" data-inset="true">
+                    <li id="currentTrack" style="display: none;">
+                        <img id="currentTrackImage" src="/jahspotify/css/images/ajax-loader.gif"
+                             width="100" height="100"/>
+
+                        <p id="currentTrackName"></p>
+
+                        <p id="currentTrackAlbum"></p>
+                    </li>
+                </ul>
+
+            </div>
+
+        </li>
+
+        <li>
+
+            <%--
+                        <div data-type="horizontal" data-mini="true" data-role="controlgroup"
+                             style="text-align: center">
+            --%>
+            <a id="playerPauseButton" data-icon="gear" href="#" data-role="button"
+               onclick="pause(pauseSuccess, pauseFailed);" data-mini="true">pause</a>
+            <a id="playerResumeButton" data-icon="grid" href="#" data-role="button"
+               onclick="resume(resumeSuccess, resumeFailed);"
+               data-mini="true">resume</a>
+            <a id="playerSkipButton" data-icon="help" href="#" data-role="button"
+               onclick="skip(skipSuccess,skipFailed);"
+               data-mini="true">skip</a>
+            <%--
+                            <a id="queueRandomTrack" data-icon="plus" href="#" data-role="button"
+                               onclick="queueRandom(queueRandomSuccess,queueRandomFailed);"
+                               data-mini="true">queue random track</a>
+            --%>
+            <%--
+                        </div>
+            --%>
+        </li>
+
+        <li>
+
+            <%--
+                        <div data-role="controlgroup" data-type="horizontal" class="ui-body ui-body-b">
+            --%>
 
             <ul data-role="listview" data-inset="false">
+
                 <li>
-                    <div>
-
-                        <p>Now Playing</p>
-
-                        <ul data-role="listview" data-inset="true">
-                            <li id="loadingQueueInformation">
-                                <img id="loadingCurrentTrackSpinner" src="/jahspotify/css/images/ajax-loader.gif"
-                                                                     width="100" height="100"/>
-                                <p>Loading Queue Information ...</p>
-                            </li>
-                        </ul>
-
-                        <ul data-role="listview" data-inset="true">
-                            <li id="noTracks" style="display: none;">
-                                <p>No tracks queued</p>
-                            </li>
-                        </ul>
-
-                        <ul data-role="listview" data-inset="true">
-                            <li id="currentTrack" style="display: none;">
-                                <img id="currentTrackImage" src="/jahspotify/css/images/ajax-loader.gif"
-                                     width="100" height="100"/>
-
-                                <p id="currentTrackName"></p>
-
-                                <p id="currentTrackAlbum"></p>
-                            </li>
-                        </ul>
-
-                        <ul data-role="listview" data-inset="true">
-                            <li id="nextTrack" style="display: none;">
-                                <p></p>
-
-                                <p></p>
-                            </li>
-                        </ul>
-
-
-                        <ul data-role="listview" data-inset="true">
-                            <li id="playerControl" style="padding: 0;">
-
-                                <div data-type="horizontal" data-mini="true" data-role="controlgroup"
-                                     style="text-align: center">
-                                    <a id="playerPauseButton" data-icon="gear" href="#" data-role="button"
-                                       onclick="pause(pauseSuccess, pauseFailed);" data-mini="true">pause</a>
-                                    <a id="playerResumeButton" data-icon="grid" href="#" data-role="button"
-                                       onclick="resume(resumeSuccess, resumeFailed);"
-                                       data-mini="true">resume</a>
-                                    <a id="playerSkipButton" data-icon="help" href="#" data-role="button"
-                                       onclick="skip(skipSuccess,skipFailed);"
-                                       data-mini="true">skip</a>
-                                    <a id="queueRandomTrack" data-icon="plus" href="#" data-role="button"
-                                       onclick="queueRandom(queueRandomSuccess,queueRandomFailed);"
-                                       data-mini="true">queue random track</a>
-                                </div>
-                            </li>
-                        </ul>
-
-                    </div>
+                    <a id="currentQueueButton" data-icon="grid" data-mini="true" data-role="button"
+                       onclick="gotoLink('/jahspotify/ui/queue/current')">current
+                        queue
+                    </a>
+                    <a id="searchButton" data-icon="search" data-mini="true" data-role="button"
+                       onclick="gotoLink('/jahspotify/ui/search')">search
+                    </a>
+                    <a id="homeButton" data-icon="home" data-mini="true" data-role="button"
+                       onclick="gotoLink('/jahspotify/index.jsp')">home
+                    </a>
                 </li>
-
             </ul>
+            <%--
+                            </div>
+            --%>
+        </li>
+    </ul>
 
-        </div>
-
-
-        <ul data-role="listview" data-inset="false">
-
-            <li>
-
-                <button id="currentQueueButton" data-icon="grid" data-mini="true"
-                        onclick="gotoLink('/jahspotify/ui/queue/current')">current
-                    queue
-                </button>
-                <button id="searchButton" data-icon="search" data-mini="true"
-                        onclick="gotoLink('/jahspotify/ui/search')">search
-                </button>
-                <button id="homeButton" data-icon="home" data-mini="true"
-                        onclick="gotoLink('/jahspotify/index.jsp')">home
-                </button>
-            </li>
-        </ul>
-
-
-    </div>
 </div>
 
 
 <script>
     setEventsOnPanel();
+    $('#mediaQueuedResult').popup();
+</script>
+
+
+<script>
+    $(document).on("pagecreate", function ()
+    {
+        $("body > [data-role='panel']").panel();
+        $("body > [data-role='button']").button();
+        $("body > [data-role='panel'] [data-role='listview']").listview();
+        $("body > [data-role='panel'] [data-role='controlgroup']").controlgroup();
+    });
+    $(document).on("pageshow", function ()
+    {
+        $("body > [data-role='header']").toolbar();
+        $("body > [data-role='button']").button();
+        $("body > [data-role='header'] [data-role='navbar']").navbar();
+        $("body > [data-role='panel'] [data-role='controlgroup']").controlgroup();
+    });
 </script>

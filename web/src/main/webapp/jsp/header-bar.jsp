@@ -24,5 +24,3 @@
     <a href="#ctrlpanel" data-theme="b" data-icon="gear" data-role="button" class="ui-btn-right" id="controlPanelButton" data-iconpos="notext">Control Panel</a>
 </div>
 
-<jsp:include page="/jsp/control-panel-ui.jsp"/>
-

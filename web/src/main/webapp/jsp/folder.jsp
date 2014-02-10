@@ -19,10 +19,6 @@
 
 <%@ include file="/jsp/header.jsp" %>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
-
 <div data-role="page" id="folder" data-theme="b">
 
     <jsp:include page="/jsp/header-bar.jsp"/>

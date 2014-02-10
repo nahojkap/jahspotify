@@ -17,8 +17,10 @@
   ~        under the License.
   --%>
 <%@ page session="false" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="jah" uri="http://jahtify.com/jsp/jstl/tags" %>
 
 <c:url var="homeURL" value="/index.jsp" scope="request"/>
 
@@ -68,7 +70,37 @@
         });
     </script>
 
+    <script id="panel-init">
+        $(function ()
+        {
+            $("body>[data-role='panel']").panel();
+        });
+    </script>
+
+    <script>
+        $(document).on("pagecreate", function ()
+        {
+            $("body > [data-role='panel']").panel();
+            $("body > [data-role='panel'] [data-role='listview']").listview();
+            $("body > [data-role='panel'] [data-role='button']").button();
+            $("body > [data-role='panel'] [data-role='controlgroup']").controlgroup();
+            $("body > [data-role='controlgroup']").controlgroup();
+
+        });
+        $(document).on("pageshow", function ()
+        {
+            $("body > [data-role='header']").toolbar();
+            $("body > [data-role='header'] [data-role='navbar']").navbar();
+            $("body > [data-role='panel'] [data-role='button']").button();
+            $("body > [data-role='panel'] [data-role='controlgroup']").controlgroup();
+        });
+    </script>
+
 </head>
 
 
 <body>
+
+<%--
+<jsp:include page="/jsp/control-panel-ui.jsp"/>
+--%>

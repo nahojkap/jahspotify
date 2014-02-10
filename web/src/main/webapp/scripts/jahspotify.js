@@ -17,6 +17,47 @@
  *        under the License.
  */
 
+var mediaQueuedResultTimer = $.timer(function ()
+{
+    // Close the popup now!
+    $("#mediaQueuedResult").popup("close");
+    mediaQueuedResultTimer.reset();
+
+});
+
+function loadMedia(id)
+{
+    $.mobile.loading("show", {
+            text: "Queuing ...",
+            textVisible: true,
+            theme: 'a',
+            textonly: false,
+            html: ""
+        });
+
+    mediaURL = "/jahspotify/queue/jahspotify:queue:default/add/" + id;
+    $.getJSON(mediaURL).done(function (data)
+    {
+        if (data.responseStatus == 'OK')
+        {
+            // Set the text accordingly $('#mediaQueuedResultMessage' );
+            $("#mediaQueuedResultMessage").html("Media successfully enqueued");
+            mediaQueuedResultTimer.set({ time: 2000, autostart: true });
+        }
+        else
+        {
+            // Error - set message!
+            $("#mediaQueuedResultMessage").html("Error while enqueueing media!");
+        }
+        // $.mobile.hidePageLoadingMsg();
+
+        $.mobile.loading('hide');
+
+        $("#mediaQueuedResult").popup("open");
+    });
+}
+
+
 function currentMediaPlayerStatus(callback)
 {
     $.getJSON("/jahspotify/player/status",function (data)
@@ -53,26 +94,33 @@ function currentQueueStatus(callback)
 
 function starTrack( link, trackID, starredState, starSuccessFunction, starFailedFunction )
 {
-    invokeRestfulGet("/jahspotify/track/" + trackID + "/star?value="+starredState, null, null);
+    invokeRestfulGet("/jahspotify/track/" + trackID + "/star?value="+starredState, "Updating", starSuccessFunction, starFailedFunction);
 }
 
 
 function skip( skipSuccessFunction, skipFailedFunction )
 {
-    invokeRestfulGet("/jahspotify/player/skip", skipSuccessFunction, skipFailedFunction);
+    invokeRestfulGet("/jahspotify/player/skip", "Skipping", skipSuccessFunction, skipFailedFunction);
 }
 
 function pause( pauseSuccessFunction, pauseFailedFunction )
 {
-    invokeRestfulGet("/jahspotify/player/pause", pauseSuccessFunction, pauseFailedFunction);
+    invokeRestfulGet("/jahspotify/player/pause", "Pausing", pauseSuccessFunction, pauseFailedFunction);
 }
 
-function invokeRestfulGet( url, successFunction, failedFunction )
+function invokeRestfulGet( url, text, successFunction, failedFunction )
 {
-    // $.mobile.showPageLoadingMsg();
+    $.mobile.loading("show", {
+        text: text,
+        textVisible: true,
+        theme: 'a',
+        textonly: false,
+        html: ""
+    });
+
     $.getJSON( url ).done(function ( data )
                                                 {
-                                                    // $.mobile.hidePageLoadingMsg();
+                                                    $.mobile.loading('hide');
 
                                                     // Evaluate the result of the skip
                                                     if ( data.responseStatus == 'OK' )
@@ -97,7 +145,8 @@ function invokeRestfulGet( url, successFunction, failedFunction )
                                                     }
                                                 } ).fail( function ()
                                                           {
-                                                              // $.mobile.hidePageLoadingMsg();
+                                                              $.mobile.loading('hide');
+
                                                               // if not successful
                                                               if (failedFunction != null)
                                                               {

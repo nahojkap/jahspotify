@@ -76,9 +76,9 @@
                     <c:out value="${album.name}"/>
                   </a>
 
-                  <c:url var="queueAlbumURL" value="/ui/queue/add/${albumLink.id}"/>
-                  <a href="<c:out value="${queueAlbumURL}"/>" data-rel="dialog"
-                     data-transition="fade">Enqueue</a>
+                    <c:set var="mediaId" value="${albumLink.id}" scope="request"/>
+                    <jsp:include page="queue-media-link.jsp"/>
+
                 </li>
               </c:forEach>
             </ul>

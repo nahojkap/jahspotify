@@ -86,12 +86,6 @@
                       <p style="font-weight: bold; font-size: 65%">
                         <c:out value="${album.name}"/></p>
 
-                       <%-- <p style="font-weight: bold; font-size: 50%"><c:forEach
-                                items="${track.artistNames}" var="artistName">
-                            <c:url var="artistURL" value="/ui/media/${track.id.id}"/>
-                            <c:out value="${artistName}"/>
-                        </c:forEach>
-                        </p>        --%>
                     </div>
                   </a>
 
