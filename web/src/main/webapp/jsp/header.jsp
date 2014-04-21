@@ -101,6 +101,4 @@
 
 <body>
 
-<%--
 <jsp:include page="/jsp/control-panel-ui.jsp"/>
---%>
