@@ -87,7 +87,7 @@
     
     <!-- Change versions if necessary -->
     <properties>
-        <jetty.version>6.1.14</jetty.version>
+        <jetty.version>6.1.23</jetty.version>
         <derby.version>10.4.2.0</derby.version>
     </properties>
 
